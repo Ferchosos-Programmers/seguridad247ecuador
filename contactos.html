@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Seguridad 247 Ecuador</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/index.css" />
+    <link rel="stylesheet" href="css/contactanos.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+    />
+    <link rel="icon" href="assets/img/logo.png" type="image/png" />
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/sweetalert2.js"></script>
+    <script src="js/whatsaap.js"></script>
+  </head>
+
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+      <div class="container">
+        <a class="navbar-brand" href="#">SEGURIDAD 247 ECUADOR</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Inicio</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="servicios.html">Servicios</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="nosotros.html">Nosotros</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="contactos.html">Contacto</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link control-center-box" href="control_center.html">
+                <i class="fa-solid fa-users"></i> 247 Control Center
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- SECCIÓN CONTACTO -->
+    <section class="contact-section">
+      <div class="container text-center">
+        <h2>Contáctanos</h2>
+        <p>
+          Estamos listos para ayudarte. Completa el formulario o visita nuestras
+          oficinas.
+        </p>
+        <div class="row mt-5 justify-content-center">
+          <!-- FORMULARIO -->
+          <div class="col-lg-6 mb-4">
+            <form class="contact-form" id="contactForm">
+              <input
+                type="text"
+                id="nombre"
+                placeholder="Nombre Completo"
+                required
+              />
+              <input
+                type="email"
+                id="email"
+                placeholder="Correo Electrónico"
+                required
+              />
+              <input
+                type="text"
+                id="telefono"
+                placeholder="Teléfono"
+                required
+              />
+              <textarea
+                id="mensaje"
+                rows="5"
+                placeholder="Mensaje"
+                required
+              ></textarea>
+              <button type="submit">
+                <i class="fa-solid fa-paper-plane"></i> Enviar Mensaje
+              </button>
+            </form>
+          </div>
+          <!-- INFORMACIÓN -->
+          <div class="col-lg-4 mb-4">
+            <div class="contact-info text-start">
+              <h5><i class="fa-solid fa-map-marker-alt"></i> Dirección</h5>
+              <p>Calle Pedro Cando, Autopista Gral. Rumiñahui N59-116, Quito</p>
+              <h5><i class="fa-solid fa-phone"></i> Teléfono</h5>
+              <p>+593 984 107 006</p>
+              <h5><i class="fa-solid fa-envelope"></i> Email</h5>
+              <p>guardiasvirtuales247@gmail.com</p>
+              <h5><i class="fa-solid fa-clock"></i> Horario de Atención</h5>
+              <p>Lunes a Viernes: 8:00 AM - 18:00 PM</p>
+              <p>Sábados: 9:00 AM - 16:00 PM</p>
+              <p>Domingos: Cerrado</p>
+            </div>
+          </div>
+        </div>
+        <!-- MAPA -->
+        <div class="row justify-content-center mt-4">
+          <div class="col-lg-10">
+            <div class="map-responsive">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2372.354226620859!2d-78.48504961119072!3d-0.12822027077483264!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x91d585677cc9364b%3A0x50d454f01e0e49!2sSeguridad%2024%2F7!5e0!3m2!1ses-419!2sec!4v1764967517996!5m2!1ses-419!2sec"
+                width="600"
+                height="450"
+                style="border: 0"
+                allowfullscreen=""
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+              ></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      © 2025 Seguridad 247 Ecuador — Todos los derechos reservados
+    </footer>
+  </body>
+</html>

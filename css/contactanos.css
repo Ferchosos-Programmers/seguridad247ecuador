@@ -1,0 +1,113 @@
+.contact-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: 1;
+}
+
+.contact-section .container {
+    position: relative;
+    z-index: 2;
+    margin-top: 100px;
+}
+
+.contact-section h2 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #d4af37;
+    margin-bottom: 10px;
+}
+
+.contact-section p {
+    font-size: 1.1rem;
+    color: #ddd;
+}
+
+/* FORMULARIO */
+.contact-form {
+    background: #111;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.contact-form input,
+.contact-form textarea {
+    background: #222;
+    border: none;
+    color: #fff;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 15px;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+    outline: none;
+    box-shadow: 0 0 10px #d4af37;
+    border: 1px solid #d4af37;
+}
+
+.contact-form button {
+    background: #d4af37;
+    color: #111;
+    font-weight: bold;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.contact-form button:hover {
+    background: #fff;
+    color: #111;
+}
+
+/* INFO DE CONTACTO */
+.contact-info {
+    background: #111;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.contact-info h5 {
+    color: #d4af37;
+    margin-bottom: 15px;
+}
+
+.contact-info p {
+    color: #ddd;
+    margin-bottom: 10px;
+}
+
+.contact-info i {
+    color: #d4af37;
+    margin-right: 10px;
+}
+
+/* MAPA */
+.map-responsive {
+    overflow: hidden;
+    padding-bottom: 56.25%;
+    position: relative;
+    height: 0;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.map-responsive iframe {
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    border: 0;
+    border-radius: 15px;
+}

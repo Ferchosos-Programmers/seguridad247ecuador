@@ -1,0 +1,161 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+
+}
+
+body {
+  background-color: #000;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding-top: 80px;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* Centra verticalmente */
+}
+
+h1 {
+  color: #d4af37;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.card-dashboard {
+  background: #111;
+  border-radius: 15px;
+  transition: all 0.3s ease;
+  text-align: center;
+  padding: 30px 20px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+.card-dashboard i {
+  font-size: 3rem;
+  color: #d4af37;
+  margin-bottom: 15px;
+  transition: transform 0.3s ease;
+}
+
+.card-dashboard h5 {
+  font-weight: bold;
+  color: #fff;
+  margin: 0;
+}
+
+.card-dashboard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 35px rgba(212, 175, 55, 0.6);
+  background: #1a1a1a;
+}
+
+.dashboard-row {
+  margin-bottom: 30px;
+}
+
+
+/* Estilo del modal */
+.modal-content {
+  background: linear-gradient(145deg, #111, #1a1a1a);
+  color: #fff;
+  border-radius: 20px;
+  border: 2px solid #d4af37;
+  box-shadow: 0 10px 40px rgba(212, 175, 55, 0.4);
+  overflow: hidden;
+  padding: 0;
+  transition: transform 0.3s ease;
+}
+
+.modal-content:hover {
+  transform: translateY(-2px);
+}
+
+.modal-header {
+  border-bottom: 1px solid #d4af37;
+  justify-content: center;
+}
+
+.modal-header h5 {
+  color: #d4af37;
+  font-weight: bold;
+  text-align: center;
+  width: 100%;
+}
+
+.btn-close {
+  filter: invert(1);
+}
+
+.modal-body {
+  padding: 2rem;
+}
+
+.form-label {
+  color: #d4af37;
+  font-weight: 500;
+}
+
+.form-control {
+  background: #222;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 10px;
+  transition: 0.3s;
+}
+
+.form-control:focus {
+  border-color: #d4af37;
+  box-shadow: 0 0 8px #d4af37;
+  background: #222;
+  color: #fff;
+}
+
+.btn-login {
+  background: #d4af37;
+  color: #111;
+  font-weight: bold;
+  border-radius: 10px;
+  padding: 10px;
+  margin-top: 10px;
+  transition: all 0.3s;
+}
+
+.btn-login:hover {
+  background: #fff;
+  color: #111;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(212, 175, 55, 0.5);
+}
+
+/* Centramos y animamos el modal */
+.modal-dialog {
+  max-width: 400px;
+  margin: 1.75rem auto;
+}
+
+.modal.fade .modal-dialog {
+  transform: translateY(-50px);
+  transition: transform 0.3s ease-out;
+}
+
+.modal.show .modal-dialog {
+  transform: translateY(0);
+}
+
+footer {
+  background: #111;
+  color: #ddd;
+  text-align: center;
+  padding: 15px 0;
+}

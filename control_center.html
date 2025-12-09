@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>247 Control Center - Seguridad 247 Ecuador</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/index.css" />
+    <link rel="stylesheet" href="css/control_center.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+    />
+    <link rel="icon" href="assets/img/logo.png" type="image/png" />
+    <script src="js/bootstrap.min.js"></script>
+  </head>
+
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+      <div class="container">
+        <a class="navbar-brand" href="#">SEGURIDAD 247 ECUADOR</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Inicio</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="servicios.html">Servicios</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="nosotros.html">Nosotros</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="contactos.html">Contacto</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link control-center-box" href="control_center.html">
+                <i class="fa-solid fa-users"></i> 247 Control Center
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- DASHBOARD -->
+    <main class="container">
+      <h1>247 Control Center</h1>
+      <div class="row dashboard-row g-4">
+        <div class="col-md-12">
+          <div class="card-dashboard" onclick="location.href='tutoriales.html'">
+            <i class="fa-solid fa-video"></i>
+            <h5>Tutoriales</h5>
+          </div>
+        </div>
+        <!-- Gestión Técnica con modal -->
+        <div class="col-md-12">
+          <div
+            class="card-dashboard"
+            data-bs-toggle="modal"
+            data-bs-target="#loginModal"
+          >
+            <i class="fa-solid fa-tools"></i>
+            <h5>Gestión Técnica</h5>
+          </div>
+        </div>
+      </div>
+      <div class="row dashboard-row g-4">
+        <!-- Gestión Admin con modal -->
+        <div class="col-md-12">
+          <div
+            class="card-dashboard"
+            data-bs-toggle="modal"
+            data-bs-target="#loginModalAdmin"
+          >
+            <i class="fa-solid fa-user-shield"></i>
+            <h5>Administración</h5>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      © 2025 Seguridad 247 Ecuador — Todos los derechos reservados
+    </footer>
+
+    <!-- SCRIPTS -->
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+    <!-- Scripts personalizados -->
+    <script src="js/firebase.js"></script>
+    <script src="js/login_tecnico.js"></script>
+    <script src="js/login_admin.js"></script>
+    <script src="js/sweetalert2.js"></script>
+
+    <!-- MODAL LOGIN TECNICO -->
+    <div
+      class="modal fade"
+      id="loginModal"
+      tabindex="-1"
+      aria-labelledby="loginModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="loginModalLabel">
+              <i class="fa-solid fa-user"></i> Login Técnico
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Cerrar"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="techLoginForm">
+              <div class="mb-3">
+                <label for="techUser" class="form-label">Usuario</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="techUser"
+                  placeholder="Ingresa tu usuario"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="techPassword" class="form-label">Contraseña</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="techPassword"
+                  placeholder="Ingresa tu contraseña"
+                />
+              </div>
+              <button type="submit" class="btn btn-login w-100">
+                Ingresar
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL LOGIN ADMIN -->
+    <div
+      class="modal fade"
+      id="loginModalAdmin"
+      tabindex="-1"
+      aria-labelledby="loginModalAdminLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="loginModalAdminLabel">
+              <i class="fa-solid fa-user-shield"></i> Login Administrador
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Cerrar"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="adminLoginForm">
+              <div class="mb-3">
+                <label for="adminUser" class="form-label">Usuario</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="adminUser"
+                  placeholder="Ingresa tu usuario"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="adminLoginForm" class="form-label">Contraseña</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="adminPassword"
+                  placeholder="Ingresa tu contraseña"
+                />
+              </div>
+              <button type="submit" class="btn btn-login w-100">
+                Ingresar
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

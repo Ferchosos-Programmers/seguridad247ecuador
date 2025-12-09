@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Seguridad 247 Ecuador</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/index.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+    />
+    <link rel="icon" href="assets/img/logo.png" type="image/png" />
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/sweetalert2.js"></script>
+  </head>
+
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+      <div class="container">
+        <a class="navbar-brand" href="#">SEGURIDAD 247 ECUADOR</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Inicio</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="servicios.html">Servicios</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="nosotros.html">Nosotros</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="contactos.html">Contacto</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link control-center-box" href="control_center.html">
+                <i class="fa-solid fa-users"></i> 247 Control Center
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero" id="inicio">
+      <div class="hero-content">
+        <h1>Protegemos lo que más importa</h1>
+        <p>
+          Seguridad 247 del Ecuador — Especialistas en seguridad física y
+          electrónica, con tecnología avanzada y personal altamente capacitado.
+        </p>
+        <a href="nosotros.html" class="btn btn-gold mt-4">Conocer más</a>
+      </div>
+    </section>
+
+    <!-- SECCIÓN DOTACIÓN -->
+    <section class="dotacion-section" id="dotacion">
+      <div class="overlay"></div>
+      <div class="container text-center">
+        <h2 class="section-title">DOTACIÓN TÁCTICA DE ALTO NIVEL</h2>
+        <p class="section-subtitle">
+          Equipo técnico, móvil y humano, preparados para atender tus
+          requerimientos.
+        </p>
+
+        <div class="row justify-content-center mt-5">
+          <!-- Tarjeta 1 -->
+          <div class="col-md-4 mb-4">
+            <div class="dot-card">
+              <img src="assets/img/movil.jpg" alt="Dotación 1" />
+              <span class="dot-text">Unidad Móvil de Respuesta Inmediata</span>
+            </div>
+          </div>
+
+          <!-- Tarjeta 2 -->
+          <div class="col-md-4 mb-4">
+            <div class="dot-card">
+              <img src="assets/img/fisica.jpg" alt="Dotación 2" />
+              <span class="dot-text">Personal Altamente Capacitado</span>
+            </div>
+          </div>
+
+          <!-- Tarjeta 3 -->
+          <div class="col-md-4 mb-4">
+            <div class="dot-card">
+              <img src="assets/img/camaras.jpg" alt="Dotación 3" />
+              <span class="dot-text">La Mejor Tecnología del Mercado </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BOTÓN FLOTANTE -->
+    <div id="chatbotBtn"><i class="fa-solid fa-comment"></i></div>
+
+    <!-- CHAT -->
+    <div id="chatWindow">
+      <div id="chatHeader">Fernando — Chatbot</div>
+
+      <div id="chatBody">
+        <div class="msg bot">
+          👋 Hola, soy Fernando. ¿En qué puedo ayudarte?
+        </div>
+      </div>
+
+      <div id="chatInputBox">
+        <input type="text" id="chatInput" placeholder="Escribe un mensaje..." />
+        <button id="sendBtn">Enviar</button>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      © 2025 Seguridad 247 Ecuador — Todos los derechos reservados
+    </footer>
+
+    <script src="js/chatboot.js"></script>
+  </body>
+</html>
