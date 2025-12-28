@@ -1,277 +1,358 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gestion Admin - Seguridad 247 Ecuador</title>
 
-    <link rel="stylesheet" href="css/bootstrap.min.css" />
-    <link rel="stylesheet" href="css/gestion_admin.css" />
-    <link rel="stylesheet" href="css/index.css" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-    />
-    <link rel="icon" href="assets/img/logo.png" type="image/png" />
-    <script src="js/bootstrap.min.js"></script>
-  </head>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestion Admin - Seguridad 247 Ecuador</title>
 
-  <body>
-    <!-- NAVBAR -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-      <div class="container">
-        <a class="navbar-brand" href="#">SEGURIDAD 247 ECUADOR</a>
+  <link rel="stylesheet" href="css/bootstrap.min.css" />
+  <link rel="stylesheet" href="css/gestion_admin.css" />
+  <link rel="stylesheet" href="css/index.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
+  <link rel="icon" href="assets/img/logo.png" type="image/png" />
+  <script src="js/bootstrap.min.js"></script>
+</head>
 
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
+<body>
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="#">SEGURIDAD 247 ECUADOR</a>
 
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
-              <button class="btn btn-danger" id="logoutBtn">
-                <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
-              </button>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-
-    <!-- CONTENIDO -->
-    <main class="container mt-5 pt-5">
-      <h1 style="color: #d4af37">Gestión de Trabajos Técnicos</h1>
-
-      <!-- Botón para abrir modal de agregar -->
-      <button
-        type="button"
-        class="btn btn-gold mb-4"
-        data-bs-toggle="modal"
-        data-bs-target="#addJobModal"
-      >
-        Crear Trabajo
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
       </button>
 
-      <!-- Contenedor con los trabajos cargados -->
-      <div id="jobsContainer" class="row g-4"></div>
-    </main>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <button class="btn btn-danger" id="logoutBtn">
+              <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
 
-    <!-- ========================================= -->
-    <!--  MODAL PARA AGREGAR TRABAJO -->
-    <!-- ========================================= -->
-    <div
-      class="modal fade"
-      id="addJobModal"
-      tabindex="-1"
-      aria-labelledby="addJobModalLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Agregar Trabajo</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-            ></button>
-          </div>
+  <!-- CONTENIDO -->
+  <main class="container mt-5 pt-5">
+    <h1 style="color: #d4af37">Gestión de Trabajos Técnicos</h1>
 
-          <div class="modal-body">
-            <form id="jobForm">
-              <div class="mb-3">
-                <label class="form-label">Nombre del Cliente</label>
-                <input type="text" class="form-control" id="clientName" required />
-              </div>
+    <!-- Botón para abrir modal de agregar -->
+    <button type="button" class="btn btn-gold mb-4" data-bs-toggle="modal" data-bs-target="#addJobModal">
+      Crear Trabajo
+    </button>
 
-              <div class="mb-3">
-                <label class="form-label">Fecha de Publicación</label>
-                <input type="date" class="form-control" id="jobDate" required />
-              </div>
+    <!-- Botón para abrir modal de crear contrato -->
+    <button type="button" class="btn btn-info mb-4" data-bs-toggle="modal" data-bs-target="#createContractModal">
+      Crear Contrato
+    </button>
 
-              <div class="mb-3">
-                <label class="form-label">Estado de Urgencia</label>
-                <select class="form-select" id="jobUrgency" required>
-                  <option value="Normal">Normal</option>
-                  <option value="Urgente">Urgente</option>
-                  <option value="Crítico">Crítico</option>
-                </select>
-              </div>
+    <!-- Contenedor con los trabajos cargados -->
+    <h2 style="color: #fff; margin-top: 20px;">Trabajos Creados</h2>
+    <div id="jobsContainer" class="row g-4"></div>
 
-              <div class="mb-3">
-                <label class="form-label">Nombre de Contacto</label>
-                <input type="text" class="form-control" id="contactName" required />
-              </div>
+    <!-- Contenedor para los contratos -->
+    <h2 style="color: #fff; margin-top: 40px;">Contratos Creados</h2>
+    <div id="contractsContainer" class="row g-4"></div>
+  </main>
 
-              <div class="mb-3">
-                <label class="form-label">Número de Contacto</label>
-                <input type="text" class="form-control" id="contactPhone" required />
-              </div>
+  <!-- ========================================= -->
+  <!--  MODAL PARA AGREGAR TRABAJO -->
+  <!-- ========================================= -->
+  <div class="modal fade" id="addJobModal" tabindex="-1" aria-labelledby="addJobModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Agregar Trabajo</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
 
-              <button type="submit" class="btn btn-success w-100">
-                Agregar Trabajo
-              </button>
-            </form>
-          </div>
+        <div class="modal-body">
+          <form id="jobForm">
+            <div class="mb-3">
+              <label class="form-label">Nombre del Cliente</label>
+              <input type="text" class="form-control" id="clientName" required />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Fecha de Publicación</label>
+              <input type="date" class="form-control" id="jobDate" required />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Estado de Urgencia</label>
+              <select class="form-select" id="jobUrgency" required>
+                <option value="Normal">Normal</option>
+                <option value="Urgente">Urgente</option>
+                <option value="Crítico">Crítico</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Nombre de Contacto</label>
+              <input type="text" class="form-control" id="contactName" required />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Número de Contacto</label>
+              <input type="text" class="form-control" id="contactPhone" required />
+            </div>
+
+            <button type="submit" class="btn btn-success w-100">
+              Agregar Trabajo
+            </button>
+          </form>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- ========================================= -->
-    <!--  MODAL PARA EDITAR TRABAJO (NUEVO) -->
-    <!-- ========================================= -->
-    <div
-      class="modal fade"
-      id="editJobModal"
-      tabindex="-1"
-      aria-labelledby="editJobModalLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
+  <!-- ========================================= -->
+  <!--  MODAL PARA EDITAR TRABAJO (NUEVO) -->
+  <!-- ========================================= -->
+  <div class="modal fade" id="editJobModal" tabindex="-1" aria-labelledby="editJobModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
 
-          <div class="modal-header">
-            <h5 class="modal-title">Editar Trabajo</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-            ></button>
+        <div class="modal-header">
+          <h5 class="modal-title">Editar Trabajo</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <form id="editJobForm">
+            <input type="hidden" id="editJobId" />
+
+            <div class="mb-3">
+              <label class="form-label">Nombre del Cliente</label>
+              <input type="text" class="form-control" id="editClientName" required />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Fecha de Publicación</label>
+              <input type="date" class="form-control" id="editJobDate" required />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Estado de Urgencia</label>
+              <select class="form-select" id="editJobUrgency" required>
+                <option value="Normal">Normal</option>
+                <option value="Urgente">Urgente</option>
+                <option value="Crítico">Crítico</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Nombre de Contacto</label>
+              <input type="text" class="form-control" id="editContactName" required />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Número de Contacto</label>
+              <input type="text" class="form-control" id="editContactPhone" required />
+            </div>
+
+            <button type="submit" class="btn btn-gold w-100">
+              Guardar Cambios
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================= -->
+  <!--  MODAL PARA VER REPORTE (NUEVO) -->
+  <!-- ========================================= -->
+  <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content modal-report-content">
+        <div class="modal-header modal-report-header">
+          <h5 class="modal-title">Informe Técnico de Trabajo</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body modal-report-body" id="reportContentArea">
+          <div class="row">
+            <!-- Columna 1: Detalles del Trabajo -->
+            <div class="col-md-6">
+              <div class="report-section">
+                <h6 class="report-section-title">Detalles del Trabajo</h6>
+                <p><strong>Cliente:</strong> <span id="reportClientName"></span></p>
+                <p><strong>Fecha de Asignación:</strong> <span id="reportJobDate"></span></p>
+              </div>
+            </div>
+
+            <!-- Columna 2: Informe Técnico -->
+            <div class="col-md-6">
+              <div class="report-section">
+                <h6 class="report-section-title">Detalles del Informe</h6>
+                <p><strong>Estado:</strong> <span id="reportStatus"></span></p>
+                <p><strong>Finalizado el:</strong> <span id="reportDate"></span><strong> a las:</strong> <span
+                    id="reportTime"></span></p>
+              </div>
+            </div>
           </div>
 
-          <div class="modal-body">
-            <form id="editJobForm">
-              <input type="hidden" id="editJobId" />
-
-              <div class="mb-3">
-                <label class="form-label">Nombre del Cliente</label>
-                <input type="text" class="form-control" id="editClientName" required />
+          <!-- Fila para el Reporte Escrito -->
+          <div class="row mt-4">
+            <div class="col-12">
+              <div class="report-section">
+                <h6 class="report-section-title">Informe de Trabajo Realizado</h6>
+                <div id="reportText" class="report-text-box"></div>
               </div>
-
-              <div class="mb-3">
-                <label class="form-label">Fecha de Publicación</label>
-                <input type="date" class="form-control" id="editJobDate" required />
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">Estado de Urgencia</label>
-                <select class="form-select" id="editJobUrgency" required>
-                  <option value="Normal">Normal</option>
-                  <option value="Urgente">Urgente</option>
-                  <option value="Crítico">Crítico</option>
-                </select>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">Nombre de Contacto</label>
-                <input type="text" class="form-control" id="editContactName" required />
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">Número de Contacto</label>
-                <input type="text" class="form-control" id="editContactPhone" required />
-              </div>
-
-              <button type="submit" class="btn btn-gold w-100">
-                Guardar Cambios
-              </button>
-            </form>
+            </div>
           </div>
 
+          <!-- Fila para Evidencia Fotográfica -->
+          <div class="report-section mt-4">
+            <h6 class="report-section-title">Evidencia Fotográfica</h6>
+            <div class="d-flex justify-content-around gap-3 evidence-container">
+              <img id="reportImage1" class="report-image" alt="Evidencia 1">
+              <img id="reportImage2" class="report-image" alt="Evidencia 2">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer modal-report-footer">
+          <button type="button" class="btn btn-gold" id="generatePdfBtn">Generar PDF</button>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- ========================================= -->
-    <!--  MODAL PARA VER REPORTE (NUEVO) -->
-    <!-- ========================================= -->
-    <div
-      class="modal fade"
-      id="reportModal"
-      tabindex="-1"
-      aria-labelledby="reportModalLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content modal-report-content">
-          <div class="modal-header modal-report-header">
-            <h5 class="modal-title">Informe Técnico de Trabajo</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-            ></button>
-          </div>
-          <div class="modal-body modal-report-body" id="reportContentArea">
+  <!-- ========================================= -->
+  <!--  MODAL PARA CREAR CONTRATO -->
+  <!-- ========================================= -->
+  <div class="modal fade" id="createContractModal" tabindex="-1" aria-labelledby="createContractModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Crear Contrato de Servicio</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="contractForm">
             <div class="row">
-              <!-- Columna 1: Detalles del Trabajo -->
               <div class="col-md-6">
-                <div class="report-section">
-                  <h6 class="report-section-title">Detalles del Trabajo</h6>
-                  <p><strong>Cliente:</strong> <span id="reportClientName"></span></p>
-                  <p><strong>Fecha de Asignación:</strong> <span id="reportJobDate"></span></p>
+                <h6>Datos del Contrato</h6>
+                <div class="mb-3">
+                  <label class="form-label">Ciudad</label>
+                  <input type="text" class="form-control" id="contractCity" required />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Fecha del Contrato</label>
+                  <input type="date" class="form-control" id="contractDate" required />
+                </div>
+                <hr />
+                <h6>Datos del Cliente</h6>
+                <div class="mb-3">
+                  <label class="form-label">Nombre completo</label>
+                  <input type="text" class="form-control" id="contractClientName" required />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Cédula de identidad</label>
+                  <input type="text" class="form-control" id="contractClientId" required />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Dirección</label>
+                  <input type="text" class="form-control" id="contractClientAddress" required />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Teléfono</label>
+                  <input type="text" class="form-control" id="contractClientPhone" required />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Correo electrónico</label>
+                  <input type="email" class="form-control" id="contractClientEmail" required />
                 </div>
               </div>
-
-              <!-- Columna 2: Informe Técnico -->
               <div class="col-md-6">
-                <div class="report-section">
-                  <h6 class="report-section-title">Detalles del Informe</h6>
-                  <p><strong>Estado:</strong> <span id="reportStatus"></span></p>
-                  <p><strong>Finalizado el:</strong> <span id="reportDate"></span><strong> a las:</strong> <span id="reportTime"></span></p>
+                <h6>Detalles del Servicio</h6>
+                <div class="mb-3">
+                  <label class="form-label">Precio del servicio (USD)</label>
+                  <input type="number" step="0.01" class="form-control" id="contractServicePrice" required />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Forma de pago</label>
+                  <input type="text" class="form-control" id="contractPaymentMethod" required />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Periodicidad del pago</label>
+                  <input type="text" class="form-control" id="contractPaymentPeriod" required />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Duración del contrato (meses)</label>
+                  <input type="number" class="form-control" id="contractDuration" required />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Días de aviso para terminación</label>
+                  <input type="number" class="form-control" id="contractTerminationNotice" required />
+                </div>
+                <hr />
+                <h6>Datos del Representante (Empresa)</h6>
+                <div class="mb-3">
+                  <label class="form-label">Nombre del representante</label>
+                  <input type="text" class="form-control" id="contractCompanyName" required />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Cargo del representante</label>
+                  <input type="text" class="form-control" id="contractCompanyPosition" required />
                 </div>
               </div>
             </div>
-
-            <!-- Fila para el Reporte Escrito -->
-            <div class="row mt-4">
-              <div class="col-12">
-                <div class="report-section">
-                  <h6 class="report-section-title">Informe de Trabajo Realizado</h6>
-                  <div id="reportText" class="report-text-box"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Fila para Evidencia Fotográfica -->
-            <div class="report-section mt-4">
-                <h6 class="report-section-title">Evidencia Fotográfica</h6>
-                <div class="d-flex justify-content-around gap-3 evidence-container">
-                    <img id="reportImage1" class="report-image" alt="Evidencia 1">
-                    <img id="reportImage2" class="report-image" alt="Evidencia 2">
-                </div>
-            </div>
-          </div>
-          <div class="modal-footer modal-report-footer">
-            <button type="button" class="btn btn-gold" id="generatePdfBtn">Generar PDF</button>
-          </div>
+            <button type="submit" class="btn btn-primary w-100 mt-3">Generar Contrato</button>
+          </form>
         </div>
       </div>
     </div>
+  </div>
 
-    <footer class="footer">
-      © 2025 Seguridad 247 Ecuador — Todos los derechos reservados
-    </footer>
+  <!-- ========================================= -->
+  <!--  MODAL PARA VER CONTRATO -->
+  <!-- ========================================= -->
+  <div class="modal fade" id="viewContractModal" tabindex="-1" aria-labelledby="viewContractModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Contrato de Prestación de Servicio</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="contractContentArea">
+          <!-- El contenido del contrato se generará aquí -->
+        </div>
+        <div class="modal-footer">
+          <input type="hidden" id="currentContractId" />
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-gold" id="generateContractPdfBtn">Imprimir / Generar PDF</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <!-- CDN para jspdf y html2canvas -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <footer class="footer">
+    © 2025 Seguridad 247 Ecuador — Todos los derechos reservados
+  </footer>
 
-    <!-- FIREBASE -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <!-- CDN para jspdf y html2canvas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-    <!-- SCRIPTS -->
-    <script src="js/firebase.js"></script>
-    <script src="js/login_admin.js"></script> <!-- Aquí está el CRUD completo -->
-    <script src="js/sweetalert2.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- FIREBASE -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-  </body>
+  <!-- SCRIPTS -->
+  <script src="js/firebase.js"></script>
+  <script src="js/login_admin.js"></script> <!-- Aquí está el CRUD completo -->
+  <script src="js/sweetalert2.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+</body>
+
 </html>
