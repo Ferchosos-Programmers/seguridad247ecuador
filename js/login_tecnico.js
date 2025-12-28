@@ -48,11 +48,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Variables Globales
     window.allTrabajos = [];
     window.allContratos = [];
+    window.trabajosLoaded = false;
+    window.contratosLoaded = false;
 
-    // Cargar datos iniciales
-    cargarTrabajosTecnicos();
+    // Configurar modales (listeners)
     configurarModalInforme();
-    cargarContratosTecnicos();
     configurarModalContrato();
 
     // Filtros
@@ -61,10 +61,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const nameFilter = document.getElementById("nameFilter");
 
     // Contenedores
-    const jobsSection = document.getElementById("jobsSection"); // Usando section wrapper
-    const contractsSection = document.getElementById("contractsSection"); // Usando section wrapper
+    const jobsSection = document.getElementById("jobsSection");
+    const contractsSection = document.getElementById("contractsSection");
     const urgencyFilterContainer = document.getElementById("urgencyFilterContainer");
     const nameFilterContainer = document.getElementById("nameFilterContainer");
+
+    // Inicializar vista (ocultar todo porque la opción por defecto es vacía)
+    updateView();
 
     if (viewFilter) {
       viewFilter.addEventListener("change", updateView);
@@ -86,16 +89,32 @@ document.addEventListener("DOMContentLoaded", () => {
         if (jobsSection) jobsSection.style.display = "block";
         urgencyFilterContainer.style.display = "block";
         nameFilterContainer.style.display = "block";
-        renderTrabajosTecnicos(window.allTrabajos);
+
+        if (!window.trabajosLoaded) {
+          cargarTrabajosTecnicos();
+        } else {
+          renderTrabajosTecnicos(window.allTrabajos);
+        }
+
       } else if (value === "contratos") {
         if (contractsSection) contractsSection.style.display = "block";
         nameFilterContainer.style.display = "block";
-        renderContratosTecnicos(window.allContratos);
+
+        if (!window.contratosLoaded) {
+          cargarContratosTecnicos();
+        } else {
+          renderContratosTecnicos(window.allContratos);
+        }
+
       } else if (value === "todos") {
         if (jobsSection) jobsSection.style.display = "block";
         if (contractsSection) contractsSection.style.display = "block";
-        renderTrabajosTecnicos(window.allTrabajos);
-        renderContratosTecnicos(window.allContratos);
+
+        if (!window.trabajosLoaded) cargarTrabajosTecnicos();
+        else renderTrabajosTecnicos(window.allTrabajos);
+
+        if (!window.contratosLoaded) cargarContratosTecnicos();
+        else renderContratosTecnicos(window.allContratos);
       }
 
       // Resetear filtros
@@ -202,6 +221,7 @@ async function cargarTrabajosTecnicos() {
   if (!container) return;
 
   container.innerHTML = `<p style="color:white">Cargando trabajos...</p>`;
+  window.trabajosLoaded = true; // Marcar como cargando/cargado
 
   try {
     const query = await db
@@ -219,6 +239,7 @@ async function cargarTrabajosTecnicos() {
   } catch (error) {
     console.error("Error al cargar trabajos: ", error);
     container.innerHTML = `<p style="color:red">Error al cargar los trabajos.</p>`;
+    window.trabajosLoaded = false; // Revertir en caso de error para permitir reintento
   }
 }
 
@@ -395,6 +416,7 @@ async function cargarContratosTecnicos() {
   if (!container) return;
 
   container.innerHTML = `<p style="color:white">Cargando contratos...</p>`;
+  window.contratosLoaded = true;
 
   try {
     const query = await db
@@ -412,6 +434,7 @@ async function cargarContratosTecnicos() {
   } catch (error) {
     console.error("Error al cargar contratos: ", error);
     container.innerHTML = `<p style="color:red">Error al cargar los contratos.</p>`;
+    window.contratosLoaded = false;
   }
 }
 
