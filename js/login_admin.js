@@ -762,27 +762,23 @@ function configurarFormularioContrato() {
                   cedulaY,
                   { align: "center" }
                 );
-                cedulaY += -65;
+                cedulaY += 5;
 
                 // 📐 Tamaño REAL proporcional (basado en 85.60 × 53.98 mm)
-                const imageWidth = 53.98; // mm
-                const imageHeight = 85.60; // mm
+                const imageWidth = 85.60; // mm
+                const imageHeight = 53.98; // mm
 
-                // Centro exacto
-                const centerX = (pageWidth + imageWidth) / 1.78;
-                const centerY = cedulaY + imageHeight / 2;
+                // Centro exacto horizontal
+                const centerX = (pageWidth - imageWidth) / 2;
 
-                // 🟢 Imagen SIEMPRE horizontal
+                // 🟢 Imagen HORIZONTAL y CENTRADA
                 pdfDoc.addImage(
                   idPhotoImg,
                   "PNG",
                   centerX,
-                  centerY,
+                  cedulaY,
                   imageWidth,
-                  imageHeight,
-                  undefined,
-                  "FAST",
-                  90 // rotación fija
+                  imageHeight
                 );
 
                 resolve();
