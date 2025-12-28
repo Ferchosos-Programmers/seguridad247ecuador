@@ -8,9 +8,94 @@ document.addEventListener("DOMContentLoaded", () => {
   // Si estamos en gestion_admin.html
   if (document.getElementById("jobForm")) {
     configurarFormulario();
-    cargarTrabajos();
-    cargarContratos(); // Cargar contratos al iniciar
-    activarEdicion(); // Activa el formulario de edición
+    // cargarTrabajos(); // No cargar al inicio
+    // cargarContratos(); // No cargar al inicio
+    activarEdicion(); // Activa el formulario de edición  
+
+    // Variables Globales para almacenamiento temporal
+    window.allTrabajos = [];
+    window.allContratos = [];
+
+    // Listener para el filtro de vista
+    const viewFilter = document.getElementById("viewFilter");
+    const jobsSection = document.getElementById("jobsSection");
+    const contractsSection = document.getElementById("contractsSection");
+    const createJobBtn = document.getElementById("createJobBtn");
+    const createContractBtn = document.getElementById("createContractBtn");
+
+    // Contenedores de filtros secundarios
+    const urgencyFilterContainer = document.getElementById("urgencyFilterContainer");
+    const nameFilterContainer = document.getElementById("nameFilterContainer");
+
+    // Inputs de filtros secundarios
+    const urgencyFilter = document.getElementById("urgencyFilter");
+    const nameFilter = document.getElementById("nameFilter");
+
+    function updateView() {
+      const value = viewFilter.value;
+
+      // Ocultar todo por defecto
+      jobsSection.style.display = "none";
+      contractsSection.style.display = "none";
+      createJobBtn.style.display = "none";
+      createContractBtn.style.display = "none";
+      urgencyFilterContainer.style.display = "none";
+      nameFilterContainer.style.display = "none";
+
+      if (value === "trabajos") {
+        jobsSection.style.display = "block";
+        createJobBtn.style.display = "flex"; // Flex para alinear icono
+        urgencyFilterContainer.style.display = "block";
+        nameFilterContainer.style.display = "block";
+        cargarTrabajos();
+      } else if (value === "contratos") {
+        contractsSection.style.display = "block";
+        createContractBtn.style.display = "flex"; // Flex para alinear icono
+        nameFilterContainer.style.display = "block"; // Solo nombre para contratos
+        cargarContratos();
+      } else if (value === "todos") {
+        jobsSection.style.display = "block";
+        contractsSection.style.display = "block";
+        createJobBtn.style.display = "flex";
+        createContractBtn.style.display = "flex";
+        // En "todos", ocultamos filtros secundarios para simplificar, o podríamos dejarlos si se desea
+        cargarTrabajos();
+        cargarContratos();
+      }
+
+      // Resetear filtros al cambiar vista principal
+      urgencyFilter.value = "todas";
+      nameFilter.value = "";
+    }
+
+    viewFilter.addEventListener("change", updateView);
+
+    // Listeners para filtros secundarios
+    urgencyFilter.addEventListener("change", applyFilters);
+    nameFilter.addEventListener("input", applyFilters);
+
+    function applyFilters() {
+      const urgencyValue = urgencyFilter.value;
+      const nameValue = nameFilter.value.toLowerCase();
+      const currentView = viewFilter.value;
+
+      if (currentView === "trabajos" || currentView === "todos") {
+        const filteredTrabajos = window.allTrabajos.filter(job => {
+          const matchUrgency = urgencyValue === "todas" || job.jobUrgency === urgencyValue;
+          const matchName = job.clientName.toLowerCase().includes(nameValue);
+          return matchUrgency && matchName;
+        });
+        renderTrabajos(filteredTrabajos);
+      }
+
+      if (currentView === "contratos" || currentView === "todos") {
+        const filteredContratos = window.allContratos.filter(contract => {
+          const matchName = contract.clientName.toLowerCase().includes(nameValue);
+          return matchName;
+        });
+        renderContratos(filteredContratos);
+      }
+    }
 
     // Listener para generar PDF
     document.getElementById("generatePdfBtn").addEventListener("click", () => {
@@ -1002,20 +1087,39 @@ async function cargarTrabajos() {
   const container = document.getElementById("jobsContainer");
   container.innerHTML = `<p style="color:white">Cargando trabajos...</p>`;
 
-  const query = await db
-    .collection("trabajos")
-    .orderBy("createdAt", "desc")
-    .get();
+  try {
+    const query = await db
+      .collection("trabajos")
+      .orderBy("createdAt", "desc")
+      .get();
 
+    // Guardar en variable global para filtrar sin recargar
+    window.allTrabajos = [];
+    query.forEach(doc => {
+      window.allTrabajos.push({ id: doc.id, ...doc.data() });
+    });
+
+    renderTrabajos(window.allTrabajos);
+  } catch (error) {
+    console.error("Error cargando trabajos:", error);
+    container.innerHTML = `<p style="color:red">Error al cargar trabajos</p>`;
+  }
+}
+
+function renderTrabajos(trabajosList) {
+  const container = document.getElementById("jobsContainer");
   container.innerHTML = "";
 
-  query.forEach((doc) => {
-    const data = doc.data();
+  if (trabajosList.length === 0) {
+    container.innerHTML = `<p style="color:white; text-align:center;">No se encontraron trabajos.</p>`;
+    return;
+  }
 
+  trabajosList.forEach((data) => {
     let reportButton = "";
     if (data.status === "Culminado") {
       reportButton = `
-        <button class="btn-view-report mt-2" onclick="verReporte('${doc.id}')">
+        <button class="btn-view-report mt-2" onclick="verReporte('${data.id}')">
           <i class="fa-solid fa-eye"></i> Ver Reporte
         </button>`;
     }
@@ -1048,12 +1152,12 @@ async function cargarTrabajos() {
           ${data.status ? `<p><strong>Estado:</strong> ${data.status}</p>` : ""}
 
           <div class="d-flex gap-2 mt-3">
-            <button class="btn-edit" onclick="cargarTrabajoParaEditar('${doc.id
+            <button class="btn-edit" onclick="cargarTrabajoParaEditar('${data.id
       }')">
               <i class="fa-solid fa-pen-to-square"></i> Editar
             </button>
 
-            <button class="btn-delete" onclick="eliminarTrabajo('${doc.id}')">
+            <button class="btn-delete" onclick="eliminarTrabajo('${data.id}')">
               <i class="fa-solid fa-trash"></i> Eliminar
             </button>
           </div>
@@ -1207,64 +1311,74 @@ async function cargarContratos() {
       .orderBy("createdAt", "desc")
       .get();
 
-    container.innerHTML = "";
-
-    if (query.empty) {
-      container.innerHTML = `<p style="color:white">No hay contratos para mostrar.</p>`;
-      return;
-    }
-
-    query.forEach((doc) => {
-      const data = doc.data();
-      const contractDate = new Date(data.date + "T00:00:00");
-      const formattedDate = contractDate.toLocaleDateString("es-ES", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      });
-
-      // Verificar si el contrato está completado
-      const isCompleted = data.clientSignature && data.clientIdPhoto;
-      const statusBadge = isCompleted
-        ? '<span class="badge bg-success mb-2">Completado</span>'
-        : '<span class="badge bg-warning text-dark mb-2">Pendiente</span>';
-
-      container.innerHTML += `
-        <div class="col-md-4">
-          <div class="job-card">
-            <h5>Contrato: ${data.clientName}</h5>
-            <div class="job-divider"></div>
-            ${statusBadge}
-            <p><strong>Fecha:</strong> ${formattedDate}</p>
-            <p><strong>Cliente:</strong> ${data.clientName}</p>
-            <p><strong>Cédula:</strong> ${data.clientId}</p>
-            <p><strong>Precio:</strong> $${data.servicePrice} + IVA</p>
-            <div class="d-flex gap-2 mt-3">
-              <button class="btn-view-report" onclick="verContrato('${doc.id
-        }')">
-                <i class="fa-solid fa-eye"></i> Ver
-              </button>
-              ${isCompleted
-          ? `
-                <button class="btn btn-primary" onclick="verContrato('${doc.id}')">
-                  <i class="fa-solid fa-print"></i> Imprimir
-                </button>
-              `
-          : ""
-        }
-              <button class="btn-delete" onclick="eliminarContrato('${doc.id
-        }')">
-                <i class="fa-solid fa-trash"></i> Eliminar
-              </button>
-            </div>
-          </div>
-        </div>
-      `;
+    // Guardar en variable global para filtrar
+    window.allContratos = [];
+    query.forEach(doc => {
+      window.allContratos.push({ id: doc.id, ...doc.data() });
     });
+
+    renderContratos(window.allContratos);
   } catch (error) {
     console.error("Error al cargar contratos: ", error);
     container.innerHTML = `<p style="color:red">Error al cargar los contratos.</p>`;
   }
+}
+
+function renderContratos(contratosList) {
+  const container = document.getElementById("contractsContainer");
+  container.innerHTML = "";
+
+  if (contratosList.length === 0) {
+    container.innerHTML = `<p style="color:white; text-align:center;">No hay contratos para mostrar.</p>`;
+    return;
+  }
+
+  contratosList.forEach((data) => {
+    const contractDate = new Date(data.date + "T00:00:00");
+    const formattedDate = contractDate.toLocaleDateString("es-ES", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+
+    // Verificar si el contrato está completado
+    const isCompleted = data.clientSignature && data.clientIdPhoto;
+    const statusBadge = isCompleted
+      ? '<span class="badge bg-success mb-2">Completado</span>'
+      : '<span class="badge bg-warning text-dark mb-2">Pendiente</span>';
+
+    container.innerHTML += `
+      <div class="col-md-4">
+        <div class="job-card">
+          <h5>Contrato: ${data.clientName}</h5>
+          <div class="job-divider"></div>
+          ${statusBadge}
+          <p><strong>Fecha:</strong> ${formattedDate}</p>
+          <p><strong>Cliente:</strong> ${data.clientName}</p>
+          <p><strong>Cédula:</strong> ${data.clientId}</p>
+          <p><strong>Precio:</strong> $${data.servicePrice} + IVA</p>
+          <div class="d-flex gap-2 mt-3">
+            <button class="btn-view-report" onclick="verContrato('${data.id
+      }')">
+              <i class="fa-solid fa-eye"></i> Ver
+            </button>
+            ${isCompleted
+        ? `
+              <button class="btn btn-primary" onclick="verContrato('${data.id}')">
+                <i class="fa-solid fa-print"></i> Imprimir
+              </button>
+            `
+        : ""
+      }
+            <button class="btn-delete" onclick="eliminarContrato('${data.id
+      }')">
+              <i class="fa-solid fa-trash"></i> Eliminar
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  });
 }
 
 // =========================================

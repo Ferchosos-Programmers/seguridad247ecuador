@@ -38,17 +38,92 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (window.location.pathname.endsWith("gestion_tecnica.html")) {
     if (document.readyState === "loading") {
-      document.addEventListener('DOMContentLoaded', () => {
-        cargarTrabajosTecnicos();
-        configurarModalInforme();
-        cargarContratosTecnicos();
-        configurarModalContrato();
-      });
+      document.addEventListener('DOMContentLoaded', initGestionTecnica);
     } else {
-      cargarTrabajosTecnicos();
-      configurarModalInforme();
-      cargarContratosTecnicos();
-      configurarModalContrato();
+      initGestionTecnica();
+    }
+  }
+
+  function initGestionTecnica() {
+    // Variables Globales
+    window.allTrabajos = [];
+    window.allContratos = [];
+
+    // Cargar datos iniciales
+    cargarTrabajosTecnicos();
+    configurarModalInforme();
+    cargarContratosTecnicos();
+    configurarModalContrato();
+
+    // Filtros
+    const viewFilter = document.getElementById("viewFilter");
+    const urgencyFilter = document.getElementById("urgencyFilter");
+    const nameFilter = document.getElementById("nameFilter");
+
+    // Contenedores
+    const jobsSection = document.getElementById("jobsSection"); // Usando section wrapper
+    const contractsSection = document.getElementById("contractsSection"); // Usando section wrapper
+    const urgencyFilterContainer = document.getElementById("urgencyFilterContainer");
+    const nameFilterContainer = document.getElementById("nameFilterContainer");
+
+    if (viewFilter) {
+      viewFilter.addEventListener("change", updateView);
+      urgencyFilter.addEventListener("change", applyFilters);
+      nameFilter.addEventListener("input", applyFilters);
+    }
+
+    function updateView() {
+      const value = viewFilter.value;
+
+      // Ocultar todo por defecto
+      if (jobsSection) jobsSection.style.display = "none";
+      if (contractsSection) contractsSection.style.display = "none";
+
+      urgencyFilterContainer.style.display = "none";
+      nameFilterContainer.style.display = "none";
+
+      if (value === "trabajos") {
+        if (jobsSection) jobsSection.style.display = "block";
+        urgencyFilterContainer.style.display = "block";
+        nameFilterContainer.style.display = "block";
+        renderTrabajosTecnicos(window.allTrabajos);
+      } else if (value === "contratos") {
+        if (contractsSection) contractsSection.style.display = "block";
+        nameFilterContainer.style.display = "block";
+        renderContratosTecnicos(window.allContratos);
+      } else if (value === "todos") {
+        if (jobsSection) jobsSection.style.display = "block";
+        if (contractsSection) contractsSection.style.display = "block";
+        renderTrabajosTecnicos(window.allTrabajos);
+        renderContratosTecnicos(window.allContratos);
+      }
+
+      // Resetear filtros
+      urgencyFilter.value = "todas";
+      nameFilter.value = "";
+    }
+
+    function applyFilters() {
+      const urgencyValue = urgencyFilter.value;
+      const nameValue = nameFilter.value.toLowerCase();
+      const currentView = viewFilter.value;
+
+      if (currentView === "trabajos" || currentView === "todos") {
+        const filteredTrabajos = window.allTrabajos.filter(job => {
+          const matchUrgency = urgencyValue === "todas" || job.jobUrgency === urgencyValue;
+          const matchName = job.clientName.toLowerCase().includes(nameValue);
+          return matchUrgency && matchName;
+        });
+        renderTrabajosTecnicos(filteredTrabajos);
+      }
+
+      if (currentView === "contratos" || currentView === "todos") {
+        const filteredContratos = window.allContratos.filter(contract => {
+          const matchName = contract.clientName.toLowerCase().includes(nameValue);
+          return matchName;
+        });
+        renderContratosTecnicos(filteredContratos);
+      }
     }
   }
 
@@ -119,6 +194,9 @@ document.addEventListener("DOMContentLoaded", () => {
 // =======================================================
 // 🛠️ CARGAR TRABAJOS PARA TÉCNICOS
 // =======================================================
+// =======================================================
+// 🛠️ CARGAR TRABAJOS PARA TÉCNICOS
+// =======================================================
 async function cargarTrabajosTecnicos() {
   const container = document.getElementById("jobsContainer");
   if (!container) return;
@@ -131,44 +209,59 @@ async function cargarTrabajosTecnicos() {
       .orderBy("createdAt", "desc")
       .get();
 
-    container.innerHTML = "";
+    window.allTrabajos = [];
+    query.forEach(doc => {
+      window.allTrabajos.push({ id: doc.id, ...doc.data() });
+    });
 
-    if (query.empty) {
-      container.innerHTML = `<p style="color:white">No hay trabajos asignados.</p>`;
-      return;
-    }
+    renderTrabajosTecnicos(window.allTrabajos);
 
-    query.forEach((doc) => {
-      const data = doc.data();
+  } catch (error) {
+    console.error("Error al cargar trabajos: ", error);
+    container.innerHTML = `<p style="color:red">Error al cargar los trabajos.</p>`;
+  }
+}
 
-      const isCompleted = data.status === 'Culminado';
+function renderTrabajosTecnicos(trabajosList) {
+  const container = document.getElementById("jobsContainer");
+  if (!container) return;
 
-      const watermark = isCompleted
-        ? `<div class="watermark-seal">✔ Trabajo Realizado</div>`
-        : '';
+  container.innerHTML = "";
 
-      const reportButton = !isCompleted
-        ? `<button class="btn btn-primary mt-3"
+  if (trabajosList.length === 0) {
+    container.innerHTML = `<p style="color:white; text-align:center;">No hay trabajos para mostrar.</p>`;
+    return;
+  }
+
+  trabajosList.forEach((data) => {
+    const isCompleted = data.status === 'Culminado';
+
+    const watermark = isCompleted
+      ? `<div class="watermark-seal">✔ Trabajo Realizado</div>`
+      : '';
+
+    const reportButton = !isCompleted
+      ? `<button class="btn btn-primary mt-3"
             data-bs-toggle="modal"
             data-bs-target="#technicalReportModal"
-            data-id="${doc.id}">
+            data-id="${data.id}">
             <i class="fa-solid fa-file-alt"></i> Informe Técnico
           </button>`
-        : '';
+      : '';
 
-      let badgeClass = '';
-      switch (data.jobUrgency) {
-        case 'Urgente':
-          badgeClass = 'badge bg-warning text-dark';
-          break;
-        case 'Crítico':
-          badgeClass = 'badge bg-danger';
-          break;
-        default:
-          badgeClass = 'badge bg-success';
-      }
+    let badgeClass = '';
+    switch (data.jobUrgency) {
+      case 'Urgente':
+        badgeClass = 'badge bg-warning text-dark';
+        break;
+      case 'Crítico':
+        badgeClass = 'badge bg-danger';
+        break;
+      default:
+        badgeClass = 'badge bg-success';
+    }
 
-      container.innerHTML += `
+    container.innerHTML += `
         <div class="col-md-4">
           <div class="card-job">
             ${watermark}
@@ -188,11 +281,7 @@ async function cargarTrabajosTecnicos() {
           </div>
         </div>
       `;
-    });
-  } catch (error) {
-    console.error("Error al cargar trabajos: ", error);
-    container.innerHTML = `<p style="color:red">Error al cargar los trabajos.</p>`;
-  }
+  });
 }
 
 
@@ -298,6 +387,9 @@ function configurarModalInforme() {
 // =======================================================
 // 📋 CARGAR CONTRATOS PARA TÉCNICOS
 // =======================================================
+// =======================================================
+// 📋 CARGAR CONTRATOS PARA TÉCNICOS
+// =======================================================
 async function cargarContratosTecnicos() {
   const container = document.getElementById("contractsContainer");
   if (!container) return;
@@ -310,26 +402,42 @@ async function cargarContratosTecnicos() {
       .orderBy("createdAt", "desc")
       .get();
 
-    container.innerHTML = "";
+    window.allContratos = [];
+    query.forEach(doc => {
+      window.allContratos.push({ id: doc.id, ...doc.data() });
+    });
 
-    if (query.empty) {
-      container.innerHTML = `<p style="color:white">No hay contratos disponibles.</p>`;
-      return;
-    }
+    renderContratosTecnicos(window.allContratos);
 
-    query.forEach((doc) => {
-      const data = doc.data();
-      const contractDate = new Date(data.date + 'T00:00:00');
-      const formattedDate = contractDate.toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' });
+  } catch (error) {
+    console.error("Error al cargar contratos: ", error);
+    container.innerHTML = `<p style="color:red">Error al cargar los contratos.</p>`;
+  }
+}
 
-      // Verificar si el contrato ya está completado (tiene firma y cédula)
-      const isCompleted = data.clientSignature && data.clientIdPhoto;
+function renderContratosTecnicos(contratosList) {
+  const container = document.getElementById("contractsContainer");
+  if (!container) return;
 
-      const statusBadge = isCompleted
-        ? '<span class="badge bg-success">Completado</span>'
-        : '<span class="badge bg-warning text-dark">Pendiente</span>';
+  container.innerHTML = "";
 
-      container.innerHTML += `
+  if (contratosList.length === 0) {
+    container.innerHTML = `<p style="color:white">No hay contratos disponibles.</p>`;
+    return;
+  }
+
+  contratosList.forEach((data) => {
+    const contractDate = new Date(data.date + 'T00:00:00');
+    const formattedDate = contractDate.toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' });
+
+    // Verificar si el contrato ya está completado (tiene firma y cédula)
+    const isCompleted = data.clientSignature && data.clientIdPhoto;
+
+    const statusBadge = isCompleted
+      ? '<span class="badge bg-success">Completado</span>'
+      : '<span class="badge bg-warning text-dark">Pendiente</span>';
+
+    container.innerHTML += `
         <div class="col-md-4">
           <div class="card-job">
             <div class="card-body">
@@ -342,11 +450,11 @@ async function cargarContratosTecnicos() {
               <p class="card-text"><i class="fa-solid fa-id-card"></i> <strong>Cédula:</strong> ${data.clientId}</p>
               <p class="card-text"><i class="fa-solid fa-dollar-sign"></i> <strong>Precio:</strong> $${data.servicePrice} + IVA</p>
               ${!isCompleted ? `
-                <button class="btn btn-primary mt-3" onclick="llenarContrato('${doc.id}')">
+                <button class="btn btn-primary mt-3" onclick="llenarContrato('${data.id}')">
                   <i class="fa-solid fa-pen"></i> Llenar Contrato
                 </button>
               ` : `
-                <button class="btn btn-success mt-3" onclick="verContratoCompleto('${doc.id}')">
+                <button class="btn btn-success mt-3" onclick="verContratoCompleto('${data.id}')">
                   <i class="fa-solid fa-eye"></i> Ver Contrato Completo
                 </button>
               `}
@@ -354,11 +462,7 @@ async function cargarContratosTecnicos() {
           </div>
         </div>
       `;
-    });
-  } catch (error) {
-    console.error("Error al cargar contratos: ", error);
-    container.innerHTML = `<p style="color:red">Error al cargar los contratos.</p>`;
-  }
+  });
 }
 
 // =======================================================

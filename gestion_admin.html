@@ -38,25 +38,66 @@
 
   <!-- CONTENIDO -->
   <main class="container mt-5 pt-5">
-    <h1 style="color: #d4af37">Gestión de Trabajos Técnicos</h1>
+    <h1 style="color: #d4af37; margin-top: 20px;">Gestión de Administrador</h1>
 
-    <!-- Botón para abrir modal de agregar -->
-    <button type="button" class="btn btn-gold mb-4" data-bs-toggle="modal" data-bs-target="#addJobModal">
-      Crear Trabajo
-    </button>
+    <!-- Filtros y Buscador -->
+    <div class="filter-container mb-4">
+      <div class="row g-3 align-items-center">
+        <!-- Filtro Principal -->
+        <div class="col-md-3">
+          <label for="viewFilter" class="form-label" style="color: #fff;">Mostrar:</label>
+          <select id="viewFilter" class="form-select modern-select">
+            <option value="todos" selected>Todos</option>
+            <option value="trabajos">Solo Trabajos</option>
+            <option value="contratos">Solo Contratos</option>
+          </select>
+        </div>
 
-    <!-- Botón para abrir modal de crear contrato -->
-    <button type="button" class="btn btn-info mb-4" data-bs-toggle="modal" data-bs-target="#createContractModal">
-      Crear Contrato
-    </button>
+        <!-- Filtro Urgencia (Oculto por defecto) -->
+        <div class="col-md-3" id="urgencyFilterContainer" style="display: none;">
+          <label for="urgencyFilter" class="form-label" style="color: #fff;">Urgencia:</label>
+          <select id="urgencyFilter" class="form-select modern-select">
+            <option value="todas">Todas</option>
+            <option value="Normal">Normal</option>
+            <option value="Urgente">Urgente</option>
+            <option value="Crítico">Crítico</option>
+          </select>
+        </div>
+
+        <!-- Buscador por Nombre (Oculto por defecto) -->
+        <div class="col-md-4" id="nameFilterContainer" style="display: none;">
+          <label for="nameFilter" class="form-label" style="color: #fff;">Buscar por Nombre:</label>
+          <input type="text" id="nameFilter" class="form-control modern-input" placeholder="Escribe un nombre..." />
+        </div>
+      </div>
+    </div>
+
+    <!-- Botones de Acción (Ahora debajo del filtro) -->
+    <div class="action-buttons mb-4">
+      <!-- Botón para abrir modal de agregar -->
+      <button id="createJobBtn" type="button" class="btn btn-gold" data-bs-toggle="modal" data-bs-target="#addJobModal"
+        style="display: none;">
+        Crear Trabajo
+      </button>
+
+      <!-- Botón para abrir modal de crear contrato -->
+      <button id="createContractBtn" type="button" class="btn btn-info" data-bs-toggle="modal"
+        data-bs-target="#createContractModal" style="display: none;">
+        Crear Contrato
+      </button>
+    </div>
 
     <!-- Contenedor con los trabajos cargados -->
-    <h2 style="color: #fff; margin-top: 20px;">Trabajos Creados</h2>
-    <div id="jobsContainer" class="row g-4"></div>
+    <div id="jobsSection" style="display: none;">
+      <h2 style="color: #fff; margin-top: 20px;">Trabajos Creados</h2>
+      <div id="jobsContainer" class="row g-4"></div>
+    </div>
 
     <!-- Contenedor para los contratos -->
-    <h2 style="color: #fff; margin-top: 40px;">Contratos Creados</h2>
-    <div id="contractsContainer" class="row g-4"></div>
+    <div id="contractsSection" style="display: none;">
+      <h2 style="color: #fff; margin-top: 40px;">Contratos Creados</h2>
+      <div id="contractsContainer" class="row g-4"></div>
+    </div>
   </main>
 
   <!-- ========================================= -->

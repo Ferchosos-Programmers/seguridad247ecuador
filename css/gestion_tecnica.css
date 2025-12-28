@@ -1,5 +1,6 @@
 body {
-  background: #000; /* fondo negro puro */
+  background: #000;
+  /* fondo negro puro */
   color: #fff;
   padding-top: 80px;
   min-height: 100vh;
@@ -27,8 +28,10 @@ h1 {
   border: 1px solid #333;
   overflow: hidden;
   color: #fff;
-  position: relative; /* Needed for watermark positioning */
-  overflow: hidden;   /* Keeps the watermark contained */
+  position: relative;
+  /* Needed for watermark positioning */
+  overflow: hidden;
+  /* Keeps the watermark contained */
 }
 
 .card-job {
@@ -49,7 +52,7 @@ h1 {
   font-weight: bold;
   transform: rotate(-10deg);
   pointer-events: none;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(4px);
 }
 
@@ -96,22 +99,28 @@ h1 {
    ESTILOS PARA EL MODAL DE INFORME
    ================================= */
 #technicalReportModal .modal-content {
-  background-color: #2c2c2c; /* Fondo oscuro para el modal */
-  color: #f0f0f0; /* Texto claro */
-  border: 1px solid #d4af37; /* Borde dorado */
+  background-color: #2c2c2c;
+  /* Fondo oscuro para el modal */
+  color: #f0f0f0;
+  /* Texto claro */
+  border: 1px solid #d4af37;
+  /* Borde dorado */
   border-radius: 10px;
 }
 
 #technicalReportModal .modal-header {
-  border-bottom: 1px solid #d4af37; /* Línea divisoria dorada */
+  border-bottom: 1px solid #d4af37;
+  /* Línea divisoria dorada */
 }
 
 #technicalReportModal .modal-title {
-  color: #d4af37; /* Título en color dorado */
+  color: #d4af37;
+  /* Título en color dorado */
 }
 
 #technicalReportModal .form-label {
-  color: #d4af37; /* Etiquetas en color dorado */
+  color: #d4af37;
+  /* Etiquetas en color dorado */
 }
 
 #technicalReportModal .form-control,
@@ -134,7 +143,7 @@ h1 {
 }
 
 #technicalReportModal .modal-footer {
-    border-top: 1px solid #d4af37;
+  border-top: 1px solid #d4af37;
 }
 
 #jobDetails .job-details-header {
@@ -159,7 +168,8 @@ h1 {
 
 #jobDetails .job-details-header i {
   color: #d4af37;
-  width: 20px; /* Alineación de íconos */
+  width: 20px;
+  /* Alineación de íconos */
 }
 
 /* =================================
@@ -299,7 +309,7 @@ h1 {
   font-weight: 600;
 }
 
-#contractContentToFill > div[style*="display: flex"] {
+#contractContentToFill>div[style*="display: flex"] {
   margin-top: 50px;
   padding-top: 30px;
   border-top: 2px solid #e8e8e8;
@@ -309,7 +319,7 @@ h1 {
   gap: 40px;
 }
 
-#contractContentToFill > div[style*="display: flex"] > div {
+#contractContentToFill>div[style*="display: flex"]>div {
   flex: 1;
   min-width: 250px;
   padding: 25px;
@@ -319,7 +329,7 @@ h1 {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-#contractContentToFill > div[style*="display: flex"] > div p:first-child {
+#contractContentToFill>div[style*="display: flex"]>div p:first-child {
   font-size: 16px;
   font-weight: 700;
   color: #1a1a1a;
@@ -328,7 +338,7 @@ h1 {
   border-bottom: 2px solid #d4af37;
 }
 
-#contractContentToFill > div[style*="display: flex"] > div p {
+#contractContentToFill>div[style*="display: flex"]>div p {
   font-size: 14px;
   margin-bottom: 10px;
   color: #555555;
@@ -344,4 +354,82 @@ h1 {
 
 #contractContentToFill img:hover {
   transform: scale(1.02);
+}
+
+/* =================================
+   ESTILOS PARA FILTROS MODERNOS
+   ================================= */
+.filter-container {
+  background: linear-gradient(145deg, #1a1a1a, #222);
+  /* Gradiente sutil */
+  padding: 25px;
+  border-radius: 16px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  /* Borde dorado translúcido */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+
+/* Decoración dorada sutil */
+.filter-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: #d4af37;
+}
+
+.form-label {
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  color: #888;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.modern-select,
+.modern-input {
+  background-color: #0f0f0f;
+  color: #e0e0e0;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  font-family: 'Segoe UI', sans-serif;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+}
+
+.modern-select:hover,
+.modern-input:hover {
+  border-color: #555;
+  background-color: #151515;
+}
+
+.modern-select:focus,
+.modern-input:focus {
+  border-color: #d4af37;
+  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.15);
+  outline: none;
+  background-color: #000;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.modern-select option {
+  background-color: #111;
+  color: #fff;
+  padding: 12px;
+}
+
+/* Iconos dentro de inputs (si se agregan wrapper) */
+.input-group-text {
+  background-color: #222;
+  border-color: #333;
+  color: #d4af37;
 }

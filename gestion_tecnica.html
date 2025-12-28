@@ -34,13 +34,51 @@
     </div>
   </nav>
 
-  <main class="container mt-5 pt-5">
-    <h1 style="color: #d4af37">Trabajos Técnicos Asignados</h1>
-    <div id="jobsContainer" class="row g-4"></div>
+  <main class="container pt-5">
+    <h1 style="color: #d4af37;">Area de Gestión Técnica</h1>
+    <!-- Filtros y Buscador -->
+    <div class="filter-container mb-4">
+      <div class="row g-3 align-items-center">
+        <!-- Filtro Principal -->
+        <div class="col-md-3">
+          <label for="viewFilter" class="form-label">Mostrar:</label>
+          <select id="viewFilter" class="form-select modern-select">
+            <option value="todos" selected>Todos</option>
+            <option value="trabajos">Solo Trabajos</option>
+            <option value="contratos">Solo Contratos</option>
+          </select>
+        </div>
+
+        <!-- Filtro Urgencia (Oculto por defecto) -->
+        <div class="col-md-3" id="urgencyFilterContainer" style="display: none;">
+          <label for="urgencyFilter" class="form-label">Urgencia:</label>
+          <select id="urgencyFilter" class="form-select modern-select">
+            <option value="todas">Todas</option>
+            <option value="Normal">Normal</option>
+            <option value="Urgente">Urgente</option>
+            <option value="Crítico">Crítico</option>
+          </select>
+        </div>
+
+        <!-- Buscador por Nombre (Oculto por defecto) -->
+        <div class="col-md-4" id="nameFilterContainer" style="display: none;">
+          <label for="nameFilter" class="form-label">Buscar por Nombre:</label>
+          <input type="text" id="nameFilter" class="form-control modern-input" placeholder="Escribe un nombre..." />
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenedor con los trabajos cargados -->
+    <div id="jobsSection">
+      <h2 style="color: #d4af37; margin-top: 20px;">Trabajos Pendientes</h2>
+      <div id="jobsContainer" class="row g-4"></div>
+    </div>
 
     <!-- Contenedor para los contratos -->
-    <h2 style="color: #d4af37; margin-top: 40px;">Contratos Disponibles</h2>
-    <div id="contractsContainer" class="row g-4"></div>
+    <div id="contractsSection">
+      <h2 style="color: #d4af37; margin-top: 40px;">Contratos Disponibles</h2>
+      <div id="contractsContainer" class="row g-4"></div>
+    </div>
   </main>
 
   <!-- Modal para Informe Técnico -->
