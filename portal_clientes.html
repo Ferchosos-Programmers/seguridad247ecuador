@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portal Residentes - Seguridad 247 Ecuador</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/gestion_admin.css" />
+    <link rel="stylesheet" href="css/index.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+    />
+    <link rel="icon" href="assets/img/logo.png" type="image/png" />
+    <script src="js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+      <div class="container">
+        <a class="navbar-brand" href="#"> SEGURIDAD 247 ECUADOR </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarPortal"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarPortal">
+          <ul class="navbar-nav ms-auto align-items-center">
+            <li class="nav-item me-3">
+              <span class="text-white">
+                Hola,
+                <span id="userNameDisplay" class="fw-bold">Usuario</span>
+              </span>
+            </li>
+            <li class="nav-item">
+              <button class="btn btn-danger" id="logoutBtn">
+                <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container mt-5 pt-5">
+      <div class="row mb-4">
+        <div class="col-12">
+          <h2 class="text-gold border-bottom pb-2 border-secondary">
+            <i class="fa-solid fa-building-user"></i> Portal de Gestión -
+            Conjuntos
+          </h2>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <!-- SECCIÓN DE PAGOS -->
+        <div class="col-md-5">
+          <div class="card-custom h-100">
+            <div class="card-header-custom">
+              <h5>
+                <i class="fa-solid fa-credit-card"></i> Realizar Pago / Reporte
+              </h5>
+            </div>
+            <div class="card-body-custom">
+              <!-- SELECCIÓN DE MÉTODO DE PAGO -->
+              <div class="mb-4 text-center">
+                <div
+                  class="btn-group w-100"
+                  role="group"
+                  aria-label="Metodo de pago"
+                >
+                  <input
+                    type="radio"
+                    class="btn-check"
+                    name="paymentOption"
+                    id="optionCard"
+                    autocomplete="off"
+                    checked
+                    onchange="togglePaymentMethod('card')"
+                  />
+                  <label class="btn btn-outline-gold" for="optionCard"
+                    ><i class="fa-regular fa-credit-card"></i> Tarjeta</label
+                  >
+
+                  <input
+                    type="radio"
+                    class="btn-check"
+                    name="paymentOption"
+                    id="optionTransfer"
+                    autocomplete="off"
+                    onchange="togglePaymentMethod('transfer')"
+                  />
+                  <label class="btn btn-outline-gold" for="optionTransfer"
+                    ><i class="fa-solid fa-money-bill-transfer"></i>
+                    Transferencia</label
+                  >
+                </div>
+              </div>
+
+              <!-- FORMULARIO COMÚN (Servicio y Monto) -->
+              <div class="mb-3">
+                <label class="form-label">Servicio a Pagar</label>
+                <select class="form-select" id="commonService" required>
+                  <option value="" selected disabled>Seleccione...</option>
+                  <option value="Guardia Virtual">Guardia Virtual</option>
+                  <option value="Monitoreo CCTV">Monitoreo CCTV</option>
+                  <option value="Mantenimiento">
+                    Mantenimiento Preventivo
+                  </option>
+                  <option value="Instalación">Nueva Instalación</option>
+                  <option value="Alicuota">Alicuota / Expensa</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Monto a Pagar (USD)</label>
+                <div class="input-group">
+                  <span
+                    class="input-group-text bg-secondary text-white border-secondary"
+                    >$</span
+                  >
+                  <input
+                    type="number"
+                    step="0.01"
+                    class="form-control"
+                    id="commonAmount"
+                    placeholder="0.00"
+                    required
+                  />
+                </div>
+              </div>
+
+              <hr class="my-4" style="border-color: #d4af37" />
+
+              <!-- FORMULARIO TARJETA -->
+              <div id="cardFormSection">
+                <h6 class="text-gold mb-3">
+                  <i class="fa-brands fa-cc-visa"></i>
+                  <i class="fa-brands fa-cc-mastercard"></i> Datos de Tarjeta
+                </h6>
+                <form id="formCard">
+                  <div class="mb-3">
+                    <label class="form-label">Número de Tarjeta</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="cardNumber"
+                      placeholder="0000 0000 0000 0000"
+                      maxlength="19"
+                    />
+                  </div>
+                  <div class="row">
+                    <div class="col-6 mb-3">
+                      <label class="form-label">Expiración</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="cardExpiry"
+                        placeholder="MM/YY"
+                        maxlength="5"
+                      />
+                    </div>
+                    <div class="col-6 mb-3">
+                      <label class="form-label">CVV</label>
+                      <input
+                        type="password"
+                        class="form-control"
+                        id="cardCvv"
+                        placeholder="123"
+                        maxlength="3"
+                      />
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Nombre del Titular</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="cardHolder"
+                      placeholder="Como aparece en la tarjeta"
+                    />
+                  </div>
+                  <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-gold">
+                      <i class="fa-solid fa-lock"></i> Pagar Ahora
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              <!-- FORMULARIO TRANSFERENCIA -->
+              <div id="transferFormSection" style="display: none">
+                <div class="alert alert-dark border-gold" role="alert">
+                  <small>
+                    <strong
+                      ><i class="fa-solid fa-bank"></i> Banco Pichincha</strong
+                    ><br />
+                    Cta. Corriente: 2100xxxxxx<br />
+                    RUC: 179xxxxxxx001<br />
+                    Nombre: Seguridad 247 Ecuador
+                  </small>
+                </div>
+
+                <form id="formTransfer">
+                  <div class="mb-3">
+                    <label class="form-label"
+                      >Subir Comprobante (Foto/PDF)</label
+                    >
+                    <input
+                      class="form-control"
+                      type="file"
+                      id="transferFile"
+                      accept="image/*,application/pdf"
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Notas / Referencia</label>
+                    <textarea
+                      class="form-control"
+                      id="transferNotes"
+                      rows="2"
+                      placeholder="Ej: Pago Ali-001"
+                    ></textarea>
+                  </div>
+                  <div class="d-grid gap-2">
+                    <button
+                      type="submit"
+                      class="btn btn-info text-white"
+                      style="background: #1cb698; border: none"
+                    >
+                      <i class="fa-solid fa-upload"></i> Registrar Transferencia
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- HISTORIAL DE PAGOS -->
+        <div class="col-md-7">
+          <div class="card-custom h-100">
+            <div
+              class="card-header-custom d-flex justify-content-between align-items-center"
+            >
+              <h5>
+                <i class="fa-solid fa-clock-rotate-left"></i> Historial de Pagos
+              </h5>
+              <button
+                class="btn btn-sm btn-outline-gold"
+                onclick="loadPayments()"
+              >
+                <i class="fa-solid fa-rotate"></i> Actualizar
+              </button>
+            </div>
+            <div class="card-body-custom">
+              <div class="table-responsive">
+                <table class="table table-custom">
+                  <thead>
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Servicio</th>
+                      <th>Monto</th>
+                      <th>Método</th>
+                      <th>Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody id="paymentsTableBody">
+                    <!-- Los pagos se cargarán aquí dinámicamente -->
+                    <tr>
+                      <td colspan="5" class="text-center text-muted py-4">
+                        Cargando historial...
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      © 2025 Seguridad 247 Ecuador — Todos los derechos reservados
+    </footer>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <!-- Scripts -->
+    <script src="js/firebase.js"></script>
+    <script src="js/sweetalert2.js"></script>
+    <script src="js/portal_clientes.js"></script>
+  </body>
+</html>

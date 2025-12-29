@@ -4,6 +4,8 @@
 document.addEventListener("DOMContentLoaded", () => {
   activarLoginAdmin();
   activarLogout();
+  activarRegistroAdmin();
+
 
   // Si estamos en gestion_admin.html
   if (document.getElementById("jobForm")) {
@@ -35,26 +37,36 @@ document.addEventListener("DOMContentLoaded", () => {
       const value = viewFilter.value;
 
       // Ocultar todo por defecto
-      jobsSection.style.display = "none";
-      contractsSection.style.display = "none";
-      createJobBtn.style.display = "none";
-      createContractBtn.style.display = "none";
-      urgencyFilterContainer.style.display = "none";
-      nameFilterContainer.style.display = "none";
+  jobsSection.style.display = "none";
+  contractsSection.style.display = "none";
+  const adminsSection = document.getElementById("adminsSection");
+  if (adminsSection) adminsSection.style.display = "none";
 
-      if (value === "trabajos") {
+  createJobBtn.style.display = "none";
+  createContractBtn.style.display = "none";
+  urgencyFilterContainer.style.display = "none";
+  nameFilterContainer.style.display = "none";
+      
+      const btnAddAdmin = document.getElementById("btnAddAdmin");
+      if (btnAddAdmin) btnAddAdmin.style.display = "none";
+
+      if (value === "finished") {
         jobsSection.style.display = "block";
         createJobBtn.style.display = "flex"; // Flex para alinear icono
         urgencyFilterContainer.style.display = "block";
         nameFilterContainer.style.display = "block";
         cargarTrabajos();
-      } else if (value === "contratos") {
+      } else if (value === "contracts") {
         contractsSection.style.display = "block";
         createContractBtn.style.display = "flex"; // Flex para alinear icono
         nameFilterContainer.style.display = "block"; // Solo nombre para contratos
         cargarContratos();
-      } else if (value === "todos") {
-        jobsSection.style.display = "block";
+  } else if (value === "admins") {
+    adminsSection.style.display = "block";
+    if (btnAddAdmin) btnAddAdmin.style.display = "block"; 
+    cargarAdmins();
+  } else if (value === "todos") {
+    jobsSection.style.display = "block";
         contractsSection.style.display = "block";
         createJobBtn.style.display = "flex";
         createContractBtn.style.display = "flex";
@@ -1411,3 +1423,302 @@ function eliminarContrato(id) {
     }
   });
 }
+
+// =========================================
+//  CARGAR Y MOSTRAR ADMINISTRADORES
+// =========================================
+async function cargarAdmins() {
+  const container = document.getElementById("adminsContainer");
+  if (!container) return;
+
+  container.innerHTML = `<p style="color:white">Cargando administradores...</p>`;
+
+  try {
+    const query = await db.collection("users").orderBy("createdAt", "desc").get();
+    
+    // Filtrar solo los que tengan rol de admin si hay otros tipos, 
+    // pero por ahora asumimos que la colección users es solo para estos admins.
+    const admins = [];
+    query.forEach(doc => {
+      const data = doc.data();
+      if (data.role === "ADMIN_CONJUNTO") {
+        admins.push({ id: doc.id, ...data });
+      }
+    });
+
+    renderAdmins(admins);
+  } catch (error) {
+    console.error("Error cargando admins:", error);
+    container.innerHTML = `<p style="color:red">Error al cargar administradores. Verifique permisos.</p>`;
+  }
+}
+
+function renderAdmins(adminList) {
+  const container = document.getElementById("adminsContainer");
+  container.innerHTML = "";
+
+  if (adminList.length === 0) {
+    container.innerHTML = `<p style="color:white; text-align:center;">No hay administradores registrados.</p>`;
+    return;
+  }
+
+  adminList.forEach(admin => {
+    // Formatear fecha
+    let dateStr = "---";
+    if (admin.createdAt && admin.createdAt.toDate) {
+      dateStr = admin.createdAt.toDate().toLocaleDateString("es-ES");
+    }
+
+    // Determinar estado (por defecto 'active' si no existe el campo)
+    const status = admin.status || 'active';
+    const isInactive = status !== 'active';
+    
+    // Configuración visual según estado
+    const statusBadge = isInactive 
+      ? `<span class="badge bg-danger">Inactivo</span>` 
+      : `<span class="badge bg-success">Activo</span>`;
+      
+    // Botón Toggle (Ojo / Ojo Tachado)
+    const toggleBtnClass = isInactive ? "btn-success" : "btn-delete"; // Verde para activar, Rojo style para desactivar
+    const toggleIcon = isInactive ? "fa-eye" : "fa-eye-slash";
+    const toggleText = isInactive ? "Activar" : "Desactivar";
+    const toggleAction = isInactive ? "active" : "inactive";
+
+    container.innerHTML += `
+      <div class="col-md-4">
+        <div class="job-card" style="${isInactive ? 'opacity: 0.7;' : ''}">
+          <div class="d-flex justify-content-between align-items-start">
+             <h5>${admin.complexName}</h5>
+             ${statusBadge}
+          </div>
+          
+          <div class="job-divider"></div>
+
+          <p><strong>Administrador:</strong> ${admin.adminName}</p>
+          <p><strong>Email:</strong> ${admin.email}</p>
+          <p><strong>Registrado:</strong> ${dateStr}</p>
+          
+          <div class="d-flex w-100 gap-2 mt-3">
+             <!-- Botón Editar -->
+             <button class="btn btn-gold flex-fill" onclick="editAdmin('${admin.id}', '${admin.complexName}', '${admin.adminName}', '${admin.email}')">
+               <i class="fa-solid fa-pen"></i> Editar
+             </button>
+
+             <!-- Botón Activar/Desactivar -->
+             <button class="${toggleBtnClass} flex-fill" onclick="toggleAdminStatus('${admin.id}', '${toggleAction}')">
+               <i class="fa-solid ${toggleIcon}"></i> ${toggleText}
+             </button>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+}
+
+// Función para cambiar estado (Activar/Desactivar)
+window.toggleAdminStatus = function(id, newStatus) {
+  const actionText = newStatus === 'active' ? "Activar" : "Desactivar";
+  const confirmText = newStatus === 'active' 
+    ? "El administrador podrá volver a ingresar al sistema." 
+    : "El administrador perderá el acceso temporalmente.";
+
+  Swal.fire({
+    title: `¿${actionText} administrador?`,
+    text: confirmText,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d4af37",
+    cancelButtonColor: "#000",
+    confirmButtonText: `Sí, ${actionText.toLowerCase()}`,
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        await db.collection("users").doc(id).update({ status: newStatus });
+        Swal.fire("Actualizado", `El administrador ha sido ${newStatus === 'active' ? 'activado' : 'desactivado'}.`, "success");
+        cargarAdmins(); // Recargar lista
+      } catch (error) {
+        console.error("Error cambiando estado:", error);
+        Swal.fire("Error", "No se pudo cambiar el estado.", "error");
+      }
+    }
+  });
+};
+
+// =========================================
+//  REGISTRO DE ADMINISTRADORES
+// =========================================
+function activarRegistroAdmin() {
+  const form = document.getElementById("registerAdminForm");
+  if (!form) return;
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const complexName = document.getElementById("adminComplexName").value;
+    const adminName = document.getElementById("adminName").value;
+    const email = document.getElementById("adminEmail").value;
+    const password = document.getElementById("adminPassword").value;
+
+    if (password.length < 6) {
+      Swal.fire("Error", "La contraseña debe tener al menos 6 caracteres", "warning");
+      return;
+    }
+
+    try {
+      Swal.fire({
+        title: 'Registrando...',
+        text: 'Creando cuenta de administrador sin cerrar sesión...',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      // 1. Crear app secundaria para no desloguear al admin actual
+      // Verificar si ya existe y eliminarla para evitar errores
+      let secondaryApp = firebase.apps.find(app => app.name === "Secondary");
+      if (secondaryApp) {
+        await secondaryApp.delete();
+      }
+      secondaryApp = firebase.initializeApp(firebaseConfig, "Secondary");
+
+      // 2. Crear usuario en Auth
+      const userCredential = await secondaryApp.auth().createUserWithEmailAndPassword(email, password);
+      const uid = userCredential.user.uid;
+
+      // 3. Guardar datos en Firestore (usando la instancia PRINCIPAL de db para consistencia)
+      try {
+        await db.collection("users").doc(uid).set({
+          complexName: complexName,
+          adminName: adminName,
+          email: email,
+          role: "ADMIN_CONJUNTO",
+          status: "active", // Por defecto activo
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      } catch (firestoreError) {
+        console.error("Error guardando en Firestore, revirtiendo Auth:", firestoreError);
+        // ROLLBACK: Eliminar usuario de Auth si falla la BD para evitar registros huérfanos
+        await userCredential.user.delete(); 
+        throw new Error("FIRESTORE_PERMISSION_ERROR"); // Lanzar para manejar en el catch principal
+      }
+
+      // 4. Eliminar app secundaria liberando recursos
+      await secondaryApp.delete();
+
+      // 5. Éxito
+      Swal.fire({
+        icon: "success",
+        title: "Administrador Registrado",
+        text: "La cuenta ha sido creada exitosamente. Ahora puede usarla en el Login de Residentes.",
+      });
+
+      // 6. Resetear formulario y cerrar modal
+      form.reset();
+      const modal = bootstrap.Modal.getInstance(document.getElementById("addAdminModal"));
+      if (modal) modal.hide();
+
+    } catch (error) {
+      console.error("Error al registrar admin:", error);
+      
+      // Intentar limpiar app secundaria si quedó abierta
+      const appRef = firebase.apps.find(app => app.name === "Secondary");
+      if (appRef) await appRef.delete();
+
+      let msg = "No se pudo registrar al administrador.";
+      
+      if (error.message === "FIRESTORE_PERMISSION_ERROR" || error.code === "permission-denied") {
+        msg = "Error de permisos en Base de Datos. Por favor verifica las Reglas de Firestore.";
+        Swal.fire({
+          icon: "error",
+          title: "Permisos Insuficientes",
+          html: `No se pudo guardar el administrador en la base de datos.<br><br>
+                 <strong>Solución:</strong> Ve a tu <em>Firebase Console > Firestore Database > Reglas</em> y asegúrate de permitir escritura en la colección <code>users</code>.<br><br>
+                 <em>Nota: El usuario creado se ha eliminado automáticamente para que puedas reintentar.</em>`
+        });
+        return;
+      }
+
+      if (error.code === 'auth/email-already-in-use') {
+        msg = "El correo electrónico ya está registrado.";
+      }
+      Swal.fire("Error", msg, "error");
+    }
+  });
+}
+
+// =========================================
+//  LÓGICA DE EDICIÓN DE ADMINISTRADORES
+// =========================================
+function editAdmin(id, complexName, adminName, email) {
+  const modalEl = document.getElementById("editAdminModal");
+  if (!modalEl) return;
+
+  document.getElementById("editAdminId").value = id;
+  document.getElementById("editAdminComplexName").value = complexName;
+  document.getElementById("editAdminName").value = adminName;
+  document.getElementById("editAdminEmail").value = email;
+
+  // Configurar el botón de reset password
+  const btnReset = document.getElementById("btnResetPassword");
+  if (btnReset) {
+    // Eliminamos listeners previos clonando el botón
+    const newBtn = btnReset.cloneNode(true);
+    btnReset.parentNode.replaceChild(newBtn, btnReset);
+    
+    newBtn.addEventListener("click", () => {
+      enviarCorreoReset(email);
+    });
+  }
+
+  const modal = new bootstrap.Modal(modalEl);
+  modal.show();
+}
+
+async function enviarCorreoReset(email) {
+  try {
+    await firebase.auth().sendPasswordResetEmail(email);
+    Swal.fire({
+      icon: 'success',
+      title: 'Correo Enviado',
+      text: `Se ha enviado un enlace para restablecer la contraseña a: ${email}`,
+      confirmButtonColor: '#d4af37'
+    });
+  } catch (error) {
+    console.error("Error enviando reset password:", error);
+    let msg = "No se pudo enviar el correo.";
+    if (error.code === 'auth/user-not-found') msg = "No existe cuenta con este correo.";
+    Swal.fire("Error", msg, "error");
+  }
+}
+
+// Inicializar listener para el form de editar
+document.addEventListener("DOMContentLoaded", () => {
+  const editForm = document.getElementById("editAdminForm");
+  if (editForm) {
+    editForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("editAdminId").value;
+      const newComplexName = document.getElementById("editAdminComplexName").value;
+      const newAdminName = document.getElementById("editAdminName").value;
+
+      try {
+        await db.collection("users").doc(id).update({
+          complexName: newComplexName,
+          adminName: newAdminName
+        });
+
+        Swal.fire("Actualizado", "Datos del administrador actualizados correctamente.", "success");
+        
+        const modalEl = document.getElementById("editAdminModal");
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
+
+        cargarAdmins(); // Recargar la lista
+      } catch (error) {
+        console.error("Error actualizando admin:", error);
+        Swal.fire("Error", "No se pudo actualizar la información.", "error");
+      }
+    });
+  }
+});

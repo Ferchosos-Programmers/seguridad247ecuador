@@ -88,6 +88,17 @@
           </div>
         </div>
 
+        <!-- Portal Clientes con modal -->
+        <div class="col-md-12">
+          <div
+            class="card-dashboard"
+            data-bs-toggle="modal"
+            data-bs-target="#loginModalCliente"
+          >
+            <i class="fa-solid fa-building-user"></i>
+            <h5>Portal Residentes / Conjuntos</h5>
+          </div>
+        </div>
       </div>
     </main>
 
@@ -101,11 +112,13 @@
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
     <!-- Scripts personalizados -->
     <script src="js/firebase.js"></script>
     <script src="js/login_tecnico.js"></script>
     <script src="js/login_admin.js"></script>
+    <script src="js/login_clientes.js"></script>
     <script src="js/sweetalert2.js"></script>
 
     <!-- MODAL LOGIN TECNICO -->
@@ -191,11 +204,67 @@
                 />
               </div>
               <div class="mb-3">
-                <label for="adminLoginForm" class="form-label">Contraseña</label>
+                <label for="adminLoginForm" class="form-label"
+                  >Contraseña</label
+                >
                 <input
                   type="password"
                   class="form-control"
                   id="adminPassword"
+                  placeholder="Ingresa tu contraseña"
+                />
+              </div>
+              <button type="submit" class="btn btn-login w-100">
+                Ingresar
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL LOGIN CLIENTE -->
+    <div
+      class="modal fade"
+      id="loginModalCliente"
+      tabindex="-1"
+      aria-labelledby="loginModalClienteLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="loginModalClienteLabel">
+              <i class="fa-solid fa-building-user"></i> Login Residentes
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Cerrar"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="clientLoginForm">
+              <div class="mb-3">
+                <label for="clientUser" class="form-label"
+                  >Email / Usuario</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="clientUser"
+                  placeholder="admin@conjunto.com"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="clientPassword" class="form-label"
+                  >Contraseña</label
+                >
+                <input
+                  type="password"
+                  class="form-control"
+                  id="clientPassword"
                   placeholder="Ingresa tu contraseña"
                 />
               </div>
