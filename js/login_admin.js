@@ -48,7 +48,11 @@ document.addEventListener("DOMContentLoaded", () => {
   nameFilterContainer.style.display = "none";
       
       const btnAddAdmin = document.getElementById("btnAddAdmin");
-      if (btnAddAdmin) btnAddAdmin.style.display = "none";
+      if (btnAddAdmin) {
+        btnAddAdmin.style.display = "none";
+        // Cargar contratos al presionar el botón de agregar admin
+        btnAddAdmin.addEventListener("click", cargarOpcionesContrato);
+      }
 
       if (value === "finished") {
         jobsSection.style.display = "block";
@@ -1558,6 +1562,12 @@ function activarRegistroAdmin() {
     const adminName = document.getElementById("adminName").value;
     const email = document.getElementById("adminEmail").value;
     const password = document.getElementById("adminPassword").value;
+    const contractId = document.getElementById("adminContractSelect").value;
+
+    if (!contractId) {
+      Swal.fire("Error", "Debe seleccionar un contrato asociado para el administrador", "warning");
+      return;
+    }
 
     if (password.length < 6) {
       Swal.fire("Error", "La contraseña debe tener al menos 6 caracteres", "warning");
@@ -1593,6 +1603,7 @@ function activarRegistroAdmin() {
           adminName: adminName,
           email: email,
           role: "ADMIN_CONJUNTO",
+          contractId: contractId,
           status: "active", // Por defecto activo
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
@@ -1722,3 +1733,36 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+// =========================================
+//  CARGAR OPCIONES DE CONTRATO (PARA REGISTRO)
+// =========================================
+async function cargarOpcionesContrato() {
+  const select = document.getElementById("adminContractSelect");
+  if (!select) return;
+
+  select.innerHTML = '<option value="" selected disabled>Cargando contratos...</option>';
+
+  try {
+    const snapshot = await db.collection("contracts").get();
+    
+    if (snapshot.empty) {
+      select.innerHTML = '<option value="" selected disabled>No se encontraron contratos</option>';
+      return;
+    }
+
+    let optionsHTML = '<option value="" selected disabled>Seleccione un contrato...</option>';
+    
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      // Usamos el id del documento como valor y el nombre del cliente para el texto
+      optionsHTML += `<option value="${doc.id}">${data.clientName} (${data.city})</option>`;
+    });
+
+    select.innerHTML = optionsHTML;
+
+  } catch (error) {
+    console.error("Error al cargar contratos:", error);
+    select.innerHTML = '<option value="" selected disabled>Error al cargar contratos</option>';
+  }
+}

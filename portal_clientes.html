@@ -12,6 +12,86 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
     />
     <link rel="icon" href="assets/img/logo.png" type="image/png" />
+    <style>
+      /* ELEGANT CUSTOM STYLES FOR PAYMENT SCHEDULE */
+      .table-custom {
+        border-collapse: separate;
+        border-spacing: 0 8px;
+        background: transparent !important;
+      }
+      .table-custom tr {
+        background: rgba(45, 45, 45, 0.4);
+        transition: all 0.3s ease;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .table-custom tr:hover:not(.row-paid) {
+        background: rgba(212, 175, 55, 0.1);
+        transform: scale(1.005);
+      }
+      .table-custom td {
+        padding: 12px 8px;
+        border: none !important;
+        color: #e0e0e0;
+        vertical-align: middle;
+      }
+      .table-custom th {
+        border: none;
+        color: #d4af37;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+      }
+      /* Soft Badges */
+      .bg-success-soft {
+        background: rgba(25, 135, 84, 0.2);
+        color: #28a745;
+        border: 1px solid rgba(40, 167, 69, 0.3);
+      }
+      .bg-warning-soft {
+        background: rgba(255, 193, 7, 0.15);
+        border: 1px solid rgba(255, 193, 7, 0.3);
+      }
+      /* Custom Gold Checkbox (Radio) */
+      .custom-check .form-check-input {
+        background-color: transparent;
+        border: 2px solid #d4af37;
+        width: 1.25rem;
+        height: 1.25rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .custom-check .form-check-input:checked {
+        background-color: #d4af37;
+        box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+      }
+      .row-paid {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      .row-pending {
+        cursor: pointer;
+      }
+      /* CUSTOM SCROLLBAR REFINEMENT */
+      .table-responsive-scroll {
+        max-height: 200px; /* Aproximadamente 4-5 cuotas */
+        overflow-y: auto;
+        padding-right: 5px;
+      }
+      .table-responsive-scroll::-webkit-scrollbar {
+        width: 6px;
+      }
+      .table-responsive-scroll::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.2);
+      }
+      .table-responsive-scroll::-webkit-scrollbar-thumb {
+        background: #d4af37;
+        border-radius: 10px;
+      }
+      .table-responsive-scroll::-webkit-scrollbar-thumb:hover {
+        background: #b8922b;
+      }
+    </style>
     <script src="js/bootstrap.min.js"></script>
   </head>
   <body>
@@ -66,177 +146,196 @@
                 <i class="fa-solid fa-credit-card"></i> Realizar Pago / Reporte
               </h5>
             </div>
-            <div class="card-body-custom">
-              <!-- SELECCIÓN DE MÉTODO DE PAGO -->
-              <div class="mb-4 text-center">
-                <div
-                  class="btn-group w-100"
-                  role="group"
-                  aria-label="Metodo de pago"
-                >
-                  <input
-                    type="radio"
-                    class="btn-check"
-                    name="paymentOption"
-                    id="optionCard"
-                    autocomplete="off"
-                    checked
-                    onchange="togglePaymentMethod('card')"
-                  />
-                  <label class="btn btn-outline-gold" for="optionCard"
-                    ><i class="fa-regular fa-credit-card"></i> Tarjeta</label
-                  >
-
-                  <input
-                    type="radio"
-                    class="btn-check"
-                    name="paymentOption"
-                    id="optionTransfer"
-                    autocomplete="off"
-                    onchange="togglePaymentMethod('transfer')"
-                  />
-                  <label class="btn btn-outline-gold" for="optionTransfer"
-                    ><i class="fa-solid fa-money-bill-transfer"></i>
-                    Transferencia</label
-                  >
+            <div class="card-body-custom" id="paymentControlContainer">
+              <!-- Mensaje inicial: Se muestra cuando NO hay nada seleccionado -->
+              <div id="paymentInstructions" class="text-center py-5">
+                <div class="mb-3">
+                  <i
+                    class="fa-solid fa-calendar-check fa-3x text-secondary opacity-25"
+                  ></i>
                 </div>
-              </div>
-
-              <!-- FORMULARIO COMÚN (Servicio y Monto) -->
-              <div class="mb-3">
-                <label class="form-label">Servicio a Pagar</label>
-                <select class="form-select" id="commonService" required>
-                  <option value="" selected disabled>Seleccione...</option>
-                  <option value="Guardia Virtual">Guardia Virtual</option>
-                  <option value="Monitoreo CCTV">Monitoreo CCTV</option>
-                  <option value="Mantenimiento">
-                    Mantenimiento Preventivo
-                  </option>
-                  <option value="Instalación">Nueva Instalación</option>
-                  <option value="Alicuota">Alicuota / Expensa</option>
-                </select>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">Monto a Pagar (USD)</label>
-                <div class="input-group">
-                  <span
-                    class="input-group-text bg-secondary text-white border-secondary"
-                    >$</span
-                  >
-                  <input
-                    type="number"
-                    step="0.01"
-                    class="form-control"
-                    id="commonAmount"
-                    placeholder="0.00"
-                    required
-                  />
-                </div>
-              </div>
-
-              <hr class="my-4" style="border-color: #d4af37" />
-
-              <!-- FORMULARIO TARJETA -->
-              <div id="cardFormSection">
-                <h6 class="text-gold mb-3">
-                  <i class="fa-brands fa-cc-visa"></i>
-                  <i class="fa-brands fa-cc-mastercard"></i> Datos de Tarjeta
+                <h6 class="text-secondary fw-light">
+                  Seleccione una cuota del calendario para habilitar las
+                  opciones de pago.
                 </h6>
-                <form id="formCard">
-                  <div class="mb-3">
-                    <label class="form-label">Número de Tarjeta</label>
+              </div>
+
+              <!-- CONTENEDOR DE PAGO: Oculto inicialmente, se muestra al elegir mes -->
+              <div
+                id="paymentMethodsWrapper"
+                style="display: none; animation: fadeIn 0.4s ease-out"
+              >
+                <!-- CAMPOS OCULTOS PARA LOGICA INTERNA -->
+                <input type="hidden" id="commonService" />
+                <input type="hidden" id="commonAmount" />
+
+                <div class="mb-4 text-center">
+                  <div class="btn-group w-100" role="group">
                     <input
-                      type="text"
-                      class="form-control"
-                      id="cardNumber"
-                      placeholder="0000 0000 0000 0000"
-                      maxlength="19"
+                      type="radio"
+                      class="btn-check"
+                      name="paymentOption"
+                      id="optionCard"
+                      autocomplete="off"
+                      checked
+                      onchange="togglePaymentMethod('card')"
                     />
+                    <label class="btn btn-outline-gold py-2" for="optionCard">
+                      <i class="fa-regular fa-credit-card me-2"></i> Tarjeta
+                    </label>
+
+                    <input
+                      type="radio"
+                      class="btn-check"
+                      name="paymentOption"
+                      id="optionTransfer"
+                      autocomplete="off"
+                      onchange="togglePaymentMethod('transfer')"
+                    />
+                    <label
+                      class="btn btn-outline-gold py-2"
+                      for="optionTransfer"
+                    >
+                      <i class="fa-solid fa-money-bill-transfer me-2"></i>
+                      Transferencia
+                    </label>
                   </div>
-                  <div class="row">
-                    <div class="col-6 mb-3">
-                      <label class="form-label">Expiración</label>
+                </div>
+
+                <!-- SECCIÓN TARJETA -->
+                <div
+                  id="cardFormSection"
+                  class="p-4 border border-secondary rounded-4 bg-dark-soft mb-4"
+                >
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-4"
+                  >
+                    <span class="text-gold fw-bold"
+                      ><i class="fa-solid fa-shield-check me-2"></i> Pago
+                      Seguro</span
+                    >
+                    <div>
+                      <i
+                        class="fa-brands fa-cc-visa fa-xl text-white-50 mx-1"
+                      ></i>
+                      <i
+                        class="fa-brands fa-cc-mastercard fa-xl text-white-50 mx-1"
+                      ></i>
+                    </div>
+                  </div>
+                  <form id="formCard">
+                    <div class="mb-3">
+                      <label class="form-label small text-secondary"
+                        >NÚMERO DE TARJETA</label
+                      >
                       <input
                         type="text"
-                        class="form-control"
-                        id="cardExpiry"
-                        placeholder="MM/YY"
-                        maxlength="5"
+                        class="form-control bg-transparent border-secondary text-white"
+                        id="cardNumber"
+                        placeholder="0000 0000 0000 0000"
+                        maxlength="19"
                       />
                     </div>
-                    <div class="col-6 mb-3">
-                      <label class="form-label">CVV</label>
+                    <div class="row">
+                      <div class="col-6 mb-3">
+                        <label class="form-label small text-secondary"
+                          >EXPIRACIÓN</label
+                        >
+                        <input
+                          type="text"
+                          class="form-control bg-transparent border-secondary text-white"
+                          id="cardExpiry"
+                          placeholder="MM/YY"
+                          maxlength="5"
+                        />
+                      </div>
+                      <div class="col-6 mb-3">
+                        <label class="form-label small text-secondary"
+                          >CVV</label
+                        >
+                        <input
+                          type="password"
+                          class="form-control bg-transparent border-secondary text-white"
+                          id="cardCvv"
+                          placeholder="123"
+                          maxlength="4"
+                        />
+                      </div>
+                    </div>
+                    <div class="mb-4">
+                      <label class="form-label small text-secondary"
+                        >NOMBRE DEL TITULAR</label
+                      >
                       <input
-                        type="password"
-                        class="form-control"
-                        id="cardCvv"
-                        placeholder="123"
-                        maxlength="3"
+                        type="text"
+                        class="form-control bg-transparent border-secondary text-white"
+                        id="cardHolder"
+                        placeholder="Como aparece en la tarjeta"
                       />
                     </div>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Nombre del Titular</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="cardHolder"
-                      placeholder="Como aparece en la tarjeta"
-                    />
-                  </div>
-                  <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-gold">
-                      <i class="fa-solid fa-lock"></i> Pagar Ahora
-                    </button>
-                  </div>
-                </form>
-              </div>
-
-              <!-- FORMULARIO TRANSFERENCIA -->
-              <div id="transferFormSection" style="display: none">
-                <div class="alert alert-dark border-gold" role="alert">
-                  <small>
-                    <strong
-                      ><i class="fa-solid fa-bank"></i> Banco Pichincha</strong
-                    ><br />
-                    Cta. Corriente: 2100xxxxxx<br />
-                    RUC: 179xxxxxxx001<br />
-                    Nombre: Seguridad 247 Ecuador
-                  </small>
-                </div>
-
-                <form id="formTransfer">
-                  <div class="mb-3">
-                    <label class="form-label"
-                      >Subir Comprobante (Foto/PDF)</label
-                    >
-                    <input
-                      class="form-control"
-                      type="file"
-                      id="transferFile"
-                      accept="image/*,application/pdf"
-                    />
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Notas / Referencia</label>
-                    <textarea
-                      class="form-control"
-                      id="transferNotes"
-                      rows="2"
-                      placeholder="Ej: Pago Ali-001"
-                    ></textarea>
-                  </div>
-                  <div class="d-grid gap-2">
                     <button
                       type="submit"
-                      class="btn btn-info text-white"
-                      style="background: #1cb698; border: none"
+                      class="btn btn-gold w-100 py-3 fw-bold rounded-pill"
                     >
-                      <i class="fa-solid fa-upload"></i> Registrar Transferencia
+                      <i class="fa-solid fa-lock me-2"></i> PAGAR AHORA
                     </button>
+                  </form>
+                </div>
+
+                <!-- SECCIÓN TRANSFERENCIA -->
+                <div
+                  id="transferFormSection"
+                  style="display: none"
+                  class="p-4 border border-secondary rounded-4 bg-dark-soft mb-4"
+                >
+                  <div
+                    class="alert alert-dark border-gold bg-transparent mb-4"
+                    role="alert"
+                  >
+                    <div class="small">
+                      <h6 class="text-gold mb-2">
+                        <i class="fa-solid fa-building-columns me-2"></i> Datos
+                        Bancarios
+                      </h6>
+                      Cta. Corriente: <span class="text-white">2100xxxxxx</span
+                      ><br />
+                      RUC: <span class="text-white">179xxxxxxx001</span><br />
+                      Beneficiario:
+                      <span class="text-white">Seguridad 247 Ecuador</span>
+                    </div>
                   </div>
-                </form>
+
+                  <form id="formTransfer">
+                    <div class="mb-3">
+                      <label class="form-label small text-secondary"
+                        >SUBIR COMPROBANTE</label
+                      >
+                      <input
+                        class="form-control bg-transparent border-secondary text-white"
+                        type="file"
+                        id="transferFile"
+                        accept="image/*,application/pdf"
+                      />
+                    </div>
+                    <div class="mb-4">
+                      <label class="form-label small text-secondary"
+                        >NOTAS / REFERENCIA</label
+                      >
+                      <textarea
+                        class="form-control bg-transparent border-secondary text-white"
+                        id="transferNotes"
+                        rows="2"
+                        placeholder="Ej: Pago Alicuota Enero"
+                      ></textarea>
+                    </div>
+                    <button
+                      type="submit"
+                      class="btn btn-gold w-100 py-3 fw-bold rounded-pill"
+                    >
+                      <i class="fa-solid fa-upload me-2"></i> REGISTRAR PAGO
+                    </button>
+                  </form>
+                </div>
               </div>
             </div>
           </div>
@@ -244,12 +343,47 @@
 
         <!-- HISTORIAL DE PAGOS -->
         <div class="col-md-7">
-          <div class="card-custom h-100">
+          <!-- NUEVA SECCIÓN: CALENDARIO DE PAGOS -->
+          <div class="card-custom mb-4">
+            <div class="card-header-custom">
+              <h5>
+                <i class="fa-solid fa-calendar-days"></i> Calendario de Pagos
+                del Contrato
+              </h5>
+            </div>
+            <div class="card-body-custom">
+              <div class="table-responsive">
+                <table
+                  class="table table-dark table-striped table-sm table-hover"
+                >
+                  <thead>
+                    <tr>
+                      <th style="width: 40px">Pagar</th>
+                      <th>Fecha Límite</th>
+                      <th>Monto (+IVA)</th>
+                      <th>Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody id="paymentScheduleBody">
+                    <tr>
+                      <td colspan="4" class="text-center text-muted py-3">
+                        Cargando calendario...
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- HISTORIAL EXISTENTE -->
+          <div class="card-custom">
             <div
               class="card-header-custom d-flex justify-content-between align-items-center"
             >
               <h5>
                 <i class="fa-solid fa-clock-rotate-left"></i> Historial de Pagos
+                Realizados
               </h5>
               <button
                 class="btn btn-sm btn-outline-gold"
@@ -260,7 +394,9 @@
             </div>
             <div class="card-body-custom">
               <div class="table-responsive">
-                <table class="table table-custom">
+                <table
+                  class="table table-dark table-striped table-sm table-hover"
+                >
                   <thead>
                     <tr>
                       <th>Fecha</th>

@@ -654,6 +654,17 @@
           <div class="modal-body">
             <form id="registerAdminForm">
               <div class="mb-3">
+                <label for="adminContractSelect" class="form-label"
+                  >Contrato Asociado</label
+                >
+                <select class="form-select" id="adminContractSelect" required>
+                  <option value="" selected disabled>
+                    Seleccione un contrato...
+                  </option>
+                  <!-- Opciones se cargarán dinámicamente -->
+                </select>
+              </div>
+              <div class="mb-3">
                 <label for="adminComplexName" class="form-label"
                   >Nombre del Conjunto</label
                 >
