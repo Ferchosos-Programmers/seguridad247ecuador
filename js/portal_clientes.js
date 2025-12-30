@@ -67,7 +67,8 @@ document.addEventListener("DOMContentLoaded", () => {
           method: method, // 'Tarjeta' or 'Transferencia'
           notes: notes,
           status: extraData.status || "Pendiente",
-          proofFile: extraData.fileName || null, // Guardamos nombre de archivo si hay
+          proofFile: extraData.fileName || null, 
+          proofUrl: extraData.proofUrl || null, // Nueva URL de descarga
           date: new Date(),
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
       };
@@ -119,7 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (formTransfer) {
-      formTransfer.addEventListener("submit", (e) => {
+      formTransfer.addEventListener("submit", async (e) => {
           e.preventDefault();
           const fileInput = document.getElementById("transferFile");
           const notes = document.getElementById("transferNotes").value;
@@ -129,8 +130,31 @@ document.addEventListener("DOMContentLoaded", () => {
               return;
           }
 
-          const fileName = fileInput.files[0].name; // Simular subida guardando el nombre
-          processPayment("Transferencia", notes, { status: "Pendiente", fileName: fileName });
+          const file = fileInput.files[0];
+          const storageRef = firebase.storage().ref(`payment_proofs/${Date.now()}_${file.name}`);
+          
+          try {
+              // Mostrar indicador de carga
+              Swal.fire({
+                  title: 'Subiendo comprobante...',
+                  allowOutsideClick: false,
+                  didOpen: () => {
+                      Swal.showLoading();
+                  }
+              });
+
+              const snapshot = await storageRef.put(file);
+              const downloadURL = await snapshot.ref.getDownloadURL();
+              
+              processPayment("Transferencia", notes, { 
+                  status: "Pendiente", 
+                  fileName: file.name,
+                  proofUrl: downloadURL 
+              });
+          } catch (error) {
+              console.error("Error al subir archivo:", error);
+              Swal.fire("Error", "No se pudo subir el archivo comprobante.", "error");
+          }
       });
   }
 
@@ -241,7 +265,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!user) return;
 
       // 1. Obtener pagos reales para cruzar información
-      let paidMonths = [];
+      let reportedPayments = {};
       try {
           const paymentsSnapshot = await db.collection("payments")
               .where("userId", "==", user.uid)
@@ -249,10 +273,8 @@ document.addEventListener("DOMContentLoaded", () => {
           
           paymentsSnapshot.forEach(doc => {
               const data = doc.data();
-              if (data.date && data.date.toDate) {
-                  const d = data.date.toDate();
-                  // Guardamos mes y año del pago (usamos el mes del pago para simplificar)
-                  paidMonths.push(`${d.getMonth()}-${d.getFullYear()}`);
+              if (data.service) {
+                  reportedPayments[data.service] = data.status;
               }
           });
       } catch (e) {
@@ -278,23 +300,26 @@ document.addEventListener("DOMContentLoaded", () => {
           const yearNum = paymentDate.getFullYear();
           const dateStr = paymentDate.toLocaleDateString('es-ES');
           
-          const monthYearKey = `${paymentDate.getMonth()}-${paymentDate.getFullYear()}`;
-          const isPaid = paidMonths.includes(monthYearKey);
-
-          const statusBadge = isPaid 
-              ? '<span class="badge bg-success-soft">Pagado</span>' 
-              : '<span class="badge bg-warning-soft text-warning">Pendiente</span>';
-
-          const checkboxAttr = isPaid ? 'disabled' : '';
           const serviceLabel = `Pago Cuota ${monthName} ${yearNum}`;
+          const reportedStatus = reportedPayments[serviceLabel];
+          
+          const isPaid = reportedStatus === "Aprobado";
+          const isPending = reportedStatus === "Pendiente";
+
+          let statusBadge = '<span class="badge bg-warning-soft text-warning">Por Pagar</span>';
+          if (isPaid) statusBadge = '<span class="badge bg-success-soft">Pagado</span>';
+          else if (isPending) statusBadge = '<span class="badge bg-info-soft text-info">En Revisión</span>';
+
+          const hideCheckbox = isPaid || isPending;
+          const serviceRowClass = isPaid ? 'row-paid' : (isPending ? 'row-pending-review' : 'row-pending');
 
           html += `
-              <tr class="${isPaid ? 'row-paid' : 'row-pending'}">
+              <tr class="${serviceRowClass}">
                   <td>
                        <div class="form-check custom-check">
                            <input class="form-check-input payment-checkbox" type="checkbox" name="paymentSelect" 
-                                  id="chk_${monthYearKey}" value="${amountWithIva.toFixed(2)}" 
-                                  data-service="${serviceLabel}" ${checkboxAttr}>
+                                  id="chk_${i}" value="${amountWithIva.toFixed(2)}" 
+                                  data-service="${serviceLabel}" ${hideCheckbox ? 'style="display:none"' : ''}>
                        </div>
                    </td>
                    <td class="fw-bold">${dateStr}</td>

@@ -61,6 +61,7 @@
               <option value="finished">Gestión de Trabajos</option>
               <option value="contracts">Gestión de Contratos</option>
               <option value="admins">Gestión de Administradores</option>
+              <option value="payments">Autorización de Pagos</option>
             </select>
           </div>
 
@@ -164,6 +165,12 @@
           Administradores Registrados
         </h2>
         <div id="adminsContainer" class="row g-4"></div>
+      </div>
+
+      <!-- Contenedor para Autorización de Pagos -->
+      <div id="paymentsSection" style="display: none">
+        <h2 style="color: #fff; margin-top: 40px">Autorización de Pagos</h2>
+        <div id="paymentsContainer" class="row g-4"></div>
       </div>
     </main>
 
@@ -830,6 +837,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
 
     <!-- SCRIPTS -->
     <script src="js/firebase.js"></script>

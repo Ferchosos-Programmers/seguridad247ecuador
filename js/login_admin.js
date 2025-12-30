@@ -41,6 +41,8 @@ document.addEventListener("DOMContentLoaded", () => {
   contractsSection.style.display = "none";
   const adminsSection = document.getElementById("adminsSection");
   if (adminsSection) adminsSection.style.display = "none";
+  const paymentsSection = document.getElementById("paymentsSection");
+  if (paymentsSection) paymentsSection.style.display = "none";
 
   createJobBtn.style.display = "none";
   createContractBtn.style.display = "none";
@@ -69,6 +71,9 @@ document.addEventListener("DOMContentLoaded", () => {
     adminsSection.style.display = "block";
     if (btnAddAdmin) btnAddAdmin.style.display = "block"; 
     cargarAdmins();
+  } else if (value === "payments") {
+    if (paymentsSection) paymentsSection.style.display = "block";
+    cargarPagosPendientes();
   } else if (value === "todos") {
     jobsSection.style.display = "block";
         contractsSection.style.display = "block";
@@ -1766,3 +1771,147 @@ async function cargarOpcionesContrato() {
     select.innerHTML = '<option value="" selected disabled>Error al cargar contratos</option>';
   }
 }
+
+// =========================================
+//  AUTORIZACIÓN DE PAGOS
+// =========================================
+async function cargarPagosPendientes() {
+  const container = document.getElementById("paymentsContainer");
+  if (!container) return;
+
+  container.innerHTML = '<div class="col-12 text-center text-muted py-5"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><br>Cargando pagos pendientes...</div>';
+
+  try {
+    const snapshot = await db.collection("payments")
+      .where("status", "==", "Pendiente")
+      .orderBy("date", "desc")
+      .get();
+
+    if (snapshot.empty) {
+      container.innerHTML = '<div class="col-12 text-center text-white py-5">No hay pagos pendientes de aprobación.</div>';
+      return;
+    }
+
+    let html = "";
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const id = doc.id;
+      
+      let dateStr = "---";
+      if (data.date && data.date.toDate) {
+        dateStr = data.date.toDate().toLocaleDateString("es-ES", {
+          day: '2-digit', month: '2-digit', year: 'numeric',
+          hour: '2-digit', minute: '2-digit'
+        });
+      }
+
+      html += `
+        <div class="col-md-6 col-lg-4">
+          <div class="card bg-dark text-white border-gold h-100">
+            <div class="card-body">
+              <h5 class="card-title text-gold">${data.service}</h5>
+              <p class="card-text mb-1"><strong>Cliente:</strong> ${data.userEmail}</p>
+              <p class="card-text mb-1"><strong>Monto:</strong> <span class="text-gold fw-bold">$${parseFloat(data.amount).toFixed(2)}</span></p>
+              <p class="card-text mb-1"><strong>Método:</strong> ${data.method}</p>
+              <p class="card-text mb-1"><strong>Fecha:</strong> ${dateStr}</p>
+              <p class="card-text mb-3"><strong>Notas:</strong> ${data.notes || 'Sin notas'}</p>
+              
+              <div class="d-grid gap-2">
+                ${data.proofUrl ? `
+                  <button class="btn btn-outline-info btn-sm" onclick="verComprobante('${data.proofUrl}')">
+                    <i class="fa-solid fa-image"></i> Ver Comprobante
+                  </button>
+                ` : ''}
+                <div class="row g-2">
+                  <div class="col-6">
+                    <button class="btn btn-success btn-sm w-100" onclick="aprobarPago('${id}')">
+                      <i class="fa-solid fa-check"></i> Aprobar
+                    </button>
+                  </div>
+                  <div class="col-6">
+                    <button class="btn btn-danger btn-sm w-100" onclick="rechazarPago('${id}')">
+                      <i class="fa-solid fa-xmark"></i> Rechazar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = html;
+
+  } catch (error) {
+    console.error("Error al cargar pagos pendientes:", error);
+    container.innerHTML = '<div class="col-12 text-center text-danger py-5">Error al cargar pagos pendientes: ' + error.message + '</div>';
+  }
+}
+
+window.verComprobante = (url) => {
+  Swal.fire({
+    title: 'Comprobante de Pago',
+    imageUrl: url,
+    imageAlt: 'Comprobante de Pago',
+    confirmButtonColor: '#d4af37',
+    confirmButtonText: 'Cerrar',
+    width: '80%'
+  });
+};
+
+window.aprobarPago = async (id) => {
+  const result = await Swal.fire({
+    title: '¿Aprobar pago?',
+    text: "Esta acción marcará el pago como completado.",
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#28a745',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Sí, aprobar',
+    cancelButtonText: 'Cancelar'
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await db.collection("payments").doc(id).update({
+        status: 'Aprobado',
+        approvedAt: new Date()
+      });
+
+      Swal.fire('¡Aprobado!', 'El pago ha sido autorizado.', 'success');
+      cargarPagosPendientes();
+    } catch (error) {
+      console.error("Error al aprobar pago:", error);
+      Swal.fire('Error', 'No se pudo aprobar el pago.', 'error');
+    }
+  }
+};
+
+window.rechazarPago = async (id) => {
+  const result = await Swal.fire({
+    title: '¿Rechazar pago?',
+    text: "Esta acción marcará el pago como rechazado.",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#dc3545',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Sí, rechazar',
+    cancelButtonText: 'Cancelar'
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await db.collection("payments").doc(id).update({
+        status: 'Rechazado',
+        rejectedAt: new Date()
+      });
+
+      Swal.fire('Rechazado', 'El pago ha sido marcado como rechazado.', 'info');
+      cargarPagosPendientes();
+    } catch (error) {
+      console.error("Error al rechazar pago:", error);
+      Swal.fire('Error', 'No se pudo rechazar el pago.', 'error');
+    }
+  }
+};
