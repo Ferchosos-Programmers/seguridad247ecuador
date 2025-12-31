@@ -45,20 +45,20 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // 4. PROCESS PAYMENT (COMMON FUNCTION)
-  async function processPayment(method, notes, extraData = {}) {
+  async function processPayment(method, notes, extraData = {}, silent = false) {
     const user = auth.currentUser;
-    if (!user) return;
+    if (!user) return false;
 
     const service = document.getElementById("commonService").value;
     const amount = parseFloat(document.getElementById("commonAmount").value);
 
     if (!service || !amount) {
-      Swal.fire(
+      if (!silent) Swal.fire(
         "Error",
         "Por favor selecciona un servicio y un monto válido",
         "warning"
       );
-      return;
+      return false;
     }
 
     // Prepara datos
@@ -79,18 +79,20 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       await db.collection("payments").add(paymentData);
 
-      let successMsg = "Tu pago ha sido registrado.";
-      if (method === "Tarjeta")
-        successMsg = "Pago con tarjeta aprobado exitosamente.";
-      if (method === "Transferencia")
-        successMsg = "Transferencia registrada. Pendiente de validación.";
+      if (!silent) {
+        let successMsg = "Tu pago ha sido registrado.";
+        if (method === "Tarjeta")
+          successMsg = "Pago con tarjeta aprobado exitosamente.";
+        if (method === "Transferencia")
+          successMsg = "Transferencia registrada. Pendiente de validación.";
 
-      Swal.fire({
-        title: "Éxito",
-        text: successMsg,
-        icon: "success",
-        confirmButtonColor: "#d4af37",
-      });
+        Swal.fire({
+          title: "Éxito",
+          text: successMsg,
+          icon: "success",
+          confirmButtonColor: "#d4af37",
+        });
+      }
 
       // Reset forms
       const formCard = document.getElementById("formCard");
@@ -100,19 +102,58 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("commonAmount").value = "";
 
       loadPayments(user.uid);
+      return true;
+
     } catch (error) {
       console.error("Error al registrar pago:", error);
-      Swal.fire(
+      if (!silent) Swal.fire(
         "Error",
         "No se pudo registrar el pago. Intenta más tarde.",
         "error"
       );
+      return false;
     }
   }
 
   // 5. PAYPHONE REDIRECT
   function initPayPhone(amount, serviceName) {
-    console.log(`PayPhone listo para: ${serviceName} - $${amount}`);
+    const payphoneLink = document.getElementById("payphone-link");
+    if (!payphoneLink) return;
+
+    // Clonar para limpiar handlers previos
+    const newLink = payphoneLink.cloneNode(true);
+    payphoneLink.parentNode.replaceChild(newLink, payphoneLink);
+
+    newLink.addEventListener("click", async (e) => {
+        e.preventDefault();
+        
+        Swal.fire({
+            title: 'Registrando intención de pago...',
+            text: 'Serás redirigido a PayPhone en un momento.',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        // Registrar el pago como pendiente antes de ir al link
+        const success = await processPayment("Tarjeta", `PayPhone Link - ${serviceName}`, { 
+            status: "Pendiente"
+        }, true); // silent = true
+
+        if (success) {
+            window.open(newLink.href, '_blank');
+            Swal.close();
+            
+            // Opcional: mostrar un mensaje de que debe reportar el pago si PayPhone no notifica
+            Swal.fire({
+              title: "Redirigido",
+              text: "Se ha abierto PayPhone en una nueva pestaña. Recuerda que una vez realizado el pago, el administrador lo validará para marcarlo como Pagado.",
+              icon: "info",
+              confirmButtonColor: "#d4af37"
+            });
+        }
+    });
   }
 
   const formTransfer = document.getElementById("formTransfer");

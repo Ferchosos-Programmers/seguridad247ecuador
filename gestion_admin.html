@@ -6,6 +6,7 @@
     <title>Gestion Admin - Seguridad 247 Ecuador</title>
 
     <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="css/gestion_admin.css" />
     <link rel="stylesheet" href="css/index.css" />
     <link
@@ -17,7 +18,7 @@
   </head>
 
   <body>
-    <!-- NAVBAR -->
+    <!-- NAVBAR (Restaurado) -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
       <div class="container">
         <a class="navbar-brand" href="#">SEGURIDAD 247 ECUADOR</a>
@@ -25,154 +26,271 @@
         <button
           class="navbar-toggler"
           type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
+          id="mobileSidebarToggle"
         >
           <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
-              <button class="btn btn-danger" id="logoutBtn">
-                <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
-              </button>
-            </li>
-          </ul>
+        <div class="collapse navbar-collapse d-flex justify-content-end" id="navbarNav">
+          <button class="btn-logout-nav" id="logoutBtn">
+            <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+          </button>
         </div>
       </div>
     </nav>
+    <div class="admin-wrapper">
+      <!-- SIDEBAR -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+          <img src="assets/img/logo.png" alt="Logo" />
+          <span>ADMIN</span>
+        </div>
 
-    <!-- CONTENIDO -->
-    <main class="container mt-5 pt-5">
-      <h1 style="color: #d4af37; margin-top: 20px">Gestión de Administrador</h1>
+        <ul class="sidebar-menu">
+          <li class="sidebar-item">
+            <a class="sidebar-link active" data-view="todos">
+              <i class="fa-solid fa-house"></i> Dashboard
+            </a>
+          </li>
+          <li class="sidebar-item">
+            <a class="sidebar-link" data-view="finished">
+              <i class="fa-solid fa-briefcase"></i> Trabajos
+            </a>
+          </li>
+          <li class="sidebar-item">
+            <a class="sidebar-link" data-view="contracts">
+              <i class="fa-solid fa-file-contract"></i> Contratos
+            </a>
+          </li>
+          <li class="sidebar-item">
+            <a class="sidebar-link" data-view="admins">
+              <i class="fa-solid fa-users-gear"></i> Administradores
+            </a>
+          </li>
+          <li class="sidebar-item">
+            <a class="sidebar-link" data-view="payments">
+              <i class="fa-solid fa-money-bill-transfer"></i> Pagos
+            </a>
+          </li>
+        </ul>
+      </aside>
 
-      <!-- Filtros y Buscador -->
-      <div class="filter-container mb-4">
-        <div class="row g-3 align-items-center">
-          <!-- Filtro Principal -->
-          <div class="col-md-3">
-            <label for="viewFilter" class="form-label">Mostrar:</label>
-            <select id="viewFilter" class="form-select modern-select">
-              <option value="" selected disabled>
-                Seleccione una opción...
-              </option>
-              <option value="todos">Todos</option>
-              <option value="finished">Gestión de Trabajos</option>
-              <option value="contracts">Gestión de Contratos</option>
-              <option value="admins">Gestión de Administradores</option>
-              <option value="payments">Autorización de Pagos</option>
-            </select>
+      <!-- MAIN CONTENT -->
+      <main class="main-content">
+        <div class="container-fluid">
+          <div class="d-flex justify-content-between align-items-center mb-5">
+            <h1 style="color: #d4af37; margin: 0; text-align: left">
+              Gestión de Administrador
+            </h1>
+
+            <!-- Filtros Secundarios Integrados -->
+            <div class="d-flex gap-3 align-items-center">
+              <div id="urgencyFilterContainer" style="display: none">
+                <select
+                  id="urgencyFilter"
+                  class="modern-select"
+                  style="width: 150px"
+                >
+                  <option value="todas">Urgencia: Todas</option>
+                  <option value="Normal">Normal</option>
+                  <option value="Urgente">Urgente</option>
+                  <option value="Crítico">Crítico</option>
+                </select>
+              </div>
+              <div id="nameFilterContainer" style="display: none">
+                <input
+                  type="text"
+                  id="nameFilter"
+                  class="modern-input"
+                  placeholder="Buscar..."
+                />
+              </div>
+            </div>
           </div>
 
-          <!-- Filtro Urgencia (Oculto por defecto) -->
-          <div
-            class="col-md-3"
-            id="urgencyFilterContainer"
-            style="display: none"
-          >
-            <label for="urgencyFilter" class="form-label" style="color: #fff"
-              >Urgencia:</label
-            >
-            <select id="urgencyFilter" class="form-select modern-select">
-              <option value="todas">Todas</option>
-              <option value="Normal">Normal</option>
-              <option value="Urgente">Urgente</option>
-              <option value="Crítico">Crítico</option>
-            </select>
+          <!-- Dashboard Section -->
+          <div id="dashboardSection">
+            <div class="row mb-5">
+              <div class="col-12">
+                <div class="job-card" id="userProfileCard" style="display: none;">
+                  <div class="d-flex align-items-center gap-4">
+                    <div class="profile-avatar">
+                      <i class="fa-solid fa-user-tie fa-2x"></i>
+                    </div>
+                    <div>
+                      <h4 id="userName" class="text-gold mb-0">Cargando...</h4>
+                      <p id="userEmail" class="text-white-50 mb-0"></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <h2 style="color: #fff; margin-bottom: 30px">
+              Resumen del Sistema
+            </h2>
+            <div class="row g-4 mb-5">
+              <!-- Card Trabajos -->
+              <div class="col-xl-3 col-md-6">
+                <div class="stat-card">
+                  <div
+                    class="stat-card-icon"
+                    style="background: rgba(212, 175, 55, 0.1); color: #d4af37"
+                  >
+                    <i class="fa-solid fa-briefcase"></i>
+                  </div>
+                  <div class="stat-card-info">
+                    <p class="stat-label">Trabajos</p>
+                    <h3 id="countTrabajos">0</h3>
+                  </div>
+                </div>
+              </div>
+              <!-- Card Contratos -->
+              <div class="col-xl-3 col-md-6">
+                <div class="stat-card">
+                  <div
+                    class="stat-card-icon"
+                    style="background: rgba(52, 152, 219, 0.1); color: #3498db"
+                  >
+                    <i class="fa-solid fa-file-contract"></i>
+                  </div>
+                  <div class="stat-card-info">
+                    <p class="stat-label">Contratos</p>
+                    <h3 id="countContratos">0</h3>
+                  </div>
+                </div>
+              </div>
+              <!-- Card Administradores -->
+              <div class="col-xl-3 col-md-6">
+                <div class="stat-card">
+                  <div
+                    class="stat-card-icon"
+                    style="background: rgba(46, 204, 113, 0.1); color: #2ecc71"
+                  >
+                    <i class="fa-solid fa-users-gear"></i>
+                  </div>
+                  <div class="stat-card-info">
+                    <p class="stat-label">Admins</p>
+                    <h3 id="countAdmins">0</h3>
+                  </div>
+                </div>
+              </div>
+              <!-- Card Pagos -->
+              <div class="col-xl-3 col-md-6">
+                <div class="stat-card">
+                  <div
+                    class="stat-card-icon"
+                    style="background: rgba(155, 89, 182, 0.1); color: #9b59b6"
+                  >
+                    <i class="fa-solid fa-money-bill-transfer"></i>
+                  </div>
+                  <div class="stat-card-info">
+                    <p class="stat-label">Pagos</p>
+                    <h3 id="countPayments">0</h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="row g-4 mb-5">
+              <div class="col-lg-6">
+                <div class="job-card">
+                  <h5 class="text-gold mb-4">Estado de Trabajos</h5>
+                  <div class="chart-wrapper">
+                    <canvas id="jobsChart"></canvas>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="job-card">
+                  <h5 class="text-gold mb-4">Urgencia de Pedidos</h5>
+                  <div class="chart-wrapper">
+                    <canvas id="urgencyChart"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- Buscador por Nombre (Oculto por defecto) -->
-          <div class="col-md-4" id="nameFilterContainer" style="display: none">
-            <label for="nameFilter" class="form-label" style="color: #fff"
-              >Buscar por Nombre:</label
+          <!-- Botones de Acción (Ahora debajo del filtro) -->
+          <div class="action-buttons mb-4">
+            <!-- Botón para abrir modal de agregar -->
+            <button
+              id="createJobBtn"
+              type="button"
+              class="btn btn-gold"
+              data-bs-toggle="modal"
+              data-bs-target="#addJobModal"
+              style="display: none"
             >
-            <input
-              type="text"
-              id="nameFilter"
-              class="form-control modern-input"
-              placeholder="Escribe un nombre..."
-            />
+              Crear Trabajo
+            </button>
+
+            <!-- Botón para Editar Trabajo (Solo visible en filtro 'trabajos') -->
+            <button
+              class="btn btn-gold"
+              data-bs-toggle="modal"
+              data-bs-target="#editJobModal"
+              id="btnEditJob"
+              style="display: none"
+            >
+              <i class="fa-solid fa-pen"></i> Editar Trabajo
+            </button>
+
+            <!-- Botón para Registrar Admin (Solo visible en filtro 'admins') -->
+            <button
+              id="btnAddAdmin"
+              type="button"
+              class="btn btn-gold"
+              data-bs-toggle="modal"
+              data-bs-target="#addAdminModal"
+              style="display: none"
+            >
+              Registrar Administrador
+            </button>
+
+            <!-- Botón para abrir modal de crear contrato -->
+            <button
+              id="createContractBtn"
+              type="button"
+              class="btn btn-info"
+              data-bs-toggle="modal"
+              data-bs-target="#createContractModal"
+              style="display: none"
+            >
+              Crear Contrato
+            </button>
+          </div>
+
+          <!-- Contenedor con los trabajos cargados -->
+          <div id="jobsSection" style="display: none">
+            <h2 style="color: #fff; margin-top: 20px">Trabajos Creados</h2>
+            <div id="jobsContainer" class="row g-4"></div>
+          </div>
+
+          <!-- Contenedor para los contratos -->
+          <div id="contractsSection" style="display: none">
+            <h2 style="color: #fff; margin-top: 40px">Contratos Creados</h2>
+            <div id="contractsContainer" class="row g-4"></div>
+          </div>
+
+          <!-- Contenedor para Administradores -->
+          <div id="adminsSection" style="display: none">
+            <h2 style="color: #fff; margin-top: 40px">
+              Administradores Registrados
+            </h2>
+            <div id="adminsContainer" class="row g-4"></div>
+          </div>
+
+          <!-- Contenedor para Autorización de Pagos -->
+          <div id="paymentsSection" style="display: none">
+            <h2 style="color: #fff; margin-top: 40px">Autorización de Pagos</h2>
+            <div id="paymentsContainer" class="row g-4"></div>
           </div>
         </div>
-      </div>
-
-      <!-- Botones de Acción (Ahora debajo del filtro) -->
-      <div class="action-buttons mb-4">
-        <!-- Botón para abrir modal de agregar -->
-        <button
-          id="createJobBtn"
-          type="button"
-          class="btn btn-gold"
-          data-bs-toggle="modal"
-          data-bs-target="#addJobModal"
-          style="display: none"
-        >
-          Crear Trabajo
-        </button>
-
-        <!-- Botón para Editar Trabajo (Solo visible en filtro 'trabajos') -->
-        <button
-          class="btn btn-gold"
-          data-bs-toggle="modal"
-          data-bs-target="#editJobModal"
-          id="btnEditJob"
-          style="display: none"
-        >
-          <i class="fa-solid fa-pen"></i> Editar Trabajo
-        </button>
-
-        <!-- Botón para Registrar Admin (Solo visible en filtro 'admins') -->
-        <button
-          id="btnAddAdmin"
-          type="button"
-          class="btn btn-gold"
-          data-bs-toggle="modal"
-          data-bs-target="#addAdminModal"
-          style="display: none"
-        >
-          Registrar Administrador
-        </button>
-
-        <!-- Botón para abrir modal de crear contrato -->
-        <button
-          id="createContractBtn"
-          type="button"
-          class="btn btn-info"
-          data-bs-toggle="modal"
-          data-bs-target="#createContractModal"
-          style="display: none"
-        >
-          Crear Contrato
-        </button>
-      </div>
-
-      <!-- Contenedor con los trabajos cargados -->
-      <div id="jobsSection" style="display: none">
-        <h2 style="color: #fff; margin-top: 20px">Trabajos Creados</h2>
-        <div id="jobsContainer" class="row g-4"></div>
-      </div>
-
-      <!-- Contenedor para los contratos -->
-      <div id="contractsSection" style="display: none">
-        <h2 style="color: #fff; margin-top: 40px">Contratos Creados</h2>
-        <div id="contractsContainer" class="row g-4"></div>
-      </div>
-
-      <!-- Contenedor para Administradores -->
-      <div id="adminsSection" style="display: none">
-        <h2 style="color: #fff; margin-top: 40px">
-          Administradores Registrados
-        </h2>
-        <div id="adminsContainer" class="row g-4"></div>
-      </div>
-
-      <!-- Contenedor para Autorización de Pagos -->
-      <div id="paymentsSection" style="display: none">
-        <h2 style="color: #fff; margin-top: 40px">Autorización de Pagos</h2>
-        <div id="paymentsContainer" class="row g-4"></div>
-      </div>
-    </main>
+      </main>
+    </div>
 
     <!-- ========================================= -->
     <!--  MODAL PARA AGREGAR TRABAJO -->
@@ -823,11 +941,17 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> <!-- Fin del editAdminModal -->
+    </div> <!-- Fin del container-fluid de contenido -->
+    </main>
+  </div> <!-- Fin del admin-wrapper -->
 
-    <footer class="footer">
-      © 2025 Seguridad 247 Ecuador — Todos los derechos reservados
-    </footer>
+  <footer class="footer">
+    <div class="footer-content text-center">
+      <span class="brand-text">SEGURIDAD 247 ECUADOR</span>
+      <p class="copyright-text">© 2025 — Todos los derechos reservados</p>
+    </div>
+  </footer>
 
     <!-- CDN para jspdf y html2canvas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>

@@ -17,9 +17,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // Variables Globales para almacenamiento temporal
     window.allTrabajos = [];
     window.allContratos = [];
+    window.allAdmins = [];
+    window.allPayments = [];
+    window.currentView = "todos";
 
-    // Listener para el filtro de vista
-    const viewFilter = document.getElementById("viewFilter");
+    // Sidebar navigation
+    const sidebarLinks = document.querySelectorAll(".sidebar-link[data-view]");
+    const dashboardSection = document.getElementById("dashboardSection");
     const jobsSection = document.getElementById("jobsSection");
     const contractsSection = document.getElementById("contractsSection");
     const createJobBtn = document.getElementById("createJobBtn");
@@ -33,74 +37,153 @@ document.addEventListener("DOMContentLoaded", () => {
     const urgencyFilter = document.getElementById("urgencyFilter");
     const nameFilter = document.getElementById("nameFilter");
 
-    function updateView() {
-      const value = viewFilter.value;
+    function updateView(viewValue) {
+      window.currentView = viewValue;
+
+      // Actualizar estado activo en el sidebar
+      sidebarLinks.forEach(link => {
+        if (link.getAttribute("data-view") === viewValue) {
+          link.classList.add("active");
+        } else {
+          link.classList.remove("active");
+        }
+      });
 
       // Ocultar todo por defecto
-  jobsSection.style.display = "none";
-  contractsSection.style.display = "none";
-  const adminsSection = document.getElementById("adminsSection");
-  if (adminsSection) adminsSection.style.display = "none";
-  const paymentsSection = document.getElementById("paymentsSection");
-  if (paymentsSection) paymentsSection.style.display = "none";
+      if (dashboardSection) dashboardSection.style.display = "none";
+      jobsSection.style.display = "none";
+      contractsSection.style.display = "none";
+      const adminsSection = document.getElementById("adminsSection");
+      if (adminsSection) adminsSection.style.display = "none";
+      const paymentsSection = document.getElementById("paymentsSection");
+      if (paymentsSection) paymentsSection.style.display = "none";
 
-  createJobBtn.style.display = "none";
-  createContractBtn.style.display = "none";
-  urgencyFilterContainer.style.display = "none";
-  nameFilterContainer.style.display = "none";
+      createJobBtn.style.display = "none";
+      createContractBtn.style.display = "none";
+      urgencyFilterContainer.style.display = "none";
+      nameFilterContainer.style.display = "none";
       
       const btnAddAdmin = document.getElementById("btnAddAdmin");
       if (btnAddAdmin) {
         btnAddAdmin.style.display = "none";
         // Cargar contratos al presionar el botón de agregar admin
+        btnAddAdmin.removeEventListener("click", cargarOpcionesContrato);
         btnAddAdmin.addEventListener("click", cargarOpcionesContrato);
       }
 
-      if (value === "finished") {
+      if (viewValue === "finished") {
         jobsSection.style.display = "block";
-        createJobBtn.style.display = "flex"; // Flex para alinear icono
+        createJobBtn.style.display = "flex";
         urgencyFilterContainer.style.display = "block";
         nameFilterContainer.style.display = "block";
         cargarTrabajos();
-      } else if (value === "contracts") {
+      } else if (viewValue === "contracts") {
         contractsSection.style.display = "block";
-        createContractBtn.style.display = "flex"; // Flex para alinear icono
-        nameFilterContainer.style.display = "block"; // Solo nombre para contratos
-        cargarContratos();
-  } else if (value === "admins") {
-    adminsSection.style.display = "block";
-    if (btnAddAdmin) btnAddAdmin.style.display = "block"; 
-    cargarAdmins();
-  } else if (value === "payments") {
-    if (paymentsSection) paymentsSection.style.display = "block";
-    cargarPagosPendientes();
-  } else if (value === "todos") {
-    jobsSection.style.display = "block";
-        contractsSection.style.display = "block";
-        createJobBtn.style.display = "flex";
         createContractBtn.style.display = "flex";
-        // En "todos", ocultamos filtros secundarios para simplificar, o podríamos dejarlos si se desea
-        cargarTrabajos();
+        nameFilterContainer.style.display = "block";
         cargarContratos();
+      } else if (viewValue === "admins") {
+        adminsSection.style.display = "block";
+        nameFilterContainer.style.display = "block";
+        if (btnAddAdmin) btnAddAdmin.style.display = "block"; 
+        cargarAdmins();
+      } else if (viewValue === "payments") {
+        if (paymentsSection) paymentsSection.style.display = "block";
+        nameFilterContainer.style.display = "block";
+        cargarPagosPendientes();
+      } else if (viewValue === "todos") {
+        if (dashboardSection) dashboardSection.style.display = "block";
+        actualizarContadoresDashboard();
+        renderizarGraficos();
+        cargarInfoUsuario();
+      } else {
+        actualizarContadoresDashboard();
       }
 
-      // Resetear filtros al cambiar vista principal
+      // Resetear filtros
       urgencyFilter.value = "todas";
       nameFilter.value = "";
     }
 
-    viewFilter.addEventListener("change", updateView);
+    // Event listeners para el sidebar
+    sidebarLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        const view = link.getAttribute("data-view");
+        updateView(view);
+
+        // Cerrar sidebar en móviles tras selección
+        const sidebar = document.getElementById("sidebar");
+        if (window.innerWidth <= 991 && sidebar.classList.contains("show")) {
+          sidebar.classList.remove("show");
+        }
+      });
+    });
+
+    // Toggle sidebar en móviles
+    const mobileToggle = document.getElementById("mobileSidebarToggle");
+    if (mobileToggle) {
+      mobileToggle.addEventListener("click", () => {
+        const sidebar = document.getElementById("sidebar");
+        sidebar.classList.toggle("show");
+      });
+    }
+
+    // Event listener para redimensionar gráficos
+    window.addEventListener("resize", () => {
+      if (window.currentView === "todos") {
+        renderizarGraficos();
+      }
+    });
+
+    // Handle logout from sidebar (Tied to activarLogout)
 
     // Listeners para filtros secundarios
     urgencyFilter.addEventListener("change", applyFilters);
     nameFilter.addEventListener("input", applyFilters);
 
-    function applyFilters() {
-      const urgencyValue = urgencyFilter.value;
-      const nameValue = nameFilter.value.toLowerCase();
-      const currentView = viewFilter.value;
+    async function actualizarContadoresDashboard() {
+      const db = firebase.firestore();
+      
+      try {
+        // Trabajos
+        const trabajosSnap = await db.collection("trabajos").get();
+        const countTrabajos = document.getElementById("countTrabajos");
+        if (countTrabajos) countTrabajos.textContent = trabajosSnap.size;
+        
+        // Contratos
+        const contratosSnap = await db.collection("contracts").get();
+        const countContratos = document.getElementById("countContratos");
+        if (countContratos) countContratos.textContent = contratosSnap.size;
+        
+        // Admins (Colección 'users', rol 'ADMIN_CONJUNTO')
+        const adminsSnap = await db.collection("users").where("role", "==", "ADMIN_CONJUNTO").get();
+        const countAdmins = document.getElementById("countAdmins");
+        if (countAdmins) countAdmins.textContent = adminsSnap.size;
+        
+        // Pagos (Colección 'payments', status 'Pendiente')
+        const pagosSnap = await db.collection("payments").where("status", "==", "Pendiente").get();
+        const countPayments = document.getElementById("countPayments");
+        if (countPayments) countPayments.textContent = pagosSnap.size;
+        
+      } catch (error) {
+        console.error("Error al actualizar contadores:", error);
+      }
+    }
 
-      if (currentView === "trabajos" || currentView === "todos") {
+    // Inicializar dashboard al cargar
+    if (window.currentView === "todos") {
+      actualizarContadoresDashboard();
+      renderizarGraficos();
+      cargarInfoUsuario();
+    }
+
+    function applyFilters() {
+      const urgencyValue = urgencyFilter ? urgencyFilter.value : "todas";
+      const nameValue = nameFilter.value.toLowerCase();
+      const currentView = window.currentView;
+
+      if (currentView === "finished" || currentView === "todos") {
         const filteredTrabajos = window.allTrabajos.filter(job => {
           const matchUrgency = urgencyValue === "todas" || job.jobUrgency === urgencyValue;
           const matchName = job.clientName.toLowerCase().includes(nameValue);
@@ -109,12 +192,31 @@ document.addEventListener("DOMContentLoaded", () => {
         renderTrabajos(filteredTrabajos);
       }
 
-      if (currentView === "contratos" || currentView === "todos") {
+      if (currentView === "contracts" || currentView === "todos") {
         const filteredContratos = window.allContratos.filter(contract => {
           const matchName = contract.clientName.toLowerCase().includes(nameValue);
           return matchName;
         });
         renderContratos(filteredContratos);
+      }
+
+      if (currentView === "admins") {
+        const filteredAdmins = window.allAdmins.filter(admin => {
+          const matchName = admin.adminName?.toLowerCase().includes(nameValue) || 
+                            admin.complexName?.toLowerCase().includes(nameValue) ||
+                            admin.email?.toLowerCase().includes(nameValue);
+          return matchName;
+        });
+        renderAdmins(filteredAdmins);
+      }
+
+      if (currentView === "payments") {
+        const filteredPayments = window.allPayments.filter(payment => {
+          const matchName = payment.userEmail?.toLowerCase().includes(nameValue) || 
+                            payment.service?.toLowerCase().includes(nameValue);
+          return matchName;
+        });
+        renderPagos(filteredPayments);
       }
     }
 
@@ -1024,25 +1126,56 @@ function activarLoginAdmin() {
 // 🚪 CERRAR SESIÓN
 // ===========================
 function activarLogout() {
-  const logoutBtn = document.getElementById("logoutBtn");
-  if (!logoutBtn) return;
+  const logoutBtns = [
+    document.getElementById("logoutBtn"),
+    document.getElementById("sidebarLogout")
+  ];
 
-  logoutBtn.addEventListener("click", () => {
-    auth
-      .signOut()
-      .then(() => {
-        Swal.fire({
-          icon: "success",
-          title: "Sesión cerrada",
-          timer: 1500,
-          showConfirmButton: false,
-        }).then(() => {
-          window.location.href = "control_center.html";
-        });
-      })
-      .catch(() => {
-        Swal.fire("Error", "No se pudo cerrar sesión", "error");
+  logoutBtns.forEach(btn => {
+    if (!btn) return;
+    
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      
+      Swal.fire({
+        title: "¿Cerrar Sesión?",
+        text: "¿Estás seguro de que deseas salir del sistema?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#d4af37",
+        cancelButtonColor: "#000",
+        confirmButtonText: "Sí, salir",
+        cancelButtonText: "No, quedarme",
+        background: "#1a1a1a",
+        color: "#fff"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          auth.signOut()
+            .then(() => {
+              Swal.fire({
+                icon: "success",
+                title: "Sesión cerrada",
+                timer: 1500,
+                showConfirmButton: false,
+                background: "#1a1a1a",
+                color: "#fff"
+              }).then(() => {
+                window.location.href = "control_center.html";
+              });
+            })
+            .catch((error) => {
+              console.error("Error al cerrar sesión:", error);
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "No se pudo cerrar sesión correctamente",
+                background: "#1a1a1a",
+                color: "#fff"
+              });
+            });
+        }
       });
+    });
   });
 }
 
@@ -1142,7 +1275,7 @@ function renderTrabajos(trabajosList) {
     }
 
     container.innerHTML += `
-      <div class="col-md-4">
+      <div class="col-lg-4 col-md-6 col-12">
         <div class="job-card">
           <h5>${data.clientName}</h5>
 
@@ -1365,7 +1498,7 @@ function renderContratos(contratosList) {
       : '<span class="badge bg-warning text-dark mb-2">Pendiente</span>';
 
     container.innerHTML += `
-      <div class="col-md-4">
+      <div class="col-lg-4 col-md-6 col-12">
         <div class="job-card">
           <h5>Contrato: ${data.clientName}</h5>
           <div class="job-divider"></div>
@@ -1455,6 +1588,8 @@ async function cargarAdmins() {
       }
     });
 
+    // Guardar en variable global para filtrar
+    window.allAdmins = admins;
     renderAdmins(admins);
   } catch (error) {
     console.error("Error cargando admins:", error);
@@ -1494,7 +1629,7 @@ function renderAdmins(adminList) {
     const toggleAction = isInactive ? "active" : "inactive";
 
     container.innerHTML += `
-      <div class="col-md-4">
+      <div class="col-lg-4 col-md-6 col-12">
         <div class="job-card" style="${isInactive ? 'opacity: 0.7;' : ''}">
           <div class="d-flex justify-content-between align-items-start">
              <h5>${admin.complexName}</h5>
@@ -1787,78 +1922,173 @@ async function cargarPagosPendientes() {
       .orderBy("date", "desc")
       .get();
 
-    if (snapshot.empty) {
+    // Guardar en variable global para filtrar
+    window.allPayments = [];
+    snapshot.forEach(doc => {
+      window.allPayments.push({ id: doc.id, ...doc.data() });
+    });
+
+    if (window.allPayments.length === 0) {
       container.innerHTML = '<div class="col-12 text-center text-white py-5">No hay pagos pendientes de aprobación.</div>';
       return;
     }
 
-    let html = "";
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      const id = doc.id;
-      
-      let dateStr = "---";
-      if (data.date && data.date.toDate) {
-        dateStr = data.date.toDate().toLocaleDateString("es-ES", {
-          day: '2-digit', month: '2-digit', year: 'numeric',
-          hour: '2-digit', minute: '2-digit'
-        });
-      }
-
-      html += `
-        <div class="col-md-6 col-lg-4">
-          <div class="card bg-dark text-white border-gold h-100">
-            <div class="card-body">
-              <h5 class="card-title text-gold">${data.service}</h5>
-              <p class="card-text mb-1"><strong>Cliente:</strong> ${data.userEmail}</p>
-              <p class="card-text mb-1"><strong>Monto:</strong> <span class="text-gold fw-bold">$${parseFloat(data.amount).toFixed(2)}</span></p>
-              <p class="card-text mb-1"><strong>Método:</strong> ${data.method}</p>
-              <p class="card-text mb-1"><strong>Fecha:</strong> ${dateStr}</p>
-              <p class="card-text mb-3"><strong>Notas:</strong> ${data.notes || 'Sin notas'}</p>
-              
-              <div class="d-grid gap-2">
-                ${data.proofUrl ? `
-                  <button class="btn btn-outline-info btn-sm" onclick="verComprobante('${data.proofUrl}')">
-                    <i class="fa-solid fa-image"></i> Ver Comprobante
-                  </button>
-                ` : ''}
-                <div class="row g-2">
-                  <div class="col-6">
-                    <button class="btn btn-success btn-sm w-100" onclick="aprobarPago('${id}')">
-                      <i class="fa-solid fa-check"></i> Aprobar
-                    </button>
-                  </div>
-                  <div class="col-6">
-                    <button class="btn btn-danger btn-sm w-100" onclick="rechazarPago('${id}')">
-                      <i class="fa-solid fa-xmark"></i> Rechazar
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-    });
-
-    container.innerHTML = html;
-
+    renderPagos(window.allPayments);
   } catch (error) {
     console.error("Error al cargar pagos pendientes:", error);
     container.innerHTML = '<div class="col-12 text-center text-danger py-5">Error al cargar pagos pendientes: ' + error.message + '</div>';
   }
 }
 
-window.verComprobante = (url) => {
-  Swal.fire({
-    title: 'Comprobante de Pago',
-    imageUrl: url,
-    imageAlt: 'Comprobante de Pago',
-    confirmButtonColor: '#d4af37',
-    confirmButtonText: 'Cerrar',
-    width: '80%'
+function renderPagos(paymentsList) {
+  const container = document.getElementById("paymentsContainer");
+  container.innerHTML = "";
+  
+  let html = "";
+  paymentsList.forEach(data => {
+    const id = data.id;
+    let dateStr = "---";
+    if (data.date && data.date.toDate) {
+      dateStr = data.date.toDate().toLocaleDateString("es-ES", {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
+    }
+
+    html += `
+      <div class="col-lg-4 col-md-6 col-12">
+        <div class="card job-card h-100">
+          <div class="card-body">
+            <h5 class="card-title text-gold">${data.service}</h5>
+            <div class="job-divider"></div>
+            <p class="card-text mb-1"><strong>Cliente:</strong> ${data.userEmail}</p>
+            <p class="card-text mb-1"><strong>Monto:</strong> <span class="text-gold fw-bold">$${parseFloat(data.amount).toFixed(2)}</span></p>
+            <p class="card-text mb-1"><strong>Método:</strong> ${data.method}</p>
+            <p class="card-text mb-1"><strong>Fecha:</strong> ${dateStr}</p>
+            <p class="card-text mb-3"><strong>Notas:</strong> ${data.notes || 'Sin notas'}</p>
+            
+            <div class="d-grid gap-2">
+              ${data.proofUrl ? `
+                <button class="btn btn-outline-info btn-sm" onclick="verComprobante('${data.proofUrl}')">
+                  <i class="fa-solid fa-image"></i> Ver Comprobante
+                </button>
+              ` : ''}
+              <div class="row g-2">
+                <div class="col-6">
+                  <button class="btn btn-success btn-sm w-100" onclick="aprobarPago('${id}')">
+                    <i class="fa-solid fa-check"></i> Aprobar
+                  </button>
+                </div>
+                <div class="col-6">
+                  <button class="btn btn-danger btn-sm w-100" onclick="rechazarPago('${id}')">
+                    <i class="fa-solid fa-xmark"></i> Rechazar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
   });
-};
+  container.innerHTML = html;
+}
+
+// =========================================
+//  PERFIL DE USUARIO Y GRÁFICOS
+// =========================================
+
+async function cargarInfoUsuario() {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  try {
+    const doc = await db.collection("users").doc(user.uid).get();
+    if (doc.exists) {
+      const data = doc.data();
+      document.getElementById("userName").textContent = data.adminName || "Administrador";
+      document.getElementById("userEmail").textContent = data.email || user.email;
+      
+      // Actualizar también en el sidebar
+      const sidebarEmail = document.getElementById("sidebarUserEmail");
+      if (sidebarEmail) {
+        sidebarEmail.textContent = (data.email || user.email).split('@')[0]; // O el email completo si prefieres
+        sidebarEmail.title = data.email || user.email; // Mostrar completo al pasar el mouse
+      }
+      
+      document.getElementById("userProfileCard").style.display = "block";
+    }
+  } catch (error) {
+    console.error("Error cargando info usuario:", error);
+  }
+}
+
+let jobsChartInstance = null;
+let urgencyChartInstance = null;
+
+async function renderizarGraficos() {
+  try {
+    const jobsSnap = await db.collection("trabajos").get();
+    const stats = {
+      estados: { "Pendiente": 0, "En Proceso": 0, "Culminado": 0 },
+      urgencia: { "Normal": 0, "Urgente": 0, "Crítico": 0 }
+    };
+
+    jobsSnap.forEach(doc => {
+      const data = doc.data();
+      if (stats.estados[data.status] !== undefined) stats.estados[data.status]++;
+      if (stats.urgencia[data.jobUrgency] !== undefined) stats.urgencia[data.jobUrgency]++;
+    });
+
+    const ctxJobs = document.getElementById('jobsChart');
+    if (!ctxJobs) return;
+
+    if (jobsChartInstance) jobsChartInstance.destroy();
+    jobsChartInstance = new Chart(ctxJobs, {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(stats.estados),
+        datasets: [{
+          data: Object.values(stats.estados),
+          backgroundColor: ['#f1c40f', '#3498db', '#27ae60'],
+          borderColor: 'rgba(0,0,0,0.1)'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { color: '#fff', padding: 20 } } }
+      }
+    });
+
+    const ctxUrgency = document.getElementById('urgencyChart');
+    if (!ctxUrgency) return;
+
+    if (urgencyChartInstance) urgencyChartInstance.destroy();
+    urgencyChartInstance = new Chart(ctxUrgency, {
+      type: 'bar',
+      data: {
+        labels: Object.keys(stats.urgencia),
+        datasets: [{
+          label: 'Cantidad',
+          data: Object.values(stats.urgencia),
+          backgroundColor: '#d4af37'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: { ticks: { color: '#fff' }, grid: { display: false } },
+          y: { ticks: { color: '#fff' }, beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }
+        },
+        plugins: { legend: { display: false } }
+      }
+    });
+  } catch (error) {
+    console.error("Error renderizando gráficos:", error);
+  }
+}
 
 window.aprobarPago = async (id) => {
   const result = await Swal.fire({
