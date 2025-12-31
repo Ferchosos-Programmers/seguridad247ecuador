@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const auth = firebase.auth();
   const db = firebase.firestore();
-  
+
   // DOM Elements
   const logoutBtn = document.getElementById("logoutBtn");
   const userNameDisplay = document.getElementById("userNameDisplay");
@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (user) {
       // User is signed in.
       console.log("Usuario logueado:", user.email);
-      userNameDisplay.textContent = user.email.split('@')[0]; 
+      userNameDisplay.textContent = user.email.split("@")[0];
       loadPayments(user.uid);
       loadContractData(user.uid); // Cargar datos del contrato asociado
     } else {
@@ -30,360 +30,378 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 3. REGISTER PAYMENT
   // 3. TOGGLE PAYMENT METHOD UI
   window.togglePaymentMethod = (method) => {
-      const cardSection = document.getElementById("cardFormSection");
-      const transferSection = document.getElementById("transferFormSection");
+    const cardSection = document.getElementById("cardFormSection");
+    const transferSection = document.getElementById("transferFormSection");
 
-      if (method === 'card') {
-          cardSection.style.display = "block";
-          transferSection.style.display = "none";
-      } else {
-          cardSection.style.display = "none";
-          transferSection.style.display = "block";
-      }
+    if (method === "card") {
+      cardSection.style.display = "block";
+      transferSection.style.display = "none";
+    } else {
+      cardSection.style.display = "none";
+      transferSection.style.display = "block";
+    }
   };
 
   // 4. PROCESS PAYMENT (COMMON FUNCTION)
   async function processPayment(method, notes, extraData = {}) {
-      const user = auth.currentUser;
-      if (!user) return;
+    const user = auth.currentUser;
+    if (!user) return;
 
-      const service = document.getElementById("commonService").value;
-      const amount = parseFloat(document.getElementById("commonAmount").value);
+    const service = document.getElementById("commonService").value;
+    const amount = parseFloat(document.getElementById("commonAmount").value);
 
-      if (!service || !amount) {
-          Swal.fire("Error", "Por favor selecciona un servicio y un monto válido", "warning");
-          return;
+    if (!service || !amount) {
+      Swal.fire(
+        "Error",
+        "Por favor selecciona un servicio y un monto válido",
+        "warning"
+      );
+      return;
+    }
+
+    // Prepara datos
+    const paymentData = {
+      userId: user.uid,
+      userEmail: user.email,
+      service: service,
+      amount: amount,
+      method: method, // 'Tarjeta' or 'Transferencia'
+      notes: notes,
+      status: extraData.status || "Pendiente",
+      proofFile: extraData.fileName || null,
+      proofUrl: extraData.proofUrl || null,
+      date: new Date(),
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    };
+
+    try {
+      await db.collection("payments").add(paymentData);
+
+      let successMsg = "Tu pago ha sido registrado.";
+      if (method === "Tarjeta")
+        successMsg = "Pago con tarjeta aprobado exitosamente.";
+      if (method === "Transferencia")
+        successMsg = "Transferencia registrada. Pendiente de validación.";
+
+      Swal.fire({
+        title: "Éxito",
+        text: successMsg,
+        icon: "success",
+        confirmButtonColor: "#d4af37",
+      });
+
+      // Reset forms
+      const formCard = document.getElementById("formCard");
+      if (formCard) formCard.reset();
+      document.getElementById("formTransfer").reset();
+      document.getElementById("commonService").value = "";
+      document.getElementById("commonAmount").value = "";
+
+      loadPayments(user.uid);
+    } catch (error) {
+      console.error("Error al registrar pago:", error);
+      Swal.fire(
+        "Error",
+        "No se pudo registrar el pago. Intenta más tarde.",
+        "error"
+      );
+    }
+  }
+
+  // 5. PAYPHONE REDIRECT
+  function initPayPhone(amount, serviceName) {
+    console.log(`PayPhone listo para: ${serviceName} - $${amount}`);
+  }
+
+  const formTransfer = document.getElementById("formTransfer");
+  if (formTransfer) {
+    formTransfer.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fileInput = document.getElementById("transferFile");
+      const notes = document.getElementById("transferNotes").value;
+
+      if (fileInput.files.length === 0) {
+        Swal.fire(
+          "Requerido",
+          "Por favor sube una foto del comprobante",
+          "warning"
+        );
+        return;
       }
 
-      // Prepara datos
-      const paymentData = {
-          userId: user.uid,
-          userEmail: user.email,
-          service: service,
-          amount: amount,
-          method: method, // 'Tarjeta' or 'Transferencia'
-          notes: notes,
-          status: extraData.status || "Pendiente",
-          proofFile: extraData.fileName || null, 
-          proofUrl: extraData.proofUrl || null, // Nueva URL de descarga
-          date: new Date(),
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      };
+      const file = fileInput.files[0];
+      const storageRef = firebase
+        .storage()
+        .ref(`payment_proofs/${Date.now()}_${file.name}`);
 
       try {
-          await db.collection("payments").add(paymentData);
-          
-          let successMsg = "Tu pago ha sido registrado.";
-          if (method === 'Tarjeta') successMsg = "Pago con tarjeta aprobado exitosamente.";
-          if (method === 'Transferencia') successMsg = "Transferencia registrada. Pendiente de validación.";
+        // Mostrar indicador de carga
+        Swal.fire({
+          title: "Subiendo comprobante...",
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
 
-          Swal.fire({
-              title: "Éxito",
-              text: successMsg,
-              icon: "success",
-              confirmButtonColor: "#d4af37"
-          });
+        const snapshot = await storageRef.put(file);
+        const downloadURL = await snapshot.ref.getDownloadURL();
 
-          // Reset forms
-          document.getElementById("formCard").reset();
-          document.getElementById("formTransfer").reset();
-          document.getElementById("commonService").value = "";
-          document.getElementById("commonAmount").value = "";
-
-          loadPayments(user.uid); 
-
+        processPayment("Transferencia", notes, {
+          status: "Pendiente",
+          fileName: file.name,
+          proofUrl: downloadURL,
+        });
       } catch (error) {
-          console.error("Error al registrar pago:", error);
-          Swal.fire("Error", "No se pudo registrar el pago. Intenta más tarde.", "error");
+        console.error("Error al subir archivo:", error);
+        Swal.fire("Error", "No se pudo subir el archivo comprobante.", "error");
       }
-  }
-
-  // 5. LISTENERS FOR NEW FORMS
-  const formCard = document.getElementById("formCard");
-  const formTransfer = document.getElementById("formTransfer");
-
-  if (formCard) {
-      formCard.addEventListener("submit", (e) => {
-          e.preventDefault();
-          // Simular validación de tarjeta
-          const cardNum = document.getElementById("cardNumber").value;
-          if (cardNum.length < 10) {
-              Swal.fire("Error", "Número de tarjeta inválido", "error");
-              return;
-          }
-          // Si pasa validación simulada
-          processPayment("Tarjeta", "Pago Online con Tarjeta", { status: "Aprobado" });
-      });
-  }
-
-  if (formTransfer) {
-      formTransfer.addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const fileInput = document.getElementById("transferFile");
-          const notes = document.getElementById("transferNotes").value;
-          
-          if (fileInput.files.length === 0) {
-              Swal.fire("Requerido", "Por favor sube una foto del comprobante", "warning");
-              return;
-          }
-
-          const file = fileInput.files[0];
-          const storageRef = firebase.storage().ref(`payment_proofs/${Date.now()}_${file.name}`);
-          
-          try {
-              // Mostrar indicador de carga
-              Swal.fire({
-                  title: 'Subiendo comprobante...',
-                  allowOutsideClick: false,
-                  didOpen: () => {
-                      Swal.showLoading();
-                  }
-              });
-
-              const snapshot = await storageRef.put(file);
-              const downloadURL = await snapshot.ref.getDownloadURL();
-              
-              processPayment("Transferencia", notes, { 
-                  status: "Pendiente", 
-                  fileName: file.name,
-                  proofUrl: downloadURL 
-              });
-          } catch (error) {
-              console.error("Error al subir archivo:", error);
-              Swal.fire("Error", "No se pudo subir el archivo comprobante.", "error");
-          }
-      });
+    });
   }
 
   // 4. LOAD PAYMENTS
   window.loadPayments = async (userId) => {
-      // Si no se pasa userId (ej. botón actualizar manual), intentar obtenerlo
-      if (!userId) {
-          const user = auth.currentUser;
-          if (user) userId = user.uid;
-          else return;
+    if (!userId) {
+      const user = auth.currentUser;
+      if (user) userId = user.uid;
+      else return;
+    }
+
+    try {
+      paymentsTableBody.innerHTML =
+        '<tr><td colspan="5" class="text-center text-muted py-4"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</td></tr>';
+
+      const querySnapshot = await db
+        .collection("payments")
+        .where("userId", "==", userId)
+        .orderBy("date", "desc")
+        .limit(20)
+        .get();
+
+      if (querySnapshot.empty) {
+        paymentsTableBody.innerHTML =
+          '<tr><td colspan="5" class="text-center text-white py-4">No tienes pagos registrados aún.</td></tr>';
+        return;
       }
 
-      try {
-          paymentsTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</td></tr>';
-          
-          const querySnapshot = await db.collection("payments")
-              .where("userId", "==", userId)
-              .orderBy("date", "desc")
-              .limit(20)
-              .get();
+      let html = "";
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        let dateStr = "---";
+        if (data.date && data.date.toDate) {
+          dateStr = data.date.toDate().toLocaleDateString("es-ES", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+        }
 
-          if (querySnapshot.empty) {
-              paymentsTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-white py-4">No tienes pagos registrados aún.</td></tr>';
-              return;
-          }
+        let statusClass = "badge-pending";
+        if (data.status === "Aprobado" || data.status === "Completado")
+          statusClass = "badge-success";
 
-          let html = "";
-          querySnapshot.forEach((doc) => {
-              const data = doc.data();
-              // Formatear fecha
-              let dateStr = "---";
-              if (data.date && data.date.toDate) {
-                  dateStr = data.date.toDate().toLocaleDateString("es-ES", {
-                      day: '2-digit', month: '2-digit', year: 'numeric',
-                      hour: '2-digit', minute: '2-digit'
-                  });
-              }
-
-              // Badge de estado
-              let statusClass = "badge-pending";
-              if (data.status === "Aprobado" || data.status === "Completado") statusClass = "badge-success";
-
-              html += `
+        html += `
                   <tr>
                       <td>${dateStr}</td>
                       <td>${data.service}</td>
-                      <td class="text-gold fw-bold">$${parseFloat(data.amount).toFixed(2)}</td>
+                      <td class="text-gold fw-bold">$${parseFloat(
+                        data.amount
+                      ).toFixed(2)}</td>
                       <td>${data.method}</td>
-                      <td><span class="badge-status ${statusClass}">${data.status}</span></td>
+                      <td><span class="badge-status ${statusClass}">${
+          data.status
+        }</span></td>
                   </tr>
               `;
-          });
+      });
 
-          paymentsTableBody.innerHTML = html;
-
-      } catch (error) {
-          console.error("Error al cargar pagos:", error);
-          paymentsTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger py-4">Error al cargar historial.</td></tr>';
-      }
+      paymentsTableBody.innerHTML = html;
+    } catch (error) {
+      console.error("Error al cargar pagos:", error);
+      paymentsTableBody.innerHTML =
+        '<tr><td colspan="5" class="text-center text-danger py-4">Error al cargar historial.</td></tr>';
+    }
   };
-  
-  // 5. LOAD ASSOCIATED CONTRACT DATA & GENERATE SCHEDULE
+
   async function loadContractData(userId) {
-      try {
-          const userDoc = await db.collection("users").doc(userId).get();
-          if (!userDoc.exists) return;
-          
-          const userData = userDoc.data();
-          const contractId = userData.contractId;
-          
-          if (!contractId) {
-              document.getElementById("paymentScheduleBody").innerHTML = '<tr><td colspan="4" class="text-center text-warning">No hay contrato asociado para generar calendario.</td></tr>';
-              return;
-          }
-          
-          const contractDoc = await db.collection("contracts").doc(contractId).get();
-          if (!contractDoc.exists) return;
-          
-          const contractData = contractDoc.data();
-          
-          // 15% IVA calculation
-          const priceBase = parseFloat(contractData.servicePrice) || 0;
-          const priceWithIva = priceBase * 1.15;
+    try {
+      const userDoc = await db.collection("users").doc(userId).get();
+      if (!userDoc.exists) return;
 
-          // Cargar el monto con IVA en el input de pago por defecto
-          const amountInput = document.getElementById("commonAmount");
-          if (amountInput && priceWithIva) {
-              amountInput.value = priceWithIva.toFixed(2);
-          }
-          
-          if (userData.complexName) {
-              userNameDisplay.textContent = `${userData.adminName} (${userData.complexName})`;
-          }
+      const userData = userDoc.data();
+      const contractId = userData.contractId;
 
-          // Generar el calendario
-          generatePaymentSchedule(contractData, priceWithIva);
-
-      } catch (error) {
-          console.error("Error al cargar datos del contrato:", error);
+      if (!contractId) {
+        document.getElementById("paymentScheduleBody").innerHTML =
+          '<tr><td colspan="4" class="text-center text-warning">No hay contrato asociado para generar calendario.</td></tr>';
+        return;
       }
+
+      const contractDoc = await db
+        .collection("contracts")
+        .doc(contractId)
+        .get();
+      if (!contractDoc.exists) return;
+
+      const contractData = contractDoc.data();
+
+      const priceBase = parseFloat(contractData.servicePrice) || 0;
+      const priceWithIva = priceBase * 1.15;
+
+      const amountInput = document.getElementById("commonAmount");
+      if (amountInput && priceWithIva) {
+        amountInput.value = priceWithIva.toFixed(2);
+      }
+
+      if (userData.complexName) {
+        userNameDisplay.textContent = `${userData.adminName} (${userData.complexName})`;
+      }
+
+      generatePaymentSchedule(contractData, priceWithIva);
+    } catch (error) {
+      console.error("Error al cargar datos del contrato:", error);
+    }
   }
 
   async function generatePaymentSchedule(contract, amountWithIva) {
-      const scheduleBody = document.getElementById("paymentScheduleBody");
-      if (!scheduleBody) return;
+    const scheduleBody = document.getElementById("paymentScheduleBody");
+    if (!scheduleBody) return;
 
-      const user = auth.currentUser;
-      if (!user) return;
+    const user = auth.currentUser;
+    if (!user) return;
 
-      // 1. Obtener pagos reales para cruzar información
-      let reportedPayments = {};
-      try {
-          const paymentsSnapshot = await db.collection("payments")
-              .where("userId", "==", user.uid)
-              .get();
-          
-          paymentsSnapshot.forEach(doc => {
-              const data = doc.data();
-              if (data.service) {
-                  reportedPayments[data.service] = data.status;
-              }
-          });
-      } catch (e) {
-          console.error("Error al cruzar pagos:", e);
-      }
+    let reportedPayments = {};
+    try {
+      const paymentsSnapshot = await db
+        .collection("payments")
+        .where("userId", "==", user.uid)
+        .get();
 
-      // 2. Extraer día de pago (ej: "5 de cada mes" -> 5)
-      const paymentDayMatch = contract.paymentPeriod.match(/\d+/);
-      const paymentDay = paymentDayMatch ? parseInt(paymentDayMatch[0]) : 1;
+      paymentsSnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.service) {
+          reportedPayments[data.service] = data.status;
+        }
+      });
+    } catch (e) {
+      console.error("Error al cruzar pagos:", e);
+    }
 
-      // 3. Fecha de inicio: Mes siguiente a la firma
-      const signatureDate = new Date(contract.date + "T00:00:00");
-      const duration = parseInt(contract.duration) || 12;
+    const paymentDayMatch = contract.paymentPeriod.match(/\d+/);
+    const paymentDay = paymentDayMatch ? parseInt(paymentDayMatch[0]) : 1;
 
-      let html = "";
-      
-      for (let i = 1; i <= duration; i++) {
-          let paymentDate = new Date(signatureDate);
-          paymentDate.setMonth(signatureDate.getMonth() + i);
-          paymentDate.setDate(paymentDay);
+    const signatureDate = new Date(contract.date + "T00:00:00");
+    const duration = parseInt(contract.duration) || 12;
 
-          const monthName = paymentDate.toLocaleString('es-ES', { month: 'long' });
-          const yearNum = paymentDate.getFullYear();
-          const dateStr = paymentDate.toLocaleDateString('es-ES');
-          
-          const serviceLabel = `Pago Cuota ${monthName} ${yearNum}`;
-          const reportedStatus = reportedPayments[serviceLabel];
-          
-          const isPaid = reportedStatus === "Aprobado";
-          const isPending = reportedStatus === "Pendiente";
+    let html = "";
 
-          let statusBadge = '<span class="badge bg-warning-soft text-warning">Por Pagar</span>';
-          if (isPaid) statusBadge = '<span class="badge bg-success-soft">Pagado</span>';
-          else if (isPending) statusBadge = '<span class="badge bg-info-soft text-info">En Revisión</span>';
+    for (let i = 1; i <= duration; i++) {
+      let paymentDate = new Date(signatureDate);
+      paymentDate.setMonth(signatureDate.getMonth() + i);
+      paymentDate.setDate(paymentDay);
 
-          const hideCheckbox = isPaid || isPending;
-          const serviceRowClass = isPaid ? 'row-paid' : (isPending ? 'row-pending-review' : 'row-pending');
+      const monthName = paymentDate.toLocaleString("es-ES", { month: "long" });
+      const yearNum = paymentDate.getFullYear();
+      const dateStr = paymentDate.toLocaleDateString("es-ES");
 
-          html += `
+      const serviceLabel = `Pago Cuota ${monthName} ${yearNum}`;
+      const reportedStatus = reportedPayments[serviceLabel];
+
+      const isPaid = reportedStatus === "Aprobado";
+      const isPending = reportedStatus === "Pendiente";
+
+      let statusBadge =
+        '<span class="badge bg-warning-soft text-warning">Por Pagar</span>';
+      if (isPaid)
+        statusBadge = '<span class="badge bg-success-soft">Pagado</span>';
+      else if (isPending)
+        statusBadge =
+          '<span class="badge bg-info-soft text-info">En Revisión</span>';
+
+      const hideCheckbox = isPaid || isPending;
+      const serviceRowClass = isPaid
+        ? "row-paid"
+        : isPending
+        ? "row-pending-review"
+        : "row-pending";
+
+      html += `
               <tr class="${serviceRowClass}">
                   <td>
                        <div class="form-check custom-check">
                            <input class="form-check-input payment-checkbox" type="checkbox" name="paymentSelect" 
-                                  id="chk_${i}" value="${amountWithIva.toFixed(2)}" 
-                                  data-service="${serviceLabel}" ${hideCheckbox ? 'style="display:none"' : ''}>
+                                  id="chk_${i}" value="${amountWithIva.toFixed(
+        2
+      )}" 
+                                  data-service="${serviceLabel}" ${
+        hideCheckbox ? 'style="display:none"' : ""
+      }>
                        </div>
                    </td>
                    <td class="fw-bold">${dateStr}</td>
-                   <td class="text-gold fw-bold">$${amountWithIva.toFixed(2)}</td>
+                   <td class="text-gold fw-bold">$${amountWithIva.toFixed(
+                     2
+                   )}</td>
                    <td>${statusBadge}</td>
                </tr>
            `;
-       }
- 
-       scheduleBody.innerHTML = html;
- 
-       // Listener para los checkboxes (ahora permiten deseleccionar y ocultar metodos)
-       const checkboxes = document.querySelectorAll(".payment-checkbox");
-       checkboxes.forEach(chk => {
-           chk.addEventListener("change", function() {
-               const methodsWrapper = document.getElementById("paymentMethodsWrapper");
-               const instructions = document.getElementById("paymentInstructions");
-               const amountInput = document.getElementById("commonAmount");
-               const serviceInput = document.getElementById("commonService");
+    }
 
-               if (this.checked) {
-                   // Desmarcar todos los demás para simular comportamiento de radio pero con uncheck
-                   checkboxes.forEach(other => { if (other !== this) other.checked = false; });
+    scheduleBody.innerHTML = html;
 
-                   const amount = this.value;
-                   const service = this.getAttribute("data-service");
-                   
-                   if (amountInput) amountInput.value = amount;
-                   if (serviceInput) serviceInput.value = service;
- 
-                   // Mostrar el contenedor de métodos de pago y ocultar instrucciones
-                   if (methodsWrapper) methodsWrapper.style.display = "block";
-                   if (instructions) instructions.style.display = "none";
- 
-                   // Feedback visual suave con Scroll
-                   methodsWrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
- 
-                   Swal.fire({
-                       toast: true,
-                       position: 'top-end',
-                       icon: 'success',
-                       title: `Cuota seleccionada: $${amount}`,
-                       showConfirmButton: false,
-                       timer: 2000
-                   });
-               } else {
-                   // SI SE DESELECCIONA: Limpiar inputs y ocultar metodos
-                   if (amountInput) amountInput.value = "";
-                   if (serviceInput) serviceInput.value = "";
-                   
-                   if (methodsWrapper) methodsWrapper.style.display = "none";
-                   if (instructions) instructions.style.display = "block";
-                   
-                   Swal.fire({
-                       toast: true,
-                       position: 'top-end',
-                       icon: 'info',
-                       title: 'Selección cancelada',
-                       showConfirmButton: false,
-                       timer: 1500
-                   });
-               }
-           });
-       });
-   }
+    const checkboxes = document.querySelectorAll(".payment-checkbox");
+    checkboxes.forEach((chk) => {
+      chk.addEventListener("change", function () {
+        const methodsWrapper = document.getElementById("paymentMethodsWrapper");
+        const instructions = document.getElementById("paymentInstructions");
+        const amountInput = document.getElementById("commonAmount");
+        const serviceInput = document.getElementById("commonService");
 
+        if (this.checked) {
+          checkboxes.forEach((other) => {
+            if (other !== this) other.checked = false;
+          });
+
+          const amount = this.value;
+          const service = this.getAttribute("data-service");
+
+          if (amountInput) amountInput.value = amount;
+          if (serviceInput) serviceInput.value = service;
+
+          // MOSTRAR MÉTODOS Y LUEGO INICIALIZAR PAYPHONE
+          if (methodsWrapper) methodsWrapper.style.display = "block";
+          if (instructions) instructions.style.display = "none";
+
+          // Inicializar PayPhone con los datos de esta cuota
+          if (typeof initPayPhone === "function") {
+            initPayPhone(amount, service);
+          }
+
+          methodsWrapper.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+          });
+
+          Swal.fire({
+            toast: true,
+            position: "top-end",
+            icon: "success",
+            title: `Cuota seleccionada: $${amount}`,
+            showConfirmButton: false,
+            timer: 2000,
+          });
+        } else {
+          if (amountInput) amountInput.value = "";
+          if (serviceInput) serviceInput.value = "";
+
+          if (methodsWrapper) methodsWrapper.style.display = "none";
+          if (instructions) instructions.style.display = "block";
+        }
+      });
+    });
+  }
 });
