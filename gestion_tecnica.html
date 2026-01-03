@@ -1,201 +1,462 @@
 <!DOCTYPE html>
 <html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tutoriales - Seguridad 247 Ecuador</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/gestion_tecnica.css" />
+    <link rel="stylesheet" href="css/index.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+    />
+    <link rel="icon" href="assets/img/logo.png" type="image/png" />
+    <script src="js/bootstrap.min.js"></script>
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tutoriales - Seguridad 247 Ecuador</title>
-  <link rel="stylesheet" href="css/bootstrap.min.css" />
-  <link rel="stylesheet" href="css/gestion_tecnica.css" />
-  <link rel="stylesheet" href="css/index.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
-  <link rel="icon" href="assets/img/logo.png" type="image/png" />
-  <script src="js/bootstrap.min.js"></script>
-</head>
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+      <div class="container">
+        <a class="navbar-brand" href="#">SEGURIDAD 247 ECUADOR</a>
 
-<body>
-  <!-- NAVBAR -->
-  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-    <div class="container">
-      <a class="navbar-brand" href="#">SEGURIDAD 247 ECUADOR</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <!-- Botón de cerrar sesión -->
-          <li class="nav-item">
-            <button class="btn btn-danger" id="logoutBtn">
-              <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
+        <button class="navbar-toggler" type="button" id="sidebarToggle">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div
+          class="collapse navbar-collapse d-none d-lg-flex justify-content-end"
+          id="navbarNav"
+        >
+          <button class="btn-logout-nav" id="logoutBtn">
+            <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <div class="admin-wrapper">
+      <!-- SIDEBAR -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+          <img src="assets/img/logo.png" alt="Logo" />
+          <span class="admin-label">TÉCNICO</span>
+        </div>
+
+        <ul class="sidebar-menu">
+          <li class="sidebar-item">
+            <a class="sidebar-link active" data-view="dashboard">
+              <i class="fa-solid fa-gauge-high"></i> Dashboard
+            </a>
+          </li>
+          <li class="sidebar-item">
+            <a class="sidebar-link" data-view="jobs">
+              <i class="fa-solid fa-screwdriver-wrench"></i> Trabajos
+            </a>
+          </li>
+          <li class="sidebar-item">
+            <a class="sidebar-link" data-view="contracts">
+              <i class="fa-solid fa-file-contract"></i> Contratos
+            </a>
+          </li>
+          <li class="sidebar-item">
+            <a class="sidebar-link" data-view="guides">
+              <i class="fa-solid fa-book"></i> Guías Técnicas
+            </a>
+          </li>
+          <!-- Logout for mobile -->
+          <li class="sidebar-item d-lg-none mt-4">
+            <button class="btn-logout-sidebar w-100" id="logoutBtnMobile">
+              <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
             </button>
           </li>
         </ul>
-      </div>
-    </div>
-  </nav>
+      </aside>
 
-  <main class="container pt-5">
-    <h1 style="color: #d4af37;">Area de Gestión Técnica</h1>
-    <!-- Filtros y Buscador -->
-    <div class="filter-container mb-4">
-      <div class="row g-3 align-items-center">
-        <!-- Filtro Principal -->
-        <div class="col-md-3">
-          <label for="viewFilter" class="form-label">Mostrar:</label>
-          <select id="viewFilter" class="form-select modern-select">
-            <option value="" selected disabled>Seleccione una opción...</option>
-            <option value="todos">Todos</option>
-            <option value="trabajos">Solo Trabajos</option>
-            <option value="contratos">Solo Contratos</option>
-          </select>
-        </div>
+      <!-- CONTENT -->
+      <main class="main-content">
+        <div class="container-fluid">
+          <!-- Dashboard Section -->
+          <div id="dashboardSection">
+            <h1 class="mb-5">Área de Gestión Técnica</h1>
 
-        <!-- Filtro Urgencia (Oculto por defecto) -->
-        <div class="col-md-3" id="urgencyFilterContainer" style="display: none;">
-          <label for="urgencyFilter" class="form-label">Urgencia:</label>
-          <select id="urgencyFilter" class="form-select modern-select">
-            <option value="todas">Todas</option>
-            <option value="Normal">Normal</option>
-            <option value="Urgente">Urgente</option>
-            <option value="Crítico">Crítico</option>
-          </select>
-        </div>
-
-        <!-- Buscador por Nombre (Oculto por defecto) -->
-        <div class="col-md-4" id="nameFilterContainer" style="display: none;">
-          <label for="nameFilter" class="form-label">Buscar por Nombre:</label>
-          <input type="text" id="nameFilter" class="form-control modern-input" placeholder="Escribe un nombre..." />
-        </div>
-      </div>
-    </div>
-
-    <!-- Contenedor con los trabajos cargados -->
-    <div id="jobsSection">
-      <h2 style="color: #d4af37; margin-top: 20px;">Trabajos Pendientes</h2>
-      <div id="jobsContainer" class="row g-4"></div>
-    </div>
-
-    <!-- Contenedor para los contratos -->
-    <div id="contractsSection">
-      <h2 style="color: #d4af37; margin-top: 40px;">Contratos Disponibles</h2>
-      <div id="contractsContainer" class="row g-4"></div>
-    </div>
-  </main>
-
-  <!-- Modal para Informe Técnico -->
-  <div class="modal fade" id="technicalReportModal" tabindex="-1" aria-labelledby="technicalReportModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="technicalReportModalLabel">Generar Informe Técnico</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form id="reportForm">
-            <input type="hidden" id="jobId">
-            <div id="jobDetails" class="mb-3"></div>
-            <div class="mb-3">
-              <label for="reportText" class="form-label">Informe de Trabajo Realizado</label>
-              <textarea class="form-control" id="reportText" rows="4" required></textarea>
-            </div>
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="evidencePhoto1" class="form-label">Evidencia 1 (Foto)</label>
-                <input type="file" class="form-control" id="evidencePhoto1" accept="image/*">
-              </div>
-              <div class="col-md-6 mb-3">
-                <label for="evidencePhoto2" class="form-label">Evidencia 2 (Foto)</label>
-                <input type="file" class="form-control" id="evidencePhoto2" accept="image/*">
-              </div>
-            </div>
-            <div class="mb-3">
-              <label for="jobStatus" class="form-label">Estado del Trabajo</label>
-              <select class="form-select" id="jobStatus" required>
-                <option value="" disabled selected>Seleccione un estado</option>
-                <option value="Pendiente">Pendiente</option>
-                <option value="Culminado">Culminado</option>
-              </select>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-          <button type="button" class="btn btn-primary" id="saveReportBtn">Guardar Informe</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal para Llenar Contrato -->
-  <div class="modal fade" id="fillContractModal" tabindex="-1" aria-labelledby="fillContractModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="fillContractModalLabel">Completar Contrato</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <input type="hidden" id="contractIdToFill">
-
-          <!-- Contrato generado -->
-          <div id="contractContentToFill" class="mb-4"
-            style="background: #fff; color: #000; padding: 20px; border-radius: 8px;"></div>
-
-          <hr id="fillContractDivider" style="border-color: #d4af37; margin: 30px 0;">
-
-          <!-- Sección de firma y cédula -->
-          <div id="fillContractSection">
-            <h6 style="color: #d4af37; margin-bottom: 20px;">Completar Información del Cliente</h6>
-
-            <div class="row">
-              <!-- Canvas de Firma -->
-              <div class="col-md-6 mb-4">
-                <label class="form-label" style="color: #d4af37;">Firma del Cliente</label>
-                <div style="border: 2px solid #d4af37; border-radius: 8px; background: #fff; padding: 10px;">
-                  <canvas id="signatureCanvas"
-                    style="width: 100%; height: 200px; cursor: crosshair; touch-action: none;"></canvas>
+            <div class="row g-4 mb-5">
+              <div class="col-xl-6 col-md-6">
+                <div class="stat-card">
+                  <div
+                    class="stat-card-icon"
+                    style="background: rgba(212, 175, 55, 0.1); color: #d4af37"
+                  >
+                    <i class="fa-solid fa-screwdriver-wrench"></i>
+                  </div>
+                  <div class="stat-card-info">
+                    <h3 id="statTotalTrabajos">0</h3>
+                    <p>Trabajos Pendientes</p>
+                  </div>
                 </div>
-                <button type="button" class="btn btn-sm btn-secondary mt-2" id="clearSignatureBtn">
-                  <i class="fa-solid fa-eraser"></i> Limpiar Firma
-                </button>
               </div>
+              <div class="col-xl-6 col-md-6">
+                <div class="stat-card">
+                  <div
+                    class="stat-card-icon"
+                    style="background: rgba(28, 182, 152, 0.1); color: #1cb698"
+                  >
+                    <i class="fa-solid fa-file-contract"></i>
+                  </div>
+                  <div class="stat-card-info">
+                    <h3 id="statTotalContratos">0</h3>
+                    <p>Contratos Disponibles</p>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-              <!-- Foto de Cédula -->
-              <div class="col-md-6 mb-4">
-                <label class="form-label" style="color: #d4af37;">Foto de Cédula del Cliente</label>
-                <input type="file" class="form-control" id="clientIdPhoto" accept="image/*">
-                <div id="idPhotoPreview" class="mt-3" style="display: none;">
-                  <img id="idPhotoPreviewImg" src="" alt="Vista previa de cédula"
-                    style="max-width: 100%; border: 2px solid #d4af37; border-radius: 8px;">
+            <!-- Notifications Section -->
+            <div id="notificationsSection" class="mb-5" style="display: none">
+              <div class="notifications-card">
+                <div
+                  class="notifications-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3"
+                >
+                  <h2 class="section-title mb-0">
+                    <i class="fa-solid fa-bell me-2"></i> Notificaciones
+                  </h2>
+
+                  <div class="notification-filters d-flex gap-2">
+                    <button class="notif-filter-btn active" data-filter="all">
+                      Todos
+                    </button>
+                    <button class="notif-filter-btn" data-filter="job">
+                      Trabajos
+                    </button>
+                    <button class="notif-filter-btn" data-filter="contract">
+                      Contratos
+                    </button>
+                  </div>
+
+                  <span
+                    class="badge rounded-pill bg-gold"
+                    id="notificationBadge"
+                    >0</span
+                  >
+                </div>
+
+                <div id="notificationsList" class="notifications-list">
+                  <!-- Notificaciones se cargarán aquí -->
+                </div>
+
+                <div class="text-center mt-4">
+                  <button class="view-all-btn" id="viewAllNotifications">
+                    <i class="fa-solid fa-eye me-2"></i> Ver Todo el Historial
+                  </button>
                 </div>
               </div>
             </div>
           </div>
+
+          <!-- Filtros y Buscador (Se mostrarán según la vista) -->
+          <div
+            class="filter-container mb-4"
+            id="globalFilterContainer"
+            style="display: none"
+          >
+            <div class="row g-3 align-items-center">
+              <!-- Filtro Urgencia -->
+              <div
+                class="col-md-4"
+                id="urgencyFilterContainer"
+                style="display: none"
+              >
+                <label for="urgencyFilter" class="form-label">Urgencia:</label>
+                <select id="urgencyFilter" class="form-select modern-select">
+                  <option value="todas">Todas</option>
+                  <option value="Normal">Normal</option>
+                  <option value="Urgente">Urgente</option>
+                  <option value="Crítico">Crítico</option>
+                </select>
+              </div>
+
+              <!-- Buscador por Nombre -->
+              <div class="col-md-8" id="nameFilterContainer">
+                <label for="nameFilter" class="form-label">Buscar:</label>
+                <input
+                  type="text"
+                  id="nameFilter"
+                  class="form-control modern-input"
+                  placeholder="Buscar por cliente o contacto..."
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Contenedor con los trabajos cargados -->
+          <div id="jobsSection" style="display: none">
+            <h2 class="section-title mb-4">Trabajos Pendientes</h2>
+            <div id="jobsContainer" class="row g-4"></div>
+          </div>
+
+          <!-- Contenedor para los contratos -->
+          <div id="contractsSection" style="display: none">
+            <h2 class="section-title mb-4">Contratos Disponibles</h2>
+            <div id="contractsContainer" class="row g-4"></div>
+          </div>
+
+          <!-- Guías Técnicas Section -->
+          <div id="guidesSection" style="display: none">
+            <h2 class="section-title mb-4">Guías Técnicas</h2>
+            <div class="guides-search mb-4">
+              <input
+                type="text"
+                id="guideSearchInput"
+                class="form-control modern-input"
+                placeholder="Buscar por modelo, marca o instalación..."
+              />
+            </div>
+            <div id="guidesContainer" class="row g-4">
+              <!-- Guías se cargarán dinámicamente o aquí directamente -->
+              <p class="text-center text-muted">
+                Próximamente: Guías e Instructivos de Instalación
+              </p>
+            </div>
+          </div>
+
+          <!-- Modal para Informe Técnico -->
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-          <button type="button" class="btn btn-gold" id="saveContractBtn">Guardar Contrato Completado</button>
+      </main>
+    </div>
+    <!-- Fin del admin-wrapper -->
+
+    <footer class="footer">
+      <div class="footer-content text-center">
+        <span class="brand-text">SEGURIDAD 247 ECUADOR</span>
+        <p class="copyright-text">© 2025 — Todos los derechos reservados</p>
+      </div>
+    </footer>
+
+    <!-- Modal para Informe Técnico -->
+    <div
+      class="modal fade"
+      id="technicalReportModal"
+      tabindex="-1"
+      aria-labelledby="technicalReportModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="technicalReportModalLabel">
+              Generar Informe Técnico
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="reportForm">
+              <input type="hidden" id="jobId" />
+              <div id="jobDetails" class="mb-3"></div>
+              <div class="mb-3">
+                <label for="reportText" class="form-label"
+                  >Informe de Trabajo Realizado</label
+                >
+                <textarea
+                  class="form-control"
+                  id="reportText"
+                  rows="4"
+                  required
+                ></textarea>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="evidencePhoto1" class="form-label"
+                    >Evidencia 1 (Foto)</label
+                  >
+                  <input
+                    type="file"
+                    class="form-control"
+                    id="evidencePhoto1"
+                    accept="image/*"
+                  />
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="evidencePhoto2" class="form-label"
+                    >Evidencia 2 (Foto)</label
+                  >
+                  <input
+                    type="file"
+                    class="form-control"
+                    id="evidencePhoto2"
+                    accept="image/*"
+                  />
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="jobStatus" class="form-label"
+                  >Estado del Trabajo</label
+                >
+                <select class="form-select" id="jobStatus" required>
+                  <option value="" disabled selected>
+                    Seleccione un estado
+                  </option>
+                  <option value="Pendiente">Pendiente</option>
+                  <option value="Culminado">Culminado</option>
+                </select>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cerrar
+            </button>
+            <button type="button" class="btn btn-primary" id="saveReportBtn">
+              Guardar Informe
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <footer class="footer">
-    © 2025 Seguridad 247 Ecuador — Todos los derechos reservados
-  </footer>
+    <!-- Modal para Llenar Contrato -->
+    <div
+      class="modal fade"
+      id="fillContractModal"
+      tabindex="-1"
+      aria-labelledby="fillContractModalLabel"
+      aria-hidden="true"
+    >
+      <div
+        class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"
+      >
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="fillContractModalLabel">
+              Completar Contrato
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="contractIdToFill" />
 
-  <!-- SCRIPTS -->
-  <!-- FIREBASE -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+            <!-- Contrato generado -->
+            <div
+              id="contractContentToFill"
+              class="mb-4"
+              style="
+                background: #fff;
+                color: #000;
+                padding: 20px;
+                border-radius: 8px;
+              "
+            ></div>
 
-  <!-- Scripts personalizados -->
-  <script src="js/firebase.js"></script>
-  <script src="js/login_tecnico.js"></script>
-  <script src="js/sweetalert2.js"></script>
-</body>
+            <hr
+              id="fillContractDivider"
+              style="border-color: #d4af37; margin: 30px 0"
+            />
 
+            <!-- Sección de firma y cédula -->
+            <div id="fillContractSection">
+              <h6 style="color: #d4af37; margin-bottom: 20px">
+                Completar Información del Cliente
+              </h6>
+
+              <div class="row">
+                <!-- Canvas de Firma -->
+                <div class="col-md-6 mb-4">
+                  <label class="form-label" style="color: #d4af37"
+                    >Firma del Cliente</label
+                  >
+                  <div
+                    style="
+                      border: 2px solid #d4af37;
+                      border-radius: 8px;
+                      background: #fff;
+                      padding: 10px;
+                    "
+                  >
+                    <canvas
+                      id="signatureCanvas"
+                      style="
+                        width: 100%;
+                        height: 200px;
+                        cursor: crosshair;
+                        touch-action: none;
+                      "
+                    ></canvas>
+                  </div>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-secondary mt-2"
+                    id="clearSignatureBtn"
+                  >
+                    <i class="fa-solid fa-eraser"></i> Limpiar Firma
+                  </button>
+                </div>
+
+                <!-- Foto de Cédula -->
+                <div class="col-md-6 mb-4">
+                  <label class="form-label" style="color: #d4af37"
+                    >Foto de Cédula del Cliente</label
+                  >
+                  <input
+                    type="file"
+                    class="form-control"
+                    id="clientIdPhoto"
+                    accept="image/*"
+                  />
+                  <div id="idPhotoPreview" class="mt-3" style="display: none">
+                    <img
+                      id="idPhotoPreviewImg"
+                      src=""
+                      alt="Vista previa de cédula"
+                      style="
+                        max-width: 100%;
+                        border: 2px solid #d4af37;
+                        border-radius: 8px;
+                      "
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cerrar
+            </button>
+            <button type="button" class="btn btn-gold" id="saveContractBtn">
+              Guardar Contrato Completado
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <!-- FIREBASE -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <!-- Scripts personalizados -->
+    <script src="js/firebase.js"></script>
+    <script src="js/login_tecnico.js"></script>
+    <script src="js/sweetalert2.js"></script>
+  </body>
 </html>

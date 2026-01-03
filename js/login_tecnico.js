@@ -51,92 +51,254 @@ document.addEventListener("DOMContentLoaded", () => {
     window.trabajosLoaded = false;
     window.contratosLoaded = false;
 
+    // Cargar Info Usuario
+    cargarInfoUsuario();
+
     // Configurar modales (listeners)
     configurarModalInforme();
     configurarModalContrato();
 
+    // Sidebar Toggle (Mobile)
+    const sidebarToggle = document.getElementById("sidebarToggle");
+    const sidebar = document.getElementById("sidebar");
+    if (sidebarToggle && sidebar) {
+      sidebarToggle.addEventListener("click", () => {
+        sidebar.classList.toggle("show");
+      });
+    }
+
+    // Navegación Sidebar
+    const sidebarLinks = document.querySelectorAll(".sidebar-link");
+    sidebarLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        const view = link.getAttribute("data-view");
+        
+        // Actualizar links activos
+        sidebarLinks.forEach(l => l.classList.remove("active"));
+        link.classList.add("active");
+        
+        // Cerrar sidebar en mobile tras click
+        if (sidebar && sidebar.classList.contains("show")) {
+          sidebar.classList.remove("show");
+        }
+        
+        switchView(view);
+      });
+    });
+
     // Filtros
-    const viewFilter = document.getElementById("viewFilter");
     const urgencyFilter = document.getElementById("urgencyFilter");
     const nameFilter = document.getElementById("nameFilter");
 
     // Contenedores
+    const dashboardSection = document.getElementById("dashboardSection");
     const jobsSection = document.getElementById("jobsSection");
     const contractsSection = document.getElementById("contractsSection");
+    const globalFilterContainer = document.getElementById("globalFilterContainer");
     const urgencyFilterContainer = document.getElementById("urgencyFilterContainer");
-    const nameFilterContainer = document.getElementById("nameFilterContainer");
 
-    // Inicializar vista (ocultar todo porque la opción por defecto es vacía)
-    updateView();
+    // Inicializar vista (Dashboard)
+    switchView("dashboard");
 
-    if (viewFilter) {
-      viewFilter.addEventListener("change", updateView);
-      urgencyFilter.addEventListener("change", applyFilters);
-      nameFilter.addEventListener("input", applyFilters);
-    }
+    if (urgencyFilter) urgencyFilter.addEventListener("change", applyFilters);
+    if (nameFilter) nameFilter.addEventListener("input", applyFilters);
 
-    function updateView() {
-      const value = viewFilter.value;
+    function switchView(view) {
+      // Ocultar todo
+      dashboardSection.style.display = "none";
+      const jobsSection = document.getElementById("jobsSection");
+      const contractsSection = document.getElementById("contractsSection");
+      const guidesSection = document.getElementById("guidesSection");
+      const globalFilterContainer = document.getElementById("globalFilterContainer");
+      const urgencyFilterContainer = document.getElementById("urgencyFilterContainer");
 
-      // Ocultar todo por defecto
-      if (jobsSection) jobsSection.style.display = "none";
-      if (contractsSection) contractsSection.style.display = "none";
+      if (!dashboardSection || !jobsSection || !contractsSection || !guidesSection) return;
 
+      dashboardSection.style.display = "none";
+      jobsSection.style.display = "none";
+      contractsSection.style.display = "none";
+      guidesSection.style.display = "none";
+      globalFilterContainer.style.display = "none";
       urgencyFilterContainer.style.display = "none";
-      nameFilterContainer.style.display = "none";
 
-      if (value === "trabajos") {
-        if (jobsSection) jobsSection.style.display = "block";
+      if (view === "dashboard") {
+        dashboardSection.style.display = "block";
+        actualizarEstadisticas();
+      } else if (view === "jobs") {
+        jobsSection.style.display = "block";
+        globalFilterContainer.style.display = "block";
         urgencyFilterContainer.style.display = "block";
-        nameFilterContainer.style.display = "block";
-
-        if (!window.trabajosLoaded) {
-          cargarTrabajosTecnicos();
-        } else {
-          renderTrabajosTecnicos(window.allTrabajos);
-        }
-
-      } else if (value === "contratos") {
-        if (contractsSection) contractsSection.style.display = "block";
-        nameFilterContainer.style.display = "block";
-
-        if (!window.contratosLoaded) {
-          cargarContratosTecnicos();
-        } else {
-          renderContratosTecnicos(window.allContratos);
-        }
-
-      } else if (value === "todos") {
-        if (jobsSection) jobsSection.style.display = "block";
-        if (contractsSection) contractsSection.style.display = "block";
-
         if (!window.trabajosLoaded) cargarTrabajosTecnicos();
         else renderTrabajosTecnicos(window.allTrabajos);
-
+      } else if (view === "contracts") {
+        contractsSection.style.display = "block";
+        globalFilterContainer.style.display = "block";
         if (!window.contratosLoaded) cargarContratosTecnicos();
         else renderContratosTecnicos(window.allContratos);
+      } else if (view === "guides") {
+        guidesSection.style.display = "block";
+        // Aquí podrías llamar a cargarGuiasTecnicas() si existiera
       }
-
-      // Resetear filtros
-      urgencyFilter.value = "todas";
-      nameFilter.value = "";
     }
 
-    function applyFilters() {
-      const urgencyValue = urgencyFilter.value;
-      const nameValue = nameFilter.value.toLowerCase();
-      const currentView = viewFilter.value;
+    async function actualizarEstadisticas() {
+      try {
+        const queryTrabajos = await db.collection("trabajos").get();
+        const pendingTrabajos = queryTrabajos.docs.filter(doc => doc.data().status !== 'Culminado').length;
+        document.getElementById("statTotalTrabajos").textContent = pendingTrabajos;
 
-      if (currentView === "trabajos" || currentView === "todos") {
+        const queryContratos = await db.collection("contracts").get();
+        const pendingContratos = queryContratos.docs.filter(doc => !doc.data().clientSignature).length;
+        document.getElementById("statTotalContratos").textContent = pendingContratos;
+
+        // Cargar notificaciones (inicialmente todas)
+        cargarNotificacionesDashboard('all');
+      } catch (error) {
+        console.error("Error al actualizar estadísticas:", error);
+      }
+    }
+
+    let currentNotifications = [];
+
+    async function cargarNotificacionesDashboard(filter = 'all') {
+      const notificationsSection = document.getElementById("notificationsSection");
+      const notificationsList = document.getElementById("notificationsList");
+      const notificationBadge = document.getElementById("notificationBadge");
+      
+      if (!notificationsSection || !notificationsList || !notificationBadge) return;
+
+      try {
+        // Solo cargar datos si el array está vacío (primera vez)
+        if (currentNotifications.length === 0) {
+          const snapTrabajos = await db.collection("trabajos")
+            .orderBy("createdAt", "desc")
+            .limit(10)
+            .get();
+
+          const snapContratos = await db.collection("contracts")
+            .orderBy("createdAt", "desc")
+            .limit(10)
+            .get();
+
+          snapTrabajos.forEach(doc => {
+            const data = doc.data();
+            if (data.status !== 'Culminado') {
+              currentNotifications.push({ id: doc.id, ...data, type: 'job' });
+            }
+          });
+
+          snapContratos.forEach(doc => {
+            const data = doc.data();
+            if (!data.clientSignature) {
+              currentNotifications.push({ id: doc.id, ...data, type: 'contract' });
+            }
+          });
+
+          // Ordenar por fecha descendente
+          currentNotifications.sort((a, b) => {
+            const dateA = a.createdAt ? a.createdAt.toDate() : new Date(0);
+            const dateB = b.createdAt ? b.createdAt.toDate() : new Date(0);
+            return dateB - dateA;
+          });
+        }
+
+        // Filtrar según selección
+        const filtered = filter === 'all' 
+          ? currentNotifications 
+          : currentNotifications.filter(n => n.type === filter);
+
+        const displayRecent = filtered.slice(0, 5);
+        
+        if (displayRecent.length === 0 && filter === 'all') {
+          notificationsSection.style.display = "none";
+          return;
+        }
+
+        notificationsSection.style.display = "block";
+        notificationBadge.textContent = filtered.length;
+
+        let html = '';
+        displayRecent.forEach(item => {
+          const isJob = item.type === 'job';
+          const icon = isJob ? 'fa-screwdriver-wrench' : 'fa-file-contract';
+          const iconBg = isJob ? 'rgba(212, 175, 55, 0.1)' : 'rgba(28, 182, 152, 0.1)';
+          const iconColor = isJob ? '#d4af37' : '#1cb698';
+          
+          const title = isJob ? (item.clientName || 'Nuevo Trabajo') : (item.clientName || 'Nuevo Contrato');
+          const subtitle = isJob 
+            ? `<div class="d-flex flex-column">
+                <span><i class="fa-solid fa-user me-1"></i> ${item.contactName || 'Sin contacto'}</span>
+               </div>`
+            : `Cliente: ${item.clientName || 'Sin nombre'}`;
+          
+          let dateStr = 'Reciente';
+          if (item.createdAt) {
+            const date = item.createdAt.toDate();
+            dateStr = date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+          }
+
+          html += `
+            <div class="notification-item" onclick="document.querySelector('.sidebar-link[data-view=\\'${isJob ? 'jobs' : 'contracts'}\\']').click()">
+              <div class="notification-item-icon" style="background: ${iconBg}; color: ${iconColor}">
+                <i class="fa-solid ${icon}"></i>
+              </div>
+              <div class="notification-item-content">
+                <div class="notification-item-title">${title}</div>
+                <div class="notification-item-subtitle text-truncate" style="max-width: 250px;">${subtitle}</div>
+              </div>
+              <div class="notification-item-date">${dateStr}</div>
+            </div>
+          `;
+        });
+
+        if (html === '') {
+          html = '<p class="text-center text-muted my-3">No hay notificaciones pendientes</p>';
+        }
+
+        notificationsList.innerHTML = html;
+
+        // Configurar botón "Ver Todo"
+        const viewAllBtn = document.getElementById("viewAllNotifications");
+        if (viewAllBtn) {
+          viewAllBtn.onclick = () => {
+            const targetView = filter === 'contract' ? 'contracts' : 'jobs';
+            document.querySelector(`.sidebar-link[data-view="${targetView}"]`).click();
+          };
+        }
+
+      } catch (error) {
+        console.error("Error al cargar notificaciones:", error);
+        notificationsSection.style.display = "none";
+      }
+    }
+
+    // Inicializar listeners de filtros de notificaciones
+    document.querySelectorAll('.notif-filter-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.notif-filter-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        cargarNotificacionesDashboard(e.target.dataset.filter);
+      });
+    });
+
+    function applyFilters() {
+      const urgencyValue = urgencyFilter?.value || "todas";
+      const nameValue = nameFilter?.value.toLowerCase() || "";
+      const currentActiveLink = document.querySelector(".sidebar-link.active");
+      const currentView = currentActiveLink?.getAttribute("data-view");
+
+      if (currentView === "jobs") {
         const filteredTrabajos = window.allTrabajos.filter(job => {
           const matchUrgency = urgencyValue === "todas" || job.jobUrgency === urgencyValue;
-          const matchName = job.clientName.toLowerCase().includes(nameValue);
+          const matchName = job.clientName.toLowerCase().includes(nameValue) || 
+                            job.contactName.toLowerCase().includes(nameValue);
           return matchUrgency && matchName;
         });
         renderTrabajosTecnicos(filteredTrabajos);
       }
 
-      if (currentView === "contratos" || currentView === "todos") {
+      if (currentView === "contracts") {
         const filteredContratos = window.allContratos.filter(contract => {
           const matchName = contract.clientName.toLowerCase().includes(nameValue);
           return matchName;
@@ -146,32 +308,89 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  const logoutBtn = document.getElementById("logoutBtn");
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", () => {
-      auth
-        .signOut()
-        .then(() => {
-          Swal.fire({
-            icon: "success",
-            title: "Sesión cerrada",
-            text: "Has salido del sistema",
-            timer: 1500,
-            showConfirmButton: false,
-            allowOutsideClick: false,
-          }).then(() => {
-            window.location.href = "control_center.html";
-          });
-        })
-        .catch(() => {
-          Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "No se pudo cerrar sesión",
-          });
-        });
+  async function cargarInfoUsuario() {
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        try {
+          // Intentar obtener de la colección 'users'
+          const doc = await db.collection("users").doc(user.uid).get();
+          const sidebarUserName = document.getElementById("sidebarUserName");
+          const sidebarUserRole = document.getElementById("sidebarUserRole");
+
+          if (doc.exists) {
+            const data = doc.data();
+            console.log("Datos del técnico cargados:", data);
+            
+            if (sidebarUserName) {
+              sidebarUserName.textContent = data.adminName || data.nombre || data.techName || data.displayName || "Técnico";
+            }
+            
+            if (sidebarUserRole && data.complexName) {
+              sidebarUserRole.textContent = data.complexName;
+            }
+          } else {
+            console.warn("No se encontró documento para el UID:", user.uid);
+            if (sidebarUserName) sidebarUserName.textContent = user.email.split('@')[0];
+          }
+        } catch (error) {
+          console.error("Error cargando info usuario:", error);
+          const sidebarUserName = document.getElementById("sidebarUserName");
+          if (sidebarUserName) sidebarUserName.textContent = "Error de carga";
+        }
+      } else {
+        window.location.href = "control_center.html";
+      }
     });
   }
+
+  const logoutBtn = document.getElementById("logoutBtn");
+  const logoutBtnMobile = document.getElementById("logoutBtnMobile"); // Botón mobile del sidebar
+  
+  const handleLogout = async () => {
+    const result = await Swal.fire({
+      title: '<span style="color: #fff;">¿Cerrar Sesión?</span>',
+      text: "¿Estás seguro de que deseas salir del sistema?",
+      icon: 'question',
+      iconColor: '#a1c1d1', // Light blue question mark as in the image
+      showCancelButton: true,
+      confirmButtonColor: '#d4af37', // Gold color for "Sí, salir"
+      cancelButtonColor: '#000', // Black color for "No, quedarme"
+      confirmButtonText: 'Sí, salir',
+      cancelButtonText: 'No, quedarme',
+      background: '#1a1a1a', // Dark background for the alert
+      color: '#fff', // White text color
+      customClass: {
+        popup: 'gold-swal-popup',
+        confirmButton: 'gold-swal-confirm',
+        cancelButton: 'gold-swal-cancel'
+      }
+    });
+
+    if (result.isConfirmed) {
+      auth.signOut().then(() => {
+        Swal.fire({
+          icon: "success",
+          title: "Sesión cerrada",
+          text: "Has salido del sistema",
+          timer: 1500,
+          showConfirmButton: false,
+          allowOutsideClick: false,
+        }).then(() => {
+          window.location.href = "control_center.html";
+        });
+      }).catch((error) => {
+        console.error("Error al cerrar sesión:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "No se pudo cerrar sesión",
+        });
+      });
+    }
+  };
+
+  if (logoutBtn) logoutBtn.addEventListener("click", handleLogout);
+  if (logoutBtnMobile) logoutBtnMobile.addEventListener("click", handleLogout);
 
   // Listener para el filtro de contenido
   const contentFilter = document.getElementById("contentFilter");
