@@ -10,27 +10,45 @@ document.addEventListener("DOMContentLoaded", () => {
 
       auth
         .signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
+        .then(async (userCredential) => {
+          const user = userCredential.user;
+          
+          // Validar Rol Técnico
+          const doc = await db.collection("users").doc(user.uid).get();
+          const userData = doc.exists ? doc.data() : null;
+
+          if (!userData || userData.role !== 'tecnico') {
+             await auth.signOut();
+             throw new Error("Su cuenta no tiene permisos para acceder al portal técnico.");
+          }
+
+          // Validar Estado Activo
+          if (userData.status === 'inactive') {
+             await auth.signOut();
+             throw new Error("Su cuenta ha sido desactivada. Por favor, contacte con el soporte técnico.");
+          }
+
           Swal.fire({
             icon: "success",
             title: "¡Login exitoso!",
-            text: "Bienvenido al sistema",
+            text: `Bienvenido, ${userData.subRole || 'Técnico'}`,
             timer: 1500,
             showConfirmButton: false,
             allowOutsideClick: false,
           }).then(() => {
             const modalEl = document.getElementById("loginModal");
             const modal = bootstrap.Modal.getInstance(modalEl);
-            modal.hide();
+            if (modal) modal.hide();
 
             window.location.href = "gestion_tecnica.html";
           });
         })
         .catch((error) => {
+          const errorMsg = error.message || "Usuario o contraseña incorrectos";
           Swal.fire({
             icon: "error",
             title: "Error",
-            text: "Usuario o contraseña incorrectos",
+            text: errorMsg,
           });
         });
     });

@@ -49,28 +49,20 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-      // Ocultar todo por defecto
+      const usersManagementSection = document.getElementById("usersManagementSection");
+      
       if (dashboardSection) dashboardSection.style.display = "none";
       jobsSection.style.display = "none";
       contractsSection.style.display = "none";
-      const adminsSection = document.getElementById("adminsSection");
-      if (adminsSection) adminsSection.style.display = "none";
       const paymentsSection = document.getElementById("paymentsSection");
       if (paymentsSection) paymentsSection.style.display = "none";
+      if (usersManagementSection) usersManagementSection.style.display = "none";
 
       createJobBtn.style.display = "none";
       createContractBtn.style.display = "none";
       urgencyFilterContainer.style.display = "none";
       nameFilterContainer.style.display = "none";
       
-      const btnAddAdmin = document.getElementById("btnAddAdmin");
-      if (btnAddAdmin) {
-        btnAddAdmin.style.display = "none";
-        // Cargar contratos al presionar el botón de agregar admin
-        btnAddAdmin.removeEventListener("click", cargarOpcionesContrato);
-        btnAddAdmin.addEventListener("click", cargarOpcionesContrato);
-      }
-
       if (viewValue === "finished") {
         jobsSection.style.display = "block";
         createJobBtn.style.display = "flex";
@@ -82,15 +74,13 @@ document.addEventListener("DOMContentLoaded", () => {
         createContractBtn.style.display = "flex";
         nameFilterContainer.style.display = "block";
         cargarContratos();
-      } else if (viewValue === "admins") {
-        adminsSection.style.display = "block";
-        nameFilterContainer.style.display = "block";
-        if (btnAddAdmin) btnAddAdmin.style.display = "block"; 
-        cargarAdmins();
       } else if (viewValue === "payments") {
         if (paymentsSection) paymentsSection.style.display = "block";
         nameFilterContainer.style.display = "block";
         cargarPagosPendientes();
+      } else if (viewValue === "users-management") {
+        if (usersManagementSection) usersManagementSection.style.display = "block";
+        cargarUsuariosManagement();
       } else if (viewValue === "todos") {
         if (dashboardSection) dashboardSection.style.display = "block";
         actualizarContadoresDashboard();
@@ -1101,7 +1091,31 @@ function activarLoginAdmin() {
 
     auth
       .signInWithEmailAndPassword(email, password)
-      .then(() => {
+      .then(async (userCredential) => {
+        const user = userCredential.user;
+        
+        // Validar Rol y Estado
+        const doc = await db.collection("users").doc(user.uid).get();
+        const userData = doc.exists ? doc.data() : null;
+        
+        console.log("Debug Login - User UID:", user.uid);
+        console.log("Debug Login - User Data:", userData);
+
+        // Si es el admin@gmail.com y no existe documento, le permitimos entrar pero registramos el error
+        if (user.email === 'admin@gmail.com' && (!userData || !userData.role)) {
+            console.warn("Alerta: El administrador principal no tiene documento en 'users'.");
+            // Aquí podríamos crearle el documento automáticamente si fuera necesario
+        } else if (!userData || (userData.role !== 'administrador' && userData.role !== 'ADMIN_CONJUNTO' && userData.role !== 'admin')) {
+           await auth.signOut();
+           throw new Error("Su cuenta no tiene permisos para acceder a este portal.");
+        }
+
+        // Validar Estado Activo (solo si existe el campo status)
+        if (userData && userData.status === 'inactive') {
+           await auth.signOut();
+           throw new Error("Su cuenta ha sido desactivada. Por favor, contacte con el administrador.");
+        }
+
         Swal.fire({
           icon: "success",
           title: "¡Login exitoso!",
@@ -1110,16 +1124,17 @@ function activarLoginAdmin() {
         }).then(() => {
           const modalEl = document.getElementById("loginModalAdmin");
           const modal = bootstrap.Modal.getInstance(modalEl);
-          modal.hide();
+          if (modal) modal.hide();
 
           window.location.href = "gestion_admin.html";
         });
       })
-      .catch(() => {
+      .catch((error) => {
+        const errorMsg = error.message || "Usuario o contraseña incorrectos";
         Swal.fire({
           icon: "error",
           title: "Error",
-          text: "Usuario o contraseña incorrectos",
+          text: errorMsg,
         });
       });
   });
@@ -1882,32 +1897,27 @@ document.addEventListener("DOMContentLoaded", () => {
 //  CARGAR OPCIONES DE CONTRATO (PARA REGISTRO)
 // =========================================
 async function cargarOpcionesContrato() {
-  const select = document.getElementById("adminContractSelect");
-  if (!select) return;
-
-  select.innerHTML = '<option value="" selected disabled>Cargando contratos...</option>';
+  const selects = [
+    document.getElementById("newUserContract"),
+    document.getElementById("editUserContract")
+  ];
 
   try {
-    const snapshot = await db.collection("contracts").get();
+    const snapshot = await db.collection("contracts").orderBy("createdAt", "desc").get();
     
-    if (snapshot.empty) {
-      select.innerHTML = '<option value="" selected disabled>No se encontraron contratos</option>';
-      return;
-    }
-
-    let optionsHTML = '<option value="" selected disabled>Seleccione un contrato...</option>';
-    
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      // Usamos el id del documento como valor y el nombre del cliente para el texto
-      optionsHTML += `<option value="${doc.id}">${data.clientName} (${data.city})</option>`;
+    selects.forEach(select => {
+      if (!select) return;
+      const currentValue = select.value;
+      let optionsHTML = '<option value="" selected disabled>Seleccione un contrato...</option>';
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        optionsHTML += `<option value="${doc.id}">${data.clientName} - ${data.date || ''}</option>`;
+      });
+      select.innerHTML = optionsHTML;
+      if (currentValue) select.value = currentValue;
     });
-
-    select.innerHTML = optionsHTML;
-
   } catch (error) {
-    console.error("Error al cargar contratos:", error);
-    select.innerHTML = '<option value="" selected disabled>Error al cargar contratos</option>';
+    console.error("Error al cargar opciones de contrato:", error);
   }
 }
 
@@ -2339,4 +2349,437 @@ async function cargarNotificacionesPagosPendientes() {
     notificationsSection.style.display = "none";
   }
 }
+// =========================================
+//  GESTIÓN DE USUARIOS (CREAR, LISTAR)
+// =========================================
+// Variables Globales para Filtros
+window.currentUserRoleFilter = 'all';
 
+// Función para cambiar el filtro de rol
+window.filtrarUsuariosPorRol = (role) => {
+  window.currentUserRoleFilter = role;
+  
+  // Actualizar UI de botones
+  const buttons = document.querySelectorAll(".filter-btn");
+  buttons.forEach(btn => {
+    // Extraer el rol del atributo onclick
+    const onclickAttr = btn.getAttribute("onclick");
+    const btnRole = onclickAttr ? onclickAttr.match(/'([^']+)'/)[1] : 'all';
+    
+    if (btnRole === role) {
+      btn.classList.add("active");
+    } else {
+      btn.classList.remove("active");
+    }
+  });
+
+  aplicarFiltrosUsuarios();
+};
+
+// Función principal de filtrado (Search + Role)
+window.aplicarFiltrosUsuarios = () => {
+  const searchTerm = document.getElementById("userSearchInput").value.toLowerCase();
+  const roleFilter = window.currentUserRoleFilter;
+
+  const filteredUsers = window.allUsers.filter(user => {
+    const matchesSearch = (user.name || "").toLowerCase().includes(searchTerm) || 
+                          (user.email || "").toLowerCase().includes(searchTerm) ||
+                          (user.adminName || "").toLowerCase().includes(searchTerm);
+    
+    const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+
+    return matchesSearch && matchesRole;
+  });
+
+  renderUsuariosGrid(filteredUsers);
+};
+
+// Cargar Usuarios
+async function cargarUsuariosManagement() {
+  const container = document.getElementById("usersGrid") || document.getElementById("usersCardsContainer");
+  if (!container) return;
+
+  container.innerHTML = '<div class="col-12 text-center py-5 text-muted"><i class="fa-solid fa-spinner fa-spin fa-2x mb-3"></i><br>Cargando usuarios...</div>';
+
+  try {
+    const snapshot = await db.collection("users").orderBy("createdAt", "desc").get();
+    
+    window.allUsers = [];
+    snapshot.forEach(doc => {
+      window.allUsers.push({ id: doc.id, ...doc.data() });
+    });
+
+    // Inyectar estilos modernos y elegantes (Sustituye por completo los anteriores)
+    if (!document.getElementById("userManagementStyles")) {
+      const styles = `
+        <style id="userManagementStyles">
+          /* Botones de Filtro Premium */
+          .filter-btn {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(212,175,55,0.15);
+            color: rgba(255,255,255,0.6);
+            padding: 10px 22px;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            backdrop-filter: blur(8px);
+            cursor: pointer;
+            margin-bottom: 5px;
+          }
+          .filter-btn:hover {
+            background: rgba(212,175,55,0.08);
+            border-color: rgba(212,175,55,0.4);
+            color: #d4af37;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+          }
+          .filter-btn.active {
+            background: linear-gradient(135deg, #d4af37, #f1c40f) !important;
+            color: #000 !important;
+            border-color: transparent !important;
+            font-weight: 700;
+            box-shadow: 0 8px 20px rgba(212,175,55,0.4);
+          }
+
+          /* Buscador Pro */
+          .premium-search {
+            position: relative;
+            display: flex;
+            align-items: center;
+          }
+          .search-icon-gold {
+            position: absolute;
+            left: 22px;
+            color: #d4af37;
+            font-size: 1.2rem;
+            pointer-events: none;
+            z-index: 10;
+          }
+          .search-input-glass {
+            background: rgba(255,255,255,0.02) !important;
+            border: 1px solid rgba(212,175,55,0.15) !important;
+            border-radius: 100px !important;
+            padding: 16px 25px 16px 60px !important;
+            color: #fff !important;
+            font-size: 1rem;
+            transition: all 0.4s ease !important;
+            backdrop-filter: blur(20px);
+            width: 100%;
+          }
+          .search-input-glass:focus {
+            background: rgba(255,255,255,0.05) !important;
+            border-color: #d4af37 !important;
+            box-shadow: 0 0 30px rgba(212,175,55,0.2) !important;
+            outline: none;
+          }
+
+          /* Tarjetas de Usuario Premium */
+          .user-card {
+            background: rgba(255,255,255,0.02) !important;
+            border: 1px solid rgba(255,255,255,0.08) !important;
+            border-radius: 24px !important;
+            transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            backdrop-filter: blur(15px);
+          }
+          .user-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            border-color: rgba(212,175,55,0.4) !important;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            background: rgba(255,255,255,0.05) !important;
+          }
+          .bg-gold-gradient {
+            background: linear-gradient(135deg, #d4af37, #f9df91);
+          }
+        </style>
+      `;
+      document.head.insertAdjacentHTML("beforeend", styles);
+    }
+
+    // Renderizar con filtros actuales
+    aplicarFiltrosUsuarios();
+
+  } catch (error) {
+    console.error("Error al cargar usuarios:", error);
+    container.innerHTML = '<div class="col-12 text-center py-4 text-danger">Error al cargar la lista de usuarios.</div>';
+  }
+}
+
+// Función auxiliar para renderizar el grid de usuarios
+function renderUsuariosGrid(users) {
+  const container = document.getElementById("usersGrid") || document.getElementById("usersCardsContainer");
+  if (!container) return;
+
+  if (users.length === 0) {
+    container.innerHTML = '<div class="col-12 text-center py-5 text-muted"><i class="fa-solid fa-users-slash fa-3x mb-3"></i><br>No se encontraron usuarios que coincidan con los filtros.</div>';
+    return;
+  }
+
+  container.innerHTML = "";
+  users.forEach(user => {
+    const id = user.id;
+    const roleBadge = user.role === 'administrador' ? 'bg-gold' : (user.role === 'ADMIN_CONJUNTO' ? 'bg-info' : 'bg-secondary');
+    const roleText = user.role === 'administrador' ? 'Admin Gral.' : (user.role === 'ADMIN_CONJUNTO' ? 'Admin Conjunto' : 'Técnico');
+    const statusBadge = user.status === 'inactive' ? 'bg-danger' : 'bg-success';
+    const statusText = user.status === 'inactive' ? 'Inactivo' : 'Activo';
+    
+    const toggleIcon = user.status === 'inactive' ? 'fa-eye' : 'fa-eye-slash';
+    const toggleTitle = user.status === 'inactive' ? 'Activar Usuario' : 'Desactivar Usuario';
+    const toggleAction = user.status === 'inactive' ? 'active' : 'inactive';
+    const toggleBtnClass = user.status === 'inactive' ? 'btn-outline-success' : 'btn-outline-danger';
+
+    const card = `
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="user-card h-100 p-4 rounded-4 shadow-lg border border-secondary bg-dark position-relative overflow-hidden">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="user-avatar bg-gold-gradient rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+              <i class="fa-solid fa-user text-dark fs-4"></i>
+            </div>
+            <div class="text-end">
+              <span class="badge ${roleBadge} mb-1">${roleText}</span><br>
+              <span class="badge ${statusBadge}">${statusText}</span>
+            </div>
+          </div>
+          
+          <h4 class="text-white mb-1">${user.adminName || user.name || 'Sin nombre'}</h4>
+          <p class="text-white-50 small mb-3"><i class="fa-solid fa-envelope me-2"></i>${user.email}</p>
+          
+          <div class="user-details mb-4">
+            <div class="d-flex align-items-center text-white-50 small mb-2">
+              <i class="fa-solid fa-location-dot me-2 text-gold"></i>
+              <span class="text-truncate">${user.complexName || (user.role === 'tecnico' ? (user.subRole || 'Técnico General') : 'N/A')}</span>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top border-secondary">
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-outline-info" onclick="abrirEditarUsuario('${id}')" title="Editar Usuario">
+                <i class="fa-solid fa-pen"></i>
+              </button>
+              <button class="btn btn-sm ${toggleBtnClass}" onclick="toggleUserStatus('${id}', '${toggleAction}')" title="${toggleTitle}">
+                <i class="fa-solid ${toggleIcon}"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    container.innerHTML += card;
+  });
+}
+
+// Abrir modal de edición
+window.abrirEditarUsuario = (id) => {
+  const user = window.allUsers.find(u => u.id === id);
+  if (!user) return;
+
+  const modalEl = document.getElementById("editUserManagementModal");
+  if (!modalEl) return;
+
+  document.getElementById("editUserId").value = id;
+  document.getElementById("editUserName").value = user.adminName || user.name || "";
+  document.getElementById("editUserEmail").value = user.email || "";
+  
+  const isTech = user.role === 'tecnico';
+  const isAdmin = user.role === 'administrador' || user.role === 'ADMIN_CONJUNTO';
+
+  const techFields = document.getElementById("editTechFields");
+  const adminFields = document.getElementById("editAdminFields");
+  const contractFieldEdit = document.getElementById("contractFieldEdit");
+  
+  if (techFields) techFields.style.display = isTech ? 'block' : 'none';
+  if (adminFields) adminFields.style.display = isAdmin ? 'block' : 'none';
+  if (contractFieldEdit) contractFieldEdit.style.display = user.role === 'ADMIN_CONJUNTO' ? 'block' : 'none';
+
+  if (isTech) document.getElementById("editUserSubRole").value = user.subRole || "tecnico-obrero";
+  if (isAdmin && user.role === 'ADMIN_CONJUNTO') {
+    cargarOpcionesContrato().then(() => {
+      document.getElementById("editUserContract").value = user.contractId || "";
+    });
+  }
+
+  // Configurar el botón de reset password
+  const btnReset = document.getElementById("btnResetPasswordUser");
+  if (btnReset) {
+    const newBtn = btnReset.cloneNode(true);
+    btnReset.parentNode.replaceChild(newBtn, btnReset);
+    newBtn.addEventListener("click", () => {
+      enviarCorreoReset(user.email);
+    });
+  }
+
+  const modal = new bootstrap.Modal(modalEl);
+  modal.show();
+};
+
+// Cambiar estado de usuario (Activar/Desactivar)
+window.toggleUserStatus = async (id, newStatus) => {
+  try {
+    const actionText = newStatus === 'active' ? 'activado' : 'desactivado';
+    
+    Swal.fire({
+      title: 'Cambiando estado...',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading()
+    });
+
+    await db.collection("users").doc(id).update({ status: newStatus });
+    
+    Swal.fire({
+      icon: 'success',
+      title: '¡Actualizado!',
+      text: `El usuario ha sido ${actionText} correctamente.`,
+      timer: 1500,
+      showConfirmButton: false
+    });
+
+    cargarUsuariosManagement();
+  } catch (error) {
+    console.error("Error al cambiar estado:", error);
+    Swal.fire("Error", "No se pudo cambiar el estado del usuario", "error");
+  }
+};
+
+// Listener para el formulario de edición
+document.addEventListener("DOMContentLoaded", () => {
+    const editUserForm = document.getElementById("editUserManagementForm");
+    if (editUserForm) {
+        editUserForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            
+            const id = document.getElementById("editUserId").value;
+            const name = document.getElementById("editUserName").value;
+            const subRole = document.getElementById("editUserSubRole").value;
+            const contractId = document.getElementById("editUserContract") ? document.getElementById("editUserContract").value : "";
+
+            Swal.fire({
+                title: 'Actualizando usuario...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            try {
+                const user = window.allUsers.find(u => u.id === id);
+                const isTech = user.role === 'tecnico';
+                const isAdmin = user.role === 'administrador' || user.role === 'ADMIN_CONJUNTO';
+
+                const updateData = {
+                    name: name,
+                    adminName: name, // Compatibilidad
+                };
+
+                if (isTech) updateData.subRole = subRole;
+                if (isAdmin) {
+                    if (user.role === 'ADMIN_CONJUNTO') {
+                        updateData.contractId = contractId;
+                        // Obtener el complejo directamente de Firestore para mayor seguridad
+                        if (contractId) {
+                            try {
+                                const contractDoc = await db.collection("contracts").doc(contractId).get();
+                                if (contractDoc.exists) {
+                                    updateData.complexName = contractDoc.data().clientName || "";
+                                }
+                            } catch (err) {
+                                console.error("Error al obtener nombre del conjunto:", err);
+                            }
+                        }
+                    }
+                }
+
+                await db.collection("users").doc(id).update(updateData);
+                
+                Swal.fire("¡Éxito!", "Usuario actualizado correctamente.", "success");
+                const modalEl = document.getElementById("editUserManagementModal");
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+                cargarUsuariosManagement();
+
+            } catch (error) {
+                console.error("Error al actualizar usuario:", error);
+                Swal.fire("Error", error.message, "error");
+            }
+        });
+    }
+
+    const roleSelect = document.getElementById("newUserRole");
+    if (roleSelect) {
+        roleSelect.addEventListener("change", (e) => {
+            const role = e.target.value;
+            document.getElementById("techFields").style.display = role === 'tecnico' ? 'block' : 'none';
+            document.getElementById("adminFields").style.display = (role === 'administrador' || role === 'ADMIN_CONJUNTO') ? 'block' : 'none';
+            document.getElementById("contractFieldCreate").style.display = role === 'ADMIN_CONJUNTO' ? 'block' : 'none';
+            
+            if (role === 'ADMIN_CONJUNTO') {
+                cargarOpcionesContrato();
+            }
+        });
+    }
+
+    const newUserForm = document.getElementById("newUserManagementForm");
+    if (newUserForm) {
+        newUserForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById("newUserName").value;
+            const email = document.getElementById("newUserEmail").value;
+            const password = document.getElementById("newUserPassword").value;
+            const role = document.getElementById("newUserRole").value;
+            const subRole = document.getElementById("newUserSubRole").value;
+            const contractId = document.getElementById("newUserContract") ? document.getElementById("newUserContract").value : "";
+
+            Swal.fire({
+                title: 'Creando usuario...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            try {
+                // Instancia secundaria para Auth
+                let secondaryApp = firebase.apps.find(app => app.name === "SecondaryUserApp");
+                if (secondaryApp) await secondaryApp.delete();
+                secondaryApp = firebase.initializeApp(firebaseConfig, "SecondaryUserApp");
+
+                const userCredential = await secondaryApp.auth().createUserWithEmailAndPassword(email, password);
+                const uid = userCredential.user.uid;
+
+                // Extraer el nombre del conjunto del contrato asociado
+                let complexName = "";
+                if (role === 'ADMIN_CONJUNTO' && contractId) {
+                    try {
+                        const contractDoc = await db.collection("contracts").doc(contractId).get();
+                        if (contractDoc.exists) {
+                            complexName = contractDoc.data().clientName || "";
+                        }
+                    } catch (err) {
+                        console.error("Error al obtener nombre del conjunto:", err);
+                    }
+                }
+
+                // Guardar en Firestore
+                await db.collection("users").doc(uid).set({
+                    name: name,
+                    adminName: name, // Compatibilidad con dashboard actual
+                    email: email,
+                    role: role,
+                    complexName: complexName,
+                    subRole: role === 'tecnico' ? subRole : null,
+                    contractId: role === 'ADMIN_CONJUNTO' ? contractId : null,
+                    status: 'active',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                await secondaryApp.delete();
+                
+                Swal.fire("¡Éxito!", `Usuario ${role} creado correctamente.`, "success");
+                newUserForm.reset();
+                const modal = bootstrap.Modal.getInstance(document.getElementById("addUserManagementModal"));
+                if (modal) modal.hide();
+                cargarUsuariosManagement();
+
+            } catch (error) {
+                console.error("Error al crear usuario:", error);
+                Swal.fire("Error", error.message, "error");
+            }
+        });
+    }
+});

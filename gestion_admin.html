@@ -63,13 +63,13 @@
             </a>
           </li>
           <li class="sidebar-item">
-            <a class="sidebar-link" data-view="admins">
-              <i class="fa-solid fa-users-gear"></i> Administradores
+            <a class="sidebar-link" data-view="payments">
+              <i class="fa-solid fa-money-bill-transfer"></i> Pagos
             </a>
           </li>
           <li class="sidebar-item">
-            <a class="sidebar-link" data-view="payments">
-              <i class="fa-solid fa-money-bill-transfer"></i> Pagos
+            <a class="sidebar-link" data-view="users-management">
+              <i class="fa-solid fa-user-plus"></i> Crear Usuarios
             </a>
           </li>
           <!-- Logout for mobile -->
@@ -305,18 +305,64 @@
             <div id="contractsContainer" class="row g-4"></div>
           </div>
 
-          <!-- Contenedor para Administradores -->
-          <div id="adminsSection" style="display: none">
-            <h2 style="color: #fff; margin-top: 40px">
-              Administradores Registrados
-            </h2>
-            <div id="adminsContainer" class="row g-4"></div>
-          </div>
-
           <!-- Contenedor para Autorización de Pagos -->
           <div id="paymentsSection" style="display: none">
             <h2 style="color: #fff; margin-top: 40px">Autorización de Pagos</h2>
             <div id="paymentsContainer" class="row g-4"></div>
+          </div>
+
+          <!-- Gestión de Usuarios (NUEVO - Estilo Grid) -->
+          <div id="usersManagementSection" style="display: none;">
+            <div class="row g-4 mb-5">
+              <!-- Botón Superior -->
+              <div class="col-12 text-start">
+                <button class="btn btn-gold px-4 py-2 shadow-gold fw-bold rounded-pill" data-bs-toggle="modal" data-bs-target="#addUserManagementModal">
+                  <i class="fa-solid fa-plus-circle me-2"></i> Nuevo Usuario Registrado
+                </button>
+              </div>
+              
+              <!-- Título y Filtros -->
+              <div class="col-12 py-3 px-4 rounded-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(212,175,55,0.15); backdrop-filter: blur(10px);">
+                <div class="row align-items-center g-3">
+                  <div class="col-12 col-lg-5">
+                    <h2 class="text-gold mb-0 fs-3 d-flex align-items-center">
+                      <span class="p-2 bg-gold-gradient rounded-3 me-3 d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                        <i class="fa-solid fa-users-gear text-dark fs-5"></i>
+                      </span>
+                      Gestión de Usuarios
+                    </h2>
+                  </div>
+                  <div class="col-12 col-lg-7">
+                    <div class="d-flex flex-wrap gap-2 justify-content-lg-end" id="userRoleFilters">
+                      <button class="filter-btn active" onclick="filtrarUsuariosPorRol('all')">Todos</button>
+                      <button class="filter-btn" onclick="filtrarUsuariosPorRol('administrador')">
+                        <i class="fa-solid fa-crown me-1 small"></i> Admin Gral.
+                      </button>
+                      <button class="filter-btn" onclick="filtrarUsuariosPorRol('ADMIN_CONJUNTO')">
+                        <i class="fa-solid fa-building-shield me-1 small"></i> Admin Conjunto
+                      </button>
+                      <button class="filter-btn" onclick="filtrarUsuariosPorRol('tecnico')">
+                        <i class="fa-solid fa-toolbox me-1 small"></i> Técnicos
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Buscador Premium -->
+            <div class="row mb-5">
+              <div class="col-12 col-md-8 col-lg-6 mx-auto">
+                <div class="premium-search">
+                  <i class="fa-solid fa-magnifying-glass search-icon-gold"></i>
+                  <input type="text" id="userSearchInput" class="form-control search-input-glass" placeholder="¿A quién buscas hoy? Ingresa nombre o correo..." onkeyup="aplicarFiltrosUsuarios()" />
+                </div>
+              </div>
+            </div>
+
+            <div id="usersGrid" class="row g-4">
+              <!-- Las tarjetas de usuarios se cargarán aquí -->
+            </div>
           </div>
         </div>
       </main>
@@ -783,92 +829,60 @@
       </div>
     </div>
 
-    <!-- ========================================= -->
-    <!--  MODAL PARA REGISTRAR ADMINISTRADOR -->
-    <!-- ========================================= -->
-    <div
-      class="modal fade"
-      id="addAdminModal"
-      tabindex="-1"
-      aria-labelledby="addAdminModalLabel"
-      aria-hidden="true"
-    >
+    <!-- Los modals antiguos han sido eliminados para centralizar todo en Gestión de Usuarios -->
+
+    <!-- Modal: Agregar Usuario Management (NUEVO) -->
+    <div class="modal fade" id="addUserManagementModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="addAdminModalLabel">
-              Registrar Nuevo Administrador
-            </h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
+        <div class="modal-content bg-dark text-white border-gold shadow-lg">
+          <div class="modal-header border-bottom border-secondary">
+            <h5 class="modal-title text-gold"><i class="fa-solid fa-user-plus me-2"></i> Crear Nuevo Usuario</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
-          <div class="modal-body">
-            <form id="registerAdminForm">
+          <div class="modal-body p-4">
+            <form id="newUserManagementForm">
               <div class="mb-3">
-                <label for="adminContractSelect" class="form-label"
-                  >Contrato Asociado</label
-                >
-                <select class="form-select" id="adminContractSelect" required>
-                  <option value="" selected disabled>
-                    Seleccione un contrato...
-                  </option>
-                  <!-- Opciones se cargarán dinámicamente -->
+                <label class="form-label fw-bold text-white text-uppercase small">Nombre Completo</label>
+                <input type="text" id="newUserName" class="form-control" style="background: white; border: 1px solid #d4af37; color: black;" placeholder="Ej: Juan Pérez" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold text-white text-uppercase small">Correo Electrónico</label>
+                <input type="email" id="newUserEmail" class="form-control" style="background: white; border: 1px solid #d4af37; color: black;" placeholder="correo@ejemplo.com" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold text-white text-uppercase small">Contraseña</label>
+                <input type="password" id="newUserPassword" class="form-control" style="background: white; border: 1px solid #d4af37; color: black;" placeholder="Mínimo 6 caracteres" minlength="6" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold text-white text-uppercase small">Rol del Sistema</label>
+                <select id="newUserRole" class="form-select" style="background: white; border: 1px solid #d4af37; color: black;" required>
+                  <option value="" disabled selected>Seleccione un rol...</option>
+                  <option value="administrador">Administrador General</option>
+                  <option value="ADMIN_CONJUNTO">Administrador de Conjunto</option>
+                  <option value="tecnico">Técnico</option>
                 </select>
               </div>
-              <div class="mb-3">
-                <label for="adminComplexName" class="form-label"
-                  >Nombre del Conjunto</label
-                >
-                <input
-                  type="text"
-                  class="form-control"
-                  id="adminComplexName"
-                  required
-                  placeholder="Ej. Conjunto Los Rosales"
-                />
+              <!-- Campos dinámicos según el rol -->
+              <div id="techFields" style="display: none;">
+                <div class="mb-3">
+                  <label class="form-label fw-bold text-white text-uppercase small">Sub-Rol Técnico</label>
+                  <select id="newUserSubRole" class="form-select" style="background: white; border: 1px solid #d4af37; color: black;">
+                    <option value="tecnico-obrero">Técnico Obrero</option>
+                    <option value="tecnico-jefe">Técnico Jefe</option>
+                  </select>
+                </div>
               </div>
-              <div class="mb-3">
-                <label for="adminName" class="form-label"
-                  >Nombre del Administrador</label
-                >
-                <input
-                  type="text"
-                  class="form-control"
-                  id="adminName"
-                  required
-                  placeholder="Ej. Juan Pérez"
-                />
+              <div id="adminFields" style="display: none;">
+                <div class="mb-3" id="contractFieldCreate" style="display: none;">
+                   <label class="form-label fw-bold text-white text-uppercase small">Contrato Asociado</label>
+                   <select id="newUserContract" class="form-select" style="background: white; border: 1px solid #d4af37; color: black;">
+                     <option value="" selected disabled>Seleccione un contrato...</option>
+                   </select>
+                </div>
               </div>
-              <div class="mb-3">
-                <label for="adminEmail" class="form-label"
-                  >Correo Electrónico</label
-                >
-                <input
-                  type="email"
-                  class="form-control"
-                  id="adminEmail"
-                  required
-                  placeholder="admin@ejemplo.com"
-                />
-              </div>
-              <div class="mb-3">
-                <label for="adminPassword" class="form-label">Contraseña</label>
-                <input
-                  type="password"
-                  class="form-control"
-                  id="adminPassword"
-                  required
-                  minlength="6"
-                  placeholder="Mínimo 6 caracteres"
-                />
-              </div>
-              <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-gold">
-                  Registrar Administrador
+              <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-gold py-2 fw-bold">
+                  <i class="fa-solid fa-save me-2"></i> Guardar Usuario
                 </button>
               </div>
             </form>
@@ -876,102 +890,6 @@
         </div>
       </div>
     </div>
-
-    <!-- ========================================= -->
-    <!--  MODAL PARA EDITAR ADMINISTRADOR (NUEVO) -->
-    <!-- ========================================= -->
-    <div
-      class="modal fade"
-      id="editAdminModal"
-      tabindex="-1"
-      aria-labelledby="editAdminModalLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="editAdminModalLabel">
-              Editar Administrador
-            </h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <form id="editAdminForm">
-              <input type="hidden" id="editAdminId" />
-              <div class="mb-3">
-                <label for="editAdminComplexName" class="form-label"
-                  >Nombre del Conjunto</label
-                >
-                <input
-                  type="text"
-                  class="form-control"
-                  id="editAdminComplexName"
-                  required
-                />
-              </div>
-              <div class="mb-3">
-                <label for="editAdminName" class="form-label"
-                  >Nombre del Administrador</label
-                >
-                <input
-                  type="text"
-                  class="form-control"
-                  id="editAdminName"
-                  required
-                />
-              </div>
-              <!-- Email is read-only -->
-              <div class="mb-3">
-                <label for="editAdminEmail" class="form-label"
-                  >Correo Electrónico (Solo lectura)</label
-                >
-                <input
-                  type="email"
-                  class="form-control"
-                  id="editAdminEmail"
-                  readonly
-                  disabled
-                  style="background-color: #e9ecef"
-                />
-              </div>
-
-              <hr class="my-4" />
-
-              <div class="mb-3">
-                <label
-                  class="form-label"
-                  style="font-weight: bold; color: #d4af37"
-                  >Seguridad y Contraseña</label
-                >
-                <p class="text-white small">
-                  Para cambiar la contraseña, envíe un enlace de
-                  restablecimiento al correo del administrador.
-                </p>
-                <button
-                  type="button"
-                  class="btn btn-outline-danger w-100"
-                  id="btnResetPassword"
-                >
-                  <i class="fa-solid fa-envelope"></i> Enviar Correo de
-                  Restablecimiento
-                </button>
-              </div>
-
-              <div class="d-grid gap-2 mt-4">
-                <button type="submit" class="btn btn-gold">
-                  Guardar Cambios de Perfil
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div> <!-- Fin del editAdminModal -->
     </div> <!-- Fin del container-fluid de contenido -->
     </main>
   </div> <!-- Fin del admin-wrapper -->
@@ -982,6 +900,66 @@
       <p class="copyright-text">© 2025 — Todos los derechos reservados</p>
     </div>
   </footer>
+
+    <!-- Modal: Editar Usuario Management (NUEVO) -->
+    <div class="modal fade" id="editUserManagementModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border-gold shadow-lg">
+          <div class="modal-header border-bottom border-secondary">
+            <h5 class="modal-title text-gold"><i class="fa-solid fa-user-pen me-2"></i> Editar Usuario</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body p-4">
+            <form id="editUserManagementForm">
+              <input type="hidden" id="editUserId" />
+              <div class="mb-3">
+                <label class="form-label fw-bold text-white text-uppercase small">Nombre Completo</label>
+                <input type="text" id="editUserName" class="form-control" style="background: white; border: 1px solid #d4af37; color: black;" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold text-white text-uppercase small">Correo Electrónico (Solo Lectura)</label>
+                <input type="email" id="editUserEmail" class="form-control" style="background: #e9ecef; border: 1px solid #ccc; color: #555;" readonly />
+              </div>
+              
+              <!-- Campos dinámicos según el rol -->
+              <div id="editTechFields" style="display: none;">
+                <div class="mb-3">
+                  <label class="form-label fw-bold text-white text-uppercase small">Sub-Rol Técnico</label>
+                  <select id="editUserSubRole" class="form-select" style="background: white; border: 1px solid #d4af37; color: black;">
+                    <option value="tecnico-obrero">Técnico Obrero</option>
+                    <option value="tecnico-jefe">Técnico Jefe</option>
+                  </select>
+                </div>
+              </div>
+              <div id="editAdminFields" style="display: none;">
+                <div class="mb-3" id="contractFieldEdit" style="display: none;">
+                  <label class="form-label fw-bold text-white text-uppercase small">Contrato Asociado</label>
+                  <select id="editUserContract" class="form-select" style="background: white; border: 1px solid #d4af37; color: black;">
+                    <option value="" selected disabled>Seleccione un contrato...</option>
+                  </select>
+                </div>
+              </div>
+
+              <hr class="my-4 border-secondary opacity-25" />
+
+              <div class="mb-3">
+                <label class="form-label text-gold fw-bold">Seguridad y Contraseña</label>
+                <p class="text-white-50 small mb-3">Para cambiar la contraseña, envíe un enlace de restablecimiento al correo del usuario.</p>
+                <button type="button" class="btn btn-outline-danger w-100" id="btnResetPasswordUser">
+                  <i class="fa-solid fa-envelope me-2"></i> Enviar Correo de Restablecimiento
+                </button>
+              </div>
+
+              <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-gold py-2 fw-bold">
+                  <i class="fa-solid fa-save me-2"></i> Guardar Cambios
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- CDN para jspdf y html2canvas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
