@@ -48,6 +48,34 @@ body {
 
 .sidebar-logo img {
   width: 40px;
+  margin-bottom: 8px;
+}
+
+.admin-label {
+  font-size: 0.8rem;
+  color: #d4af37;
+  font-weight: 800;
+  letter-spacing: 2px;
+  margin-bottom: 5px;
+}
+
+.admin-info-display {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 5px;
+}
+
+.admin-name-text {
+  font-size: 0.95rem;
+  color: #fff;
+  font-weight: 600;
+}
+
+.complex-name-text {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 400;
 }
 
 .sidebar-menu {
@@ -110,6 +138,7 @@ body {
 @media (max-width: 991px) {
   .sidebar {
     position: fixed;
+    width: 280px; /* Same as desktop - only content width */
     height: 100vh;
     top: 0;
     transform: translateX(-100%);
@@ -118,6 +147,7 @@ body {
   }
   .sidebar.show {
     transform: translateX(0);
+    z-index: 2000; /* Ensure it's above the navbar on mobile */
   }
   .main-content {
     margin-left: 0;
@@ -125,6 +155,85 @@ body {
   }
   .admin-wrapper {
     padding-top: 80px; /* Increased to avoid overlapping fixed navbar */
+  }
+  
+  /* Center content on tablets */
+  .container-fluid {
+    max-width: 100%;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+  
+  /* Center headers */
+  h1, h2 {
+    text-align: center !important;
+  }
+  
+  /* Improve filter layout on tablets */
+  .d-flex.justify-content-between.align-items-center.mb-5 {
+    flex-direction: column;
+    align-items: center !important;
+    text-align: center;
+    gap: 15px;
+  }
+  
+  .d-flex.gap-3.align-items-center {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  /* Center action buttons */
+  .action-buttons {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  /* Add spacing to stat cards on tablets */
+  .stat-card {
+    margin-top: 20px;
+  }
+  
+  .row.g-4 .col-xl-3,
+  .row.g-4 .col-md-6 {
+    margin-top: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Center all content on mobile */
+  .main-content {
+    padding: 20px 15px 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .container-fluid {
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  /* Center stat cards */
+  .row.g-4 {
+    justify-content: center;
+  }
+  
+  /* Full width cards on mobile with spacing */
+  .col-xl-3, .col-md-6, .col-lg-6, .col-12 {
+    width: 100% !important;
+    max-width: 500px; /* Limit max width for better readability */
+    margin: 0 auto;
+    margin-top: 20px !important; /* Add top margin for separation */
+  }
+  
+  /* First card should not have margin-top */
+  .row.g-4 > .col-xl-3:first-child,
+  .row.g-4 > .col-md-6:first-child {
+    margin-top: 0 !important;
+  }
+  
+  .stat-card {
+    margin-top: 0; /* Reset since we're using column margin */
   }
 }
 
@@ -141,10 +250,13 @@ body {
     font-size: 1.4rem !important;
     margin-top: 10px !important; /* Added safety margin */
     line-height: 1.3;
+    text-align: center !important;
   }
   
+  /* Enhanced spacing for stat cards on small screens */
   .stat-card {
     padding: 15px;
+    margin-bottom: 15px; /* Add bottom margin for extra separation */
   }
   
   .stat-card-icon {
@@ -161,11 +273,15 @@ body {
   .container-fluid {
     padding-left: 10px !important;
     padding-right: 10px !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
   .job-card {
     padding: 20px !important;
-    margin-bottom: 5px;
+    margin-bottom: 15px; /* Increased from 5px */
+    width: 100%;
   }
 
   h5 {
@@ -181,6 +297,61 @@ body {
     align-items: center;
     justify-content: center;
   }
+  
+  /* Center filters on mobile */
+  #urgencyFilterContainer, #nameFilterContainer {
+    width: 100%;
+    max-width: 400px;
+  }
+  
+  .modern-select, .modern-input {
+    width: 100% !important;
+  }
+  
+  /* Center action buttons */
+  .action-buttons {
+    width: 100%;
+    justify-content: center;
+    padding-left: 0;
+  }
+  
+  .action-buttons button {
+    flex: 1;
+    min-width: 140px;
+    max-width: 200px;
+  }
+  
+  /* Center dashboard sections */
+  #dashboardSection, #jobsSection, #contractsSection, #adminsSection, #paymentsSection {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  #jobsContainer, #contractsContainer, #adminsContainer, #paymentsContainer {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  
+  /* Extra spacing for stat cards on very small screens */
+  .row.g-4 .col-xl-3,
+  .row.g-4 .col-md-6,
+  .row.g-4 .col-lg-6 {
+    margin-top: 25px !important; /* Increased spacing */
+    margin-bottom: 10px;
+  }
+  
+  /* Keep first card without top margin */
+  .row.g-4 > div:first-child {
+    margin-top: 0 !important;
+  }
+  
+  /* Maintain dashboard margin-top on mobile */
+  #dashboardSection {
+    margin-top: -50px !important;
+  }
 }
 
 /* Navbar */
@@ -188,6 +359,46 @@ body {
   background-color: #0a0a0a !important; /* Unified with body */
   padding: 18px 0;
   border-bottom: 1px solid rgba(212, 175, 55, 0.2); /* Subtle gold border */
+  z-index: 1030; /* Standard Bootstrap z-index for fixed navbar */
+}
+
+/* ... existing styles ... */
+
+/* Logout Button Sidebar Mobile - Matches Navbar Style */
+.btn-logout-sidebar {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  margin-top: 20px;
+}
+
+.btn-logout-sidebar i {
+  color: #d4af37;
+  font-size: 1rem;
+}
+
+.btn-logout-sidebar:hover {
+  background: rgba(212, 175, 55, 0.1);
+  border-color: #d4af37;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.2);
+}
+
+.btn-logout-sidebar:active {
+  transform: translateY(0);
 }
 
 .navbar-brand {
@@ -1031,5 +1242,336 @@ main {
     margin: 10px 0;
     width: 100%;
     justify-content: center;
+  }
+}
+
+/* SweetAlert z-index override to appear above sidebar */
+.swal2-container {
+  z-index: 3000 !important; /* Above sidebar (2000) */
+}
+
+/* ======== NOTIFICATIONS ICON ======== */
+.notification-icon-wrapper {
+  position: relative;
+  cursor: pointer;
+  padding: 15px;
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.notification-icon-wrapper:hover {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: #d4af37;
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3);
+}
+
+.notification-icon-wrapper i {
+  color: #d4af37;
+  transition: all 0.3s ease;
+}
+
+.notification-icon-wrapper:hover i {
+  transform: rotate(15deg);
+  color: #eac54e;
+}
+
+.notification-badge-icon {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: linear-gradient(135deg, #d4af37, #b38f22);
+  color: #000;
+  font-weight: 700;
+  font-size: 0.7rem;
+  padding: 3px 8px;
+  border-radius: 20px;
+  min-width: 24px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(212, 175, 55, 0.4);
+  animation: pulse 2s infinite;
+}
+
+/* ======== NOTIFICATIONS MODAL ======== */
+.notifications-card {
+  background: rgba(20, 20, 20, 0.7);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-radius: 20px;
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+.notifications-card:hover {
+  border-color: rgba(212, 175, 55, 0.3);
+  box-shadow: 0 15px 40px rgba(212, 175, 55, 0.1);
+}
+
+.notification-header {
+  padding: 20px 30px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+  background: rgba(212, 175, 55, 0.05);
+}
+
+.notification-badge {
+  background: linear-gradient(135deg, #d4af37, #b38f22);
+  color: #000;
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 20px;
+  min-width: 28px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 6px 15px rgba(212, 175, 55, 0.5);
+  }
+}
+
+.notification-body {
+  padding: 15px 30px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.notification-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notification-body::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.notification-body::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.3);
+  border-radius: 10px;
+}
+
+.notification-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 175, 55, 0.5);
+}
+
+/* Modal body for notifications */
+#notificationsModalBody {
+  background: #1a1a1a;
+  max-height: 500px;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+#notificationsModalBody::-webkit-scrollbar {
+  width: 8px;
+}
+
+#notificationsModalBody::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+#notificationsModalBody::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.3);
+  border-radius: 10px;
+}
+
+#notificationsModalBody::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 175, 55, 0.5);
+}
+
+.notification-item {
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 3px solid #d4af37;
+  border-radius: 10px;
+  padding: 15px 20px;
+  margin-bottom: 12px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.notification-item:hover {
+  background: rgba(212, 175, 55, 0.08);
+  transform: translateX(5px);
+  border-left-color: #eac54e;
+}
+
+.notification-item:last-child {
+  margin-bottom: 0;
+}
+
+.notification-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.notification-item-title {
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.notification-item-amount {
+  color: #d4af37;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.notification-item-details {
+  display: flex;
+  gap: 15px;
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.notification-item-details i {
+  color: #d4af37;
+  margin-right: 5px;
+}
+
+.notification-footer {
+  padding: 15px 30px;
+  border-top: 1px solid rgba(212, 175, 55, 0.1);
+  background: rgba(212, 175, 55, 0.03);
+}
+
+.btn-view-all-payments {
+  width: 100%;
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: #d4af37;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-view-all-payments:hover {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: #d4af37;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.2);
+}
+
+.btn-view-all-payments i {
+  transition: transform 0.3s ease;
+}
+
+.btn-view-all-payments:hover i {
+  transform: translateX(5px);
+}
+
+.notification-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #888;
+}
+
+.notification-empty i {
+  font-size: 3rem;
+  color: rgba(212, 175, 55, 0.3);
+  margin-bottom: 15px;
+}
+
+.notification-empty p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* Responsive Design for Notifications */
+@media (max-width: 768px) {
+  .notification-icon-wrapper {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .notification-icon-wrapper i {
+    font-size: 1.5rem;
+  }
+  
+  .notification-header,
+  .notification-body,
+  .notification-footer {
+    padding: 15px 20px;
+  }
+
+  .notification-item {
+    padding: 12px 15px;
+  }
+
+  .notification-item-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .notification-item-details {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  #notificationsModalBody {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 576px) {
+  .notification-icon-wrapper {
+    width: 55px;
+    height: 55px;
+  }
+  
+  .notification-badge-icon {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    min-width: 20px;
+  }
+  
+  .notification-header h5 {
+    font-size: 1rem;
+  }
+
+  .notification-badge {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    min-width: 24px;
+  }
+
+  .notification-item-title {
+    font-size: 0.9rem;
+  }
+
+  .notification-item-amount {
+    font-size: 0.95rem;
+  }
+
+  .btn-view-all-payments {
+    font-size: 0.85rem;
+    padding: 10px 15px;
   }
 }

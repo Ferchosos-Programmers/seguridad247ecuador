@@ -31,7 +31,7 @@
           <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="collapse navbar-collapse d-flex justify-content-end" id="navbarNav">
+        <div class="collapse navbar-collapse d-none d-lg-flex justify-content-end" id="navbarNav">
           <button class="btn-logout-nav" id="logoutBtn">
             <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
           </button>
@@ -43,7 +43,11 @@
       <aside class="sidebar" id="sidebar">
         <div class="sidebar-logo">
           <img src="assets/img/logo.png" alt="Logo" />
-          <span>ADMIN</span>
+          <span class="admin-label">ADMIN</span>
+          <div class="admin-info-display">
+            <span id="sidebarAdminName" class="admin-name-text">Cargando...</span>
+            <span id="sidebarComplexName" class="complex-name-text">Conjunto...</span>
+          </div>
         </div>
 
         <ul class="sidebar-menu">
@@ -71,6 +75,12 @@
             <a class="sidebar-link" data-view="payments">
               <i class="fa-solid fa-money-bill-transfer"></i> Pagos
             </a>
+          </li>
+          <!-- Logout for mobile -->
+          <li class="sidebar-item d-lg-none mt-4">
+            <button class="btn-logout-sidebar w-100" id="logoutBtnMobile">
+              <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+            </button>
           </li>
         </ul>
       </aside>
@@ -109,7 +119,7 @@
           </div>
 
           <!-- Dashboard Section -->
-          <div id="dashboardSection">
+          <div id="dashboardSection" style="margin-top: -50px;">
             <div class="row mb-5">
               <div class="col-12">
                 <div class="job-card" id="userProfileCard" style="display: none;">
@@ -126,12 +136,36 @@
               </div>
             </div>
 
+            <!-- Notifications Section -->
+            <div class="row mb-5" id="notificationsSection" style="display: none;">
+              <div class="col-12">
+                <div class="notifications-card">
+                  <div class="notification-header">
+                    <div class="d-flex align-items-center gap-3">
+                      <i class="fa-solid fa-bell fa-lg" style="color: #d4af37;"></i>
+                      <h5 class="mb-0" style="color: #fff;">Notificaciones</h5>
+                      <span class="notification-badge" id="notificationBadge">0</span>
+                    </div>
+                  </div>
+                  <div class="notification-body" id="notificationsList">
+                    <!-- Las notificaciones se cargarán aquí dinámicamente -->
+                  </div>
+                  <div class="notification-footer">
+                    <button class="btn-view-all-payments" id="viewAllPaymentsBtn">
+                      <i class="fa-solid fa-arrow-right"></i>
+                      Ver todos los pagos
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <h2 style="color: #fff; margin-bottom: 30px">
               Resumen del Sistema
             </h2>
             <div class="row g-4 mb-5">
               <!-- Card Trabajos -->
-              <div class="col-xl-3 col-md-6">
+              <div class="col-xl-3 col-md-6 mt">
                 <div class="stat-card">
                   <div
                     class="stat-card-icon"

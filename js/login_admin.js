@@ -176,6 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
       actualizarContadoresDashboard();
       renderizarGraficos();
       cargarInfoUsuario();
+      cargarNotificacionesPagosPendientes();
     }
 
     function applyFilters() {
@@ -213,7 +214,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (currentView === "payments") {
         const filteredPayments = window.allPayments.filter(payment => {
           const matchName = payment.userEmail?.toLowerCase().includes(nameValue) || 
-                            payment.service?.toLowerCase().includes(nameValue);
+                            payment.service?.toLowerCase().includes(nameValue) ||
+                            payment.enrichedAdminName?.toLowerCase().includes(nameValue) ||
+                            payment.enrichedComplexName?.toLowerCase().includes(nameValue);
           return matchName;
         });
         renderPagos(filteredPayments);
@@ -1128,7 +1131,8 @@ function activarLoginAdmin() {
 function activarLogout() {
   const logoutBtns = [
     document.getElementById("logoutBtn"),
-    document.getElementById("sidebarLogout")
+    document.getElementById("sidebarLogout"),
+    document.getElementById("logoutBtnMobile")
   ];
 
   logoutBtns.forEach(btn => {
@@ -1923,10 +1927,42 @@ async function cargarPagosPendientes() {
       .get();
 
     // Guardar en variable global para filtrar
-    window.allPayments = [];
+    const payments = [];
+    const promises = [];
+
     snapshot.forEach(doc => {
-      window.allPayments.push({ id: doc.id, ...doc.data() });
+      const data = doc.data();
+      const paymentId = doc.id;
+      
+      const promise = (async () => {
+        let complexName = 'Conjunto no especificado';
+        let adminName = 'Administrador no especificado';
+        
+        if (data.userId) {
+          try {
+            const userDoc = await db.collection("users").doc(data.userId).get();
+            if (userDoc.exists) {
+              const userData = userDoc.data();
+              complexName = userData.complexName || complexName;
+              adminName = userData.adminName || adminName;
+            }
+          } catch (error) {
+            console.error("Error al obtener datos del usuario para el pago:", error);
+          }
+        }
+        
+        return { 
+          id: paymentId, 
+          ...data,
+          enrichedAdminName: adminName,
+          enrichedComplexName: complexName
+        };
+      })();
+      
+      promises.push(promise);
     });
+
+    window.allPayments = await Promise.all(promises);
 
     if (window.allPayments.length === 0) {
       container.innerHTML = '<div class="col-12 text-center text-white py-5">No hay pagos pendientes de aprobación.</div>';
@@ -1961,7 +1997,8 @@ function renderPagos(paymentsList) {
           <div class="card-body">
             <h5 class="card-title text-gold">${data.service}</h5>
             <div class="job-divider"></div>
-            <p class="card-text mb-1"><strong>Cliente:</strong> ${data.userEmail}</p>
+            <p class="card-text mb-1"><strong>Conjunto:</strong> <span class="text-gold fw-bold">${data.enrichedComplexName || 'No especificado'}</span></p>
+            <p class="card-text mb-1"><strong>Administrador:</strong> ${data.enrichedAdminName || 'No especificado'}</p>
             <p class="card-text mb-1"><strong>Monto:</strong> <span class="text-gold fw-bold">$${parseFloat(data.amount).toFixed(2)}</span></p>
             <p class="card-text mb-1"><strong>Método:</strong> ${data.method}</p>
             <p class="card-text mb-1"><strong>Fecha:</strong> ${dateStr}</p>
@@ -2017,6 +2054,13 @@ async function cargarInfoUsuario() {
       }
       
       document.getElementById("userProfileCard").style.display = "block";
+
+      // Poblar info en el sidebar (NUEVO)
+      const sidebarAdminName = document.getElementById("sidebarAdminName");
+      const sidebarComplexName = document.getElementById("sidebarComplexName");
+      
+      if (sidebarAdminName) sidebarAdminName.textContent = data.adminName || "Administrador";
+      if (sidebarComplexName) sidebarComplexName.textContent = data.complexName || "Conjunto No Especificado";
     }
   } catch (error) {
     console.error("Error cargando info usuario:", error);
@@ -2111,6 +2155,11 @@ window.aprobarPago = async (id) => {
 
       Swal.fire('¡Aprobado!', 'El pago ha sido autorizado.', 'success');
       cargarPagosPendientes();
+      // Actualizar notificaciones si estamos en el dashboard
+      if (window.currentView === 'todos') {
+        cargarNotificacionesPagosPendientes();
+        actualizarContadoresDashboard();
+      }
     } catch (error) {
       console.error("Error al aprobar pago:", error);
       Swal.fire('Error', 'No se pudo aprobar el pago.', 'error');
@@ -2139,9 +2188,155 @@ window.rechazarPago = async (id) => {
 
       Swal.fire('Rechazado', 'El pago ha sido marcado como rechazado.', 'info');
       cargarPagosPendientes();
+      // Actualizar notificaciones si estamos en el dashboard
+      if (window.currentView === 'todos') {
+        cargarNotificacionesPagosPendientes();
+        actualizarContadoresDashboard();
+      }
     } catch (error) {
       console.error("Error al rechazar pago:", error);
       Swal.fire('Error', 'No se pudo rechazar el pago.', 'error');
     }
   }
 };
+
+// ===============================
+// CARGAR NOTIFICACIONES DE PAGOS PENDIENTES
+// ===============================
+async function cargarNotificacionesPagosPendientes() {
+  const db = firebase.firestore();
+  const notificationsSection = document.getElementById("notificationsSection");
+  const notificationsList = document.getElementById("notificationsList");
+  const notificationBadge = document.getElementById("notificationBadge");
+  const viewAllPaymentsBtn = document.getElementById("viewAllPaymentsBtn");
+
+  if (!notificationsSection || !notificationsList || !notificationBadge) {
+    return;
+  }
+
+  try {
+    // Consultar TODOS los pagos pendientes para el badge
+    const snapshotAll = await db.collection("payments")
+      .where("status", "==", "Pendiente")
+      .get();
+    
+    const pendingCount = snapshotAll.size;
+
+    // Actualizar badge con el total real
+    notificationBadge.textContent = pendingCount;
+
+    if (pendingCount === 0) {
+      notificationsSection.style.display = "none";
+      return;
+    }
+
+    // Mostrar sección de notificaciones
+    notificationsSection.style.display = "block";
+
+    // Obtener los 3 más recientes para mostrar
+    const snapshotDisplay = await db.collection("payments")
+      .where("status", "==", "Pendiente")
+      .orderBy("createdAt", "desc")
+      .limit(3)
+      .get();
+
+    // Renderizar notificaciones
+    let html = '';
+    
+    // Procesar cada pago y obtener datos del usuario
+    const promises = [];
+    snapshotDisplay.forEach(doc => {
+      const data = doc.data();
+      const paymentId = doc.id;
+      
+      // Crear promesa para obtener datos del usuario
+      const promise = (async () => {
+        let complexName = 'Conjunto no especificado';
+        let adminName = 'Administrador no especificado';
+        
+        // Si existe userId, obtener datos de la colección users
+        if (data.userId) {
+          try {
+            const userDoc = await db.collection("users").doc(data.userId).get();
+            if (userDoc.exists) {
+              const userData = userDoc.data();
+              complexName = userData.complexName || complexName;
+              adminName = userData.adminName || adminName;
+            }
+          } catch (error) {
+            console.error("Error al obtener datos del usuario:", error);
+          }
+        }
+        
+        // Formatear fecha
+        let fechaStr = 'Fecha no disponible';
+        if (data.createdAt) {
+          const fecha = data.createdAt.toDate();
+          fechaStr = fecha.toLocaleDateString('es-ES', { 
+            day: '2-digit', 
+            month: 'short', 
+            year: 'numeric' 
+          });
+        }
+
+        // Formatear monto
+        const monto = data.amount ? `$${parseFloat(data.amount).toFixed(2)}` : '$0.00';
+
+        return `
+          <div class="notification-item" data-payment-id="${paymentId}">
+            <div class="notification-item-header">
+              <p class="notification-item-title">${complexName}</p>
+              <span class="notification-item-amount">${monto}</span>
+            </div>
+            <div class="notification-item-details">
+              <span><i class="fa-solid fa-user"></i>${adminName}</span>
+            </div>
+            <div class="notification-item-details">
+              <span><i class="fa-solid fa-calendar"></i>${fechaStr}</span>
+              <span><i class="fa-solid fa-building"></i>${data.service || 'Servicio no especificado'}</span>
+            </div>
+          </div>
+        `;
+      })();
+      
+      promises.push(promise);
+    });
+
+    // Esperar a que todas las promesas se resuelvan
+    const htmlParts = await Promise.all(promises);
+    html = htmlParts.join('');
+
+    notificationsList.innerHTML = html;
+
+    // Agregar event listeners a cada notificación
+    const notificationItems = notificationsList.querySelectorAll('.notification-item');
+    notificationItems.forEach(item => {
+      item.addEventListener('click', () => {
+        // Cambiar a la vista de pagos
+        const sidebarLinks = document.querySelectorAll('.sidebar-link[data-view]');
+        sidebarLinks.forEach(link => {
+          if (link.getAttribute('data-view') === 'payments') {
+            link.click();
+          }
+        });
+      });
+    });
+
+    // Event listener para el botón "Ver todos"
+    if (viewAllPaymentsBtn) {
+      viewAllPaymentsBtn.addEventListener('click', () => {
+        const sidebarLinks = document.querySelectorAll('.sidebar-link[data-view]');
+        sidebarLinks.forEach(link => {
+          if (link.getAttribute('data-view') === 'payments') {
+            link.click();
+          }
+        });
+      });
+    }
+
+  } catch (error) {
+    console.error("Error al cargar notificaciones de pagos:", error);
+    notificationsSection.style.display = "none";
+  }
+}
+
