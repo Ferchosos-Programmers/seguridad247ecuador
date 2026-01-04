@@ -13,33 +13,62 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(async (userCredential) => {
           const user = userCredential.user;
           
-          // Validar Rol Técnico
+          // 1. Obtener datos del usuario
           const doc = await db.collection("users").doc(user.uid).get();
           const userData = doc.exists ? doc.data() : null;
 
-          if (!userData || userData.role !== 'tecnico') {
-             await auth.signOut();
-             throw new Error("Su cuenta no tiene permisos para acceder al portal técnico.");
+          // 2. Validar existencia de datos y Rol
+          const role = userData ? userData.role : null;
+          const isMainAdmin = user.email === 'admin@gmail.com';
+          
+          // Solo permitir Técnicos en este formulario (NO permitir admin principal aquí)
+          const isAuthorized = role === 'tecnico' && !isMainAdmin;
+
+          // 3. Validar Estado Activo
+          const isActive = userData && userData.status !== 'inactive';
+
+          if (!isAuthorized || !isActive) {
+            let errorMsg = "Su cuenta no tiene permisos para acceder a este apartado (Técnico). Por favor use el formulario correcto.";
+            if (!isActive && userData) errorMsg = "Su cuenta ha sido desactivada. Por favor, contacte con el soporte técnico.";
+
+            auth.signOut().then(() => {
+              Swal.fire({
+                icon: "error",
+                title: "Acceso Denegado",
+                text: errorMsg,
+                confirmButtonColor: "#d4af37",
+              }).then(() => {
+                const form = document.getElementById("techLoginForm");
+                if (form) form.reset();
+                window.location.href = "control_center.html";
+              });
+            });
+            return;
           }
 
-          // Validar Estado Activo
-          if (userData.status === 'inactive') {
-             await auth.signOut();
-             throw new Error("Su cuenta ha sido desactivada. Por favor, contacte con el soporte técnico.");
-          }
+          // 4. Login Exitoso
+          const userName = (userData && (userData.adminName || userData.nombre || userData.techName || userData.displayName)) || "Técnico";
 
           Swal.fire({
             icon: "success",
-            title: "¡Login exitoso!",
-            text: `Bienvenido, ${userData.subRole || 'Técnico'}`,
+            title: "¡Bienvenido!",
+            text: `Ingresando a Gestión Técnica, ${userName}`,
             timer: 1500,
             showConfirmButton: false,
             allowOutsideClick: false,
           }).then(() => {
-            const modalEl = document.getElementById("loginModal");
-            const modal = bootstrap.Modal.getInstance(modalEl);
-            if (modal) modal.hide();
+            // Intentar cerrar el modal de forma segura
+            try {
+              const modalEl = document.getElementById("loginModal");
+              if (modalEl && typeof bootstrap !== 'undefined') {
+                const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                if (modal) modal.hide();
+              }
+            } catch (error) {
+              console.warn("No se pudo cerrar el modal automáticamente:", error);
+            }
 
+            // Redirección inmediata
             window.location.href = "gestion_tecnica.html";
           });
         })
@@ -327,38 +356,79 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function cargarInfoUsuario() {
+    console.log("Iniciando protección de ruta técnica...");
+    
     auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        try {
-          // Intentar obtener de la colección 'users'
-          const doc = await db.collection("users").doc(user.uid).get();
-          const sidebarUserName = document.getElementById("sidebarUserName");
-          const sidebarUserRole = document.getElementById("sidebarUserRole");
-
-          if (doc.exists) {
-            const data = doc.data();
-            console.log("Datos del técnico cargados:", data);
-            
-            if (sidebarUserName) {
-              sidebarUserName.textContent = data.adminName || data.nombre || data.techName || data.displayName || "Técnico";
-            }
-            
-            if (sidebarUserRole && data.complexName) {
-              sidebarUserRole.textContent = data.complexName;
-            }
-          } else {
-            console.warn("No se encontró documento para el UID:", user.uid);
-            if (sidebarUserName) sidebarUserName.textContent = user.email.split('@')[0];
-          }
-        } catch (error) {
-          console.error("Error cargando info usuario:", error);
-          const sidebarUserName = document.getElementById("sidebarUserName");
-          if (sidebarUserName) sidebarUserName.textContent = "Error de carga";
-        }
-      } else {
+      if (!user) {
+        console.warn("No hay sesión activa (Técnico), redirigiendo a control_center.html");
         window.location.href = "control_center.html";
+        return;
+      }
+
+      try {
+        console.log("Sesión activa detectada (Técnico):", user.email);
+        const doc = await db.collection("users").doc(user.uid).get();
+        
+        if (!doc.exists) {
+            console.error("No se encontró documento de técnico.");
+            throw new Error("Su cuenta no tiene perfil técnico configurado.");
+        }
+
+        const userData = doc.data();
+        const role = userData.role ? userData.role.toLowerCase() : "";
+        
+        // PROTECCIÓN DE RUTA: Solo técnicos
+        if (role !== 'tecnico') {
+          console.warn("Acceso no autorizado a Gestión Técnica. Redirigiendo...");
+          await auth.signOut();
+          Swal.fire({
+             icon: "error",
+             title: "Acceso Denegado",
+             text: "Su cuenta no tiene permisos para acceder al portal técnico.",
+             confirmButtonColor: "#d4af37",
+          }).then(() => {
+             window.location.href = "control_center.html";
+          });
+          return;
+        }
+
+        configurarUITecnico(user, userData);
+
+      } catch (error) {
+        console.error("Error cargando info técnico:", error);
+        await auth.signOut();
+        Swal.fire({
+          icon: "error",
+          title: "Error de Sesión",
+          text: error.message || "Error al verificar permisos técnicos.",
+          confirmButtonColor: "#d4af37"
+        }).then(() => {
+          window.location.href = "control_center.html";
+        });
       }
     });
+  }
+
+  function configurarUITecnico(user, data) {
+    const sidebarUserName = document.getElementById("sidebarUserName");
+    const sidebarUserRole = document.getElementById("sidebarUserRole");
+    const userNameEl = document.getElementById("userName");
+    const userEmailEl = document.getElementById("userEmail");
+    const userProfileCard = document.getElementById("userProfileCard");
+
+    console.log("Configurando UI Técnica para:", data);
+    
+    if (sidebarUserName) {
+      sidebarUserName.textContent = data.adminName || data.nombre || data.techName || data.displayName || "Técnico";
+    }
+    
+    if (sidebarUserRole && data.complexName) {
+      sidebarUserRole.textContent = data.complexName;
+    }
+
+    if (userNameEl) userNameEl.textContent = data.adminName || data.nombre || data.techName || "Técnico";
+    if (userEmailEl) userEmailEl.textContent = data.email || user.email;
+    if (userProfileCard) userProfileCard.style.display = "block";
   }
 
   const logoutBtn = document.getElementById("logoutBtn");

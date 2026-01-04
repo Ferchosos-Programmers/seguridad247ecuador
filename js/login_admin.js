@@ -229,7 +229,7 @@ document.addEventListener("DOMContentLoaded", () => {
       //  2. CABECERA DEL DOCUMENTO
       // ======================================================
       const logo = new Image();
-      logo.src = "assets/img/logoc.png"; // Usar logo claro para fondo oscuro
+      logo.src = "assets/img/logo.png"; // Usar logo claro para fondo oscuro
 
       logo.onload = function () {
         // Fondo general del documento
@@ -1101,31 +1101,57 @@ function activarLoginAdmin() {
         console.log("Debug Login - User UID:", user.uid);
         console.log("Debug Login - User Data:", userData);
 
-        // Si es el admin@gmail.com y no existe documento, le permitimos entrar pero registramos el error
-        if (user.email === 'admin@gmail.com' && (!userData || !userData.role)) {
-            console.warn("Alerta: El administrador principal no tiene documento en 'users'.");
-            // Aquí podríamos crearle el documento automáticamente si fuera necesario
-        } else if (!userData || (userData.role !== 'administrador' && userData.role !== 'ADMIN_CONJUNTO' && userData.role !== 'admin')) {
-           await auth.signOut();
-           throw new Error("Su cuenta no tiene permisos para acceder a este portal.");
+        // 1. Validar existencia de datos y Rol
+        const role = userData ? userData.role : null;
+        const isMainAdmin = user.email === 'admin@gmail.com';
+        
+        // Solo permitir Administradores en este formulario
+        const isAuthorized = isMainAdmin || role === 'administrador' || role === 'admin';
+
+        // 2. Validar Estado Activo (si no es el admin principal)
+        const isActive = isMainAdmin || (userData && userData.status !== 'inactive');
+
+        if (!isAuthorized || !isActive) {
+          let errorMsg = "Su cuenta no tiene permisos para acceder a este apartado (Administración). Por favor use el formulario correcto.";
+          if (!isActive && userData) errorMsg = "Su cuenta ha sido desactivada. Por favor, contacte con el administrador.";
+
+          auth.signOut().then(() => {
+            Swal.fire({
+              icon: "error",
+              title: "Acceso Denegado",
+              text: errorMsg,
+              confirmButtonColor: "#d4af37",
+            }).then(() => {
+              const form = document.getElementById("adminLoginForm");
+              if (form) form.reset();
+              window.location.href = "control_center.html";
+            });
+          });
+          return;
         }
 
-        // Validar Estado Activo (solo si existe el campo status)
-        if (userData && userData.status === 'inactive') {
-           await auth.signOut();
-           throw new Error("Su cuenta ha sido desactivada. Por favor, contacte con el administrador.");
-        }
-
+        // 3. Login Exitoso
+        const userName = (userData && (userData.adminName || userData.nombre || userData.displayName)) || "Administrador";
+        
         Swal.fire({
           icon: "success",
-          title: "¡Login exitoso!",
+          title: "¡Bienvenido!",
+          text: `Ingresando a Gestión Admin, ${userName}`,
           timer: 1500,
           showConfirmButton: false,
         }).then(() => {
-          const modalEl = document.getElementById("loginModalAdmin");
-          const modal = bootstrap.Modal.getInstance(modalEl);
-          if (modal) modal.hide();
-
+          // Intentar cerrar el modal de forma segura
+          try {
+            const modalEl = document.getElementById("loginModalAdmin");
+            if (modalEl && typeof bootstrap !== 'undefined') {
+              const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+              if (modal) modal.hide();
+            }
+          } catch (error) {
+            console.warn("No se pudo cerrar el modal automáticamente:", error);
+          }
+          
+          // Redirección inmediata
           window.location.href = "gestion_admin.html";
         });
       })
@@ -2046,35 +2072,92 @@ function renderPagos(paymentsList) {
 // =========================================
 
 async function cargarInfoUsuario() {
-  const user = auth.currentUser;
-  if (!user) return;
-
-  try {
-    const doc = await db.collection("users").doc(user.uid).get();
-    if (doc.exists) {
-      const data = doc.data();
-      document.getElementById("userName").textContent = data.adminName || "Administrador";
-      document.getElementById("userEmail").textContent = data.email || user.email;
-      
-      // Actualizar también en el sidebar
-      const sidebarEmail = document.getElementById("sidebarUserEmail");
-      if (sidebarEmail) {
-        sidebarEmail.textContent = (data.email || user.email).split('@')[0]; // O el email completo si prefieres
-        sidebarEmail.title = data.email || user.email; // Mostrar completo al pasar el mouse
-      }
-      
-      document.getElementById("userProfileCard").style.display = "block";
-
-      // Poblar info en el sidebar (NUEVO)
-      const sidebarAdminName = document.getElementById("sidebarAdminName");
-      const sidebarComplexName = document.getElementById("sidebarComplexName");
-      
-      if (sidebarAdminName) sidebarAdminName.textContent = data.adminName || "Administrador";
-      if (sidebarComplexName) sidebarComplexName.textContent = data.complexName || "Conjunto No Especificado";
+  console.log("Iniciando protección de ruta...");
+  
+  auth.onAuthStateChanged(async (user) => {
+    if (!user) {
+      console.warn("No hay sesión activa, redirigiendo a control_center.html");
+      window.location.href = "control_center.html";
+      return;
     }
-  } catch (error) {
-    console.error("Error cargando info usuario:", error);
+
+    try {
+      console.log("Sesión activa detectada para:", user.email);
+      const doc = await db.collection("users").doc(user.uid).get();
+      
+      if (!doc.exists) {
+        // Excepción especial para el admin principal si no tiene documento
+        if (user.email === 'admin@gmail.com') {
+          console.log("Admin principal sin documento, acceso permitido.");
+          configurarUIAdmin(user, { adminName: "Super Admin", role: "admin" });
+          return;
+        }
+        
+        console.error("No se encontró documento de usuario en Firestore.");
+        throw new Error("Su cuenta no tiene perfil configurado.");
+      }
+
+      const userData = doc.data();
+      const role = userData.role ? userData.role.toLowerCase() : "";
+      const isMainAdmin = user.email === 'admin@gmail.com';
+      const isAuthorized = isMainAdmin || role === 'administrador' || role === 'admin';
+
+      console.log("Validación de rol:", { email: user.email, role: role, isAuthorized: isAuthorized });
+
+      if (!isAuthorized) {
+        await auth.signOut();
+        Swal.fire({
+          icon: "error",
+          title: "Acceso Denegado",
+          text: "Este portal es exclusivo para administradores.",
+          confirmButtonColor: "#d4af37",
+        }).then(() => {
+          window.location.href = "control_center.html";
+        });
+        return;
+      }
+
+      // Usuario autorizado, configurar UI
+      configurarUIAdmin(user, userData);
+
+    } catch (error) {
+      console.error("Error en validación de sesión:", error);
+      await auth.signOut();
+      Swal.fire({
+        icon: "error",
+        title: "Error de Sesión",
+        text: error.message || "Ocurrió un error al verificar sus permisos.",
+        confirmButtonColor: "#d4af37",
+      }).then(() => {
+        window.location.href = "control_center.html";
+      });
+    }
+  });
+}
+
+function configurarUIAdmin(user, data) {
+  const userNameEl = document.getElementById("userName");
+  const userEmailEl = document.getElementById("userEmail");
+  const userProfileCard = document.getElementById("userProfileCard");
+
+  if (userNameEl) userNameEl.textContent = data.adminName || data.name || "Administrador";
+  if (userEmailEl) userEmailEl.textContent = data.email || user.email;
+  
+  // Actualizar también en el sidebar
+  const sidebarEmail = document.getElementById("sidebarUserEmail");
+  if (sidebarEmail) {
+    sidebarEmail.textContent = (data.email || user.email).split('@')[0];
+    sidebarEmail.title = data.email || user.email;
   }
+  
+  if (userProfileCard) userProfileCard.style.display = "block";
+
+  // Poblar info en el sidebar
+  const sidebarAdminName = document.getElementById("sidebarAdminName");
+  const sidebarComplexName = document.getElementById("sidebarComplexName");
+  
+  if (sidebarAdminName) sidebarAdminName.textContent = data.adminName || data.name || "Administrador";
+  if (sidebarComplexName) sidebarComplexName.textContent = data.complexName || "Seguridad 247";
 }
 
 let jobsChartInstance = null;

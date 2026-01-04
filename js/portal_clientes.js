@@ -8,16 +8,68 @@ document.addEventListener("DOMContentLoaded", () => {
   const paymentsTableBody = document.getElementById("paymentsTableBody");
 
   // 1. CHECK AUTH
-  auth.onAuthStateChanged((user) => {
-    if (user) {
-      // User is signed in.
-      console.log("Usuario logueado:", user.email);
-      userNameDisplay.textContent = user.email.split("@")[0];
-      loadPayments(user.uid);
-      loadContractData(user.uid); // Cargar datos del contrato asociado
-    } else {
-      // No user is signed in. Redirect to home.
+  console.log("Iniciando protección de ruta clientes...");
+  auth.onAuthStateChanged(async (user) => {
+    if (!user) {
+      console.warn("No hay sesión activa (Cliente), redirigiendo a control_center.html");
       window.location.href = "control_center.html";
+      return;
+    }
+
+    try {
+      console.log("Sesión activa detectada (Cliente):", user.email);
+      const doc = await db.collection("users").doc(user.uid).get();
+      
+      if (!doc.exists) {
+          console.error("No se encontró documento de cliente.");
+          throw new Error("Su cuenta no tiene perfil de residente configurado.");
+      }
+
+      const userData = doc.data();
+      const role = userData.role ? userData.role.toUpperCase() : ""; // Clientes usan ADMIN_CONJUNTO en mayúsculas
+
+      // PROTECCIÓN DE RUTA: Solo ADMIN_CONJUNTO
+      if (role !== 'ADMIN_CONJUNTO') {
+        console.warn("Acceso no autorizado a Portal Clientes. Redirigiendo...");
+        await auth.signOut();
+        Swal.fire({
+          icon: "error",
+          title: "Acceso Denegado",
+          text: "Su cuenta no tiene permisos para acceder al portal de residentes.",
+          confirmButtonColor: "#d4af37",
+        }).then(() => {
+          window.location.href = "control_center.html";
+        });
+        return;
+      }
+
+      console.log("Usuario autorizado:", user.email);
+      if (userNameDisplay) {
+        userNameDisplay.textContent = (userData.adminName || userData.name || user.email.split("@")[0]);
+      }
+
+      const userNameEl = document.getElementById("userName");
+      const userEmailEl = document.getElementById("userEmail");
+      const userProfileCard = document.getElementById("userProfileCard");
+      
+      if (userNameEl) userNameEl.textContent = userData.adminName || userData.name || "Administrador Conjunto";
+      if (userEmailEl) userEmailEl.textContent = userData.email || user.email;
+      if (userProfileCard) userProfileCard.style.display = "block";
+
+      loadPayments(user.uid);
+      loadContractData(user.uid);
+
+    } catch (error) {
+      console.error("Error validando sesión (Cliente):", error);
+      await auth.signOut();
+      Swal.fire({
+        icon: "error",
+        title: "Error de Sesión",
+        text: error.message || "Error al verificar permisos de residente.",
+        confirmButtonColor: "#d4af37"
+      }).then(() => {
+        window.location.href = "control_center.html";
+      });
     }
   });
 

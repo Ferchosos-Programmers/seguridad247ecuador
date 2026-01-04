@@ -1503,6 +1503,10 @@ main {
   font-size: 0.95rem;
 }
 
+.text-gold {
+  color: #d4af37 !important;
+}
+
 /* Responsive Design for Notifications */
 @media (max-width: 768px) {
   .notification-icon-wrapper {
