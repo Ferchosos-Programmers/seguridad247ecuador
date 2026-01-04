@@ -59,20 +59,22 @@ document.addEventListener("DOMContentLoaded", () => {
     filtered.forEach((item) => {
       let mediaHtml = "";
       if (item.tutorialType === "video") {
+        // VIDEO
         mediaHtml = `
           <div class="video-preview-container position-relative" style="height: 200px; overflow: hidden; border-radius: 8px 8px 0 0; border-bottom: 2px solid #d4af37; cursor: pointer;" onclick="window.open('${item.url || 'https://www.youtube.com/watch?v=' + item.videoId}', '_blank')">
             <img src="assets/img/portada.jfif" alt="Ver Video" class="w-100 h-100" style="object-fit: cover;">
-            <div class="position-absolute top-50 start-50 translate-middle">
-               <i class="fa-brands fa-youtube fa-3x text-danger bg-white rounded-circle p-1"></i>
+            <div class="position-absolute top-0 end-0" style="width: 70px; height: 70px; background-color: #dc3545; clip-path: polygon(0 0, 100% 0, 100% 100%); display: flex; justify-content: flex-end; align-items: flex-start; padding: 8px;">
+               <i class="fa-brands fa-youtube fa-2x text-white"></i>
             </div>
           </div>
         `;
       } else {
+        // PDF
         mediaHtml = `
           <div class="pdf-preview-container position-relative" style="height: 200px; overflow: hidden; border-radius: 8px 8px 0 0; border-bottom: 2px solid #d4af37; cursor: pointer;" onclick="verTutorialPDF('${item.id}')">
             <img src="assets/img/portada.jfif" alt="Ver Documento" class="w-100 h-100" style="object-fit: cover;">
-            <div class="position-absolute top-50 start-50 translate-middle">
-               <i class="fa-solid fa-file-pdf fa-3x text-danger bg-white rounded-circle p-2"></i>
+            <div class="position-absolute top-0 end-0" style="width: 70px; height: 70px; background-color: #dc3545; clip-path: polygon(0 0, 100% 0, 100% 100%); display: flex; justify-content: flex-end; align-items: flex-start; padding: 8px;">
+               <i class="fa-solid fa-file-pdf fa-2x text-white"></i>
             </div>
           </div>
         `;

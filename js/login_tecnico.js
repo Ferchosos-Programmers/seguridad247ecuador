@@ -1795,8 +1795,8 @@ function renderTutorialesTecnicos(tutorialsList) {
       contentHtml = `
         <div class="position-relative mb-3" style="height: 200px; overflow: hidden; border-radius: 8px; cursor: pointer;" onclick="window.open('${tutorial.url || 'https://www.youtube.com/watch?v=' + tutorial.videoId}', '_blank')">
           <img src="assets/img/portada.jfif" alt="Ver Video" class="w-100 h-100" style="object-fit: cover;">
-          <div class="position-absolute top-50 start-50 translate-middle">
-             <i class="fa-brands fa-youtube fa-3x text-danger bg-white rounded-circle p-1"></i>
+          <div class="position-absolute top-0 end-0" style="width: 70px; height: 70px; background-color: #dc3545; clip-path: polygon(0 0, 100% 0, 100% 100%); display: flex; justify-content: flex-end; align-items: flex-start; padding: 8px;">
+             <i class="fa-brands fa-youtube fa-2x text-white"></i>
           </div>
         </div>
       `;
@@ -1804,8 +1804,8 @@ function renderTutorialesTecnicos(tutorialsList) {
       contentHtml = `
         <div class="position-relative mb-3" style="height: 200px; overflow: hidden; border-radius: 8px; cursor: pointer;" onclick="verGuiaPDF('${tutorial.id}', true)">
           <img src="assets/img/portada.jfif" alt="Ver Documento" class="w-100 h-100" style="object-fit: cover;">
-          <div class="position-absolute top-50 start-50 translate-middle">
-             <i class="fa-solid fa-file-pdf fa-3x text-danger bg-white rounded-circle p-2"></i>
+          <div class="position-absolute top-0 end-0" style="width: 70px; height: 70px; background-color: #dc3545; clip-path: polygon(0 0, 100% 0, 100% 100%); display: flex; justify-content: flex-end; align-items: flex-start; padding: 8px;">
+             <i class="fa-solid fa-file-pdf fa-2x text-white"></i>
           </div>
         </div>
       `;
