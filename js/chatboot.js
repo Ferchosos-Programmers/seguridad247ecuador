@@ -31,7 +31,6 @@ function showServiceOptions() {
     <button class="option-btn" onclick="selectService('fisica')">🔐 Seguridad Física</button>
     <button class="option-btn" onclick="selectService('electronica')">📡 Seguridad Electrónica</button>
     <button class="option-btn" onclick="selectService('patrullaje')">🚓 Patrullaje Móvil</button>
-    <button class="option-btn" onclick="selectService('otro')">⭐ Otros Servicios</button>
   `;
 
   chatBody.appendChild(div);
@@ -54,10 +53,6 @@ function selectService(type) {
   if (type === "patrullaje") {
     nombreServicio = "Patrullaje Móvil";
     precio = "El Patrullaje Móvil tiene un costo desde <b>$80 mensuales</b>.";
-  }
-  if (type === "otro") {
-    nombreServicio = "Otros Servicios";
-    precio = "Ofrecemos servicios personalizados. Cuéntame qué necesitas.";
   }
 
   // Mensaje del bot

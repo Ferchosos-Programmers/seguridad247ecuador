@@ -343,7 +343,7 @@ document.addEventListener("DOMContentLoaded", () => {
         doc.setFontSize(10);
         doc.setTextColor("#FFFFFF");
         doc.text(
-          "© 2025 Seguridad 247 Ecuador — Todos los derechos reservados",
+          "© 2025 Seguridad 247 Ecuador & MCV (Mallitaxi Code Vision) — Todos los derechos reservados",
           105,
           293,
           { align: "center" }
@@ -512,7 +512,7 @@ function configurarFormularioContrato() {
           pdfDoc.setFontSize(8);
           pdfDoc.setTextColor("#FFFFFF");
           pdfDoc.text(
-            "© 2025 Seguridad 247 Ecuador — Todos los derechos reservados",
+            "© 2025 Seguridad 247 Ecuador & MCV (Mallitaxi Code Vision) — Todos los derechos reservados",
             pageWidth / 2,
             maxY + 8,
             { align: "center" }
