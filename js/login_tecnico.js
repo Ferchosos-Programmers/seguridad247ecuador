@@ -110,6 +110,10 @@ document.addEventListener("DOMContentLoaded", () => {
             title: "Error",
             text: errorMsg,
             confirmButtonColor: "#d4af37"
+          }).then(() => {
+            // Reset form on error
+            const form = document.getElementById("techLoginForm");
+            if (form) form.reset();
           });
         });
     });

@@ -157,12 +157,21 @@
               </div>
               <div class="mb-3">
                 <label for="techPassword" class="form-label">Contraseña</label>
-                <input
-                  type="password"
-                  class="form-control"
-                  id="techPassword"
-                  placeholder="Ingresa tu contraseña"
-                />
+                <div class="input-group">
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="techPassword"
+                    placeholder="Ingresa tu contraseña"
+                  />
+                  <button
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    id="toggleTechPassword"
+                  >
+                    <i class="fa-solid fa-eye" id="techPasswordIcon"></i>
+                  </button>
+                </div>
               </div>
               <button type="submit" class="btn btn-login w-100">
                 Ingresar
@@ -206,15 +215,22 @@
                 />
               </div>
               <div class="mb-3">
-                <label for="adminLoginForm" class="form-label"
-                  >Contraseña</label
-                >
-                <input
-                  type="password"
-                  class="form-control"
-                  id="adminPassword"
-                  placeholder="Ingresa tu contraseña"
-                />
+                <label for="adminPassword" class="form-label">Contraseña</label>
+                <div class="input-group">
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="adminPassword"
+                    placeholder="Ingresa tu contraseña"
+                  />
+                  <button
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    id="toggleAdminPassword"
+                  >
+                    <i class="fa-solid fa-eye" id="adminPasswordIcon"></i>
+                  </button>
+                </div>
               </div>
               <button type="submit" class="btn btn-login w-100">
                 Ingresar
@@ -263,12 +279,21 @@
                 <label for="clientPassword" class="form-label"
                   >Contraseña</label
                 >
-                <input
-                  type="password"
-                  class="form-control"
-                  id="clientPassword"
-                  placeholder="Ingresa tu contraseña"
-                />
+                <div class="input-group">
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="clientPassword"
+                    placeholder="Ingresa tu contraseña"
+                  />
+                  <button
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    id="toggleClientPassword"
+                  >
+                    <i class="fa-solid fa-eye" id="clientPasswordIcon"></i>
+                  </button>
+                </div>
               </div>
               <button type="submit" class="btn btn-login w-100">
                 Ingresar
@@ -278,5 +303,67 @@
         </div>
       </div>
     </div>
+
+    <script>
+      // Password visibility toggle functionality
+      document.addEventListener("DOMContentLoaded", function () {
+        // Technical Login Password Toggle
+        const toggleTechPassword =
+          document.getElementById("toggleTechPassword");
+        const techPassword = document.getElementById("techPassword");
+        const techPasswordIcon = document.getElementById("techPasswordIcon");
+
+        if (toggleTechPassword) {
+          toggleTechPassword.addEventListener("click", function () {
+            const type =
+              techPassword.getAttribute("type") === "password"
+                ? "text"
+                : "password";
+            techPassword.setAttribute("type", type);
+            techPasswordIcon.classList.toggle("fa-eye");
+            techPasswordIcon.classList.toggle("fa-eye-slash");
+          });
+        }
+
+        // Admin Login Password Toggle
+        const toggleAdminPassword = document.getElementById(
+          "toggleAdminPassword"
+        );
+        const adminPassword = document.getElementById("adminPassword");
+        const adminPasswordIcon = document.getElementById("adminPasswordIcon");
+
+        if (toggleAdminPassword) {
+          toggleAdminPassword.addEventListener("click", function () {
+            const type =
+              adminPassword.getAttribute("type") === "password"
+                ? "text"
+                : "password";
+            adminPassword.setAttribute("type", type);
+            adminPasswordIcon.classList.toggle("fa-eye");
+            adminPasswordIcon.classList.toggle("fa-eye-slash");
+          });
+        }
+
+        // Client Login Password Toggle
+        const toggleClientPassword = document.getElementById(
+          "toggleClientPassword"
+        );
+        const clientPassword = document.getElementById("clientPassword");
+        const clientPasswordIcon =
+          document.getElementById("clientPasswordIcon");
+
+        if (toggleClientPassword) {
+          toggleClientPassword.addEventListener("click", function () {
+            const type =
+              clientPassword.getAttribute("type") === "password"
+                ? "text"
+                : "password";
+            clientPassword.setAttribute("type", type);
+            clientPasswordIcon.classList.toggle("fa-eye");
+            clientPasswordIcon.classList.toggle("fa-eye-slash");
+          });
+        }
+      });
+    </script>
   </body>
 </html>
