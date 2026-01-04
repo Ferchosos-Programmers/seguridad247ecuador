@@ -1438,12 +1438,11 @@ function configurarModalGuia() {
 
         console.log("Intentando guardar guía como Doc en 'trabajos' con Rol:", role, "subRole:", subRole);
 
-        // Guardamos en la colección 'trabajos' que sabemos que es accesible
-        // Añadimos isGuide: true para diferenciarlo de los trabajos reales
-        await db.collection("trabajos").add({
+        // Guardamos en la colección dedicada 'technical_guides'
+        await db.collection("technical_guides").add({
           name: name,
           pdfData: base64PDF, 
-          isGuide: true, // Flag importante
+          // isGuide ya no es necesario, pero se puede dejar por compatibilidad si se quisiera
           category: "technical_guide",
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           fileName: file.name,
@@ -1494,9 +1493,9 @@ async function cargarGuiasTecnicas() {
   container.innerHTML = `<p class="text-center text-white w-100">Cargando guías...</p>`;
 
   try {
-    // Buscamos en 'trabajos' pero filtramos por isGuide
-    const query = await db.collection("trabajos")
-      .where("isGuide", "==", true)
+    // Buscamos en 'technical_guides'
+    const query = await db.collection("technical_guides")
+      .orderBy("createdAt", "desc")
       .get();
       
     window.allGuides = [];
@@ -1508,22 +1507,10 @@ async function cargarGuiasTecnicas() {
     window.guidesLoaded = true;
     renderGuiasTecnicas(window.allGuides);
   } catch (error) {
-    console.error("Error al cargar guías desde trabajos:", error);
-    
-    // Plan B: Cargar todo y filtrar en memoria si falta el índice o hay error de permisos específico
-    try {
-        const queryAll = await db.collection("trabajos").get();
-        window.allGuides = queryAll.docs
-            .map(doc => ({ id: doc.id, ...doc.data() }))
-            .filter(item => item.isGuide === true);
-        
-        window.guidesLoaded = true;
-        renderGuiasTecnicas(window.allGuides);
-    } catch (e) {
-        console.error("Fallo total al cargar guías:", e);
-        container.innerHTML = `<p class="text-center text-danger w-100">Error al cargar las guías. (Acceso restringido)</p>`;
-    }
+    console.error("Error al cargar guías:", error);
+    container.innerHTML = `<p class="text-center text-danger w-100">Error al cargar las guías. (Acceso restringido o Error de Red)</p>`;
   }
+
 }
 
 function renderGuiasTecnicas(guidesList) {
@@ -1579,7 +1566,7 @@ async function eliminarGuia(id, name) {
 
     if (result.isConfirmed) {
         try {
-            await db.collection("trabajos").doc(id).delete();
+            await db.collection("technical_guides").doc(id).delete();
             Swal.fire("Eliminado", "La guía ha sido eliminada correctamente.", "success");
             cargarGuiasTecnicas(); // Recargar la lista
         } catch (error) {
@@ -1702,7 +1689,7 @@ function configurarModalTutorial() {
         progressBar.style.width = "100%";
       }
 
-      await db.collection("trabajos").add(tutorialData);
+      await db.collection("tutorials").add(tutorialData);
       saveStatus = true;
 
     } catch (error) {
@@ -1753,8 +1740,8 @@ async function cargarTutorialesTecnicos() {
   container.innerHTML = `<p class="text-center text-white w-100">Cargando tutoriales...</p>`;
 
   try {
-    const query = await db.collection("trabajos")
-      .where("isTutorial", "==", true)
+    const query = await db.collection("tutorials")
+      .orderBy("createdAt", "desc")
       .get();
       
     window.allTutorials = [];
@@ -1817,19 +1804,19 @@ function renderTutorialesTecnicos(tutorialsList) {
           <div class="card-body">
             ${contentHtml}
             <h5 class="card-title text-gold mb-2 text-center">${tutorial.title}</h5>
-            <div class="d-flex gap-2 justify-content-center">
+            <div class="d-flex gap-2 justify-content-center align-items-center">
               <span class="badge bg-secondary">${tutorial.category.toUpperCase()}</span>
               <span class="badge ${tutorial.tutorialType === 'video' ? 'bg-success' : 'bg-danger'}">${tutorial.tutorialType.toUpperCase()}</span>
+              
+              ${subRole === "tecnico-jefe" ? `
+              <button class="btn btn-sm btn-danger ms-2" 
+                      onclick="eliminarTutorial('${tutorial.id}', '${tutorial.title}')" 
+                      title="Eliminar Tutorial">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+              ` : ""}
             </div>
           </div>
-          ${subRole === "tecnico-jefe" ? `
-          <button class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2" 
-                  onclick="eliminarTutorial('${tutorial.id}', '${tutorial.title}')" 
-                  title="Eliminar Tutorial"
-                  style="z-index: 10;">
-            <i class="fa-solid fa-trash"></i>
-          </button>
-          ` : ""}
         </div>
       </div>
     `;
@@ -1850,7 +1837,7 @@ async function eliminarTutorial(id, title) {
 
     if (result.isConfirmed) {
         try {
-            await db.collection("trabajos").doc(id).delete();
+            await db.collection("tutorials").doc(id).delete();
             Swal.fire("Eliminado", "El tutorial ha sido eliminado correctamente.", "success");
             cargarTutorialesTecnicos();
         } catch (error) {

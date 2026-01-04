@@ -13,8 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function cargarTutoriales() {
     try {
       const snapshot = await db
-        .collection("trabajos")
-        .where("isTutorial", "==", true)
+        .collection("tutorials")
         .get();
 
       allTutorials = snapshot.docs.map((doc) => ({
