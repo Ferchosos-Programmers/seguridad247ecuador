@@ -60,15 +60,20 @@ document.addEventListener("DOMContentLoaded", () => {
       let mediaHtml = "";
       if (item.tutorialType === "video") {
         mediaHtml = `
-          <div class="ratio ratio-16x9">
-            <iframe src="https://www.youtube.com/embed/${item.videoId}" allowfullscreen></iframe>
+          <div class="video-preview-container position-relative" style="height: 200px; overflow: hidden; border-radius: 8px 8px 0 0; border-bottom: 2px solid #d4af37; cursor: pointer;" onclick="window.open('${item.url || 'https://www.youtube.com/watch?v=' + item.videoId}', '_blank')">
+            <img src="assets/img/portada.jfif" alt="Ver Video" class="w-100 h-100" style="object-fit: cover;">
+            <div class="position-absolute top-50 start-50 translate-middle">
+               <i class="fa-brands fa-youtube fa-3x text-danger bg-white rounded-circle p-1"></i>
+            </div>
           </div>
         `;
       } else {
         mediaHtml = `
-          <div class="pdf-preview text-center py-5 bg-dark" onclick="verTutorialPDF('${item.id}')" style="cursor:pointer; border-radius: 8px 8px 0 0; border-bottom: 2px solid #d4af37;">
-            <i class="fa-solid fa-file-pdf fa-4x text-danger mb-2"></i>
-            <p class="text-white small mb-0">Ver Documento PDF</p>
+          <div class="pdf-preview-container position-relative" style="height: 200px; overflow: hidden; border-radius: 8px 8px 0 0; border-bottom: 2px solid #d4af37; cursor: pointer;" onclick="verTutorialPDF('${item.id}')">
+            <img src="assets/img/portada.jfif" alt="Ver Documento" class="w-100 h-100" style="object-fit: cover;">
+            <div class="position-absolute top-50 start-50 translate-middle">
+               <i class="fa-solid fa-file-pdf fa-3x text-danger bg-white rounded-circle p-2"></i>
+            </div>
           </div>
         `;
       }
@@ -81,7 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <h5 class="mt-2 text-gold fw-bold text-center">${item.title}</h5>
               <div class="d-flex gap-2 mt-2 justify-content-center">
                  <span class="badge bg-secondary small px-3 py-2">${item.category.toUpperCase()}</span>
-                 <span class="badge bg-dark border border-gold text-gold small px-3 py-2">${item.tutorialType.toUpperCase()}</span>
+                 <span class="badge ${item.tutorialType === 'video' ? 'bg-success' : 'bg-danger'} small px-3 py-2">${item.tutorialType.toUpperCase()}</span>
               </div>
             </div>
           </div>

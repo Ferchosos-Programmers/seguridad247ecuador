@@ -1541,20 +1541,21 @@ function renderGuiasTecnicas(guidesList) {
 
   guidesList.forEach(guide => {
     container.innerHTML += `
-      <div class="col-md-4">
-        <div class="card-job card-guide position-relative h-100">
-          <div class="card-body text-center py-4" onclick="verGuiaPDF('${guide.id}')" style="cursor: pointer;">
-            <div class="guide-icon mb-3">
-              <i class="fa-solid fa-file-pdf fa-3x text-danger"></i>
-            </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="card-job card-guide position-relative h-100" style="overflow: hidden; border-radius: 15px;">
+          <div class="position-relative" onclick="verGuiaPDF('${guide.id}')" style="cursor: pointer; height: 200px;">
+            <img src="assets/img/portada.jfif" alt="Portada" class="w-100 h-100" style="object-fit: cover;">
+            <!-- Overlay opcional para texto al hover o siempre visible si se desea -->
+          </div>
+          <div class="card-body text-center py-3">
             <h5 class="card-title text-gold mb-2">${guide.name}</h5>
-            <p class="text-white-50 small mb-0">Haga clic para ver el PDF</p>
+            <p class="text-white-50 small mb-0">Ver Documento</p>
           </div>
           ${subRole === "tecnico-jefe" ? `
           <button class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2" 
                   onclick="eliminarGuia('${guide.id}', '${guide.name}')" 
                   title="Eliminar Guía"
-                  style="z-index: 10;">
+                  style="z-index: 10; background: rgba(0,0,0,0.5);">
             <i class="fa-solid fa-trash"></i>
           </button>
           ` : ""}
@@ -1792,15 +1793,20 @@ function renderTutorialesTecnicos(tutorialsList) {
     let contentHtml = "";
     if (tutorial.tutorialType === "video") {
       contentHtml = `
-        <div class="ratio ratio-16x9 mb-3">
-          <iframe src="https://www.youtube.com/embed/${tutorial.videoId}" title="${tutorial.title}" allowfullscreen></iframe>
+        <div class="position-relative mb-3" style="height: 200px; overflow: hidden; border-radius: 8px; cursor: pointer;" onclick="window.open('${tutorial.url || 'https://www.youtube.com/watch?v=' + tutorial.videoId}', '_blank')">
+          <img src="assets/img/portada.jfif" alt="Ver Video" class="w-100 h-100" style="object-fit: cover;">
+          <div class="position-absolute top-50 start-50 translate-middle">
+             <i class="fa-brands fa-youtube fa-3x text-danger bg-white rounded-circle p-1"></i>
+          </div>
         </div>
       `;
     } else {
       contentHtml = `
-        <div class="text-center py-4 mb-3" onclick="verGuiaPDF('${tutorial.id}', true)" style="cursor: pointer; background: rgba(255,255,255,0.05); border-radius: 8px;">
-          <i class="fa-solid fa-file-pdf fa-4x text-danger mb-2"></i>
-          <p class="text-white small mb-0">Ver Documento</p>
+        <div class="position-relative mb-3" style="height: 200px; overflow: hidden; border-radius: 8px; cursor: pointer;" onclick="verGuiaPDF('${tutorial.id}', true)">
+          <img src="assets/img/portada.jfif" alt="Ver Documento" class="w-100 h-100" style="object-fit: cover;">
+          <div class="position-absolute top-50 start-50 translate-middle">
+             <i class="fa-solid fa-file-pdf fa-3x text-danger bg-white rounded-circle p-2"></i>
+          </div>
         </div>
       `;
     }
@@ -1813,7 +1819,7 @@ function renderTutorialesTecnicos(tutorialsList) {
             <h5 class="card-title text-gold mb-2 text-center">${tutorial.title}</h5>
             <div class="d-flex gap-2 justify-content-center">
               <span class="badge bg-secondary">${tutorial.category.toUpperCase()}</span>
-              <span class="badge bg-gold">${tutorial.tutorialType.toUpperCase()}</span>
+              <span class="badge ${tutorial.tutorialType === 'video' ? 'bg-success' : 'bg-danger'}">${tutorial.tutorialType.toUpperCase()}</span>
             </div>
           </div>
           ${subRole === "tecnico-jefe" ? `
