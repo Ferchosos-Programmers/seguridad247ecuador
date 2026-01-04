@@ -991,3 +991,46 @@ h1 {
 .text-gold {
   color: #d4af37 !important;
 }
+
+/* ======== GUÍAS TÉCNICAS ======== */
+.card-guide {
+  transition: all 0.4s ease;
+  cursor: pointer;
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  background: rgba(15, 15, 15, 0.6);
+  backdrop-filter: blur(10px);
+}
+
+.card-guide:hover {
+  transform: translateY(-8px);
+  border-color: #d4af37;
+  box-shadow: 0 10px 30px rgba(212, 175, 55, 0.15);
+  background: rgba(20, 20, 20, 0.8);
+}
+
+.card-guide:hover .guide-icon i {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+}
+
+.guide-icon i {
+  filter: drop-shadow(0 0 10px rgba(220, 53, 69, 0.3));
+}
+
+.bg-gold {
+  background-color: #d4af37 !important;
+  color: #000 !important;
+}
+
+#uploadProgressContainer {
+  height: 20px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+#uploadProgressBar {
+  font-weight: bold;
+  font-size: 0.8rem;
+  line-height: 20px;
+}

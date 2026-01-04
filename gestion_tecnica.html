@@ -224,20 +224,28 @@
 
           <!-- Guías Técnicas Section -->
           <div id="guidesSection" style="display: none">
-            <h2 class="section-title mb-4">Guías Técnicas</h2>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2 class="section-title mb-0">Guías Técnicas</h2>
+              <button
+                class="btn btn-gold"
+                data-bs-toggle="modal"
+                data-bs-target="#uploadGuideModal"
+                style="display: none"
+              >
+                <i class="fa-solid fa-cloud-arrow-up me-2"></i> Subir Guía
+              </button>
+            </div>
+
             <div class="guides-search mb-4">
               <input
                 type="text"
                 id="guideSearchInput"
                 class="form-control modern-input"
-                placeholder="Buscar por modelo, marca o instalación..."
+                placeholder="Buscar por nombre de guía..."
               />
             </div>
-            <div id="guidesContainer" class="row g-4">
-              <!-- Guías se cargarán dinámicamente o aquí directamente -->
-              <p class="text-center text-muted">
-                Próximamente: Guías e Instructivos de Instalación
-              </p>
+            <div id="guidesContainer" class="row g-4 mt-3">
+              <p class="text-center text-muted">Cargando guías...</p>
             </div>
           </div>
 
@@ -469,11 +477,92 @@
       </div>
     </div>
 
+    <!-- Modal para Subir Guía Técnica -->
+    <div
+      class="modal fade"
+      id="uploadGuideModal"
+      tabindex="-1"
+      aria-labelledby="uploadGuideModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="uploadGuideModalLabel">
+              Subir Nueva Guía Técnica
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="guideUploadForm">
+              <div class="mb-3">
+                <label for="guideName" class="form-label"
+                  >Nombre de la Guía</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="guideName"
+                  placeholder="Ej: Manual Configuración DVR Hikvision"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="guideFile" class="form-label">Archivo PDF</label>
+                <input
+                  type="file"
+                  class="form-control"
+                  id="guideFile"
+                  accept=".pdf"
+                  required
+                />
+              </div>
+              <div
+                class="progress mb-3"
+                style="display: none"
+                id="uploadProgressContainer"
+              >
+                <div
+                  id="uploadProgressBar"
+                  class="progress-bar progress-bar-striped progress-bar-animated bg-gold"
+                  role="progressbar"
+                  style="width: 0%"
+                  aria-valuenow="0"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                >
+                  0%
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancelar
+            </button>
+            <button type="button" class="btn btn-gold" id="saveGuideBtn">
+              Guardar Guía
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- SCRIPTS -->
     <!-- FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
 
     <!-- Scripts personalizados -->
     <script src="js/firebase.js"></script>

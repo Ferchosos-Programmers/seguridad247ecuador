@@ -95,8 +95,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // Variables Globales
     window.allTrabajos = [];
     window.allContratos = [];
+    window.allGuides = [];
     window.trabajosLoaded = false;
     window.contratosLoaded = false;
+    window.guidesLoaded = false;
 
     // Cargar Info Usuario
     cargarInfoUsuario();
@@ -104,6 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Configurar modales (listeners)
     configurarModalInforme();
     configurarModalContrato();
+    configurarModalGuia();
 
     // Sidebar Toggle (Mobile)
     const sidebarToggle = document.getElementById("sidebarToggle");
@@ -150,6 +153,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (urgencyFilter) urgencyFilter.addEventListener("change", applyFilters);
     if (nameFilter) nameFilter.addEventListener("input", applyFilters);
+    const guideSearchInput = document.getElementById("guideSearchInput");
+    if (guideSearchInput) guideSearchInput.addEventListener("input", applyFilters);
 
     function switchView(view) {
       // Ocultar todo
@@ -185,14 +190,19 @@ document.addEventListener("DOMContentLoaded", () => {
         else renderContratosTecnicos(window.allContratos);
       } else if (view === "guides") {
         guidesSection.style.display = "block";
-        // Aquí podrías llamar a cargarGuiasTecnicas() si existiera
+        if (!window.guidesLoaded) cargarGuiasTecnicas();
+        else renderGuiasTecnicas(window.allGuides);
       }
     }
 
     async function actualizarEstadisticas() {
       try {
         const queryTrabajos = await db.collection("trabajos").get();
-        const pendingTrabajos = queryTrabajos.docs.filter(doc => doc.data().status !== 'Culminado').length;
+        // Filtramos para que no cuente las guías como trabajos pendientes
+        const pendingTrabajos = queryTrabajos.docs.filter(doc => {
+            const d = doc.data();
+            return d.status !== 'Culminado' && !d.isGuide;
+        }).length;
         document.getElementById("statTotalTrabajos").textContent = pendingTrabajos;
 
         const queryContratos = await db.collection("contracts").get();
@@ -230,7 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           snapTrabajos.forEach(doc => {
             const data = doc.data();
-            if (data.status !== 'Culminado') {
+            if (data.status !== 'Culminado' && !data.isGuide) {
               currentNotifications.push({ id: doc.id, ...data, type: 'job' });
             }
           });
@@ -347,10 +357,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (currentView === "contracts") {
         const filteredContratos = window.allContratos.filter(contract => {
-          const matchName = contract.clientName.toLowerCase().includes(nameValue);
+          const matchName = contract.clientName.toLowerCase().includes(nameFilter?.value.toLowerCase() || "");
           return matchName;
         });
         renderContratosTecnicos(filteredContratos);
+      }
+
+      if (currentView === "guides") {
+        const guideSearchInput = document.getElementById("guideSearchInput");
+        const guideSearchValue = guideSearchInput?.value.toLowerCase() || "";
+        const filteredGuides = window.allGuides.filter(guide => {
+          return guide.name.toLowerCase().includes(guideSearchValue);
+        });
+        renderGuiasTecnicas(filteredGuides);
       }
     }
   }
@@ -410,6 +429,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function configurarUITecnico(user, data) {
+    window.actualUserData = data; // Guardamos los datos para validaciones posteriores
     const sidebarUserName = document.getElementById("sidebarUserName");
     const sidebarUserRole = document.getElementById("sidebarUserRole");
     const userNameEl = document.getElementById("userName");
@@ -429,6 +449,16 @@ document.addEventListener("DOMContentLoaded", () => {
     if (userNameEl) userNameEl.textContent = data.adminName || data.nombre || data.techName || "Técnico";
     if (userEmailEl) userEmailEl.textContent = data.email || user.email;
     if (userProfileCard) userProfileCard.style.display = "block";
+
+    // Mostrar botón de subir guías solo si es tecnico-jefe
+    const uploadBtn = document.querySelector('[data-bs-target="#uploadGuideModal"]');
+    if (uploadBtn) {
+        if (data.subRole === "tecnico-jefe") {
+            uploadBtn.style.display = "block";
+        } else {
+            uploadBtn.style.display = "none";
+        }
+    }
   }
 
   const logoutBtn = document.getElementById("logoutBtn");
@@ -538,7 +568,10 @@ async function cargarTrabajosTecnicos() {
 
     window.allTrabajos = [];
     query.forEach(doc => {
-      window.allTrabajos.push({ id: doc.id, ...doc.data() });
+      const data = doc.data();
+      if (!data.isGuide) {
+        window.allTrabajos.push({ id: doc.id, ...data });
+      }
     });
 
     renderTrabajosTecnicos(window.allTrabajos);
@@ -1327,3 +1360,225 @@ ${data.clientIdPhoto ? `
 
   contractContentArea.innerHTML = content;
 }
+
+// =======================================================
+// 📚 GESTIÓN DE GUÍAS TÉCNICAS
+// =======================================================
+function configurarModalGuia() {
+  const saveGuideBtn = document.getElementById("saveGuideBtn");
+  if (!saveGuideBtn) return;
+
+  saveGuideBtn.addEventListener("click", async () => {
+    const name = document.getElementById("guideName").value;
+    const file = document.getElementById("guideFile").files[0];
+
+    if (!name || !file) {
+      Swal.fire("Atención", "Por favor complete el nombre y seleccione un archivo PDF.", "warning");
+      return;
+    }
+
+    if (file.type !== "application/pdf") {
+      Swal.fire("Archivo no válido", "Por favor suba únicamente archivos en formato PDF.", "error");
+      return;
+    }
+
+    // Convert PDF to Base64 to avoid CORS/Storage issues
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+
+    reader.onload = async () => {
+      const base64PDF = reader.result;
+
+      // Firestore document limit is 1MB. Base64 is ~33% larger.
+      if (base64PDF.length > 1000000) {
+        Swal.fire("Archivo demasiado grande", "Para este sistema simplificado, el PDF debe ser menor a 700KB.", "error");
+        return;
+      }
+
+      try {
+        saveGuideBtn.disabled = true;
+        const progressContainer = document.getElementById("uploadProgressContainer");
+        const progressBar = document.getElementById("uploadProgressBar");
+        progressContainer.style.display = "block";
+        progressBar.style.width = '50%';
+        progressBar.textContent = 'Procesando...';
+
+        const subRole = window.actualUserData?.subRole || "";
+        const role = window.actualUserData?.role || "";
+
+        console.log("Intentando guardar guía como Doc en 'trabajos' con Rol:", role, "subRole:", subRole);
+
+        // Guardamos en la colección 'trabajos' que sabemos que es accesible
+        // Añadimos isGuide: true para diferenciarlo de los trabajos reales
+        await db.collection("trabajos").add({
+          name: name,
+          pdfData: base64PDF, 
+          isGuide: true, // Flag importante
+          category: "technical_guide",
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          fileName: file.name,
+          uploadedBy: role,
+          subRole: subRole
+        });
+
+        progressBar.style.width = '100%';
+        progressBar.textContent = '¡Listo!';
+
+        Swal.fire({
+          icon: "success",
+          title: "¡Guía Guardada!",
+          text: "La guía técnica se ha guardado correctamente en la base de datos.",
+          confirmButtonColor: "#d4af37"
+        }).then(() => {
+          document.getElementById("guideUploadForm").reset();
+          progressContainer.style.display = "none";
+          progressBar.style.width = '0%';
+          const modalEl = document.getElementById("uploadGuideModal");
+          if (modalEl) bootstrap.Modal.getInstance(modalEl).hide();
+          cargarGuiasTecnicas(); // Recargar lista
+        });
+        saveGuideBtn.disabled = false;
+
+      } catch (error) {
+        console.error("Error al guardar guía en Firestore:", error);
+        let errorMsg = "Hubo un problema al guardar la guía.";
+        if (error.code === 'permission-denied') {
+            errorMsg = "Permisos insuficientes. Contacte al administrador para habilitar la colección.";
+        }
+        Swal.fire("Error", errorMsg, "error");
+        saveGuideBtn.disabled = false;
+        document.getElementById("uploadProgressContainer").style.display = "none";
+      }
+    };
+
+    reader.onerror = () => {
+      Swal.fire("Error", "No se pudo leer el archivo seleccionado.", "error");
+    };
+  });
+}
+
+async function cargarGuiasTecnicas() {
+  const container = document.getElementById("guidesContainer");
+  if (!container) return;
+
+  container.innerHTML = `<p class="text-center text-white w-100">Cargando guías...</p>`;
+
+  try {
+    // Buscamos en 'trabajos' pero filtramos por isGuide
+    const query = await db.collection("trabajos")
+      .where("isGuide", "==", true)
+      .get();
+      
+    window.allGuides = [];
+    query.forEach(doc => {
+      window.allGuides.push({ id: doc.id, ...doc.data() });
+    });
+    
+    // Si no hay índice para el where, el catch lo manejará y se puede intentar un filter manual
+    window.guidesLoaded = true;
+    renderGuiasTecnicas(window.allGuides);
+  } catch (error) {
+    console.error("Error al cargar guías desde trabajos:", error);
+    
+    // Plan B: Cargar todo y filtrar en memoria si falta el índice o hay error de permisos específico
+    try {
+        const queryAll = await db.collection("trabajos").get();
+        window.allGuides = queryAll.docs
+            .map(doc => ({ id: doc.id, ...doc.data() }))
+            .filter(item => item.isGuide === true);
+        
+        window.guidesLoaded = true;
+        renderGuiasTecnicas(window.allGuides);
+    } catch (e) {
+        console.error("Fallo total al cargar guías:", e);
+        container.innerHTML = `<p class="text-center text-danger w-100">Error al cargar las guías. (Acceso restringido)</p>`;
+    }
+  }
+}
+
+function renderGuiasTecnicas(guidesList) {
+  const container = document.getElementById("guidesContainer");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  if (guidesList.length === 0) {
+    container.innerHTML = `<p class="text-center text-white-50 w-100 mt-4">No se encontraron guías técnicas.</p>`;
+    return;
+  }
+
+  const subRole = window.actualUserData?.subRole || "";
+
+  guidesList.forEach(guide => {
+    container.innerHTML += `
+      <div class="col-md-4">
+        <div class="card-job card-guide position-relative h-100">
+          <div class="card-body text-center py-4" onclick="verGuiaPDF('${guide.id}')" style="cursor: pointer;">
+            <div class="guide-icon mb-3">
+              <i class="fa-solid fa-file-pdf fa-3x text-danger"></i>
+            </div>
+            <h5 class="card-title text-gold mb-2">${guide.name}</h5>
+            <p class="text-white-50 small mb-0">Haga clic para ver el PDF</p>
+          </div>
+          ${subRole === "tecnico-jefe" ? `
+          <button class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2" 
+                  onclick="eliminarGuia('${guide.id}', '${guide.name}')" 
+                  title="Eliminar Guía"
+                  style="z-index: 10;">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+          ` : ""}
+        </div>
+      </div>
+    `;
+  });
+}
+
+async function eliminarGuia(id, name) {
+    const result = await Swal.fire({
+        title: "¿Eliminar guía?",
+        text: `¿Estás seguro de que deseas eliminar la guía "${name}"? Esta acción no se puede deshacer.`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar"
+    });
+
+    if (result.isConfirmed) {
+        try {
+            await db.collection("trabajos").doc(id).delete();
+            Swal.fire("Eliminado", "La guía ha sido eliminada correctamente.", "success");
+            cargarGuiasTecnicas(); // Recargar la lista
+        } catch (error) {
+            console.error("Error al eliminar guía:", error);
+            Swal.fire("Error", "No se pudo eliminar la guía. Verifique sus permisos.", "error");
+        }
+    }
+}
+
+function verGuiaPDF(id) {
+    const guide = window.allGuides.find(g => g.id === id);
+    if (!guide) return;
+    
+    const pdfContent = guide.pdfData || guide.url;
+    if (!pdfContent) {
+        Swal.fire("Error", "No se encontró el contenido del PDF.", "error");
+        return;
+    }
+
+    if (pdfContent.startsWith('http')) {
+        window.open(pdfContent, '_blank');
+    } else {
+        // Para Base64
+        const newTab = window.open();
+        newTab.document.write(`
+            <title>${guide.name}</title>
+            <body style="margin:0">
+                <embed src="${pdfContent}" width="100%" height="100%" type="application/pdf">
+            </body>
+        `);
+    }
+}
+

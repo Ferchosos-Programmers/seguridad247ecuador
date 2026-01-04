@@ -136,10 +136,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const db = firebase.firestore();
       
       try {
-        // Trabajos
+        // Trabajos (Excluyendo Guías)
         const trabajosSnap = await db.collection("trabajos").get();
+        const realJobsCount = trabajosSnap.docs.filter(doc => !doc.data().isGuide).length;
         const countTrabajos = document.getElementById("countTrabajos");
-        if (countTrabajos) countTrabajos.textContent = trabajosSnap.size;
+        if (countTrabajos) countTrabajos.textContent = realJobsCount;
         
         // Contratos
         const contratosSnap = await db.collection("contracts").get();
@@ -1291,7 +1292,10 @@ async function cargarTrabajos() {
     // Guardar en variable global para filtrar sin recargar
     window.allTrabajos = [];
     query.forEach(doc => {
-      window.allTrabajos.push({ id: doc.id, ...doc.data() });
+      const data = doc.data();
+      if (!data.isGuide) {
+        window.allTrabajos.push({ id: doc.id, ...data });
+      }
     });
 
     renderTrabajos(window.allTrabajos);
