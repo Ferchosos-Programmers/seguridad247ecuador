@@ -15,6 +15,12 @@
     margin-top: 100px;
 }
 
+@media (max-width: 991px) {
+    .contact-section .container {
+        margin-top: 150px;
+    }
+}
+
 .contact-section h2 {
     font-size: 2.5rem;
     font-weight: bold;

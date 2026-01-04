@@ -7,6 +7,12 @@
     color: #fff;
 }
 
+@media (max-width: 991px) {
+    .nosotros-section {
+        padding-top: 130px !important;
+    }
+}
+
 .nosotros-section::before {
     content: "";
     position: absolute;

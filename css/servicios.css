@@ -5,6 +5,12 @@
     background: url('img/fondo-nosotros.jpg') center/cover no-repeat;
 }
 
+@media (max-width: 991px) {
+    .servicios-section {
+        padding-top: 130px;
+    }
+}
+
 .servicios-section .section-title {
     font-size: 2.5rem;
     font-weight: bold;

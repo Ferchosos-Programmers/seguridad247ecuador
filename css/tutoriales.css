@@ -5,7 +5,12 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  
+}
+
+@media (max-width: 991px) {
+  body {
+    padding-top: 120px;
+  }
 }
 
 main {
