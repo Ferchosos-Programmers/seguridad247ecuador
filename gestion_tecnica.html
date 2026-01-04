@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tutoriales - Seguridad 247 Ecuador</title>
+    <title>Gestion Técnica - Seguridad 247 Ecuador</title>
     <link rel="stylesheet" href="css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/gestion_tecnica.css" />
     <link rel="stylesheet" href="css/index.css" />
@@ -63,6 +63,11 @@
           <li class="sidebar-item">
             <a class="sidebar-link" data-view="guides">
               <i class="fa-solid fa-book"></i> Guías Técnicas
+            </a>
+          </li>
+          <li class="sidebar-item">
+            <a class="sidebar-link" data-view="tutorials">
+              <i class="fa-solid fa-book-open"></i> Tutoriales
             </a>
           </li>
           <!-- Logout for mobile -->
@@ -246,6 +251,162 @@
             </div>
             <div id="guidesContainer" class="row g-4 mt-3">
               <p class="text-center text-muted">Cargando guías...</p>
+            </div>
+          </div>
+
+          <!-- Tutoriales Section -->
+          <div id="tutorialsSection" style="display: none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2 class="section-title mb-0">Tutoriales</h2>
+              <button
+                class="btn btn-gold"
+                id="uploadTutorialBtn"
+                data-bs-toggle="modal"
+                data-bs-target="#uploadTutorialModal"
+                style="display: none"
+              >
+                <i class="fa-solid fa-plus me-2"></i> Agregar Tutorial
+              </button>
+            </div>
+
+            <div class="guides-search mb-4">
+              <input
+                type="text"
+                id="tutorialSearchInput"
+                class="form-control modern-input"
+                placeholder="Buscar tutorial..."
+              />
+            </div>
+            <div id="tutorialsContainer" class="row g-4 mt-3">
+              <p class="text-center text-muted">Cargando tutoriales...</p>
+            </div>
+          </div>
+
+          <!-- Modal para Agregar Tutorial (Video o PDF) -->
+          <div
+            class="modal fade"
+            id="uploadTutorialModal"
+            tabindex="-1"
+            aria-labelledby="uploadTutorialModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="uploadTutorialModalLabel">
+                    Agregar Nuevo Tutorial
+                  </h5>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
+                </div>
+                <div class="modal-body">
+                  <form id="tutorialUploadForm">
+                    <div class="mb-3">
+                      <label for="tutorialType" class="form-label"
+                        >Tipo de Tutorial</label
+                      >
+                      <select class="form-select" id="tutorialType" required>
+                        <option value="" disabled selected>
+                          Seleccione tipo
+                        </option>
+                        <option value="video">YouTube Video</option>
+                        <option value="pdf">Documento PDF</option>
+                      </select>
+                    </div>
+
+                    <div class="mb-3">
+                      <label for="tutorialTitle" class="form-label"
+                        >Título del Tutorial</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="tutorialTitle"
+                        placeholder="Ej: Manual de Usuario Alarmas"
+                        required
+                      />
+                    </div>
+
+                    <!-- Campo para Video -->
+                    <div class="mb-3" id="videoUrlGroup" style="display: none">
+                      <label for="tutorialVideoUrl" class="form-label"
+                        >URL de YouTube</label
+                      >
+                      <input
+                        type="url"
+                        class="form-control"
+                        id="tutorialVideoUrl"
+                        placeholder="https://www.youtube.com/watch?v=..."
+                      />
+                    </div>
+
+                    <!-- Campo para PDF -->
+                    <div class="mb-3" id="pdfFileGroup" style="display: none">
+                      <label for="tutorialPdfFile" class="form-label"
+                        >Archivo PDF</label
+                      >
+                      <input
+                        type="file"
+                        class="form-control"
+                        id="tutorialPdfFile"
+                        accept=".pdf"
+                      />
+                      <div
+                        class="progress mt-2"
+                        style="display: none"
+                        id="tutorialPdfProgress"
+                      >
+                        <div
+                          class="progress-bar progress-bar-striped progress-bar-animated bg-gold"
+                          style="width: 0%"
+                        ></div>
+                      </div>
+                    </div>
+
+                    <div class="mb-3">
+                      <label for="tutorialCategory" class="form-label"
+                        >Categoría</label
+                      >
+                      <select
+                        class="form-select"
+                        id="tutorialCategory"
+                        required
+                      >
+                        <option value="" disabled selected>
+                          Seleccione una categoría
+                        </option>
+                        <option value="dvr">Dvr/Hvr</option>
+                        <option value="camaras">Camaras</option>
+                        <option value="citofonos">Citofonos</option>
+                        <option value="alarma">Alarmas</option>
+                        <option value="cercos">Cercos Electricos</option>
+                        <option value="wifi">Redes/Wifi</option>
+                        <option value="configuraciones">Configuraciones</option>
+                      </select>
+                    </div>
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-gold"
+                    id="saveTutorialBtn"
+                  >
+                    Guardar Tutorial
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 

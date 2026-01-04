@@ -43,81 +43,145 @@
     <main class="container py-5">
       <h1>Tutoriales</h1>
 
-      <!-- FILTRO POR CATEGORÍA -->
-      <div class="filter-btns">
-        <button class="active" data-filter="all">Todos</button>
-        <button data-filter="camaras">Cámaras</button>
-        <button data-filter="dvr">DVR/NVR</button>
-        <button data-filter="alarma">Alarmas</button>
-        <button data-filter="wifi">Redes/WiFi</button>
+      <!-- BARRA DE FILTROS MODERNA Y COMPACTA -->
+      <div class="row g-3 mb-5 filter-row align-items-center">
+        <!-- Buscador -->
+        <div class="col-lg-5">
+          <div class="input-group search-group">
+            <span class="input-group-text bg-dark border-gold text-gold">
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </span>
+            <input
+              type="text"
+              id="tutorialSearch"
+              class="form-control modern-input"
+              placeholder="Buscar tutorial por título..."
+            />
+          </div>
+        </div>
+
+        <!-- Filtro Tipo -->
+        <div class="col-lg-3">
+          <select id="typeSelect" class="form-select modern-select">
+            <option value="all">Todos los Tipos</option>
+            <option value="video">🎥 Videos</option>
+            <option value="pdf">📄 Documentos (PDF)</option>
+          </select>
+        </div>
+
+        <!-- Filtro Categoría -->
+        <div class="col-lg-4">
+          <select id="categorySelect" class="form-select modern-select">
+            <option value="all">Todas las Categorías</option>
+            <option value="dvr">Dvr/Hvr</option>
+            <option value="camaras">Camaras</option>
+            <option value="citofonos">Citofonos</option>
+            <option value="alarma">Alarmas</option>
+            <option value="cercos">Cercos Electricos</option>
+            <option value="wifi">Redes/Wifi</option>
+            <option value="configuraciones">Configuraciones</option>
+          </select>
+        </div>
       </div>
 
-      <!-- GRID DE VIDEOS -->
-      <div class="row g-4" id="videoGrid">
-        <div class="col-md-4 video-item" data-category="camaras">
-          <div class="video-card">
-            <iframe
-              src="https://www.youtube.com/embed/VIDEO_ID1"
-              allowfullscreen
-            ></iframe>
-            <h5>Instalación de Cámara IP</h5>
-          </div>
-        </div>
-
-        <div class="col-md-4 video-item" data-category="dvr">
-          <div class="video-card">
-            <iframe
-              src="https://www.youtube.com/embed/VIDEO_ID2"
-              allowfullscreen
-            ></iframe>
-            <h5>Configuración DVR</h5>
-          </div>
-        </div>
-
-        <div class="col-md-4 video-item" data-category="alarma">
-          <div class="video-card">
-            <iframe
-              src="https://www.youtube.com/embed/VIDEO_ID3"
-              allowfullscreen
-            ></iframe>
-            <h5>Instalación de Alarmas</h5>
-          </div>
-        </div>
-
-        <div class="col-md-4 video-item" data-category="wifi">
-          <div class="video-card">
-            <iframe
-              src="https://www.youtube.com/embed/VIDEO_ID4"
-              allowfullscreen
-            ></iframe>
-            <h5>Configuración de Redes WiFi</h5>
-          </div>
-        </div>
+      <!-- GRID DE TUTORIALES -->
+      <div class="row g-4" id="tutorialGrid">
+        <p class="text-center text-muted">Cargando tutoriales...</p>
       </div>
     </main>
+
+    <style>
+      .filter-row {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 20px;
+        border-radius: 15px;
+        border: 1px solid rgba(212, 175, 55, 0.1);
+        backdrop-filter: blur(5px);
+      }
+
+      .modern-input,
+      .modern-select {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(212, 175, 55, 0.2) !important;
+        color: white !important;
+        padding: 0.8rem 1.2rem;
+        border-radius: 10px !important;
+        transition: all 0.3s ease;
+      }
+
+      .modern-input:focus,
+      .modern-select:focus {
+        border-color: #d4af37 !important;
+        box-shadow: 0 0 15px rgba(212, 175, 55, 0.2) !important;
+        background: rgba(255, 255, 255, 0.08) !important;
+      }
+
+      .modern-select {
+        cursor: pointer;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23d4af37' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 1rem center !important;
+        background-size: 16px 12px !important;
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        padding-right: 2.5rem !important;
+      }
+
+      .modern-select option {
+        background-color: #1a1a1a;
+        color: white;
+      }
+
+      .input-group-text.border-gold {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border-color: rgba(212, 175, 55, 0.2) !important;
+        border-right: none !important;
+        border-radius: 10px 0 0 10px !important;
+        color: #d4af37 !important;
+      }
+
+      .search-group .modern-input {
+        border-left: none !important;
+        border-radius: 0 10px 10px 0 !important;
+      }
+
+      .search-group .modern-input:focus {
+        box-shadow: none !important; /* Remove individual shadow to not break the group look, or apply to group */
+        border-color: rgba(212, 175, 55, 0.2) !important;
+      }
+
+      /* Optional: highlight group on focus */
+      .search-group:focus-within .input-group-text,
+      .search-group:focus-within .modern-input {
+        border-color: #d4af37 !important;
+        box-shadow: 0 0 10px rgba(212, 175, 55, 0.1);
+      }
+
+      .tutorial-item .video-card {
+        border: 1px solid rgba(212, 175, 55, 0.1);
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 15px !important;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+
+      .tutorial-item .video-card:hover {
+        transform: translateY(-10px);
+        border-color: #d4af37;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+      }
+    </style>
 
     <footer class="footer">
       © 2025 Seguridad 247 Ecuador — Todos los derechos reservados
     </footer>
 
-    <script>
-      // Filtrado de videos
-      const filterButtons = document.querySelectorAll(".filter-btns button");
-      const videoItems = document.querySelectorAll(".video-item");
-
-      filterButtons.forEach((btn) => {
-        btn.addEventListener("click", () => {
-          filterButtons.forEach((b) => b.classList.remove("active"));
-          btn.classList.add("active");
-          const filter = btn.dataset.filter;
-          videoItems.forEach((item) => {
-            item.style.display =
-              filter === "all" || item.dataset.category === filter
-                ? "block"
-                : "none";
-          });
-        });
-      });
-    </script>
+    <!-- FIREBASE -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="js/firebase.js"></script>
+    <script src="js/tutoriales.js"></script>
   </body>
 </html>

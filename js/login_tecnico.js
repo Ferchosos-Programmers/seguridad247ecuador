@@ -96,9 +96,11 @@ document.addEventListener("DOMContentLoaded", () => {
     window.allTrabajos = [];
     window.allContratos = [];
     window.allGuides = [];
+    window.allTutorials = [];
     window.trabajosLoaded = false;
     window.contratosLoaded = false;
     window.guidesLoaded = false;
+    window.tutorialsLoaded = false;
 
     // Cargar Info Usuario
     cargarInfoUsuario();
@@ -107,6 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
     configurarModalInforme();
     configurarModalContrato();
     configurarModalGuia();
+    configurarModalTutorial();
 
     // Sidebar Toggle (Mobile)
     const sidebarToggle = document.getElementById("sidebarToggle");
@@ -155,6 +158,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (nameFilter) nameFilter.addEventListener("input", applyFilters);
     const guideSearchInput = document.getElementById("guideSearchInput");
     if (guideSearchInput) guideSearchInput.addEventListener("input", applyFilters);
+    const tutorialSearchInput = document.getElementById("tutorialSearchInput");
+    if (tutorialSearchInput) tutorialSearchInput.addEventListener("input", applyFilters);
 
     function switchView(view) {
       // Ocultar todo
@@ -162,15 +167,17 @@ document.addEventListener("DOMContentLoaded", () => {
       const jobsSection = document.getElementById("jobsSection");
       const contractsSection = document.getElementById("contractsSection");
       const guidesSection = document.getElementById("guidesSection");
+      const tutorialsSection = document.getElementById("tutorialsSection");
       const globalFilterContainer = document.getElementById("globalFilterContainer");
       const urgencyFilterContainer = document.getElementById("urgencyFilterContainer");
 
-      if (!dashboardSection || !jobsSection || !contractsSection || !guidesSection) return;
+      if (!dashboardSection || !jobsSection || !contractsSection || !guidesSection || !tutorialsSection) return;
 
       dashboardSection.style.display = "none";
       jobsSection.style.display = "none";
       contractsSection.style.display = "none";
       guidesSection.style.display = "none";
+      tutorialsSection.style.display = "none";
       globalFilterContainer.style.display = "none";
       urgencyFilterContainer.style.display = "none";
 
@@ -192,6 +199,10 @@ document.addEventListener("DOMContentLoaded", () => {
         guidesSection.style.display = "block";
         if (!window.guidesLoaded) cargarGuiasTecnicas();
         else renderGuiasTecnicas(window.allGuides);
+      } else if (view === "tutorials") {
+        tutorialsSection.style.display = "block";
+        if (!window.tutorialsLoaded) cargarTutorialesTecnicos();
+        else renderTutorialesTecnicos(window.allTutorials);
       }
     }
 
@@ -201,7 +212,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Filtramos para que no cuente las guías como trabajos pendientes
         const pendingTrabajos = queryTrabajos.docs.filter(doc => {
             const d = doc.data();
-            return d.status !== 'Culminado' && !d.isGuide;
+            return d.status !== 'Culminado' && !d.isGuide && !d.isTutorial;
         }).length;
         document.getElementById("statTotalTrabajos").textContent = pendingTrabajos;
 
@@ -240,7 +251,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           snapTrabajos.forEach(doc => {
             const data = doc.data();
-            if (data.status !== 'Culminado' && !data.isGuide) {
+            if (data.status !== 'Culminado' && !data.isGuide && !data.isTutorial) {
               currentNotifications.push({ id: doc.id, ...data, type: 'job' });
             }
           });
@@ -371,6 +382,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         renderGuiasTecnicas(filteredGuides);
       }
+
+      if (currentView === "tutorials") {
+        const tutorialSearchInput = document.getElementById("tutorialSearchInput");
+        const tutorialSearchValue = tutorialSearchInput?.value.toLowerCase() || "";
+        const filteredTutorials = window.allTutorials.filter(tutorial => {
+          return tutorial.title.toLowerCase().includes(tutorialSearchValue);
+        });
+        renderTutorialesTecnicos(filteredTutorials);
+      }
     }
   }
 
@@ -457,6 +477,16 @@ document.addEventListener("DOMContentLoaded", () => {
             uploadBtn.style.display = "block";
         } else {
             uploadBtn.style.display = "none";
+        }
+    }
+
+    // Mostrar botón de subir tutoriales solo si es tecnico-jefe
+    const uploadTutorialBtn = document.getElementById('uploadTutorialBtn');
+    if (uploadTutorialBtn) {
+        if (data.subRole === "tecnico-jefe") {
+            uploadTutorialBtn.style.display = "block";
+        } else {
+            uploadTutorialBtn.style.display = "none";
         }
     }
   }
@@ -569,7 +599,7 @@ async function cargarTrabajosTecnicos() {
     window.allTrabajos = [];
     query.forEach(doc => {
       const data = doc.data();
-      if (!data.isGuide) {
+      if (!data.isGuide && !data.isTutorial) {
         window.allTrabajos.push({ id: doc.id, ...data });
       }
     });
@@ -1581,4 +1611,285 @@ function verGuiaPDF(id) {
         `);
     }
 }
+
+// =======================================================
+// 🎥 GESTIÓN DE TUTORIALES (VIDEOS Y PDF)
+// =======================================================
+function configurarModalTutorial() {
+  const tutorialType = document.getElementById("tutorialType");
+  const videoUrlGroup = document.getElementById("videoUrlGroup");
+  const pdfFileGroup = document.getElementById("pdfFileGroup");
+  const saveTutorialBtn = document.getElementById("saveTutorialBtn");
+
+  if (tutorialType) {
+    tutorialType.addEventListener("change", () => {
+      const type = tutorialType.value;
+      if (type === "video") {
+        videoUrlGroup.style.display = "block";
+        pdfFileGroup.style.display = "none";
+      } else if (type === "pdf") {
+        videoUrlGroup.style.display = "none";
+        pdfFileGroup.style.display = "block";
+      }
+    });
+  }
+
+  if (!saveTutorialBtn) return;
+
+  saveTutorialBtn.addEventListener("click", async () => {
+    const type = document.getElementById("tutorialType").value;
+    const title = document.getElementById("tutorialTitle").value;
+    const category = document.getElementById("tutorialCategory").value;
+
+    if (!type || !title || !category) {
+      Swal.fire("Atención", "Por favor complete todos los campos obligatorios.", "warning");
+      return;
+    }
+
+    let saveStatus = false;
+    saveTutorialBtn.disabled = true;
+    saveTutorialBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...';
+
+    try {
+      const role = window.actualUserData?.role || "";
+      const subRole = window.actualUserData?.subRole || "";
+      const tutorialData = {
+        title: title.toUpperCase(),
+        category: category,
+        tutorialType: type,
+        isTutorial: true,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        uploadedBy: role,
+        subRole: subRole
+      };
+
+      if (type === "video") {
+        const url = document.getElementById("tutorialVideoUrl").value;
+        const videoId = extractYouTubeId(url);
+        if (!videoId) {
+          Swal.fire("URL no válida", "Por favor ingrese una URL de YouTube válida.", "error");
+          saveTutorialBtn.disabled = false;
+          saveTutorialBtn.innerHTML = "Guardar Tutorial";
+          return;
+        }
+        tutorialData.url = url;
+        tutorialData.videoId = videoId;
+      } else if (type === "pdf") {
+        const file = document.getElementById("tutorialPdfFile").files[0];
+        if (!file) {
+          Swal.fire("Atención", "Por favor seleccione un archivo PDF.", "warning");
+          saveTutorialBtn.disabled = false;
+          saveTutorialBtn.innerHTML = "Guardar Tutorial";
+          return;
+        }
+
+        const progressBar = document.querySelector("#tutorialPdfProgress .progress-bar");
+        const progressContainer = document.getElementById("tutorialPdfProgress");
+        progressContainer.style.display = "block";
+        progressBar.style.width = "50%";
+
+        const base64PDF = await convertFileToBase64(file);
+        if (base64PDF.length > 1000000) {
+          Swal.fire("Archivo demasiado grande", "El PDF debe ser menor a 700KB para este sistema.", "error");
+          saveTutorialBtn.disabled = false;
+          saveTutorialBtn.innerHTML = "Guardar Tutorial";
+          progressContainer.style.display = "none";
+          return;
+        }
+        tutorialData.pdfData = base64PDF;
+        tutorialData.fileName = file.name;
+        progressBar.style.width = "100%";
+      }
+
+      await db.collection("trabajos").add(tutorialData);
+      saveStatus = true;
+
+    } catch (error) {
+      console.error("Error al guardar tutorial:", error);
+      Swal.fire("Error", "Hubo un problema al guardar el tutorial.", "error");
+    } finally {
+      saveTutorialBtn.disabled = false;
+      saveTutorialBtn.innerHTML = "Guardar Tutorial";
+      if (saveStatus) {
+        Swal.fire({
+          icon: "success",
+          title: "¡Tutorial Guardado!",
+          text: "El tutorial se ha guardado correctamente.",
+          confirmButtonColor: "#d4af37"
+        }).then(() => {
+          document.getElementById("tutorialUploadForm").reset();
+          document.getElementById("videoUrlGroup").style.display = "none";
+          document.getElementById("pdfFileGroup").style.display = "none";
+          document.getElementById("tutorialPdfProgress").style.display = "none";
+          const modalEl = document.getElementById("uploadTutorialModal");
+          if (modalEl) bootstrap.Modal.getInstance(modalEl).hide();
+          cargarTutorialesTecnicos();
+        });
+      }
+    }
+  });
+}
+
+async function convertFileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+  });
+}
+
+function extractYouTubeId(url) {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+}
+
+async function cargarTutorialesTecnicos() {
+  const container = document.getElementById("tutorialsContainer");
+  if (!container) return;
+
+  container.innerHTML = `<p class="text-center text-white w-100">Cargando tutoriales...</p>`;
+
+  try {
+    const query = await db.collection("trabajos")
+      .where("isTutorial", "==", true)
+      .get();
+      
+    window.allTutorials = [];
+    query.forEach(doc => {
+      window.allTutorials.push({ id: doc.id, ...doc.data() });
+    });
+    
+    window.allTutorials.sort((a, b) => {
+      const dateA = a.createdAt ? a.createdAt.toDate() : new Date(0);
+      const dateB = b.createdAt ? b.createdAt.toDate() : new Date(0);
+      return dateB - dateA;
+    });
+    
+    window.tutorialsLoaded = true;
+    renderTutorialesTecnicos(window.allTutorials);
+  } catch (error) {
+    console.error("Error al cargar tutoriales:", error);
+    container.innerHTML = `<p class="text-center text-danger w-100">Error al cargar los tutoriales.</p>`;
+  }
+}
+
+function renderTutorialesTecnicos(tutorialsList) {
+  const container = document.getElementById("tutorialsContainer");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  if (tutorialsList.length === 0) {
+    container.innerHTML = `<p class="text-center text-white-50 w-100 mt-4">No se encontraron tutoriales.</p>`;
+    return;
+  }
+
+  const subRole = window.actualUserData?.subRole || "";
+
+  tutorialsList.forEach(tutorial => {
+    let contentHtml = "";
+    if (tutorial.tutorialType === "video") {
+      contentHtml = `
+        <div class="ratio ratio-16x9 mb-3">
+          <iframe src="https://www.youtube.com/embed/${tutorial.videoId}" title="${tutorial.title}" allowfullscreen></iframe>
+        </div>
+      `;
+    } else {
+      contentHtml = `
+        <div class="text-center py-4 mb-3" onclick="verGuiaPDF('${tutorial.id}', true)" style="cursor: pointer; background: rgba(255,255,255,0.05); border-radius: 8px;">
+          <i class="fa-solid fa-file-pdf fa-4x text-danger mb-2"></i>
+          <p class="text-white small mb-0">Ver Documento</p>
+        </div>
+      `;
+    }
+
+    container.innerHTML += `
+      <div class="col-md-6 col-lg-3">
+        <div class="card-job h-100 position-relative">
+          <div class="card-body">
+            ${contentHtml}
+            <h5 class="card-title text-gold mb-2 text-center">${tutorial.title}</h5>
+            <div class="d-flex gap-2 justify-content-center">
+              <span class="badge bg-secondary">${tutorial.category.toUpperCase()}</span>
+              <span class="badge bg-gold">${tutorial.tutorialType.toUpperCase()}</span>
+            </div>
+          </div>
+          ${subRole === "tecnico-jefe" ? `
+          <button class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2" 
+                  onclick="eliminarTutorial('${tutorial.id}', '${tutorial.title}')" 
+                  title="Eliminar Tutorial"
+                  style="z-index: 10;">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+          ` : ""}
+        </div>
+      </div>
+    `;
+  });
+}
+
+async function eliminarTutorial(id, title) {
+    const result = await Swal.fire({
+        title: "¿Eliminar tutorial?",
+        text: `¿Estás seguro de que deseas eliminar el tutorial "${title}"? Esta acción no se puede deshacer.`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar"
+    });
+
+    if (result.isConfirmed) {
+        try {
+            await db.collection("trabajos").doc(id).delete();
+            Swal.fire("Eliminado", "El tutorial ha sido eliminado correctamente.", "success");
+            cargarTutorialesTecnicos();
+        } catch (error) {
+            console.error("Error al eliminar tutorial:", error);
+            Swal.fire("Error", "No se pudo eliminar el tutorial.", "error");
+        }
+    }
+}
+
+// Modificar verGuiaPDF para que funcione con tutoriales también
+const originalVerGuiaPDF = window.verGuiaPDF;
+window.verGuiaPDF = function(id, isTutorial = false) {
+    let guide;
+    if (isTutorial) {
+        guide = window.allTutorials.find(g => g.id === id);
+    } else {
+        guide = window.allGuides.find(g => g.id === id);
+    }
+    
+    if (!guide) return;
+    
+    const pdfContent = guide.pdfData || guide.url;
+    if (!pdfContent) {
+        // Si es un tutorial tipo video, no debería entrar aquí, pero por si acaso
+        if (guide.videoId) {
+            window.open(guide.url, '_blank');
+            return;
+        }
+        Swal.fire("Error", "No se encontró el contenido del PDF.", "error");
+        return;
+    }
+
+    if (pdfContent.startsWith('http')) {
+        window.open(pdfContent, '_blank');
+    } else {
+        const newTab = window.open();
+        newTab.document.write(`
+            <html>
+                <head><title>${guide.title || guide.name}</title></head>
+                <body style="margin:0">
+                    <embed src="${pdfContent}" width="100%" height="100%" type="application/pdf">
+                </body>
+            </html>
+        `);
+    }
+};
+
 
