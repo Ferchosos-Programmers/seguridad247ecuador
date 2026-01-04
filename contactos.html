@@ -14,7 +14,7 @@
     <link rel="icon" href="assets/img/logo.png" type="image/png" />
     <script src="js/bootstrap.min.js"></script>
     <script src="js/sweetalert2.js"></script>
-    <script src="js/whatsaap.js"></script>
+    <script src="js/contacto.js"></script>
   </head>
 
   <body>
@@ -67,26 +67,31 @@
           <!-- FORMULARIO -->
           <div class="col-lg-6 mb-4">
             <form class="contact-form" id="contactForm">
+              <input type="hidden" name="_captcha" value="false" />
               <input
                 type="text"
                 id="nombre"
+                name="nombre"
                 placeholder="Nombre Completo"
                 required
               />
               <input
                 type="email"
                 id="email"
+                name="email"
                 placeholder="Correo Electrónico"
                 required
               />
               <input
                 type="text"
                 id="telefono"
+                name="telefono"
                 placeholder="Teléfono"
                 required
               />
               <textarea
                 id="mensaje"
+                name="mensaje"
                 rows="5"
                 placeholder="Mensaje"
                 required
