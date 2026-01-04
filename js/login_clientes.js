@@ -100,8 +100,44 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         })
         .catch((error) => {
-          console.error("Error login cliente:", error);
-          Swal.fire("Error", "Credenciales incorrectas o usuario no encontrado", "error");
+          console.error("Login Error:", error);
+          let errorMsg = "Ocurrió un error al iniciar sesión.";
+  
+          // Detectar error de credenciales inválidas (Firebase Auth REST API o SDK)
+          if (error.message && (error.message.includes("INVALID_LOGIN_CREDENTIALS") || error.message.includes("auth/wrong-password") || error.message.includes("auth/user-not-found") || error.message.includes("INVALID_PASSWORD"))) {
+            errorMsg = "Credenciales incorrectas o usuario no encontrado";
+          } else if (error.message) {
+             // Intentar limpiar mensaje si es JSON
+             try {
+               // A veces el mensaje es un JSON stringificado
+               if (error.message.startsWith('{')) {
+                  const parsed = JSON.parse(error.message);
+                  if (parsed.error && parsed.error.message === 'INVALID_LOGIN_CREDENTIALS') {
+                      errorMsg = "Credenciales incorrectas o usuario no encontrado";
+                  } else if (parsed.error && parsed.error.message) {
+                      errorMsg = parsed.error.message;
+                  } else {
+                      errorMsg = error.message;
+                  }
+               } else {
+                  errorMsg = error.message;
+               }
+             } catch (e) {
+               errorMsg = error.message;
+             }
+          }
+          
+          // Segunda verificación por si acaso quedó el raw text
+          if (errorMsg.includes("INVALID_LOGIN_CREDENTIALS")) {
+              errorMsg = "Credenciales incorrectas o usuario no encontrado";
+          }
+
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: errorMsg,
+            confirmButtonColor: "#d4af37"
+          });
         });
     });
   }
