@@ -64,6 +64,11 @@
               <i class="fa-solid fa-building-shield"></i> Conjuntos
             </a>
           </li>
+          <li class="sidebar-item">
+            <a class="sidebar-link" data-view="passwords">
+              <i class="fa-solid fa-key"></i> Gestión de Claves
+            </a>
+          </li>
           <!-- Logout for mobile -->
           <li class="sidebar-item d-lg-none mt-4">
             <button class="btn-logout-nav w-100" id="logoutBtnMobile">
@@ -154,6 +159,31 @@
                 <i class="fa-solid fa-spinner fa-spin fa-2x mb-2"></i
                 ><br />Cargando conjuntos...
               </div>
+            </div>
+          </div>
+
+          <!-- Passwords Section (Read-Only) -->
+          <div id="passwordsSection" style="display: none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2 class="text-gold mb-0">Gestión de Claves Técnicas</h2>
+              <!-- Sin botón de agregar (Sólo lectura) -->
+            </div>
+
+            <div class="mb-4">
+              <input
+                type="text"
+                id="passwordSearchInput"
+                class="form-control"
+                placeholder="Buscar por conjunto o dispositivo..."
+              />
+            </div>
+
+            <div
+              id="passwordsContainer"
+              class="row g-4"
+              style="margin-top: 20px"
+            >
+              <p class="text-center text-muted">Cargando claves...</p>
             </div>
           </div>
         </div>
@@ -394,7 +424,11 @@
 
         // Sidebar Navigation
         const sidebarLinks = document.querySelectorAll(".sidebar-link");
-        const sections = ["dashboardSection", "complexesSection"];
+        const sections = [
+          "dashboardSection",
+          "complexesSection",
+          "passwordsSection",
+        ];
 
         sidebarLinks.forEach((link) => {
           link.addEventListener("click", (e) => {
@@ -409,6 +443,12 @@
 
             const target = document.getElementById(view + "Section");
             if (target) target.style.display = "block";
+
+            // Si es la vista de claves, cargar datos
+            if (view === "passwords") {
+              if (!window.passwordsLoaded) cargarClavesTecnicas();
+              else renderClavesTecnicas(window.allPasswords);
+            }
 
             const sidebar = document.getElementById("sidebar");
             if (window.innerWidth <= 991) sidebar.classList.remove("show");
@@ -1037,6 +1077,122 @@
             }
           });
         };
+
+        // --- GESTIÓN DE CLAVES (SÓLO LECTURA) ---
+        window.cargarClavesTecnicas = async () => {
+          const container = document.getElementById("passwordsContainer");
+          if (!container) return;
+          container.innerHTML = `<p class="text-center text-white w-100">Cargando claves...</p>`;
+
+          try {
+            const query = await db
+              .collection("device_passwords")
+              .orderBy("complexName", "asc")
+              .get();
+
+            window.allPasswords = [];
+            query.forEach((doc) => {
+              window.allPasswords.push({ id: doc.id, ...doc.data() });
+            });
+
+            window.passwordsLoaded = true;
+            renderClavesTecnicas(window.allPasswords);
+          } catch (error) {
+            console.error("Error al cargar claves:", error);
+            container.innerHTML = `<p class="text-center text-danger w-100">Error al cargar las claves.</p>`;
+          }
+        };
+
+        window.renderClavesTecnicas = (passwordsList) => {
+          const container = document.getElementById("passwordsContainer");
+          if (!container) return;
+          container.innerHTML = "";
+
+          if (passwordsList.length === 0) {
+            container.innerHTML = `<p class="text-center text-white-50 w-100 mt-4">No se encontraron registros.</p>`;
+            return;
+          }
+
+          passwordsList.forEach((pass) => {
+            container.innerHTML += `
+              <div class="col-md-6 col-lg-4">
+                <div class="stat-card d-block h-100" style="padding: 25px; transform: none !important;">
+                  <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                      <h5 class="text-gold mb-1" style="font-weight: 700;">${
+                        pass.complexName
+                      }</h5>
+                      <span class="badge bg-gold">Gestión Técnica</span>
+                    </div>
+                  </div>
+                  
+                  <div class="bg-dark p-3 rounded mb-0" style="background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(212,175,55,0.1);">
+                    <div class="row g-2">
+                      <div class="col-6">
+                        <span class="text-white-50 x-small d-block">Citófono:</span>
+                        <span class="text-white small font-monospace">${
+                          pass.citofono || "---"
+                        }</span>
+                      </div>
+                      <div class="col-6">
+                        <span class="text-white-50 x-small d-block">DVR:</span>
+                        <span class="text-white small font-monospace">${
+                          pass.dvr || "---"
+                        }</span>
+                      </div>
+                      
+                      <div class="col-12 border-top border-secondary my-2" style="opacity: 0.2;"></div>
+                      
+                      <div class="col-6 border-end border-secondary pe-2" style="border-right-color: rgba(255,255,255,0.1) !important;">
+                        <div class="mb-2">
+                          <span class="text-white-50 x-small d-block">Wifi: ${
+                            pass.wifiName || "N/A"
+                          }</span>
+                          <span class="text-gold small font-monospace">${
+                            pass.wifiPass || "---"
+                          }</span>
+                        </div>
+                        <div>
+                          <span class="text-white-50 x-small d-block">Cámaras (${
+                            pass.camBrand || "N/A"
+                          }):</span>
+                          <span class="text-white small font-monospace">${
+                            pass.camPass || "---"
+                          }</span>
+                        </div>
+                      </div>
+                      
+                      <div class="col-6 ps-2">
+                        <span class="text-white-50 x-small d-block">Observaciones:</span>
+                        <div class="text-white-50 x-small" style="line-height:1.2; font-style: italic;">
+                          ${
+                            pass.notes ||
+                            '<span class="text-muted">Sin notas</span>'
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+        };
+
+        const passwordSearchInput = document.getElementById(
+          "passwordSearchInput"
+        );
+        if (passwordSearchInput) {
+          passwordSearchInput.addEventListener("input", (e) => {
+            const val = e.target.value.toLowerCase();
+            const filtered = window.allPasswords.filter(
+              (p) =>
+                p.complexName.toLowerCase().includes(val) ||
+                (p.wifiName && p.wifiName.toLowerCase().includes(val))
+            );
+            renderClavesTecnicas(filtered);
+          });
+        }
 
         const handleLogout = () => {
           Swal.fire({

@@ -552,3 +552,21 @@ select {
 #registriesTableContainer .contact-icon:hover {
     transform: scale(1.2);
 }
+
+.x-small {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.font-monospace {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+#passwordsSection .badge.bg-gold {
+    background-color: #d4af37 !important;
+    color: #000;
+    font-weight: 700;
+    font-size: 0.7rem;
+}
+

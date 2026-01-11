@@ -289,14 +289,177 @@
 
           <!-- Gestión de Claves Section -->
           <div id="passwordsSection" style="display: none">
-            <h2 class="section-title mb-4">Gestión de Claves Técnicas</h2>
-            <div class="job-card p-5 text-center">
-              <i class="fa-solid fa-key fa-4x text-gold mb-4"></i>
-              <h3>Próximamente</h3>
-              <p class="text-muted">
-                Módulo de gestión centralizada de claves y accesos en
-                desarrollo.
-              </p>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2 class="section-title mb-0">Gestión de Claves Técnicas</h2>
+              <button
+                class="btn btn-gold"
+                id="addPasswordBtn"
+                data-bs-toggle="modal"
+                data-bs-target="#addPasswordModal"
+              >
+                <i class="fa-solid fa-plus me-2"></i> Agregar Nueva Clave
+              </button>
+            </div>
+
+            <div class="guides-search mb-4">
+              <input
+                type="text"
+                id="passwordSearchInput"
+                class="form-control modern-input"
+                placeholder="Buscar por conjunto o dispositivo..."
+              />
+            </div>
+            <div
+              id="passwordsContainer"
+              class="row g-4"
+              style="margin-top: 20px"
+            >
+              <p class="text-center text-muted">Cargando claves...</p>
+            </div>
+          </div>
+
+          <!-- Modal para Agregar/Editar Clave -->
+          <div
+            class="modal fade"
+            id="addPasswordModal"
+            tabindex="-1"
+            aria-labelledby="addPasswordModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="addPasswordModalLabel">
+                    Gestionar Clave de Dispositivo
+                  </h5>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
+                </div>
+                <div class="modal-body">
+                  <form id="passwordForm">
+                    <input type="hidden" id="passwordId" />
+                    <div class="mb-3">
+                      <label for="passComplexName" class="form-label"
+                        >Nombre del Conjunto</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="passComplexName"
+                        placeholder="Ej: Conjunto San Francisco"
+                        required
+                      />
+                    </div>
+
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label for="passCitofono" class="form-label"
+                          >Clave Citófono</label
+                        >
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="passCitofono"
+                          placeholder="Ej: 1234"
+                        />
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="passDVR" class="form-label"
+                          >Clave DVR</label
+                        >
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="passDVR"
+                          placeholder="Admin123"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label for="passWifiName" class="form-label"
+                          >Nombre Red Wifi</label
+                        >
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="passWifiName"
+                          placeholder="SSID Red"
+                        />
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="passWifiPass" class="form-label"
+                          >Clave Wifi</label
+                        >
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="passWifiPass"
+                          placeholder="WifiPass123"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label for="passCamBrand" class="form-label"
+                          >Marca Cámaras</label
+                        >
+                        <select class="form-select" id="passCamBrand">
+                          <option value="Hikvision">Hikvision</option>
+                          <option value="Dahua">Dahua</option>
+                          <option value="Ezviz">Ezviz</option>
+                          <option value="Otros">Otros</option>
+                        </select>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="passCamPass" class="form-label"
+                          >Clave Cámaras</label
+                        >
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="passCamPass"
+                          placeholder="CamPass123"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="mb-3">
+                      <label for="passNotes" class="form-label"
+                        >Observaciones Adicionales</label
+                      >
+                      <textarea
+                        class="form-control"
+                        id="passNotes"
+                        rows="2"
+                        placeholder="Ej: Ubicación del rack, detalles de configuración"
+                      ></textarea>
+                    </div>
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-gold"
+                    id="savePasswordBtn"
+                  >
+                    Guardar Clave
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
