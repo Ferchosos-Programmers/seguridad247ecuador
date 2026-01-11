@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Documentación Técnica y Funcional - Seguridad 24/7 Ecuador</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap");
+
+      body {
+        font-family: "Outfit", sans-serif;
+        line-height: 1.6;
+        color: #333;
+        margin: 0;
+        padding: 0;
+        background: #f4f4f4;
+      }
+
+      .page {
+        width: 21cm;
+        min-height: 29.7cm;
+        padding: 2cm;
+        margin: 1cm auto;
+        background: white;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        position: relative;
+        box-sizing: border-box;
+        page-break-after: always;
+      }
+
+      @media print {
+        body {
+          background: white;
+        }
+        .page {
+          margin: 0;
+          box-shadow: none;
+          border: none;
+        }
+        .no-print {
+          display: none;
+        }
+      }
+
+      .header {
+        text-align: center;
+        border-bottom: 2px solid #d4af37;
+        padding-bottom: 20px;
+        margin-bottom: 40px;
+      }
+
+      .logo {
+        width: 120px;
+        margin-bottom: 15px;
+      }
+
+      h1 {
+        color: #d4af37;
+        font-size: 28px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
+      h2 {
+        color: #1a1a1a;
+        border-left: 5px solid #d4af37;
+        padding-left: 15px;
+        margin-top: 40px;
+        text-transform: uppercase;
+        font-size: 22px;
+      }
+      h3 {
+        color: #d4af37;
+        margin-top: 25px;
+        font-size: 18px;
+      }
+
+      p {
+        margin-bottom: 15px;
+        text-align: justify;
+      }
+
+      .toc {
+        background: #f9f9f9;
+        padding: 25px;
+        border-radius: 8px;
+        margin-bottom: 40px;
+      }
+
+      .toc ul {
+        list-style: none;
+        padding: 0;
+      }
+      .toc li {
+        margin-bottom: 10px;
+        border-bottom: 1px dashed #ddd;
+      }
+      .toc a {
+        text-decoration: none;
+        color: #333;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .tech-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin: 20px 0;
+      }
+
+      .tech-card {
+        background: #f0f0f0;
+        padding: 15px;
+        border-radius: 8px;
+        border-top: 3px solid #d4af37;
+      }
+
+      .footer-page {
+        position: absolute;
+        bottom: 20px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 12px;
+        color: #888;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+      }
+
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+      }
+
+      th {
+        background-color: #d4af37;
+        color: white;
+      }
+
+      .highlight {
+        color: #d4af37;
+        font-weight: 600;
+      }
+
+      .code-block {
+        background: #1e1e1e;
+        color: #dcdcdc;
+        padding: 15px;
+        border-radius: 5px;
+        font-family: "Courier New", Courier, monospace;
+        font-size: 13px;
+        overflow-x: auto;
+        margin: 15px 0;
+      }
+
+      .page-title-center {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 80%;
+        text-align: center;
+      }
+
+      .btn-print {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #d4af37;
+        color: white;
+        border: none;
+        padding: 15px 25px;
+        border-radius: 50px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+      }
+    </style>
+  </head>
+  <body>
+    <button class="btn-print no-print" onclick="window.print()">
+      DESCARGAR PDF / IMPRIMIR
+    </button>
+
+    <!-- PORTADA -->
+    <div class="page">
+      <div class="page-title-center">
+        <img
+          src="assets/img/logo.png"
+          alt="Logo"
+          style="width: 180px; margin-bottom: 50px"
+        />
+        <h1 style="font-size: 40px; margin-bottom: 20px">
+          SEGURIDAD 24/7 ECUADOR
+        </h1>
+        <h2 style="border: none; font-size: 24px; color: #666">
+          Documentación Técnica y Operativa del Sistema
+        </h2>
+        <div style="margin-top: 100px; font-weight: 600">
+          <p>
+            Módulo: Gestión de Operaciones, Personal Técnico y Portal de
+            Clientes
+          </p>
+          <p>Versión: 1.2.0</p>
+          <p>Fecha: Enero 2026</p>
+        </div>
+        <div
+          style="
+            margin-top: 150px;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+            width: 300px;
+          "
+        >
+          <p>Desarrollado por: Antigravity AI Systems</p>
+        </div>
+      </div>
+      <div class="footer-page">Página 1 de 9</div>
+    </div>
+
+    <!-- TABLA DE CONTENIDOS -->
+    <div class="page">
+      <div class="header">
+        <h1>Tabla de Contenidos</h1>
+      </div>
+      <div class="toc">
+        <ul>
+          <li>
+            <a href="#intro"
+              ><span>1. Introducción y Propósito</span> <span>3</span></a
+            >
+          </li>
+          <li>
+            <a href="#arquitectura"
+              ><span>2. Arquitectura de Software</span> <span>4</span></a
+            >
+          </li>
+          <li>
+            <a href="#modulos"
+              ><span>3. Descripción de Módulos (Core)</span> <span>5</span></a
+            >
+          </li>
+          <li>
+            <a href="#gestion"
+              ><span>4. Gestión de Operaciones y Registros</span>
+              <span>6</span></a
+            >
+          </li>
+          <li>
+            <a href="#tecnico"
+              ><span>5. Gestión Técnica y Reportes</span> <span>7</span></a
+            >
+          </li>
+          <li>
+            <a href="#clientes"
+              ><span>6. Portal de Clientes e Historial</span> <span>8</span></a
+            >
+          </li>
+          <li>
+            <a href="#datos"
+              ><span>7. Estructura de Datos y Seguridad</span> <span>9</span></a
+            >
+          </li>
+          <li>
+            <a href="#concl"
+              ><span>8. Conclusión y Futuras Mejoras</span> <span>9</span></a
+            >
+          </li>
+        </ul>
+      </div>
+      <div class="footer-page">Página 2 de 9</div>
+    </div>
+
+    <!-- INTRODUCCION -->
+    <div class="page" id="intro">
+      <div class="header">
+        <h1>1. Introducción y Propósito</h1>
+      </div>
+      <h2>1.1 Resumen del Ejecutivo</h2>
+      <p>
+        El sistema integral de <strong>Seguridad 24/7 Ecuador</strong> ha sido
+        diseñado para centralizar todas las operaciones críticas de la empresa
+        en una plataforma unificada, rápida y segura. El objetivo principal es
+        digitalizar procesos que tradicionalmente consumían tiempo excesivo,
+        como el registro de residentes, la gestión de vehículos en conjuntos
+        habitacionales y la coordinación del equipo técnico de campo.
+      </p>
+
+      <h2>1.2 Alcance del Proyecto</h2>
+      <p>
+        Este sistema abarca desde la presentación corporativa de la empresa
+        hasta paneles administrativos de alto nivel que interactúan en tiempo
+        real con bases de datos en la nube. Permite un control exhaustivo sobre:
+      </p>
+      <ul>
+        <li>
+          Gestión de Conjuntos Residenciales (Activos, Direcciones,
+          Administradores).
+        </li>
+        <li>
+          Registros Detallados de Residentes y sus respectivos vehículos
+          asociados.
+        </li>
+        <li>Monitoreo de tareas técnicas y cumplimientos de contratos.</li>
+        <li>Portal de autoservicio para clientes finales.</li>
+      </ul>
+
+      <h2>1.3 Objetivos Estratégicos</h2>
+      <p>
+        1. <span class="highlight">Eficiencia Operativa:</span> Reducción del
+        tiempo de búsqueda de información en un 80% gracias a los filtros
+        dinámicos.
+      </p>
+      <p>
+        2. <span class="highlight">Transparencia:</span> Acceso inmediato de los
+        clientes a sus propios datos y servicios contratados.
+      </p>
+      <p>
+        3. <span class="highlight">Estandarización:</span> Implementación de
+        normativas de ingreso de datos (Mayúsculas forzadas) para reportes
+        impecables.
+      </p>
+      <div class="footer-page">Página 3 de 9</div>
+    </div>
+
+    <!-- ARQUITECTURA -->
+    <div class="page" id="arquitectura">
+      <div class="header">
+        <h1>2. Arquitectura de Software</h1>
+      </div>
+      <h2>2.1 Stack Tecnológico</h2>
+      <p>
+        La plataforma utiliza una arquitectura moderna basada en la nube,
+        garantizando una disponibilidad del 99.9% y alta velocidad de respuesta.
+      </p>
+      <div class="tech-grid">
+        <div class="tech-card">
+          <h3>Frontend (Interfaz)</h3>
+          <p>
+            HTML5, CSS3 Avanzado (Custom Properties, Flexbox, Grid) y JavaScript
+            Vanilla (ES6+). Diseño basado en la estética de Glassmorphism.
+          </p>
+        </div>
+        <div class="tech-card">
+          <h3>Backend (Lógica)</h3>
+          <p>
+            Modelo Serverless utilizando los servicios de Google Firebase, lo
+            que elimina la necesidad de mantenimiento de servidores físicos.
+          </p>
+        </div>
+        <div class="tech-card">
+          <h3>Base de Datos</h3>
+          <p>
+            <strong>Cloud Firestore:</strong> Base de datos NoSQL documental de
+            baja latencia para sincronización en tiempo real entre múltiples
+            usuarios.
+          </p>
+        </div>
+        <div class="tech-card">
+          <h3>Seguridad y Auth</h3>
+          <p>
+            <strong>Firebase Authentication:</strong> Gestión de identidades con
+            tokens de sesión encriptados y permisos basados en roles (RBAC).
+          </p>
+        </div>
+      </div>
+
+      <h2>2.2 Flujo de Datos</h2>
+      <div class="code-block">
+        [Usuario] <-> [Navegador/App] <-> [Token JWT] <-> [Firebase SDK] <->
+        [Firestore DB]
+      </div>
+      <p>
+        Cada interacción del usuario es validada por reglas de seguridad en el
+        servidor de Firebase antes de permitir cualquier operación de lectura o
+        escritura, asegurando la integridad de la información confidencial de
+        los clientes.
+      </p>
+      <div class="footer-page">Página 4 de 9</div>
+    </div>
+
+    <!-- MODULOS -->
+    <div class="page" id="modulos">
+      <div class="header">
+        <h1>3. Descripción de Módulos (Core)</h1>
+      </div>
+      <h2>3.1 Sitio Web Corporativo</h2>
+      <p>
+        El portal público tiene como objetivo la conversión de clientes y la
+        exposición de la marca. Incluye secciones de:
+      </p>
+      <ul>
+        <li><strong>Inicio:</strong> Presentación de impacto.</li>
+        <li>
+          <strong>Nosotros:</strong> Historia y visión renovada de la empresa.
+        </li>
+        <li>
+          <strong>Servicios:</strong> Detalle de soluciones híbridas y
+          virtuales.
+        </li>
+        <li>
+          <strong>Tutoriales:</strong> Material educativo descargable y visual.
+        </li>
+      </ul>
+
+      <h2>3.2 Control Center (Acceso Unificado)</h2>
+      <p>
+        Un único portal de entrada (`control_center.html`) que detecta
+        automáticamente el rol del usuario (Administrador, Técnico u Operador) y
+        lo redirige a su panel correspondiente, simplificando la curva de
+        aprendizaje para el personal.
+      </p>
+
+      <h2>3.3 Gestión Administrativa</h2>
+      <p>El módulo `gestion_admin.html` permite a la gerencia:</p>
+      <ul>
+        <li>Crear y editar planes de suscripción.</li>
+        <li>Gestionar el catálogo de clientes maestros.</li>
+        <li>Auditar las estadísticas generales de la empresa.</li>
+      </ul>
+      <div class="footer-page">Página 5 de 9</div>
+    </div>
+
+    <!-- GESTION OPERACIONES -->
+    <div class="page" id="gestion">
+      <div class="header">
+        <h1>4. Gestión de Operaciones y Registros</h1>
+      </div>
+      <p>
+        Este es el núcleo operativo de la empresa (`gestion_operaciones.html`).
+        Ha sido diseñado para un manejo masivo de datos con una estética premium
+        de alto contraste (Oro/Negro).
+      </p>
+
+      <h2>4.1 Registro de Conjuntos</h2>
+      <p>
+        Permite dar de alta unidades habitacionales asociándolas a un
+        administrador responsable. Cada conjunto actúa como un contenedor para
+        los residentes.
+      </p>
+
+      <h2>4.2 Registro de Residentes y Vehículos</h2>
+      <p>
+        Un sistema dinámico donde se pueden agregar múltiples residentes por
+        villa/casa y asociar uno o varios vehículos.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Campo</th>
+            <th>Validación / Regla</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>CASA / VILLA</td>
+            <td>Mayúsculas, requerido, único dentro del conjunto.</td>
+          </tr>
+          <tr>
+            <td>TIPO</td>
+            <td>Propietario o Arrendatario (Badges visuales).</td>
+          </tr>
+          <tr>
+            <td>NOMBRE/APELLIDO</td>
+            <td>Transformación automática a Mayúsculas.</td>
+          </tr>
+          <tr>
+            <td>PLACAS V.</td>
+            <td>Formato estandarizado en Mayúsculas.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>4.3 Funciones de Exportación</h2>
+      <p>
+        Implementación de <strong>ExcelJS</strong> para descargar en un solo
+        clic toda la base de datos de un conjunto residencial para reportes
+        externos o impresión física.
+      </p>
+      <div class="footer-page">Página 6 de 9</div>
+    </div>
+
+    <!-- GESTION TECNICA -->
+    <div class="page" id="tecnico">
+      <div class="header">
+        <h1>5. Gestión Técnica y Reportes</h1>
+      </div>
+      <h2>5.1 Control de Personal de Campo</h2>
+      <p>
+        El panel `gestion_tecnica.html` enfoca sus funcionalidades en el equipo
+        que realiza instalaciones y mantenimientos.
+      </p>
+
+      <h3>Funcionalidades Clave:</h3>
+      <ul>
+        <li>
+          <strong>Iniciación de Labores:</strong> Marcado de tiempo real al
+          inicio de una jornada o trabajo.
+        </li>
+        <li>
+          <strong>Reporte de Novedades:</strong> Formulario para describir
+          incidentes técnicos.
+        </li>
+        <li>
+          <strong>Gestión de Fotos:</strong> Subida de evidencias visuales del
+          trabajo realizado.
+        </li>
+      </ul>
+
+      <h2>5.2 Estandarización de Reportes Técnicos</h2>
+      <p>
+        Al igual que en operaciones, toda la información técnica se guarda de
+        manera normalizada. Esto permite generar estadísticas precisas sobre qué
+        equipos fallan con mayor frecuencia o qué conjuntos requieren más
+        mantenimiento preventivo.
+      </p>
+
+      <p>
+        <i>Nota Informativa:</i> El sistema detecta automáticamente la ubicación
+        del técnico al momento de enviar reportes para mayor transparencia
+        operativa.
+      </p>
+      <div class="footer-page">Página 7 de 9</div>
+    </div>
+
+    <!-- PORTAL CLIENTES -->
+    <div class="page" id="clientes">
+      <div class="header">
+        <h1>6. Portal de Clientes e Historial</h1>
+      </div>
+      <p>
+        La transparencia es un pilar en <strong>Seguridad 24/7 Ecuador</strong>.
+        El `portal_clientes.html` es el espacio donde el usuario final
+        (Administradores de conjuntos o clientes directos) puede interactuar con
+        la empresa.
+      </p>
+
+      <h2>6.1 Visualización de Servicios</h2>
+      <p>
+        El cliente puede ver el estado actual de sus contratos, verificar qué
+        técnicos han visitado sus instalaciones recientemente y descargar
+        facturas o reportes de monitoreo.
+      </p>
+
+      <h2>6.2 Canales de Comunicación</h2>
+      <p>
+        Integración directa con WhatsApp y Telefonía IP para reportar
+        emergencias en un clic. El sistema precarga la información del cliente
+        para que la central de monitoreo sepa exactamente quién está llamando.
+      </p>
+
+      <h2>6.3 Seguridad del Portal</h2>
+      <p>
+        El acceso está restringido por correos electrónicos verificados,
+        evitando que personal ajeno al conjunto residencial pueda filtrar
+        información de los residentes.
+      </p>
+      <div class="footer-page">Página 8 de 9</div>
+    </div>
+
+    <!-- ESTRUCTURA DATOS Y CONCLUSIÓN -->
+    <div class="page" id="datos">
+      <div class="header">
+        <h1>7. Estructura de Datos y Seguridad</h1>
+      </div>
+      <h2>7.1 Modelo NoSQL Firestore</h2>
+      <p>Estructura de las colecciones principales:</p>
+      <ul>
+        <li>`complexes`: Almacena info de conjuntos.</li>
+        <li>
+          `residents_registry`: Documentos con arrays anidados de residentes y
+          vehículos.
+        </li>
+        <li>`jobs`: Seguimiento de la actividad técnica.</li>
+        <li>`users`: Perfiles y niveles de permiso.</li>
+      </ul>
+
+      <h2>7.2 Normativa de Datos (Mayúsculas)</h2>
+      <p>
+        Para garantizar una base de datos limpia, se ha implementado un
+        "middleware" a nivel de frontend que intercepta los datos de los
+        formularios y ejecuta el método `.toUpperCase()` antes de enviarlos a la
+        base de datos.
+      </p>
+
+      <div id="concl" style="margin-top: 50px">
+        <h1>8. Conclusión y Futuras Mejoras</h1>
+        <p>
+          El presente sistema posiciona a
+          <strong>Seguridad 24/7 Ecuador</strong> como un líder tecnológico en
+          el mercado. La robustez de la arquitectura serverless garantiza que el
+          sistema pueda crecer sin límites.
+        </p>
+        <h3>Próximos Pasos Sugeridos:</h3>
+        <ul>
+          <li>Integración de Pagos en Línea mediante pasarelas locales.</li>
+          <li>
+            Monitoreo de cámaras CCTV en tiempo real desde el portal de
+            clientes.
+          </li>
+          <li>Mapeo GPS en tiempo real del personal técnico.</li>
+        </ul>
+      </div>
+
+      <div
+        style="
+          text-align: center;
+          margin-top: 100px;
+          padding: 20px;
+          border: 2px solid #d4af37;
+        "
+      >
+        <p style="margin: 0; font-weight: bold">DOCUMENTACIÓN FINALIZADA</p>
+        <p style="margin: 0; color: #d4af37">
+          PROPIEDAD DE SEGURIDAD 24/7 ECUADOR
+        </p>
+      </div>
+      <div class="footer-page">Página 9 de 9</div>
+    </div>
+  </body>
+</html>
