@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nuestros Conjuntos - Seguridad 24/7</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/index.css" />
+    <link rel="stylesheet" href="css/control_center.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+    />
+    <link rel="icon" href="assets/img/logo.ico" type="image/x-icon" />
+    <script src="js/bootstrap.min.js"></script>
+    <style>
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(15px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .resident-entry label,
+      .vehicle-entry label {
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+      }
+      .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.3);
+      }
+
+      .main-content {
+        padding-top: 120px;
+        min-height: 80vh;
+      }
+
+      .page-header {
+        margin-bottom: 50px;
+      }
+
+      .title-premium {
+        font-size: 2.8rem;
+        background: linear-gradient(135deg, #fff 0%, #d4af37 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-weight: 800;
+        margin-bottom: 10px;
+      }
+
+      .subtitle-modern {
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 1rem;
+        letter-spacing: 1px;
+      }
+
+      /* Compact Cards */
+      .complex-card {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(212, 175, 55, 0.15);
+        border-radius: 20px;
+        padding: 30px 20px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        text-align: center;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .complex-card:hover {
+        transform: translateY(-8px);
+        border-color: #d4af37;
+        background: rgba(255, 255, 255, 0.05);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+      }
+
+      .icon-circle-premium {
+        width: 65px;
+        height: 65px;
+        background: rgba(212, 175, 55, 0.08);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(212, 175, 55, 0.2);
+        margin: 0 auto 20px;
+        transition: all 0.3s ease;
+      }
+
+      .complex-card:hover .icon-circle-premium {
+        background: #d4af37;
+        transform: scale(1.05);
+      }
+
+      .btn-premium {
+        background: linear-gradient(135deg, #d4af37 0%, #b8962e 100%);
+        color: #000;
+        border-radius: 8px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        border: none;
+        padding: 8px 20px;
+        font-size: 0.8rem;
+        transition: all 0.3s ease;
+      }
+
+      /* Modal Refinement */
+      .modal-backdrop.show {
+        backdrop-filter: blur(8px);
+        background-color: rgba(0, 0, 0, 0.7);
+      }
+
+      /* Compact & Elegant Modal */
+      .modal-dialog {
+        max-width: 580px;
+      }
+
+      .modal-content {
+        background: rgba(10, 10, 10, 0.98) !important;
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(212, 175, 55, 0.3) !important;
+        border-radius: 18px !important;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+      }
+
+      .modal-header {
+        border-bottom: 1px solid rgba(212, 175, 55, 0.08) !important;
+        padding: 25px 30px 15px !important;
+      }
+
+      .modal-body {
+        padding: 20px 30px 30px !important;
+      }
+
+      .section-divider {
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(212, 175, 55, 0.3),
+          transparent
+        );
+        margin: 15px 0;
+        opacity: 0.5;
+      }
+
+      .entry-card {
+        background: rgba(255, 255, 255, 0.02) !important;
+        border: 1px solid rgba(212, 175, 55, 0.15) !important;
+        border-radius: 15px !important;
+        padding: 20px !important;
+        position: relative;
+        transition: all 0.3s ease;
+        animation: fadeIn 0.4s ease;
+      }
+
+      .entry-card:hover {
+        border-color: rgba(212, 175, 55, 0.4) !important;
+        background: rgba(255, 255, 255, 0.04) !important;
+      }
+
+      .btn-add-section {
+        background: rgba(212, 175, 55, 0.1);
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        color: #d4af37;
+        font-size: 0.65rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        padding: 6px 15px;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+      }
+
+      .btn-add-section:hover {
+        background: #d4af37;
+        color: #000;
+        transform: translateY(-2px);
+      }
+
+      .form-label-gold {
+        color: #d4af37;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+        display: block;
+      }
+
+      .form-control,
+      .form-select {
+        background: rgba(255, 255, 255, 0.02) !important;
+        border: 1px solid rgba(255, 255, 255, 0.06) !important;
+        border-radius: 8px !important;
+        color: white !important;
+        padding: 10px 15px !important;
+        font-size: 0.9rem !important;
+        transition: all 0.3s ease !important;
+      }
+
+      .form-control:focus,
+      .form-select:focus {
+        border-color: #d4af37 !important;
+        box-shadow: 0 0 8px rgba(212, 175, 55, 0.3) !important;
+        background: rgba(255, 255, 255, 0.04) !important;
+      }
+
+      .form-select option {
+        background-color: #1a1a1a !important;
+        color: white !important;
+        padding: 10px !important;
+      }
+
+      .form-select option:hover {
+        background-color: #2a2a2a !important;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+      <div class="container">
+        <a class="navbar-brand" href="index.html">SEGURIDAD 24/7 ECUADOR</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Inicio</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="servicios.html">Servicios</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="nosotros.html">Nosotros</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="contactos.html">Contacto</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link control-center-box" href="control_center.html">
+                <i class="fa-solid fa-users"></i> 24/7 Control Center
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- CONTENT -->
+    <main class="container main-content">
+      <div class="page-header text-center" style="margin-top: -400px">
+        <h1 class="title-premium">CONJUNTOS RESIDENCIALES</h1>
+        <p class="subtitle-modern">
+          Seleccione su conjunto para iniciar el registro de seguridad
+        </p>
+      </div>
+
+      <div class="row g-5 justify-content-start" id="publicComplexesGrid">
+        <!-- Cargando... -->
+        <div class="col-12 text-center py-5">
+          <i class="fa-solid fa-spinner fa-spin fa-3x text-gold mb-3"></i>
+          <p class="text-muted">Cargando la red de conjuntos...</p>
+        </div>
+      </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer mt-auto">
+      © 2025 Seguridad 24/7 Ecuador & MCV — Todos los derechos reservados
+    </footer>
+
+    <!-- MODAL REGISTRO RESIDENTES -->
+    <div
+      class="modal fade"
+      id="residentRegistrationModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div>
+              <h3
+                class="modal-title text-white fw-800"
+                id="residentModalTitle"
+                style="letter-spacing: 1px"
+              >
+                <i class="fa-solid fa-file-signature text-gold me-3"></i>
+                Registro de Residente
+              </h3>
+              <p class="text-white-50 mb-0 small mt-1">
+                Complete la información requerida para el acceso autorizado.
+              </p>
+            </div>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="residentRegForm">
+              <input type="hidden" id="regComplexName" />
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-7">
+                  <label class="form-label-gold">CASA / DEPARTAMENTO #</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="regHouseNum"
+                    placeholder="Ej: Villa 05"
+                    required
+                  />
+                </div>
+                <div class="col-md-5">
+                  <label class="form-label-gold">TIPO</label>
+                  <select class="form-select" id="regResType" required>
+                    <option value="" disabled selected>Elegir...</option>
+                    <option value="propietario">Propietario</option>
+                    <option value="arrendatario">Arrendatario</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <div
+                  <div
+                  class="d-flex justify-content-between align-items-center mb-1"
+                >
+                  <h6
+                    class="text-white fw-bold mb-0 small"
+                    style="letter-spacing: 1px"
+                  >
+                    <i class="fa-solid fa-users-gear text-gold me-2"></i>DATOS
+                    DEL RESIDENTE
+                  </h6>
+                  <button
+                    type="button"
+                    class="btn btn-add-section"
+                    onclick="addResidentEntry()"
+                  >
+                    <i class="fa-solid fa-plus me-1"></i> AÑADIR RESIDENTE
+                  </button>
+                </div>
+                <div class="section-divider"></div>
+                <div id="residentsListContainer" class="mt-2"></div>
+              </div>
+
+              <div class="mb-4">
+                <div
+                  class="form-check form-switch mb-3 p-0 d-flex align-items-center"
+                >
+                  <div class="ms-0 me-2">
+                    <input
+                      class="form-check-input ms-0"
+                      type="checkbox"
+                      id="hasVehicleToggle"
+                      style="width: 2.5em; height: 1.2em; cursor: pointer"
+                    />
+                  </div>
+                  <label
+                    class="form-check-label text-gold small fw-bold"
+                    for="hasVehicleToggle"
+                    style="cursor: pointer"
+                    >¿POSEE VEHÍCULO PROPIO?</label
+                  >
+                </div>
+
+                <div id="vehiclesSection" style="display: none">
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-1"
+                  >
+                    <h6
+                      class="text-white fw-bold mb-0 small"
+                      style="letter-spacing: 1px"
+                    >
+                      <i class="fa-solid fa-car-rear text-gold me-2"></i>DATOS
+                      VEHICULARES
+                    </h6>
+                    <button
+                      type="button"
+                      class="btn btn-add-section"
+                      onclick="addVehicleEntry()"
+                    >
+                      <i class="fa-solid fa-plus me-1"></i> AÑADIR VEHÍCULO
+                    </button>
+                  </div>
+                  <div class="section-divider"></div>
+                  <div id="vehiclesListContainer"></div>
+                </div>
+              </div>
+
+              <div
+                class="text-center mt-5 pt-4 border-top border-secondary border-opacity-10"
+              >
+                <button type="submit" class="btn btn-premium px-5 py-2 fw-bold">
+                  <i class="fa-solid fa-cloud-upload me-2"></i> CONFIRMAR
+                  REGISTRO
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="js/firebase.js"></script>
+    <script src="js/sweetalert2.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        async function cargarConjuntos() {
+          const container = document.getElementById("publicComplexesGrid");
+          try {
+            const snapshot = await db
+              .collection("complexes")
+              .orderBy("createdAt", "desc")
+              .get();
+            container.innerHTML = "";
+            if (snapshot.empty) {
+              container.innerHTML =
+                '<div class="col-12 text-center py-5 text-white-50">No hay conjuntos registrados aún.</div>';
+              return;
+            }
+
+            snapshot.forEach((doc) => {
+              const data = doc.data();
+              const card = `
+                <div class="col-xl-3 col-lg-4 col-md-6" style="animation: fadeIn 0.6s ease forwards;">
+                  <div class="complex-card">
+                    <div class="icon-circle-premium">
+                        <i class="fa-solid fa-building-circle-check" style="font-size: 1.8rem; color: #d4af37;"></i>
+                    </div>
+                    <h6 class="text-white fw-bold mb-3 text-uppercase" style="letter-spacing: 1px; font-size: 0.95rem;">${data.name}</h6>
+                    <div class="d-flex align-items-center justify-content-center mb-4" style="background: rgba(255,255,255,0.02); padding: 8px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                        <i class="fa-solid fa-user-shield text-gold me-2" style="font-size: 0.8rem;"></i>
+                        <span class="text-white-50 x-small fw-bold text-uppercase" style="font-size: 0.7rem;">${data.admin}</span>
+                    </div>
+                    <button class="btn btn-premium w-100" onclick="abrirRegistro('${data.name}')">
+                      INGRESAR
+                    </button>
+                  </div>
+                </div>
+              `;
+              container.innerHTML += card;
+            });
+          } catch (error) {
+            console.error(error);
+            container.innerHTML =
+              '<div class="col-12 text-center py-5 text-danger">Error al cargar datos.</div>';
+          }
+        }
+
+        window.abrirRegistro = (name) => {
+          document.getElementById(
+            "residentModalTitle"
+          ).innerHTML = `<i class="fa-solid fa-city text-gold me-2"></i> Registro: <span class="text-white">${name}</span>`;
+          document.getElementById("regComplexName").value = name;
+          document.getElementById("residentRegForm").reset();
+          document.getElementById("residentsListContainer").innerHTML = "";
+          document.getElementById("vehiclesSection").style.display = "none";
+          document.getElementById("vehiclesListContainer").innerHTML = "";
+          addResidentEntry();
+          new bootstrap.Modal(
+            document.getElementById("residentRegistrationModal")
+          ).show();
+        };
+
+        window.addResidentEntry = () => {
+          const container = document.getElementById("residentsListContainer");
+          const entry = document.createElement("div");
+          entry.className = "mb-3 entry-card";
+          entry.innerHTML = `
+            <button type="button" class="btn-close btn-close-white position-absolute end-0 top-0 m-3" onclick="this.parentElement.remove()" style="font-size: 0.5rem; opacity: 0.4;"></button>
+            <div class="row g-2">
+                <div class="col-md-6 text-start">
+                    <label class="form-label-gold">NOMBRE</label>
+                    <input type="text" class="form-control resident-name" placeholder="Nombres" required>
+                </div>
+                <div class="col-md-6 text-start">
+                    <label class="form-label-gold">APELLIDO</label>
+                    <input type="text" class="form-control resident-lastname" placeholder="Apellidos" required>
+                </div>
+                <div class="col-12 text-start mt-2">
+                    <label class="form-label-gold">CONTACTO / IDENTIFICACIÓN</label>
+                    <input type="tel" class="form-control resident-phone" placeholder="Ej: 09XXXXXXXX" required>
+                </div>
+            </div>
+          `;
+          container.appendChild(entry);
+        };
+
+        window.addVehicleEntry = () => {
+          const container = document.getElementById("vehiclesListContainer");
+          const entry = document.createElement("div");
+          entry.className = "mb-3 entry-card";
+          entry.innerHTML = `
+            <button type="button" class="btn-close btn-close-white position-absolute end-0 top-0 m-3" onclick="this.parentElement.remove()" style="font-size: 0.5rem; opacity: 0.4;"></button>
+            <div class="row g-2">
+                <div class="col-6 text-start">
+                    <label class="form-label-gold">MARCA</label>
+                    <input type="text" class="form-control v-brand" placeholder="Marca" required>
+                </div>
+                <div class="col-6 text-start">
+                    <label class="form-label-gold">MODELO</label>
+                    <input type="text" class="form-control v-model" placeholder="Modelo" required>
+                </div>
+                <div class="col-6 text-start mt-2">
+                    <label class="form-label-gold">COLOR</label>
+                    <input type="text" class="form-control v-color" placeholder="Color" required>
+                </div>
+                <div class="col-6 text-start mt-2">
+                    <label class="form-label-gold">PLACA</label>
+                    <input type="text" class="form-control v-plate" placeholder="Placa" required>
+                </div>
+            </div>
+          `;
+          container.appendChild(entry);
+        };
+
+        document
+          .getElementById("hasVehicleToggle")
+          .addEventListener("change", function (e) {
+            document.getElementById("vehiclesSection").style.display = e.target
+              .checked
+              ? "block"
+              : "none";
+            if (
+              e.target.checked &&
+              document.getElementById("vehiclesListContainer").children
+                .length === 0
+            )
+              addVehicleEntry();
+          });
+
+        document
+          .getElementById("residentRegForm")
+          .addEventListener("submit", async (e) => {
+            e.preventDefault();
+            Swal.fire({
+              title: "Procesando...",
+              allowOutsideClick: false,
+              didOpen: () => Swal.showLoading(),
+            });
+
+            const residents = [];
+            const residentCards = document.querySelectorAll(
+              "#residentsListContainer .entry-card"
+            );
+            console.log("Residentes encontrados:", residentCards.length);
+
+            residentCards.forEach((el) => {
+              const nameInput = el.querySelector(".resident-name");
+              const lastnameInput = el.querySelector(".resident-lastname");
+              const phoneInput = el.querySelector(".resident-phone");
+
+              if (nameInput && lastnameInput && phoneInput) {
+                const residentData = {
+                  name: nameInput.value.trim(),
+                  lastname: lastnameInput.value.trim(),
+                  phone: phoneInput.value.trim(),
+                };
+                console.log("Residente capturado:", residentData);
+                residents.push(residentData);
+              }
+            });
+
+            const vehicles = [];
+            if (document.getElementById("hasVehicleToggle").checked) {
+              const vehicleCards = document.querySelectorAll(
+                "#vehiclesListContainer .entry-card"
+              );
+              console.log("Vehículos encontrados:", vehicleCards.length);
+
+              vehicleCards.forEach((el) => {
+                const brandInput = el.querySelector(".v-brand");
+                const modelInput = el.querySelector(".v-model");
+                const colorInput = el.querySelector(".v-color");
+                const plateInput = el.querySelector(".v-plate");
+
+                if (brandInput && modelInput && colorInput && plateInput) {
+                  const vehicleData = {
+                    brand: brandInput.value.trim(),
+                    model: modelInput.value.trim(),
+                    color: colorInput.value.trim(),
+                    plate: plateInput.value.trim(),
+                  };
+                  console.log("Vehículo capturado:", vehicleData);
+                  vehicles.push(vehicleData);
+                }
+              });
+            }
+
+            try {
+              await db.collection("residents_registry").add({
+                complexName: document.getElementById("regComplexName").value,
+                houseNum: document.getElementById("regHouseNum").value,
+                resType: document.getElementById("regResType").value,
+                residents,
+                vehicles,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                status: "pending_approval",
+              });
+              Swal.fire(
+                "¡Éxito!",
+                "Registro enviado correctamente.",
+                "success"
+              );
+              bootstrap.Modal.getInstance(
+                document.getElementById("residentRegistrationModal")
+              ).hide();
+            } catch (error) {
+              console.error(error);
+              Swal.fire("Error", "No se pudo completar el registro.", "error");
+            }
+          });
+
+        cargarConjuntos();
+      });
+    </script>
+  </body>
+</html>

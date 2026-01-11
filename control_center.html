@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>247 Control Center - Seguridad 247 Ecuador</title>
+    <title>24/7 Control Center</title>
     <link rel="stylesheet" href="css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/index.css" />
     <link rel="stylesheet" href="css/control_center.css" />
@@ -11,15 +11,35 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
     />
-    <link rel="icon" href="assets/img/logo.png" type="image/png" />
+    <link rel="icon" href="assets/img/logo.ico" type="image/x-icon" />
     <script src="js/bootstrap.min.js"></script>
+    <style>
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .resident-entry label,
+      .vehicle-entry label {
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+      }
+      .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.3);
+      }
+    </style>
   </head>
 
   <body>
     <!-- NAVBAR -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
       <div class="container">
-        <a class="navbar-brand" href="#">SEGURIDAD 247 ECUADOR</a>
+        <a class="navbar-brand" href="index.html">SEGURIDAD 24/7 ECUADOR</a>
         <button
           class="navbar-toggler"
           type="button"
@@ -45,7 +65,7 @@
             </li>
             <li class="nav-item">
               <a class="nav-link control-center-box" href="control_center.html">
-                <i class="fa-solid fa-users"></i> 247 Control Center
+                <i class="fa-solid fa-users"></i> 24/7 Control Center
               </a>
             </li>
           </ul>
@@ -54,11 +74,11 @@
     </nav>
 
     <!-- DASHBOARD -->
-    <main class="container">
-      <h1>247 Control Center</h1>
-      <div class="row dashboard-row g-4">
+    <main class="container py-5">
+      <h1 class="text-center mb-5">24/7 Control Center</h1>
+      <div class="row dashboard-row g-4 justify-content-center mb-5">
         <!-- Tutoriales -->
-        <div class="col-lg-6 col-md-6 col-sm-12">
+        <div class="col-lg-4 col-md-6 col-sm-12">
           <div class="card-dashboard" onclick="location.href='tutoriales.html'">
             <i class="fa-solid fa-video"></i>
             <h5>Tutoriales</h5>
@@ -66,7 +86,7 @@
         </div>
 
         <!-- Gestión Técnica with modal -->
-        <div class="col-lg-6 col-md-6 col-sm-12">
+        <div class="col-lg-4 col-md-6 col-sm-12">
           <div
             class="card-dashboard"
             data-bs-toggle="modal"
@@ -78,7 +98,7 @@
         </div>
 
         <!-- Gestión Admin with modal -->
-        <div class="col-lg-6 col-md-6 col-sm-12">
+        <div class="col-lg-4 col-md-6 col-sm-12">
           <div
             class="card-dashboard"
             data-bs-toggle="modal"
@@ -90,14 +110,34 @@
         </div>
 
         <!-- Portal Clientes with modal -->
-        <div class="col-lg-6 col-md-6 col-sm-12">
+        <div class="col-lg-4 col-md-6 col-sm-12">
           <div
             class="card-dashboard"
             data-bs-toggle="modal"
             data-bs-target="#loginModalCliente"
           >
             <i class="fa-solid fa-building-user"></i>
-            <h5>Portal Residentes / Conjuntos</h5>
+            <h5>Portal Conjuntos</h5>
+          </div>
+        </div>
+
+        <!-- Departamento de Operaciones with modal -->
+        <div class="col-lg-4 col-md-6 col-sm-12">
+          <div
+            class="card-dashboard"
+            data-bs-toggle="modal"
+            data-bs-target="#loginModalOps"
+          >
+            <i class="fa-solid fa-desktop"></i>
+            <h5>Operaciones / Monitoreo</h5>
+          </div>
+        </div>
+
+        <!-- Conjuntos Card (Public) -->
+        <div class="col-lg-4 col-md-6 col-sm-12">
+          <div class="card-dashboard" onclick="location.href='conjuntos.html'">
+            <i class="fa-solid fa-building-shield"></i>
+            <h5>Conjuntos</h5>
           </div>
         </div>
       </div>
@@ -105,9 +145,19 @@
 
     <!-- FOOTER -->
     <footer class="footer">
-      © 2025 Seguridad 247 Ecuador & MCV (Mallitaxi Code Vision) — Todos los
-      derechos reservados
+      © 2025 Seguridad 24/7 Ecuador &
+      <a
+        href="https://mallitaxicodevision.netlify.app/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="footer-link"
+      >
+        MCV (Mallitaxi Code Vision)
+      </a>
+      — Todos los derechos reservados
     </footer>
+
+    </div>
 
     <!-- SCRIPTS -->
 
@@ -121,6 +171,7 @@
     <script src="js/login_tecnico.js"></script>
     <script src="js/login_admin.js"></script>
     <script src="js/login_clientes.js"></script>
+    <script src="js/login_operaciones.js"></script>
     <script src="js/sweetalert2.js"></script>
 
     <!-- MODAL LOGIN TECNICO -->
@@ -303,6 +354,64 @@
         </div>
       </div>
     </div>
+    <!-- MODAL LOGIN OPERACIONES -->
+    <div
+      class="modal fade"
+      id="loginModalOps"
+      tabindex="-1"
+      aria-labelledby="loginModalOpsLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="loginModalOpsLabel">
+              <i class="fa-solid fa-desktop"></i> Login Operaciones / Monitoreo
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Cerrar"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="opsLoginForm">
+              <div class="mb-3">
+                <label for="opsUser" class="form-label">Email / Usuario</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="opsUser"
+                  placeholder="operador@seguridad247.com"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="opsPassword" class="form-label">Contraseña</label>
+                <div class="input-group">
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="opsPassword"
+                    placeholder="Ingresa tu contraseña"
+                  />
+                  <button
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    id="toggleOpsPassword"
+                  >
+                    <i class="fa-solid fa-eye" id="opsPasswordIcon"></i>
+                  </button>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-login w-100">
+                Ingresar
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <script>
       // Password visibility toggle functionality
@@ -363,6 +472,24 @@
             clientPasswordIcon.classList.toggle("fa-eye-slash");
           });
         }
+
+        // Ops Login Password Toggle
+        const toggleOpsPassword = document.getElementById("toggleOpsPassword");
+        const opsPassword = document.getElementById("opsPassword");
+        const opsPasswordIcon = document.getElementById("opsPasswordIcon");
+
+        if (toggleOpsPassword) {
+          toggleOpsPassword.addEventListener("click", function () {
+            const type =
+              opsPassword.getAttribute("type") === "password"
+                ? "text"
+                : "password";
+            opsPassword.setAttribute("type", type);
+            opsPasswordIcon.classList.toggle("fa-eye");
+            opsPasswordIcon.classList.toggle("fa-eye-slash");
+          });
+        }
+
       });
     </script>
   </body>

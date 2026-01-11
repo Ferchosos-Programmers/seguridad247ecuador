@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Departamento de Operaciones - Seguridad 24/7</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/gestion_operaciones.css" />
+    <link rel="stylesheet" href="css/index.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+    />
+    <!-- Select2 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="assets/img/logo.ico" type="image/x-icon" />
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  </head>
+
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+      <div class="container">
+        <a class="navbar-brand" href="#">SEGURIDAD 24/7 ECUADOR</a>
+
+        <button class="navbar-toggler" type="button" id="sidebarToggle">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div
+          class="collapse navbar-collapse d-none d-lg-flex justify-content-end"
+          id="navbarNav"
+        >
+          <button class="btn-logout-nav" id="logoutBtn">
+            <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <div class="admin-wrapper">
+      <!-- SIDEBAR -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+          <img src="assets/img/logo.png" alt="Logo" />
+          <span class="admin-label">OPERACIONES</span>
+        </div>
+
+        <ul class="sidebar-menu">
+          <li class="sidebar-item">
+            <a class="sidebar-link active" data-view="dashboard">
+              <i class="fa-solid fa-gauge-high"></i> Dashboard
+            </a>
+          </li>
+          <li class="sidebar-item">
+            <a class="sidebar-link" data-view="complexes">
+              <i class="fa-solid fa-building-shield"></i> Conjuntos
+            </a>
+          </li>
+          <!-- Logout for mobile -->
+          <li class="sidebar-item d-lg-none mt-4">
+            <button class="btn-logout-nav w-100" id="logoutBtnMobile">
+              <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+            </button>
+          </li>
+        </ul>
+      </aside>
+
+      <!-- CONTENT -->
+      <main class="main-content">
+        <div class="container-fluid">
+          <!-- Dashboard Section -->
+          <div id="dashboardSection">
+            <h1 class="mb-5">Panel de Control de Operaciones</h1>
+
+            <!-- Welcome Profile Card -->
+            <div class="row mb-5">
+              <div class="col-12">
+                <div class="stat-card" id="userProfileCard">
+                  <div class="d-flex align-items-center gap-4">
+                    <div
+                      class="stat-card-icon"
+                      style="
+                        background: rgba(212, 175, 55, 0.1);
+                        color: #d4af37;
+                      "
+                    >
+                      <i class="fa-solid fa-user-gear fa-lg"></i>
+                    </div>
+                    <div>
+                      <h4 id="userName" class="text-gold mb-0">Cargando...</h4>
+                      <p id="userEmail" class="text-white-50 mb-0"></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-4 mb-5">
+              <div class="col-xl-6 col-md-6">
+                <div class="stat-card">
+                  <div
+                    class="stat-card-icon"
+                    style="background: rgba(212, 175, 55, 0.1); color: #d4af37"
+                  >
+                    <i class="fa-solid fa-building"></i>
+                  </div>
+                  <div class="stat-card-info">
+                    <h3 id="statTotalComplexes">0</h3>
+                    <p>Conjuntos Registrados</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-6 col-md-6">
+                <div class="stat-card">
+                  <div
+                    class="stat-card-icon"
+                    style="background: rgba(40, 167, 69, 0.1); color: #28a745"
+                  >
+                    <i class="fa-solid fa-user-check"></i>
+                  </div>
+                  <div class="stat-card-info">
+                    <h3 id="statTotalAdmins">0</h3>
+                    <p>Administradores de Conjunto</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Complexes Section -->
+          <div id="complexesSection" style="display: none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2 class="text-gold">Listado de Conjuntos</h2>
+              <button
+                class="btn btn-gold"
+                data-bs-toggle="modal"
+                data-bs-target="#addComplexModal"
+              >
+                <i class="fa-solid fa-plus me-2"></i> Nuevo Conjunto
+              </button>
+            </div>
+
+            <div class="row g-4" id="complexesGrid">
+              <!-- Se cargará dinámicamente -->
+              <div class="col-12 text-center py-5 text-muted">
+                <i class="fa-solid fa-spinner fa-spin fa-2x mb-2"></i
+                ><br />Cargando conjuntos...
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- MODAL AGREGAR CONJUNTO -->
+    <div
+      class="modal fade"
+      id="addComplexModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Registrar Conjunto</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body p-4">
+            <form id="addComplexForm">
+              <div class="mb-3">
+                <label class="form-label">REPRESENTANTE / ADMINISTRADOR</label>
+                <select
+                  id="complexAdmin"
+                  class="form-select select2-admin"
+                  required
+                >
+                  <option value="" disabled selected>
+                    Seleccione un administrador...
+                  </option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">NOMBRE DEL CONJUNTO</label>
+                <input
+                  type="text"
+                  id="complexName"
+                  class="form-control"
+                  placeholder="Ej: Urbanización Los Pinos"
+                  required
+                />
+              </div>
+              <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-gold">
+                  <i class="fa-solid fa-save me-2"></i> GUARDAR CONJUNTO
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL VER REGISTROS -->
+    <div
+      class="modal fade"
+      id="viewRegistriesModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div
+        class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"
+      >
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title d-flex align-items-center flex-wrap">
+              <i class="fa-solid fa-clipboard-list me-2"></i>
+              <span>Registros de&nbsp;</span>
+              <span id="registriesComplexName" class="fw-bold"></span>
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body p-4">
+            <div id="registriesTableContainer">
+              <div class="text-center py-5">
+                <i class="fa-solid fa-spinner fa-spin fa-2x text-gold mb-3"></i>
+                <p class="text-muted">Cargando registros...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL EDITAR REGISTRO -->
+    <div
+      class="modal fade"
+      id="editRegistryModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fa-solid fa-pen-to-square text-white me-2"></i>
+              Editar Registro de Residente
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body p-4">
+            <form id="editRegistryForm">
+              <input type="hidden" id="editRegId" />
+              <input type="hidden" id="editRegComplexName" />
+
+              <div class="row g-3 mb-4">
+                <div class="col-md-7">
+                  <label class="form-label">CASA / DEPARTAMENTO #</label>
+                  <input
+                    type="text"
+                    id="editRegHouseNum"
+                    class="form-control"
+                    placeholder="Ej: Villa 05"
+                    required
+                  />
+                </div>
+                <div class="col-md-5">
+                  <label class="form-label">TIPO</label>
+                  <select id="editRegResType" class="form-select" required>
+                    <option value="propietario">Propietario</option>
+                    <option value="arrendatario">Arrendatario</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-2"
+                >
+                  <h6 class="text-gold mb-0 fw-bold">
+                    <i class="fa-solid fa-users me-2"></i> Residentes
+                  </h6>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-gold"
+                    onclick="addResidentEntryEdit()"
+                  >
+                    <i class="fa-solid fa-plus me-1"></i> Añadir
+                  </button>
+                </div>
+                <div
+                  id="editResidentsContainer"
+                  class="d-flex flex-column gap-3"
+                ></div>
+              </div>
+
+              <div class="mb-4">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-2"
+                >
+                  <h6 class="text-gold mb-0 fw-bold">
+                    <i class="fa-solid fa-car me-2"></i> Vehículos
+                  </h6>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-gold"
+                    onclick="addVehicleEntryEdit()"
+                  >
+                    <i class="fa-solid fa-plus me-1"></i> Añadir
+                  </button>
+                </div>
+                <div
+                  id="editVehiclesContainer"
+                  class="d-flex flex-column gap-3"
+                ></div>
+              </div>
+
+              <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-gold">
+                  <i class="fa-solid fa-save me-2"></i> ACTUALIZAR REGISTRO
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      © 2025 Seguridad 24/7 Ecuador &
+      <a
+        href="https://mallitaxicodevision.netlify.app/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="footer-link"
+      >
+        MCV (Mallitaxi Code Vision)
+      </a>
+      — Todos los derechos reservados
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="js/firebase.js"></script>
+    <script src="js/sweetalert2.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // Auth check
+        auth.onAuthStateChanged(async (user) => {
+          if (!user) {
+            window.location.href = "control_center.html";
+            return;
+          }
+
+          const doc = await db.collection("users").doc(user.uid).get();
+          const userData = doc.exists ? doc.data() : null;
+          const role = userData ? userData.role : "";
+
+          if (role !== "operaciones" && role !== "monitoreo") {
+            window.location.href = "control_center.html";
+            return;
+          }
+
+          document.getElementById("userName").textContent =
+            userData.adminName || userData.nombre || "Operador";
+          document.getElementById("userEmail").textContent = user.email;
+
+          cargarEstadisticas();
+          cargarConjuntos();
+        });
+
+        // Sidebar Navigation
+        const sidebarLinks = document.querySelectorAll(".sidebar-link");
+        const sections = ["dashboardSection", "complexesSection"];
+
+        sidebarLinks.forEach((link) => {
+          link.addEventListener("click", (e) => {
+            const view = link.getAttribute("data-view");
+            sidebarLinks.forEach((l) => l.classList.remove("active"));
+            link.classList.add("active");
+
+            sections.forEach((s) => {
+              const el = document.getElementById(s);
+              if (el) el.style.display = "none";
+            });
+
+            const target = document.getElementById(view + "Section");
+            if (target) target.style.display = "block";
+
+            const sidebar = document.getElementById("sidebar");
+            if (window.innerWidth <= 991) sidebar.classList.remove("show");
+          });
+        });
+
+        // --- SELECT2 Y CARGA DE ADMINISTRADORES ---
+        function formatAdminResult(admin) {
+          if (!admin.id) return admin.text;
+          const complex = $(admin.element).data("complex");
+          return $(`
+                <div class="p-1">
+                    <div style="color: #d4af37; font-weight: 700; font-size: 0.95rem;">${
+                      admin.text
+                    }</div>
+                    <div style="color: rgba(255,255,255,0.5); font-size: 0.75rem; margin-top: 2px;">
+                        <i class="fa-solid fa-building me-1"></i> ${
+                          complex || "Sin conjunto asignado"
+                        }
+                    </div>
+                </div>
+            `);
+        }
+
+        async function cargarOpcionesSelect2() {
+          try {
+            const snapshot = await db
+              .collection("users")
+              .where("role", "==", "ADMIN_CONJUNTO")
+              .get();
+            const select = $("#complexAdmin");
+            select
+              .empty()
+              .append(
+                '<option value="" disabled selected>Seleccione un administrador...</option>'
+              );
+
+            snapshot.forEach((doc) => {
+              const data = doc.data();
+              const name = data.adminName || data.name || "Sin nombre";
+              const complex = data.complexName || "No asignado";
+              const option = new Option(name, name, false, false);
+              $(option).attr("data-complex", complex);
+              select.append(option);
+            });
+
+            $(".select2-admin")
+              .select2({
+                dropdownParent: $("#addComplexModal"),
+                width: "100%",
+                templateResult: formatAdminResult,
+                templateSelection: (state) => state.text,
+              })
+              .on("select2:select", function (e) {
+                const data = e.params.data;
+                const complexName = $(data.element).data("complex");
+                if (complexName && complexName !== "No asignado") {
+                  $("#complexName").val(complexName);
+                }
+              });
+          } catch (error) {
+            console.error("Error cargando admins para Select2:", error);
+          }
+        }
+
+        cargarOpcionesSelect2();
+
+        async function cargarEstadisticas() {
+          const complexesSnap = await db.collection("complexes").get();
+          document.getElementById("statTotalComplexes").textContent =
+            complexesSnap.size;
+          const adminsSnap = await db
+            .collection("users")
+            .where("role", "==", "ADMIN_CONJUNTO")
+            .get();
+          document.getElementById("statTotalAdmins").textContent =
+            adminsSnap.size;
+        }
+
+        async function cargarConjuntos() {
+          const container = document.getElementById("complexesGrid");
+          if (!container) return;
+          try {
+            const snapshot = await db
+              .collection("complexes")
+              .orderBy("createdAt", "desc")
+              .get();
+            container.innerHTML = "";
+            if (snapshot.empty) {
+              container.innerHTML =
+                '<div class="col-12 text-center py-5 text-white-50">No hay conjuntos registrados aún.</div>';
+              return;
+            }
+            snapshot.forEach((doc) => {
+              const data = doc.data();
+              const card = `
+                        <div class="col-xl-3 col-lg-4 col-md-6">
+                            <div class="stat-card" style="display: block; height: auto; padding: 20px; border-radius: 15px;">
+                                <div class="text-center mb-3">
+                                    <div style="width: 50px; height: 50px; background: rgba(212,175,55,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; border: 1px solid rgba(212,175,55,0.3);">
+                                        <i class="fa-solid fa-building" style="font-size: 1.3rem; color: #d4af37;"></i>
+                                    </div>
+                                </div>
+                                <h5 class="text-gold mb-2 text-center text-truncate" style="font-size: 1rem; font-weight: 700;">${data.name}</h5>
+                                <div class="text-center mb-3" style="padding: 8px; background: rgba(255,255,255,0.02); border-radius: 8px;">
+                                    <i class="fa-solid fa-user-shield text-gold me-1" style="font-size: 0.75rem;"></i>
+                                    <span class="small text-white-50" style="font-size: 0.75rem;">${data.admin}</span>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-gold w-100 py-2" onclick="verRegistros('${data.name}')" style="font-size: 0.75rem; border-radius: 8px;">
+                                        <i class="fa-solid fa-clipboard-list me-1"></i> Registros
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="eliminarConjunto('${doc.id}')" title="Eliminar" style="width: 45px; border-radius: 8px;">
+                                        <i class="fa-solid fa-trash" style="font-size: 0.8rem;"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+              container.innerHTML += card;
+            });
+          } catch (error) {
+            console.error("Error al cargar conjuntos:", error);
+            container.innerHTML =
+              '<div class="col-12 text-center py-5 text-danger">Error al cargar la lista.</div>';
+          }
+        }
+
+        // Nueva función para ver registros
+        window.verRegistros = async (complexName) => {
+          document.getElementById("registriesComplexName").textContent =
+            complexName;
+          const modal = new bootstrap.Modal(
+            document.getElementById("viewRegistriesModal")
+          );
+          modal.show();
+
+          const container = document.getElementById("registriesTableContainer");
+
+          try {
+            const snapshot = await db
+              .collection("residents_registry")
+              .where("complexName", "==", complexName)
+              .get();
+
+            if (snapshot.empty) {
+              container.innerHTML = `
+                <div class="text-center py-5">
+                  <i class="fa-solid fa-inbox fa-3x text-muted mb-3"></i>
+                  <p class="text-muted">No hay registros para este conjunto aún.</p>
+                </div>
+              `;
+              return;
+            }
+
+            // Convertir a array y ordenar por fecha (más reciente primero)
+            const registros = [];
+            snapshot.forEach((doc) => {
+              registros.push({ id: doc.id, ...doc.data() });
+            });
+            registros.sort((a, b) => {
+              if (!a.createdAt) return 1;
+              if (!b.createdAt) return -1;
+              return b.createdAt.toMillis() - a.createdAt.toMillis();
+            });
+
+            let tableHTML = `
+              <div class="table-responsive">
+                <table class="table align-middle text-nowrap">
+                  <thead>
+                    <tr>
+                      <th class="text-center">CASA</th>
+                      <th class="text-center">TIPO</th>
+                      <th>RESIDENTE</th>
+                      <th class="text-center">TELÉFONO</th>
+                      <th class="text-center">MARCA</th>
+                      <th class="text-center">MODELO</th>
+                      <th class="text-center">COLOR</th>
+                      <th class="text-center">PLACA</th>
+                      <th class="text-center">ACS.</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+            `;
+
+            registros.forEach((data) => {
+              const houseNum = data.houseNum || "N/A";
+              const resType = data.resType || "N/A";
+              const typeClass = resType.toLowerCase().includes("propietario")
+                ? "badge-propietario"
+                : "badge-arrendatario";
+
+              const residentsCount = data.residents ? data.residents.length : 0;
+              const vehiclesCount = data.vehicles ? data.vehicles.length : 0;
+              const maxRows = Math.max(residentsCount, vehiclesCount, 1);
+
+              const singleVehicleMultipleResidents =
+                vehiclesCount === 1 && residentsCount > 1;
+
+              if (maxRows > 0) {
+                for (let i = 0; i < maxRows; i++) {
+                  const resident =
+                    data.residents && data.residents[i]
+                      ? data.residents[i]
+                      : null;
+                  const vehicle =
+                    data.vehicles && data.vehicles[i] ? data.vehicles[i] : null;
+
+                  tableHTML += `<tr>`;
+
+                  // CASA
+                  if (i === 0) {
+                    tableHTML += `
+                      <td class="text-center align-middle" rowspan="${maxRows}">
+                        <span class="text-gold-premium">${houseNum}</span>
+                      </td>
+                      <td class="text-center align-middle" rowspan="${maxRows}">
+                        <span class="badge-tipo ${typeClass}">${resType}</span>
+                      </td>
+                    `;
+                  }
+
+                  // NOMBRE
+                  if (resident) {
+                    tableHTML += `<td class="text-white">${resident.name} ${resident.lastname}</td>`;
+                  } else {
+                    tableHTML += `<td class="text-muted opacity-50">-</td>`;
+                  }
+
+                  // TELEFONO / WHATSAPP
+                  if (resident && resident.phone) {
+                    const cleanPhone = resident.phone.replace(/\D/g, "");
+                    const residentName = resident.name || "";
+                    const whatsappMessage = encodeURIComponent(
+                      `Hola ${residentName}, le saludamos de Seguridad 24/7 Ecuador.`
+                    );
+                    tableHTML += `
+                      <td class="text-center">
+                        <div class="d-flex align-items-center justify-content-center gap-2">
+                          <span style="font-size: 0.85rem;">${resident.phone}</span>
+                          <a href="https://wa.me/${cleanPhone}?text=${whatsappMessage}" target="_blank" class="text-success contact-icon">
+                            <i class="fa-brands fa-whatsapp"></i>
+                          </a>
+                          <a href="tel:${resident.phone}" class="text-info contact-icon">
+                            <i class="fa-solid fa-phone" style="font-size: 0.8rem;"></i>
+                          </a>
+                        </div>
+                      </td>
+                    `;
+                  } else {
+                    tableHTML += `<td class="text-center text-muted">-</td>`;
+                  }
+
+                  // VEHICULO INDIVIDUAL COLUMNS
+                  if (singleVehicleMultipleResidents && i === 0) {
+                    const v = data.vehicles[0];
+                    tableHTML += `
+                      <td class="text-center fw-bold" rowspan="${maxRows}">${v.brand}</td>
+                      <td class="text-center" rowspan="${maxRows}">${v.model}</td>
+                      <td class="text-center" rowspan="${maxRows}">${v.color}</td>
+                      <td class="text-center text-gold-premium" rowspan="${maxRows}">${v.plate}</td>
+                    `;
+                  } else if (!singleVehicleMultipleResidents) {
+                    if (vehicle) {
+                      tableHTML += `
+                        <td class="text-center fw-bold">${vehicle.brand}</td>
+                        <td class="text-center">${vehicle.model}</td>
+                        <td class="text-center">${vehicle.color}</td>
+                        <td class="text-center text-gold-premium">${vehicle.plate}</td>
+                      `;
+                    } else {
+                      tableHTML += `
+                        <td class="text-center text-muted">-</td>
+                        <td class="text-center text-muted">-</td>
+                        <td class="text-center text-muted">-</td>
+                        <td class="text-center text-muted">-</td>
+                      `;
+                    }
+                  }
+
+                  // ACCIONES
+                  if (i === 0) {
+                    tableHTML += `
+                      <td class="text-center align-middle" rowspan="${maxRows}">
+                        <div class="d-flex flex-column gap-1">
+                          <button class="btn-action-table btn-edit-registry" onclick="abrirEditarRegistro('${data.id}')" title="Editar">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                          </button>
+                          <button class="btn-action-table btn-delete-registry" onclick="eliminarRegistro('${data.id}', '${complexName}')" title="Eliminar">
+                            <i class="fa-solid fa-trash-can"></i>
+                          </button>
+                        </div>
+                      </td>
+                    `;
+                  }
+
+                  tableHTML += `</tr>`;
+                }
+              }
+            });
+
+            tableHTML += `
+                  </tbody>
+                </table>
+              </div>
+            `;
+
+            container.innerHTML = tableHTML;
+          } catch (error) {
+            console.error("Error al cargar registros:", error);
+            container.innerHTML = `
+              <div class="alert alert-danger">
+                <i class="fa-solid fa-exclamation-triangle me-2"></i>
+                Error al cargar los registros. Por favor, intenta de nuevo.
+              </div>
+            `;
+          }
+        };
+
+        // --- FUNCIONES PARA EDITAR Y ELIMINAR REGISTROS ---
+
+        window.addResidentEntryEdit = (data = null) => {
+          const container = document.getElementById("editResidentsContainer");
+          const div = document.createElement("div");
+          div.className =
+            "p-3 rounded border border-secondary border-opacity-25 position-relative bg-dark bg-opacity-25";
+          div.innerHTML = `
+            <button type="button" class="btn-close btn-close-white position-absolute end-0 top-0 m-2" onclick="this.parentElement.remove()" style="font-size: 0.6rem;"></button>
+            <div class="row g-2">
+              <div class="col-6">
+                <label class="form-label-gold mb-1" style="font-size: 0.65rem;">NOMBRE</label>
+                <input type="text" class="form-control resident-name py-1" value="${
+                  data ? data.name : ""
+                }" required>
+              </div>
+              <div class="col-6">
+                <label class="form-label-gold mb-1" style="font-size: 0.65rem;">APELLIDO</label>
+                <input type="text" class="form-control resident-lastname py-1" value="${
+                  data ? data.lastname : ""
+                }" required>
+              </div>
+              <div class="col-12 mt-2">
+                <label class="form-label-gold mb-1" style="font-size: 0.65rem;">TELÉFONO</label>
+                <input type="tel" class="form-control resident-phone py-1" value="${
+                  data ? data.phone : ""
+                }" required>
+              </div>
+            </div>
+          `;
+          container.appendChild(div);
+        };
+
+        window.addVehicleEntryEdit = (data = null) => {
+          const container = document.getElementById("editVehiclesContainer");
+          const div = document.createElement("div");
+          div.className =
+            "p-3 rounded border border-secondary border-opacity-25 position-relative bg-dark bg-opacity-25";
+          div.innerHTML = `
+            <button type="button" class="btn-close btn-close-white position-absolute end-0 top-0 m-2" onclick="this.parentElement.remove()" style="font-size: 0.6rem;"></button>
+            <div class="row g-2">
+              <div class="col-6">
+                <label class="form-label-gold mb-1" style="font-size: 0.65rem;">MARCA</label>
+                <input type="text" class="form-control v-brand py-1" value="${
+                  data ? data.brand : ""
+                }" required>
+              </div>
+              <div class="col-6">
+                <label class="form-label-gold mb-1" style="font-size: 0.65rem;">MODELO</label>
+                <input type="text" class="form-control v-model py-1" value="${
+                  data ? data.model : ""
+                }" required>
+              </div>
+              <div class="col-6 mt-2">
+                <label class="form-label-gold mb-1" style="font-size: 0.65rem;">COLOR</label>
+                <input type="text" class="form-control v-color py-1" value="${
+                  data ? data.color : ""
+                }" required>
+              </div>
+              <div class="col-6 mt-2">
+                <label class="form-label-gold mb-1" style="font-size: 0.65rem;">PLACA</label>
+                <input type="text" class="form-control v-plate py-1" value="${
+                  data ? data.plate : ""
+                }" required>
+              </div>
+            </div>
+          `;
+          container.appendChild(div);
+        };
+
+        window.abrirEditarRegistro = async (id) => {
+          try {
+            Swal.fire({
+              title: "Cargando datos...",
+              allowOutsideClick: false,
+              didOpen: () => Swal.showLoading(),
+            });
+
+            const doc = await db.collection("residents_registry").doc(id).get();
+            if (!doc.exists) {
+              Swal.fire("Error", "El registro no existe.", "error");
+              return;
+            }
+
+            const data = doc.data();
+            document.getElementById("editRegId").value = id;
+            document.getElementById("editRegComplexName").value =
+              data.complexName;
+            document.getElementById("editRegHouseNum").value = data.houseNum;
+            document.getElementById("editRegResType").value =
+              data.resType || "propietario";
+
+            const residentsContainer = document.getElementById(
+              "editResidentsContainer"
+            );
+            residentsContainer.innerHTML = "";
+            if (data.residents && data.residents.length > 0) {
+              data.residents.forEach((r) => addResidentEntryEdit(r));
+            } else {
+              addResidentEntryEdit();
+            }
+
+            const vehiclesContainer = document.getElementById(
+              "editVehiclesContainer"
+            );
+            vehiclesContainer.innerHTML = "";
+            if (data.vehicles && data.vehicles.length > 0) {
+              data.vehicles.forEach((v) => addVehicleEntryEdit(v));
+            }
+
+            Swal.close();
+            const editModal = new bootstrap.Modal(
+              document.getElementById("editRegistryModal")
+            );
+            editModal.show();
+          } catch (error) {
+            console.error("Error al abrir edición:", error);
+            Swal.fire("Error", "No se pudieron cargar los datos.", "error");
+          }
+        };
+
+        window.eliminarRegistro = (id, complexName) => {
+          Swal.fire({
+            title: "¿Estás seguro?",
+            text: "Esta acción eliminará el registro de forma permanente.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#dc3545",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText: "Sí, eliminar",
+            cancelButtonText: "Cancelar",
+          }).then(async (result) => {
+            if (result.isConfirmed) {
+              try {
+                await db.collection("residents_registry").doc(id).delete();
+                Swal.fire(
+                  "¡Eliminado!",
+                  "El registro ha sido eliminado.",
+                  "success"
+                );
+                verRegistros(complexName); // Refrescar tabla
+              } catch (error) {
+                console.error("Error al eliminar registro:", error);
+                Swal.fire("Error", "No se pudo eliminar el registro.", "error");
+              }
+            }
+          });
+        };
+
+        document
+          .getElementById("editRegistryForm")
+          .addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const id = document.getElementById("editRegId").value;
+            const complexName =
+              document.getElementById("editRegComplexName").value;
+
+            const residents = [];
+            document
+              .querySelectorAll("#editResidentsContainer > div")
+              .forEach((div) => {
+                residents.push({
+                  name: div
+                    .querySelector(".resident-name")
+                    .value.trim()
+                    .toUpperCase(),
+                  lastname: div
+                    .querySelector(".resident-lastname")
+                    .value.trim()
+                    .toUpperCase(),
+                  phone: div.querySelector(".resident-phone").value.trim(),
+                });
+              });
+
+            const vehicles = [];
+            document
+              .querySelectorAll("#editVehiclesContainer > div")
+              .forEach((div) => {
+                vehicles.push({
+                  brand: div
+                    .querySelector(".v-brand")
+                    .value.trim()
+                    .toUpperCase(),
+                  model: div
+                    .querySelector(".v-model")
+                    .value.trim()
+                    .toUpperCase(),
+                  color: div
+                    .querySelector(".v-color")
+                    .value.trim()
+                    .toUpperCase(),
+                  plate: div
+                    .querySelector(".v-plate")
+                    .value.trim()
+                    .toUpperCase(),
+                });
+              });
+
+            Swal.fire({
+              title: "Actualizando...",
+              allowOutsideClick: false,
+              didOpen: () => Swal.showLoading(),
+            });
+
+            try {
+              await db
+                .collection("residents_registry")
+                .doc(id)
+                .update({
+                  houseNum: document
+                    .getElementById("editRegHouseNum")
+                    .value.toUpperCase(),
+                  resType: document
+                    .getElementById("editRegResType")
+                    .value.toUpperCase(),
+                  residents,
+                  vehicles,
+                  updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                });
+
+              Swal.fire(
+                "¡Éxito!",
+                "Registro actualizado correctamente.",
+                "success"
+              );
+              bootstrap.Modal.getInstance(
+                document.getElementById("editRegistryModal")
+              ).hide();
+              verRegistros(complexName); // Refrescar tabla
+            } catch (error) {
+              console.error("Error al actualizar:", error);
+              Swal.fire("Error", "No se pudo actualizar el registro.", "error");
+            }
+          });
+
+        document
+          .getElementById("addComplexForm")
+          .addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const name = document.getElementById("complexName").value;
+            const admin = document.getElementById("complexAdmin").value;
+            Swal.fire({
+              title: "Guardando...",
+              allowOutsideClick: false,
+              didOpen: () => Swal.showLoading(),
+            });
+            try {
+              await db.collection("complexes").add({
+                name: name.toUpperCase(),
+                admin,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+              });
+              Swal.fire(
+                "¡Éxito!",
+                "El conjunto ha sido registrado correctamente.",
+                "success"
+              );
+              e.target.reset();
+              bootstrap.Modal.getInstance(
+                document.getElementById("addComplexModal")
+              ).hide();
+              cargarConjuntos();
+              cargarEstadisticas();
+            } catch (error) {
+              console.error("Error al guardar:", error);
+              Swal.fire("Error", "No se pudo registrar.", "error");
+            }
+          });
+
+        window.ingresarConjunto = (id, name) => {
+          Swal.fire({
+            title: "Accediendo...",
+            text: `Ingresando al sistema de monitoreo de ${name}`,
+            icon: "info",
+            timer: 2000,
+            showConfirmButton: false,
+            didOpen: () => Swal.showLoading(),
+          }).then(() => {
+            // Aquí podrías redirigir a una página de monitoreo real o abrir un panel específico
+            Swal.fire(
+              "Acceso Exitoso",
+              `Conectado al servidor de video de ${name}`,
+              "success"
+            );
+          });
+        };
+
+        window.eliminarConjunto = (id) => {
+          Swal.fire({
+            title: "¿Eliminar?",
+            text: "No se puede deshacer.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d4af37",
+            confirmButtonText: "Sí, eliminar",
+          }).then(async (result) => {
+            if (result.isConfirmed) {
+              try {
+                await db.collection("complexes").doc(id).delete();
+                Swal.fire("Eliminado", "Borrado con éxito.", "success");
+                cargarConjuntos();
+                cargarEstadisticas();
+              } catch (error) {
+                console.error("Error al eliminar:", error);
+                Swal.fire("Error", "No se pudo eliminar.", "error");
+              }
+            }
+          });
+        };
+
+        const handleLogout = () => {
+          Swal.fire({
+            title: "¿Cerrar Sesión?",
+            text: "Estás por salir.",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#ff4444",
+          }).then((result) => {
+            if (result.isConfirmed)
+              auth
+                .signOut()
+                .then(() => (window.location.href = "control_center.html"));
+          });
+        };
+
+        const logoutBtn = document.getElementById("logoutBtn");
+        const logoutBtnMobile = document.getElementById("logoutBtnMobile");
+        if (logoutBtn) logoutBtn.addEventListener("click", handleLogout);
+        if (logoutBtnMobile)
+          logoutBtnMobile.addEventListener("click", handleLogout);
+
+        const sidebarToggle = document.getElementById("sidebarToggle");
+        const sidebar = document.getElementById("sidebar");
+        if (sidebarToggle) {
+          sidebarToggle.addEventListener("click", () => {
+            sidebar.classList.toggle("show");
+          });
+        }
+
+        // Cerrar sidebar al hacer clic en un link (móvil)
+        document.querySelectorAll(".sidebar-link").forEach((link) => {
+          link.addEventListener("click", () => {
+            if (window.innerWidth < 992) {
+              sidebar.classList.remove("show");
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

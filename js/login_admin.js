@@ -2641,8 +2641,31 @@ function renderUsuariosGrid(users) {
   container.innerHTML = "";
   users.forEach(user => {
     const id = user.id;
-    const roleBadge = user.role === 'administrador' ? 'bg-gold' : (user.role === 'ADMIN_CONJUNTO' ? 'bg-info' : 'bg-secondary');
-    const roleText = user.role === 'administrador' ? 'Admin Gral.' : (user.role === 'ADMIN_CONJUNTO' ? 'Admin Conjunto' : 'Técnico');
+    const roleBadgeMap = {
+      'administrador': 'bg-gold',
+      'ADMIN_CONJUNTO': 'bg-info',
+      'tecnico': 'bg-secondary',
+      'monitoreo': 'bg-primary'
+    };
+
+    const roleTextMap = {
+      'administrador': 'Admin Gral.',
+      'ADMIN_CONJUNTO': 'Admin Conjunto',
+      'tecnico': 'Técnico',
+      'monitoreo': 'Monitoreo / Ops'
+    };
+
+    const roleIconMap = {
+      'administrador': 'fa-crown',
+      'ADMIN_CONJUNTO': 'fa-building-shield',
+      'tecnico': 'fa-toolbox',
+      'monitoreo': 'fa-desktop'
+    };
+
+    const roleBadge = roleBadgeMap[user.role] || 'bg-dark';
+    const roleText = roleTextMap[user.role] || user.role;
+    const roleIcon = roleIconMap[user.role] || 'fa-user';
+
     const statusBadge = user.status === 'inactive' ? 'bg-danger' : 'bg-success';
     const statusText = user.status === 'inactive' ? 'Inactivo' : 'Activo';
     
@@ -2651,12 +2674,21 @@ function renderUsuariosGrid(users) {
     const toggleAction = user.status === 'inactive' ? 'active' : 'inactive';
     const toggleBtnClass = user.status === 'inactive' ? 'btn-outline-success' : 'btn-outline-danger';
 
+    const roleExtraInfoMap = {
+      'administrador': 'Administración Global / Sede Central',
+      'ADMIN_CONJUNTO': user.complexName || 'Conjunto sin asignar',
+      'tecnico': user.subRole || 'Técnico General',
+      'monitoreo': 'Centro de Operaciones 24/7'
+    };
+
+    const extraInfo = roleExtraInfoMap[user.role] || 'Información no disponible';
+
     const card = `
       <div class="col-12 col-md-6 col-lg-4">
         <div class="user-card h-100 p-4 rounded-4 shadow-lg border border-secondary bg-dark position-relative overflow-hidden">
           <div class="d-flex justify-content-between align-items-start mb-3">
             <div class="user-avatar bg-gold-gradient rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-              <i class="fa-solid fa-user text-dark fs-4"></i>
+              <i class="fa-solid ${roleIcon} text-dark fs-4"></i>
             </div>
             <div class="text-end">
               <span class="badge ${roleBadge} mb-1">${roleText}</span><br>
@@ -2669,8 +2701,8 @@ function renderUsuariosGrid(users) {
           
           <div class="user-details mb-4">
             <div class="d-flex align-items-center text-white-50 small mb-2">
-              <i class="fa-solid fa-location-dot me-2 text-gold"></i>
-              <span class="text-truncate">${user.complexName || (user.role === 'tecnico' ? (user.subRole || 'Técnico General') : 'N/A')}</span>
+              <i class="fa-solid fa-circle-info me-2 text-gold"></i>
+              <span class="text-truncate" title="${extraInfo}">${extraInfo}</span>
             </div>
           </div>
 

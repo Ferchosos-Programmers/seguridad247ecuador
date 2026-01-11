@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gestion Admin - Seguridad 247 Ecuador</title>
+    <title>Gestion Admin 24/7</title>
 
     <link rel="stylesheet" href="css/bootstrap.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -13,7 +13,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
     />
-    <link rel="icon" href="assets/img/logo.png" type="image/png" />
+    <link rel="icon" href="assets/img/logo.ico" type="image/x-icon" />
     <script src="js/bootstrap.min.js"></script>
   </head>
 
@@ -21,7 +21,7 @@
     <!-- NAVBAR (Restaurado) -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
       <div class="container">
-        <a class="navbar-brand" href="#">SEGURIDAD 247 ECUADOR</a>
+        <a class="navbar-brand" href="#">SEGURIDAD 24/7 ECUADOR</a>
 
         <button
           class="navbar-toggler"
@@ -343,6 +343,9 @@
                       </button>
                       <button class="filter-btn" onclick="filtrarUsuariosPorRol('tecnico')">
                         <i class="fa-solid fa-toolbox me-1 small"></i> Técnicos
+                      </button>
+                      <button class="filter-btn" onclick="filtrarUsuariosPorRol('monitoreo')">
+                        <i class="fa-solid fa-desktop me-1 small"></i> Monitoreo
                       </button>
                     </div>
                   </div>
@@ -860,6 +863,7 @@
                   <option value="administrador">Administrador General</option>
                   <option value="ADMIN_CONJUNTO">Administrador de Conjunto</option>
                   <option value="tecnico">Técnico</option>
+                  <option value="monitoreo">Monitoreo / Operaciones</option>
                 </select>
               </div>
               <!-- Campos dinámicos según el rol -->
@@ -894,10 +898,13 @@
     </main>
   </div> <!-- Fin del admin-wrapper -->
 
-    <footer class="footer">
-      © 2025 Seguridad 247 Ecuador & MCV (Mallitaxi Code Vision) — Todos los
-      derechos reservados
-    </footer>
+<footer class="footer">
+    © 2025 Seguridad 24/7 Ecuador &
+    <a href="https://mallitaxicodevision.netlify.app/" target="_blank" rel="noopener noreferrer" class="footer-link">
+        MCV (Mallitaxi Code Vision)
+    </a>
+    — Todos los derechos reservados
+</footer>
 
     <!-- Modal: Editar Usuario Management (NUEVO) -->
     <div class="modal fade" id="editUserManagementModal" tabindex="-1" aria-hidden="true">
