@@ -1138,3 +1138,52 @@ h1 {
   font-family: 'Courier New', Courier, monospace;
 }
 
+/* ======== MODERN REPORT MODAL STYLES ======== */
+.report-input-group label {
+  font-weight: 600;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.signature-display-box, .signature-capture-box {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  height: 100%;
+}
+
+.signature-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  min-height: 120px;
+}
+
+.signature-container.default-seal {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.signature-container.default-seal img {
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.text-gold {
+  color: #d4af37 !important;
+}
+
+.border-gold {
+  border-color: #d4af37 !important;
+}
+
+#technicalReportModal .modal-body {
+  padding: 2rem;
+}
+
+#technicalReportModal .form-control:focus, 
+#technicalReportModal .form-select:focus {
+  box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.25);
+  border-color: #d4af37;
+}

@@ -45,6 +45,7 @@
       .title-premium {
         font-size: 2.8rem;
         background: linear-gradient(135deg, #fff 0%, #d4af37 100%);
+        background-clip: text;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         text-transform: uppercase;
@@ -225,6 +226,10 @@
       .form-select option:hover {
         background-color: #2a2a2a !important;
       }
+
+      .force-uppercase {
+        text-transform: uppercase;
+      }
     </style>
   </head>
 
@@ -327,7 +332,7 @@
                   <label class="form-label-gold">CASA / DEPARTAMENTO #</label>
                   <input
                     type="text"
-                    class="form-control"
+                    class="form-control force-uppercase"
                     id="regHouseNum"
                     placeholder="Ej: Villa 05"
                     required
@@ -500,11 +505,11 @@
             <div class="row g-2">
                 <div class="col-md-6 text-start">
                     <label class="form-label-gold">NOMBRE</label>
-                    <input type="text" class="form-control resident-name" placeholder="Nombres" required>
+                    <input type="text" class="form-control resident-name force-uppercase" placeholder="Nombres" required>
                 </div>
                 <div class="col-md-6 text-start">
                     <label class="form-label-gold">APELLIDO</label>
-                    <input type="text" class="form-control resident-lastname" placeholder="Apellidos" required>
+                    <input type="text" class="form-control resident-lastname force-uppercase" placeholder="Apellidos" required>
                 </div>
                 <div class="col-12 text-start mt-2">
                     <label class="form-label-gold">CONTACTO / IDENTIFICACIÓN</label>
@@ -524,19 +529,19 @@
             <div class="row g-2">
                 <div class="col-6 text-start">
                     <label class="form-label-gold">MARCA</label>
-                    <input type="text" class="form-control v-brand" placeholder="Marca" required>
+                    <input type="text" class="form-control v-brand force-uppercase" placeholder="Marca" required>
                 </div>
                 <div class="col-6 text-start">
                     <label class="form-label-gold">MODELO</label>
-                    <input type="text" class="form-control v-model" placeholder="Modelo" required>
+                    <input type="text" class="form-control v-model force-uppercase" placeholder="Modelo" required>
                 </div>
                 <div class="col-6 text-start mt-2">
                     <label class="form-label-gold">COLOR</label>
-                    <input type="text" class="form-control v-color" placeholder="Color" required>
+                    <input type="text" class="form-control v-color force-uppercase" placeholder="Color" required>
                 </div>
                 <div class="col-6 text-start mt-2">
                     <label class="form-label-gold">PLACA</label>
-                    <input type="text" class="form-control v-plate" placeholder="Placa" required>
+                    <input type="text" class="form-control v-plate force-uppercase" placeholder="Placa" required>
                 </div>
             </div>
           `;
@@ -581,8 +586,8 @@
 
               if (nameInput && lastnameInput && phoneInput) {
                 const residentData = {
-                  name: nameInput.value.trim(),
-                  lastname: lastnameInput.value.trim(),
+                  name: nameInput.value.trim().toUpperCase(),
+                  lastname: lastnameInput.value.trim().toUpperCase(),
                   phone: phoneInput.value.trim(),
                 };
                 console.log("Residente capturado:", residentData);
@@ -605,10 +610,10 @@
 
                 if (brandInput && modelInput && colorInput && plateInput) {
                   const vehicleData = {
-                    brand: brandInput.value.trim(),
-                    model: modelInput.value.trim(),
-                    color: colorInput.value.trim(),
-                    plate: plateInput.value.trim(),
+                    brand: brandInput.value.trim().toUpperCase(),
+                    model: modelInput.value.trim().toUpperCase(),
+                    color: colorInput.value.trim().toUpperCase(),
+                    plate: plateInput.value.trim().toUpperCase(),
                   };
                   console.log("Vehículo capturado:", vehicleData);
                   vehicles.push(vehicleData);
@@ -619,8 +624,13 @@
             try {
               await db.collection("residents_registry").add({
                 complexName: document.getElementById("regComplexName").value,
-                houseNum: document.getElementById("regHouseNum").value,
-                resType: document.getElementById("regResType").value,
+                houseNum: document
+                  .getElementById("regHouseNum")
+                  .value.trim()
+                  .toUpperCase(),
+                resType: document
+                  .getElementById("regResType")
+                  .value.toUpperCase(),
                 residents,
                 vehicles,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),

@@ -69,6 +69,11 @@
               <i class="fa-solid fa-key"></i> Gestión de Claves
             </a>
           </li>
+          <li class="sidebar-item">
+            <a class="sidebar-link" data-view="jobs">
+              <i class="fa-solid fa-briefcase"></i> Trabajos
+            </a>
+          </li>
           <!-- Logout for mobile -->
           <li class="sidebar-item d-lg-none mt-4">
             <button class="btn-logout-nav w-100" id="logoutBtnMobile">
@@ -109,7 +114,7 @@
             </div>
 
             <div class="row g-4 mb-5">
-              <div class="col-xl-6 col-md-6">
+              <div class="col-xl-4 col-md-6">
                 <div class="stat-card">
                   <div
                     class="stat-card-icon"
@@ -123,7 +128,7 @@
                   </div>
                 </div>
               </div>
-              <div class="col-xl-6 col-md-6">
+              <div class="col-xl-4 col-md-6">
                 <div class="stat-card">
                   <div
                     class="stat-card-icon"
@@ -134,6 +139,20 @@
                   <div class="stat-card-info">
                     <h3 id="statTotalAdmins">0</h3>
                     <p>Administradores de Conjunto</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-4 col-md-6">
+                <div class="stat-card">
+                  <div
+                    class="stat-card-icon"
+                    style="background: rgba(52, 152, 219, 0.1); color: #3498db"
+                  >
+                    <i class="fa-solid fa-briefcase"></i>
+                  </div>
+                  <div class="stat-card-info">
+                    <h3 id="statTotalJobs">0</h3>
+                    <p>Trabajos Técnicos</p>
                   </div>
                 </div>
               </div>
@@ -186,6 +205,38 @@
               <p class="text-center text-muted">Cargando claves...</p>
             </div>
           </div>
+
+          <!-- Jobs Section -->
+          <div id="jobsSection" style="display: none">
+            <div class="d-flex justify-content-between align-items-center mb-5">
+              <h2 class="text-gold mb-0">Gestión de Trabajos</h2>
+              <div class="d-flex gap-3 align-items-center">
+                <select id="jobUrgencyFilter" class="modern-select">
+                  <option value="todas">Urgencia: Todas</option>
+                  <option value="Normal">Normal</option>
+                  <option value="Urgente">Urgente</option>
+                  <option value="Crítico">Crítico</option>
+                </select>
+                <input
+                  type="text"
+                  id="jobSearchInput"
+                  class="modern-input"
+                  placeholder="Buscar cliente..."
+                />
+                <button
+                  class="btn btn-gold px-4"
+                  data-bs-toggle="modal"
+                  data-bs-target="#addJobModal"
+                >
+                  <i class="fa-solid fa-plus me-2"></i> Crear Trabajo
+                </button>
+              </div>
+            </div>
+
+            <div id="jobsContainer" class="row g-4">
+              <p class="text-center text-muted">Cargando trabajos...</p>
+            </div>
+          </div>
         </div>
       </main>
     </div>
@@ -210,23 +261,52 @@
           <div class="modal-body p-4">
             <form id="addComplexForm">
               <div class="mb-3">
-                <label class="form-label">REPRESENTANTE / ADMINISTRADOR</label>
-                <select
-                  id="complexAdmin"
-                  class="form-select select2-admin"
-                  required
+                <div
+                  class="d-flex justify-content-between align-items-center mb-1"
                 >
-                  <option value="" disabled selected>
-                    Seleccione un administrador...
-                  </option>
-                </select>
+                  <label class="form-label mb-0"
+                    >REPRESENTANTE / ADMINISTRADOR</label
+                  >
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="toggleAdminManual"
+                      style="cursor: pointer"
+                    />
+                    <label
+                      class="form-check-label small text-white-50"
+                      for="toggleAdminManual"
+                      style="cursor: pointer; font-size: 0.7rem"
+                    >
+                      No registrado aún
+                    </label>
+                  </div>
+                </div>
+
+                <div id="adminLinkWrapper">
+                  <select id="complexAdmin" class="form-select select2-admin">
+                    <option value="" disabled selected>
+                      Seleccione un administrador...
+                    </option>
+                  </select>
+                </div>
+
+                <div id="adminManualWrapper" style="display: none">
+                  <input
+                    type="text"
+                    id="complexAdminManual"
+                    class="form-control force-uppercase"
+                    placeholder="Escriba el nombre del administrador"
+                  />
+                </div>
               </div>
               <div class="mb-3">
                 <label class="form-label">NOMBRE DEL CONJUNTO</label>
                 <input
                   type="text"
                   id="complexName"
-                  class="form-control"
+                  class="form-control force-uppercase"
                   placeholder="Ej: Urbanización Los Pinos"
                   required
                 />
@@ -308,7 +388,7 @@
                   <input
                     type="text"
                     id="editRegHouseNum"
-                    class="form-control"
+                    class="form-control force-uppercase"
                     placeholder="Ej: Villa 05"
                     required
                   />
@@ -375,6 +455,281 @@
       </div>
     </div>
 
+    <!-- MODAL AGREGAR TRABAJO -->
+    <div class="modal fade" id="addJobModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Agregar Trabajo</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body p-4">
+            <form id="addJobForm">
+              <div class="mb-3">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-2"
+                >
+                  <label class="form-label mb-0"
+                    >Nombre del Cliente (Conjunto)</label
+                  >
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-gold"
+                    data-bs-toggle="modal"
+                    data-bs-target="#addComplexModal"
+                    style="
+                      --bs-btn-padding-y: 0.1rem;
+                      --bs-btn-padding-x: 0.4rem;
+                      --bs-btn-font-size: 0.75rem;
+                    "
+                  >
+                    <i class="fa-solid fa-plus me-1"></i> Nuevo Conjunto
+                  </button>
+                </div>
+                <select
+                  id="clientName"
+                  class="form-select select2-complex"
+                  required
+                >
+                  <option value="" disabled selected>
+                    Seleccione un conjunto...
+                  </option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Fecha de Publicación</label>
+                <input type="date" class="form-control" id="jobDate" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Estado de Urgencia</label>
+                <select class="form-select" id="jobUrgency" required>
+                  <option value="Normal">Normal</option>
+                  <option value="Urgente">Urgente</option>
+                  <option value="Crítico">Crítico</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Nombre de Contacto</label>
+                <input
+                  type="text"
+                  class="form-control force-uppercase"
+                  id="contactName"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Número de Contacto</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="contactPhone"
+                  required
+                />
+              </div>
+              <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-gold">
+                  <i class="fa-solid fa-save me-2"></i> GUARDAR TRABAJO
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL EDITAR TRABAJO -->
+    <div class="modal fade" id="editJobModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Editar Trabajo</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body p-4">
+            <form id="editJobForm">
+              <input type="hidden" id="editJobId" />
+              <div class="mb-3">
+                <label class="form-label">Nombre del Cliente (Conjunto)</label>
+                <select
+                  id="editClientName"
+                  class="form-select select2-complex"
+                  required
+                >
+                  <option value="" disabled selected>
+                    Seleccione un conjunto...
+                  </option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Fecha de Publicación</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="editJobDate"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Estado de Urgencia</label>
+                <select class="form-select" id="editJobUrgency" required>
+                  <option value="Normal">Normal</option>
+                  <option value="Urgente">Urgente</option>
+                  <option value="Crítico">Crítico</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Nombre de Contacto</label>
+                <input
+                  type="text"
+                  class="form-control force-uppercase"
+                  id="editContactName"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Número de Contacto</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editContactPhone"
+                  required
+                />
+              </div>
+              <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-gold">
+                  <i class="fa-solid fa-save me-2"></i> ACTUALIZAR TRABAJO
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL VER REPORTE -->
+    <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content modal-report-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Informe Técnico de Trabajo</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body p-4" id="reportContentArea">
+            <div class="report-grid">
+              <!-- Detalles del Trabajo -->
+              <div class="report-card">
+                <div class="report-card-title">
+                  <i class="fa-solid fa-briefcase"></i> Detalles del Trabajo
+                </div>
+                <div class="report-info-item">
+                  <span class="report-info-label">Cliente:</span>
+                  <span class="report-info-value" id="reportClientName"></span>
+                </div>
+                <div class="report-info-item">
+                  <span class="report-info-label">Asignación:</span>
+                  <span class="report-info-value" id="reportJobDate"></span>
+                </div>
+              </div>
+
+              <!-- Detalles del Informe -->
+              <div class="report-card">
+                <div class="report-card-title">
+                  <i class="fa-solid fa-clipboard-check"></i> Detalles del
+                  Informe
+                </div>
+                <div class="report-info-item">
+                  <span class="report-info-label">Estado:</span>
+                  <span
+                    class="report-info-value text-gold"
+                    id="reportStatus"
+                  ></span>
+                </div>
+                <div class="report-info-item">
+                  <span class="report-info-label">Finalizado:</span>
+                  <span class="report-info-value">
+                    <span id="reportDate"></span> -
+                    <span id="reportTime"></span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Informe de Trabajo Realizado -->
+            <div class="report-card mb-4">
+              <div class="report-card-title">
+                <i class="fa-solid fa-pen-fancy"></i> Informe de Trabajo
+                Realizado
+              </div>
+              <div id="reportText" class="report-text-area"></div>
+            </div>
+
+            <!-- Evidencia Fotográfica -->
+            <div class="report-card mb-4">
+              <div class="report-card-title">
+                <i class="fa-solid fa-images"></i> Evidencia Fotográfica
+              </div>
+              <div class="report-evidence-grid">
+                <div class="report-img-container">
+                  <img id="reportImage1" src="" alt="Evidencia 1" />
+                </div>
+                <div class="report-img-container">
+                  <img id="reportImage2" src="" alt="Evidencia 2" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Firmas -->
+            <div id="reportSignaturesSection" style="display: none">
+              <div class="report-card">
+                <div class="report-card-title">
+                  <i class="fa-solid fa-file-signature"></i> Firmas de
+                  Conformidad
+                </div>
+                <div class="report-signature-grid">
+                  <div class="text-center">
+                    <small class="text-gold d-block mb-2">Sello Técnico</small>
+                    <div class="signature-box">
+                      <img src="assets/img/firma.png" alt="Sello Técnico" />
+                    </div>
+                  </div>
+                  <div class="text-center">
+                    <small class="text-gold d-block mb-2">Firma Cliente</small>
+                    <div class="signature-box">
+                      <img
+                        id="reportClientSignature"
+                        src=""
+                        alt="Firma del Cliente"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-report-footer">
+            <button
+              type="button"
+              class="btn-pdf-premium"
+              id="generateJobPdfBtn"
+            >
+              <i class="fa-solid fa-file-pdf me-2"></i> Descargar Informe PDF
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- FOOTER -->
     <footer class="footer">
       © 2025 Seguridad 24/7 Ecuador &
@@ -395,6 +750,9 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script src="js/firebase.js"></script>
     <script src="js/sweetalert2.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script>
       document.addEventListener("DOMContentLoaded", () => {
@@ -428,6 +786,7 @@
           "dashboardSection",
           "complexesSection",
           "passwordsSection",
+          "jobsSection",
         ];
 
         sidebarLinks.forEach((link) => {
@@ -450,6 +809,10 @@
               else renderClavesTecnicas(window.allPasswords);
             }
 
+            if (view === "jobs") {
+              cargarTrabajos();
+            }
+
             const sidebar = document.getElementById("sidebar");
             if (window.innerWidth <= 991) sidebar.classList.remove("show");
           });
@@ -457,7 +820,7 @@
 
         // --- SELECT2 Y CARGA DE ADMINISTRADORES ---
         function formatAdminResult(admin) {
-          if (!admin.id) return admin.text;
+          if (!admin.id || !admin.element) return admin.text;
           const complex = $(admin.element).data("complex");
           return $(`
                 <div class="p-1">
@@ -509,23 +872,94 @@
                   $("#complexName").val(complexName);
                 }
               });
+
+            // Lógica para toggle de administrador manual
+            document
+              .getElementById("toggleAdminManual")
+              .addEventListener("change", function (e) {
+                const manualWrapper =
+                  document.getElementById("adminManualWrapper");
+                const linkWrapper = document.getElementById("adminLinkWrapper");
+                const manualInput =
+                  document.getElementById("complexAdminManual");
+
+                if (e.target.checked) {
+                  manualWrapper.style.display = "block";
+                  linkWrapper.style.display = "none";
+                  manualInput.setAttribute("required", "required");
+                } else {
+                  manualWrapper.style.display = "none";
+                  linkWrapper.style.display = "block";
+                  manualInput.removeAttribute("required");
+                }
+              });
           } catch (error) {
             console.error("Error cargando admins para Select2:", error);
           }
         }
 
+        // CARGAR CONJUNTOS PARA SELECTS DE TRABAJOS
+        async function cargarConjuntosParaSelects(targetValue = null) {
+          try {
+            const snapshot = await db
+              .collection("complexes")
+              .orderBy("name", "asc")
+              .get();
+            const selects = $(".select2-complex");
+
+            selects.each(function () {
+              const $el = $(this);
+              const currentVal = $el.val();
+              $el
+                .empty()
+                .append(
+                  '<option value="" disabled selected>Seleccione un conjunto...</option>'
+                );
+
+              snapshot.forEach((doc) => {
+                const data = doc.data();
+                $el.append(new Option(data.name, data.name));
+              });
+
+              if (targetValue) {
+                $el.val(targetValue).trigger("change");
+              } else if (currentVal) {
+                $el.val(currentVal).trigger("change");
+              }
+            });
+
+            // Inicializar Select2 si no está inicializado
+            $(".select2-complex").select2({
+              width: "100%",
+              dropdownParent: function (el) {
+                return $(el).closest(".modal");
+              },
+            });
+          } catch (error) {
+            console.error("Error cargando conjuntos para selects:", error);
+          }
+        }
+
         cargarOpcionesSelect2();
+        cargarConjuntosParaSelects();
 
         async function cargarEstadisticas() {
           const complexesSnap = await db.collection("complexes").get();
           document.getElementById("statTotalComplexes").textContent =
             complexesSnap.size;
+
           const adminsSnap = await db
             .collection("users")
             .where("role", "==", "ADMIN_CONJUNTO")
             .get();
           document.getElementById("statTotalAdmins").textContent =
             adminsSnap.size;
+
+          const jobsSnap = await db.collection("trabajos").get();
+          const realJobsCount = jobsSnap.docs.filter(
+            (doc) => !doc.data().isGuide
+          ).length;
+          document.getElementById("statTotalJobs").textContent = realJobsCount;
         }
 
         async function cargarConjuntos() {
@@ -610,143 +1044,146 @@
               registros.push({ id: doc.id, ...doc.data() });
             });
             registros.sort((a, b) => {
-              if (!a.createdAt) return 1;
-              if (!b.createdAt) return -1;
-              return b.createdAt.toMillis() - a.createdAt.toMillis();
+              const dateA = a.createdAt ? a.createdAt.toDate() : new Date(0);
+              const dateB = b.createdAt ? b.createdAt.toDate() : new Date(0);
+              return dateB - dateA;
             });
 
             let tableHTML = `
               <div class="table-responsive">
-                <table class="table align-middle text-nowrap">
+                <table class="table table-dark-premium table-hover align-middle">
                   <thead>
                     <tr>
-                      <th class="text-center">CASA</th>
-                      <th class="text-center">TIPO</th>
-                      <th>RESIDENTE</th>
-                      <th class="text-center">TELÉFONO</th>
-                      <th class="text-center">MARCA</th>
-                      <th class="text-center">MODELO</th>
-                      <th class="text-center">COLOR</th>
-                      <th class="text-center">PLACA</th>
-                      <th class="text-center">ACS.</th>
+                      <th class="text-center">Vivienda</th>
+                      <th class="text-center">Tipo</th>
+                      <th class="text-center">Residente(s)</th>
+                      <th class="text-center">Teléfono/WhatsApp</th>
+                      <th class="text-center">Marca</th>
+                      <th class="text-center">Modelo</th>
+                      <th class="text-center">Color</th>
+                      <th class="text-center">Placa</th>
+                      <th class="text-center">Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
             `;
 
             registros.forEach((data) => {
-              const houseNum = data.houseNum || "N/A";
-              const resType = data.resType || "N/A";
-              const typeClass = resType.toLowerCase().includes("propietario")
-                ? "badge-propietario"
-                : "badge-arrendatario";
+              const maxRows = Math.max(
+                data.residents ? data.residents.length : 0,
+                data.vehicles ? data.vehicles.length : 0,
+                1
+              );
 
-              const residentsCount = data.residents ? data.residents.length : 0;
-              const vehiclesCount = data.vehicles ? data.vehicles.length : 0;
-              const maxRows = Math.max(residentsCount, vehiclesCount, 1);
-
+              // Flag to handle cases with 1 vehicle but multiple residents (rowspan)
               const singleVehicleMultipleResidents =
-                vehiclesCount === 1 && residentsCount > 1;
+                data.vehicles &&
+                data.vehicles.length === 1 &&
+                data.residents &&
+                data.residents.length > 1;
 
-              if (maxRows > 0) {
-                for (let i = 0; i < maxRows; i++) {
-                  const resident =
-                    data.residents && data.residents[i]
-                      ? data.residents[i]
-                      : null;
-                  const vehicle =
-                    data.vehicles && data.vehicles[i] ? data.vehicles[i] : null;
+              for (let i = 0; i < maxRows; i++) {
+                const resident =
+                  data.residents && data.residents[i]
+                    ? data.residents[i]
+                    : null;
+                const vehicle =
+                  data.vehicles && data.vehicles[i] ? data.vehicles[i] : null;
 
-                  tableHTML += `<tr>`;
+                tableHTML += `<tr>`;
 
-                  // CASA
-                  if (i === 0) {
-                    tableHTML += `
-                      <td class="text-center align-middle" rowspan="${maxRows}">
-                        <span class="text-gold-premium">${houseNum}</span>
-                      </td>
-                      <td class="text-center align-middle" rowspan="${maxRows}">
-                        <span class="badge-tipo ${typeClass}">${resType}</span>
-                      </td>
-                    `;
-                  }
-
-                  // NOMBRE
-                  if (resident) {
-                    tableHTML += `<td class="text-white">${resident.name} ${resident.lastname}</td>`;
-                  } else {
-                    tableHTML += `<td class="text-muted opacity-50">-</td>`;
-                  }
-
-                  // TELEFONO / WHATSAPP
-                  if (resident && resident.phone) {
-                    const cleanPhone = resident.phone.replace(/\D/g, "");
-                    const residentName = resident.name || "";
-                    const whatsappMessage = encodeURIComponent(
-                      `Hola ${residentName}, le saludamos de Seguridad 24/7 Ecuador.`
-                    );
-                    tableHTML += `
-                      <td class="text-center">
-                        <div class="d-flex align-items-center justify-content-center gap-2">
-                          <span style="font-size: 0.85rem;">${resident.phone}</span>
-                          <a href="https://wa.me/${cleanPhone}?text=${whatsappMessage}" target="_blank" class="text-success contact-icon">
-                            <i class="fa-brands fa-whatsapp"></i>
-                          </a>
-                          <a href="tel:${resident.phone}" class="text-info contact-icon">
-                            <i class="fa-solid fa-phone" style="font-size: 0.8rem;"></i>
-                          </a>
-                        </div>
-                      </td>
-                    `;
-                  } else {
-                    tableHTML += `<td class="text-center text-muted">-</td>`;
-                  }
-
-                  // VEHICULO INDIVIDUAL COLUMNS
-                  if (singleVehicleMultipleResidents && i === 0) {
-                    const v = data.vehicles[0];
-                    tableHTML += `
-                      <td class="text-center fw-bold" rowspan="${maxRows}">${v.brand}</td>
-                      <td class="text-center" rowspan="${maxRows}">${v.model}</td>
-                      <td class="text-center" rowspan="${maxRows}">${v.color}</td>
-                      <td class="text-center text-gold-premium" rowspan="${maxRows}">${v.plate}</td>
-                    `;
-                  } else if (!singleVehicleMultipleResidents) {
-                    if (vehicle) {
-                      tableHTML += `
-                        <td class="text-center fw-bold">${vehicle.brand}</td>
-                        <td class="text-center">${vehicle.model}</td>
-                        <td class="text-center">${vehicle.color}</td>
-                        <td class="text-center text-gold-premium">${vehicle.plate}</td>
-                      `;
-                    } else {
-                      tableHTML += `
-                        <td class="text-center text-muted">-</td>
-                        <td class="text-center text-muted">-</td>
-                        <td class="text-center text-muted">-</td>
-                        <td class="text-center text-muted">-</td>
-                      `;
-                    }
-                  }
-
-                  // ACCIONES
-                  if (i === 0) {
-                    tableHTML += `
-                      <td class="text-center align-middle" rowspan="${maxRows}">
-                        <div class="d-flex flex-column gap-1">
-                          <button class="btn-action-table btn-edit-registry" onclick="abrirEditarRegistro('${data.id}')" title="Editar">
-                            <i class="fa-solid fa-pen-to-square"></i>
-                          </button>
-                          <button class="btn-action-table btn-delete-registry" onclick="eliminarRegistro('${data.id}', '${complexName}')" title="Eliminar">
-                            <i class="fa-solid fa-trash-can"></i>
-                          </button>
-                        </div>
-                      </td>
-                    `;
-                  }
-
-                  tableHTML += `</tr>`;
+                if (i === 0) {
+                  tableHTML += `
+                          <td class="text-center fw-bold text-gold" rowspan="${maxRows}">${
+                    data.houseNum
+                  }</td>
+                          <td class="text-center align-middle" rowspan="${maxRows}">
+                            <span class="badge ${
+                              data.resType === "PROPIETARIO"
+                                ? "bg-gold text-dark"
+                                : "bg-outline-gold"
+                            }">
+                              ${data.resType || "PROPIETARIO"}
+                            </span>
+                          </td>
+                        `;
                 }
+
+                if (resident) {
+                  tableHTML += `
+                          <td class="text-center align-middle">${resident.name} ${resident.lastname}</td>
+                        `;
+                } else if (i < maxRows) {
+                  tableHTML += `<td class="text-center text-muted">-</td>`;
+                }
+
+                if (resident && resident.phone) {
+                  const cleanPhone = resident.phone.replace(/\D/g, "");
+                  const residentName = resident.name || "";
+                  const whatsappMessage = encodeURIComponent(
+                    `Hola ${residentName}, le saludamos de Seguridad 24/7 Ecuador.`
+                  );
+                  tableHTML += `
+                          <td class="text-center">
+                            <div class="d-flex align-items-center justify-content-center gap-2">
+                              <span style="font-size: 0.85rem;">${resident.phone}</span>
+                              <a href="https://wa.me/${cleanPhone}?text=${whatsappMessage}" target="_blank" class="text-success contact-icon">
+                                <i class="fa-brands fa-whatsapp"></i>
+                              </a>
+                              <a href="tel:${resident.phone}" class="text-info contact-icon">
+                                <i class="fa-solid fa-phone" style="font-size: 0.8rem;"></i>
+                              </a>
+                            </div>
+                          </td>
+                        `;
+                } else if (i < maxRows) {
+                  tableHTML += `<td class="text-center text-muted">-</td>`;
+                }
+
+                // VEHICULO INDIVIDUAL COLUMNS
+                if (singleVehicleMultipleResidents && i === 0) {
+                  const v = data.vehicles[0];
+                  tableHTML += `
+                          <td class="text-center fw-bold" rowspan="${maxRows}">${v.brand}</td>
+                          <td class="text-center" rowspan="${maxRows}">${v.model}</td>
+                          <td class="text-center" rowspan="${maxRows}">${v.color}</td>
+                          <td class="text-center text-gold-premium" rowspan="${maxRows}">${v.plate}</td>
+                        `;
+                } else if (!singleVehicleMultipleResidents) {
+                  if (vehicle) {
+                    tableHTML += `
+                            <td class="text-center fw-bold">${vehicle.brand}</td>
+                            <td class="text-center">${vehicle.model}</td>
+                            <td class="text-center">${vehicle.color}</td>
+                            <td class="text-center text-gold-premium">${vehicle.plate}</td>
+                          `;
+                  } else if (i < maxRows) {
+                    tableHTML += `
+                            <td class="text-center text-muted">-</td>
+                            <td class="text-center text-muted">-</td>
+                            <td class="text-center text-muted">-</td>
+                            <td class="text-center text-muted">-</td>
+                          `;
+                  }
+                }
+
+                // ACCIONES
+                if (i === 0) {
+                  tableHTML += `
+                          <td class="text-center align-middle" rowspan="${maxRows}">
+                            <div class="d-flex flex-column gap-1">
+                              <button class="btn-action-table btn-edit-registry" onclick="abrirEditarRegistro('${data.id}')" title="Editar">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                              </button>
+                              <button class="btn-action-table btn-delete-registry" onclick="eliminarRegistro('${data.id}', '${complexName}')" title="Eliminar">
+                                <i class="fa-solid fa-trash-can"></i>
+                              </button>
+                            </div>
+                          </td>
+                        `;
+                }
+
+                tableHTML += `</tr>`;
               }
             });
 
@@ -782,19 +1219,19 @@
                 <label class="form-label-gold mb-1" style="font-size: 0.65rem;">NOMBRE</label>
                 <input type="text" class="form-control resident-name py-1" value="${
                   data ? data.name : ""
-                }" required>
+                }" required />
               </div>
               <div class="col-6">
                 <label class="form-label-gold mb-1" style="font-size: 0.65rem;">APELLIDO</label>
                 <input type="text" class="form-control resident-lastname py-1" value="${
                   data ? data.lastname : ""
-                }" required>
+                }" required />
               </div>
-              <div class="col-12 mt-2">
+              <div class="col-12">
                 <label class="form-label-gold mb-1" style="font-size: 0.65rem;">TELÉFONO</label>
                 <input type="tel" class="form-control resident-phone py-1" value="${
                   data ? data.phone : ""
-                }" required>
+                }" required />
               </div>
             </div>
           `;
@@ -813,25 +1250,25 @@
                 <label class="form-label-gold mb-1" style="font-size: 0.65rem;">MARCA</label>
                 <input type="text" class="form-control v-brand py-1" value="${
                   data ? data.brand : ""
-                }" required>
+                }" required />
               </div>
               <div class="col-6">
                 <label class="form-label-gold mb-1" style="font-size: 0.65rem;">MODELO</label>
                 <input type="text" class="form-control v-model py-1" value="${
                   data ? data.model : ""
-                }" required>
+                }" required />
               </div>
-              <div class="col-6 mt-2">
+              <div class="col-6">
                 <label class="form-label-gold mb-1" style="font-size: 0.65rem;">COLOR</label>
                 <input type="text" class="form-control v-color py-1" value="${
                   data ? data.color : ""
-                }" required>
+                }" required />
               </div>
-              <div class="col-6 mt-2">
+              <div class="col-6">
                 <label class="form-label-gold mb-1" style="font-size: 0.65rem;">PLACA</label>
                 <input type="text" class="form-control v-plate py-1" value="${
                   data ? data.plate : ""
-                }" required>
+                }" required />
               </div>
             </div>
           `;
@@ -839,20 +1276,16 @@
         };
 
         window.abrirEditarRegistro = async (id) => {
+          Swal.fire({
+            title: "Cargando datos...",
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading(),
+          });
+
           try {
-            Swal.fire({
-              title: "Cargando datos...",
-              allowOutsideClick: false,
-              didOpen: () => Swal.showLoading(),
-            });
-
             const doc = await db.collection("residents_registry").doc(id).get();
-            if (!doc.exists) {
-              Swal.fire("Error", "El registro no existe.", "error");
-              return;
-            }
-
             const data = doc.data();
+
             document.getElementById("editRegId").value = id;
             document.getElementById("editRegComplexName").value =
               data.complexName;
@@ -1007,8 +1440,17 @@
           .getElementById("addComplexForm")
           .addEventListener("submit", async (e) => {
             e.preventDefault();
-            const name = document.getElementById("complexName").value;
-            const admin = document.getElementById("complexAdmin").value;
+            const name = document
+              .getElementById("complexName")
+              .value.trim()
+              .toUpperCase();
+            const isManual =
+              document.getElementById("toggleAdminManual").checked;
+            const admin = (
+              isManual
+                ? document.getElementById("complexAdminManual").value.trim()
+                : document.getElementById("complexAdmin").value || ""
+            ).toUpperCase();
             Swal.fire({
               title: "Guardando...",
               allowOutsideClick: false,
@@ -1016,7 +1458,7 @@
             });
             try {
               await db.collection("complexes").add({
-                name: name.toUpperCase(),
+                name: name,
                 admin,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
               });
@@ -1025,10 +1467,24 @@
                 "El conjunto ha sido registrado correctamente.",
                 "success"
               );
-              e.target.reset();
-              bootstrap.Modal.getInstance(
+
+              const modal = bootstrap.Modal.getInstance(
                 document.getElementById("addComplexModal")
-              ).hide();
+              );
+              modal.hide();
+
+              // Refrescar todos los selects de conjuntos y seleccionar el nuevo
+              cargarConjuntosParaSelects(name);
+
+              // Reset UI del admin manual
+              document.getElementById("toggleAdminManual").checked = false;
+              document.getElementById("adminManualWrapper").style.display =
+                "none";
+              document.getElementById("adminLinkWrapper").style.display =
+                "block";
+
+              e.target.reset();
+              $("#complexAdmin").val("").trigger("change");
               cargarConjuntos();
               cargarEstadisticas();
             } catch (error) {
@@ -1125,7 +1581,7 @@
                       <span class="badge bg-gold">Gestión Técnica</span>
                     </div>
                   </div>
-                  
+
                   <div class="bg-dark p-3 rounded mb-0" style="background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(212,175,55,0.1);">
                     <div class="row g-2">
                       <div class="col-6">
@@ -1140,9 +1596,9 @@
                           pass.dvr || "---"
                         }</span>
                       </div>
-                      
+
                       <div class="col-12 border-top border-secondary my-2" style="opacity: 0.2;"></div>
-                      
+
                       <div class="col-6 border-end border-secondary pe-2" style="border-right-color: rgba(255,255,255,0.1) !important;">
                         <div class="mb-2">
                           <span class="text-white-50 x-small d-block">Wifi: ${
@@ -1161,7 +1617,7 @@
                           }</span>
                         </div>
                       </div>
-                      
+
                       <div class="col-6 ps-2">
                         <span class="text-white-50 x-small d-block">Observaciones:</span>
                         <div class="text-white-50 x-small" style="line-height:1.2; font-style: italic;">
@@ -1178,6 +1634,564 @@
             `;
           });
         };
+
+        // --- GESTIÓN DE TRABAJOS (CRUD) ---
+        window.allTrabajos = [];
+
+        window.cargarTrabajos = async () => {
+          const container = document.getElementById("jobsContainer");
+          if (!container) return;
+          container.innerHTML = `<p class="text-center text-white w-100">Cargando trabajos...</p>`;
+
+          try {
+            const query = await db
+              .collection("trabajos")
+              .orderBy("createdAt", "desc")
+              .get();
+            window.allTrabajos = [];
+            query.forEach((doc) => {
+              const data = doc.data();
+              if (!data.isGuide) {
+                window.allTrabajos.push({ id: doc.id, ...data });
+              }
+            });
+            renderTrabajos(window.allTrabajos);
+          } catch (error) {
+            console.error("Error al cargar trabajos:", error);
+            container.innerHTML = `<p class="text-center text-danger w-100">Error al cargar los trabajos.</p>`;
+          }
+        };
+
+        window.renderTrabajos = (trabajosList) => {
+          const container = document.getElementById("jobsContainer");
+          if (!container) return;
+          container.innerHTML = "";
+
+          if (trabajosList.length === 0) {
+            container.innerHTML = `<p class="text-center text-white-50 w-100 mt-4">No se encontraron trabajos.</p>`;
+            return;
+          }
+
+          trabajosList.forEach((job) => {
+            const urgencyClass =
+              job.jobUrgency === "Normal"
+                ? "badge-normal"
+                : job.jobUrgency === "Urgente"
+                ? "badge-urgente"
+                : "badge-critico";
+
+            container.innerHTML += `
+              <div class="col-xl-4 col-md-6">
+                <div class="job-card">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5 class="text-gold mb-0 fw-bold">${job.clientName}</h5>
+                    <span class="badge ${urgencyClass}">${job.jobUrgency}</span>
+                  </div>
+                  <div class="job-divider"></div>
+                  <div class="mb-3 small">
+                    <p class="mb-1"><i class="fa-solid fa-calendar-day text-gold me-2"></i><strong>Fecha:</strong> ${
+                      job.jobDate
+                    }</p>
+                    <p class="mb-1"><i class="fa-solid fa-user-tag text-gold me-2"></i><strong>Contacto:</strong> ${
+                      job.contactName
+                    }</p>
+                    <p class="mb-1"><i class="fa-solid fa-phone text-gold me-2"></i><strong>Teléfono:</strong> ${
+                      job.contactPhone
+                    }</p>
+                    <p class="mb-0"><i class="fa-solid fa-circle-info text-gold me-2"></i><strong>Estado:</strong> <span class="fw-bold">${
+                      job.status || "Pendiente"
+                    }</span></p>
+                  </div>
+
+                  <div class="row g-2">
+                    <div class="col-6">
+                      <button class="btn-edit" onclick="abrirEditarTrabajo('${
+                        job.id
+                      }')">
+                        <i class="fa-solid fa-pen-to-square me-1"></i> Editar
+                      </button>
+                    </div>
+                    <div class="col-6">
+                      <button class="btn-delete" onclick="eliminarTrabajo('${
+                        job.id
+                      }')">
+                        <i class="fa-solid fa-trash me-1"></i> Borrar
+                      </button>
+                    </div>
+                    ${
+                      job.status === "Culminado"
+                        ? `
+                    <div class="col-12">
+                      <button class="btn-view-report" onclick="verReporteTrabajo('${job.id}')">
+                        <i class="fa-solid fa-file-lines me-1"></i> Ver Reporte
+                      </button>
+                    </div>
+                    `
+                        : ""
+                    }
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+        };
+
+        // CRUD Actions
+        document
+          .getElementById("addJobForm")
+          .addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const jobData = {
+              clientName: ($("#clientName").val() || "").toUpperCase(),
+              jobDate: document.getElementById("jobDate").value,
+              jobUrgency: document.getElementById("jobUrgency").value,
+              contactName: document
+                .getElementById("contactName")
+                .value.toUpperCase(),
+              contactPhone: document.getElementById("contactPhone").value,
+              status: "Pendiente",
+              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            };
+
+            Swal.fire({
+              title: "Guardando...",
+              allowOutsideClick: false,
+              didOpen: () => Swal.showLoading(),
+            });
+
+            try {
+              await db.collection("trabajos").add(jobData);
+              Swal.fire("¡Éxito!", "Trabajo creado correctamente.", "success");
+              e.target.reset();
+              bootstrap.Modal.getInstance(
+                document.getElementById("addJobModal")
+              ).hide();
+              cargarTrabajos();
+            } catch (error) {
+              console.error(error);
+              Swal.fire("Error", "No se pudo crear el trabajo.", "error");
+            }
+          });
+
+        window.abrirEditarTrabajo = async (id) => {
+          const doc = await db.collection("trabajos").doc(id).get();
+          if (!doc.exists) return;
+          const data = doc.data();
+          document.getElementById("editJobId").value = id;
+          $("#editClientName").val(data.clientName).trigger("change");
+          document.getElementById("editJobDate").value = data.jobDate;
+          document.getElementById("editJobUrgency").value = data.jobUrgency;
+          document.getElementById("editContactName").value = data.contactName;
+          document.getElementById("editContactPhone").value = data.contactPhone;
+          new bootstrap.Modal(document.getElementById("editJobModal")).show();
+        };
+
+        document
+          .getElementById("editJobForm")
+          .addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const id = document.getElementById("editJobId").value;
+            const updatedData = {
+              clientName: ($("#editClientName").val() || "").toUpperCase(),
+              jobDate: document.getElementById("editJobDate").value,
+              jobUrgency: document.getElementById("editJobUrgency").value,
+              contactName: document
+                .getElementById("editContactName")
+                .value.toUpperCase(),
+              contactPhone: document.getElementById("editContactPhone").value,
+            };
+
+            Swal.fire({
+              title: "Actualizando...",
+              allowOutsideClick: false,
+              didOpen: () => Swal.showLoading(),
+            });
+
+            try {
+              await db.collection("trabajos").doc(id).update(updatedData);
+              Swal.fire("¡Éxito!", "Trabajo actualizado.", "success");
+              bootstrap.Modal.getInstance(
+                document.getElementById("editJobModal")
+              ).hide();
+              cargarTrabajos();
+            } catch (error) {
+              console.error(error);
+              Swal.fire("Error", "No se pudo actualizar.", "error");
+            }
+          });
+
+        window.eliminarTrabajo = (id) => {
+          Swal.fire({
+            title: "¿Eliminar trabajo?",
+            text: "Esta acción no se puede deshacer.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d4af37",
+            confirmButtonText: "Sí, eliminar",
+          }).then(async (result) => {
+            if (result.isConfirmed) {
+              await db.collection("trabajos").doc(id).delete();
+              Swal.fire("Eliminado", "El trabajo ha sido borrado.", "success");
+              cargarTrabajos();
+            }
+          });
+        };
+
+        window.verReporteTrabajo = async (id) => {
+          Swal.fire({
+            title: "Cargando reporte...",
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading(),
+          });
+          try {
+            const doc = await db.collection("trabajos").doc(id).get();
+            const data = doc.data();
+
+            const completionDateTime = data.reportDate.toDate();
+            document.getElementById("reportClientName").innerText =
+              data.clientName;
+            document.getElementById("reportJobDate").innerText = data.jobDate;
+            document.getElementById("reportStatus").innerText = data.status;
+            document.getElementById("reportDate").innerText =
+              completionDateTime.toLocaleDateString();
+            document.getElementById("reportTime").innerText =
+              completionDateTime.toLocaleTimeString();
+            document.getElementById("reportText").innerText = data.report;
+            document.getElementById("reportImage1").src =
+              data.evidenceBase64 && data.evidenceBase64[0]
+                ? data.evidenceBase64[0]
+                : "";
+            document.getElementById("reportImage2").src =
+              data.evidenceBase64 && data.evidenceBase64[1]
+                ? data.evidenceBase64[1]
+                : "";
+
+            // Manejar Firmas
+            const signaturesSection = document.getElementById(
+              "reportSignaturesSection"
+            );
+            const signatureImg = document.getElementById(
+              "reportClientSignature"
+            );
+            if (data.clientSignature) {
+              signatureImg.src = data.clientSignature;
+              signaturesSection.style.display = "block";
+            } else {
+              signatureImg.src = "";
+              signaturesSection.style.display = "none";
+            }
+
+            Swal.close();
+            new bootstrap.Modal(document.getElementById("reportModal")).show();
+          } catch (error) {
+            console.error(error);
+            Swal.fire("Error", "No se pudo cargar el reporte.", "error");
+          }
+        };
+
+        // PDF Generation Logic (Modern & Elegant Style)
+        document
+          .getElementById("generateJobPdfBtn")
+          .addEventListener("click", () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const logo = new Image();
+            const seal = new Image();
+            logo.src = "assets/img/logo.png";
+            seal.src = "assets/img/firma.png";
+
+            let imagesLoaded = 0;
+            const checkImages = () => {
+              imagesLoaded++;
+              if (imagesLoaded === 2) generatePDF();
+            };
+            logo.onload = checkImages;
+            seal.onload = checkImages;
+            logo.onerror = checkImages;
+            seal.onerror = checkImages;
+
+            function generatePDF() {
+              const primaryColor = "#d4af37"; // Gold
+              const secondaryColor = "#1a1a1a"; // Dark Gray/Black
+              const lightBG = "#f8f9fa";
+
+              // --- PAGE CONFIG ---
+              const pageWidth = doc.internal.pageSize.getWidth();
+              const pageHeight = doc.internal.pageSize.getHeight();
+              const margin = 20;
+              const contentWidth = pageWidth - margin * 2;
+
+              // --- HEADER ---
+              // Dark Header Background
+              doc.setFillColor(secondaryColor);
+              doc.rect(0, 0, pageWidth, 40, "F");
+
+              // Gold accent line
+              doc.setFillColor(primaryColor);
+              doc.rect(0, 0, pageWidth, 4, "F");
+
+              // Logo
+              try {
+                doc.addImage(logo, "PNG", margin, 10, 20, 20);
+              } catch (e) {
+                console.error("Logo error", e);
+              }
+
+              // Title
+              doc.setFont("helvetica", "bold");
+              doc.setFontSize(16);
+              doc.setTextColor("#FFFFFF");
+              doc.text("SERVICIO TÉCNICO ESPECIALIZADO", 55, 18);
+
+              doc.setFontSize(10);
+              doc.setFont("helvetica", "normal");
+              doc.text("SEGURIDAD 24/7 ECUADOR - INFORME TÉCNICO", 55, 26);
+
+              let y = 55;
+
+              // --- SECTION: CLIENT INFO (Boxed) ---
+              doc.setFillColor(lightBG);
+              doc.roundedRect(margin, y, contentWidth, 35, 3, 3, "F");
+              doc.setDrawColor(primaryColor);
+              doc.setLineWidth(0.5);
+              doc.line(margin + 5, y + 10, margin + 60, y + 10);
+
+              doc.setFont("helvetica", "bold");
+              doc.setFontSize(12);
+              doc.setTextColor(primaryColor);
+              doc.text("DATOS DE LA ORDEN", margin + 5, y + 7);
+
+              doc.setFontSize(10);
+              doc.setTextColor(secondaryColor);
+              doc.setFont("helvetica", "bold");
+              doc.text("CLIENTE:", margin + 5, y + 20);
+              doc.setFont("helvetica", "normal");
+              doc.text(
+                document.getElementById("reportClientName").innerText,
+                margin + 45,
+                y + 20
+              );
+
+              doc.setFont("helvetica", "bold");
+              doc.text("FECHA ASIGNACIÓN:", margin + 5, y + 28);
+              doc.setFont("helvetica", "normal");
+              doc.text(
+                document.getElementById("reportJobDate").innerText,
+                margin + 45,
+                y + 28
+              );
+
+              y += 45;
+
+              // --- SECTION: STATUS ---
+              doc.setFont("helvetica", "bold");
+              doc.setFontSize(12);
+              doc.setTextColor(primaryColor);
+              doc.text("ESTADO DE FINALIZACIÓN", margin, y);
+              doc.setDrawColor("#e0e0e0");
+              doc.line(margin, y + 2, margin + contentWidth, y + 2);
+              y += 10;
+
+              doc.setFontSize(10);
+              doc.setTextColor(secondaryColor);
+              doc.text("ESTADO ACTUAL:", margin, y);
+              const status = document.getElementById("reportStatus").innerText;
+              doc.setTextColor(
+                status === "Culminado" ? "#28a745" : primaryColor
+              );
+              doc.text(status.toUpperCase(), margin + 40, y);
+
+              doc.setTextColor(secondaryColor);
+              y += 7;
+              doc.setFont("helvetica", "bold");
+              doc.text("FECHA CIERRE:", margin, y);
+              doc.setFont("helvetica", "normal");
+              doc.text(
+                `${document.getElementById("reportDate").innerText} - ${
+                  document.getElementById("reportTime").innerText
+                }`,
+                margin + 40,
+                y
+              );
+
+              y += 15;
+
+              // --- SECTION: REPORT TEXT ---
+              doc.setFont("helvetica", "bold");
+              doc.setFontSize(12);
+              doc.setTextColor(primaryColor);
+              doc.text("DETALLE DEL TRABAJO REALIZADO", margin, y);
+              doc.line(margin, y + 2, margin + contentWidth, y + 2);
+              y += 10;
+
+              doc.setFont("helvetica", "normal");
+              doc.setFontSize(10);
+              doc.setTextColor("#444444");
+              const reportLines = doc.splitTextToSize(
+                document.getElementById("reportText").innerText,
+                contentWidth
+              );
+              doc.text(reportLines, margin, y);
+              y += reportLines.length * 5 + 20;
+
+              // --- SECTION: IMAGES ---
+              if (y > 200) {
+                doc.addPage();
+                y = margin + 10;
+              }
+
+              doc.setFont("helvetica", "bold");
+              doc.setFontSize(12);
+              doc.setTextColor(primaryColor);
+              doc.text("EVIDENCIA FOTOGRÁFICA", margin, y);
+              doc.line(margin, y + 2, margin + contentWidth, y + 2);
+              y += 10;
+
+              const img1 = document.getElementById("reportImage1");
+              const img2 = document.getElementById("reportImage2");
+
+              const imgWidth = (contentWidth - 10) / 2;
+              const imgHeight = 60;
+
+              if (img1.src && img1.src.startsWith("data:")) {
+                doc.setDrawColor("#ddd");
+                doc.rect(margin - 1, y - 1, imgWidth + 2, imgHeight + 2);
+                doc.addImage(img1.src, "JPEG", margin, y, imgWidth, imgHeight);
+              }
+              if (img2.src && img2.src.startsWith("data:")) {
+                doc.setDrawColor("#ddd");
+                doc.rect(
+                  margin + imgWidth + 9,
+                  y - 1,
+                  imgWidth + 2,
+                  imgHeight + 2
+                );
+                doc.addImage(
+                  img2.src,
+                  "JPEG",
+                  margin + imgWidth + 10,
+                  y,
+                  imgWidth,
+                  imgHeight
+                );
+              }
+
+              y += imgHeight + 30;
+
+              // --- SIGNATURES SECTION ---
+              if (y > 230) {
+                doc.addPage();
+                y = 30;
+              }
+
+              const sigWidth = 50;
+              const sigHeight = 30;
+
+              // Technical Support Seal
+              try {
+                doc.addImage(seal, "PNG", margin + 15, y, sigWidth, sigHeight);
+                doc.setDrawColor(primaryColor);
+                doc.line(
+                  margin + 5,
+                  y + sigHeight + 2,
+                  margin + sigWidth + 25,
+                  y + sigHeight + 2
+                );
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(9);
+                doc.setTextColor(secondaryColor);
+                doc.text(
+                  "SELLO DE SOPORTE TÉCNICO",
+                  margin + 12,
+                  y + sigHeight + 7
+                );
+              } catch (e) {
+                console.warn("Seal image not available");
+              }
+
+              // Client Signature
+              const clientSigBase64 = document.getElementById(
+                "reportClientSignature"
+              ).src;
+              if (clientSigBase64 && clientSigBase64.startsWith("data:")) {
+                try {
+                  doc.addImage(
+                    clientSigBase64,
+                    "PNG",
+                    pageWidth - margin - sigWidth - 15,
+                    y,
+                    sigWidth,
+                    sigHeight
+                  );
+                  doc.setDrawColor(primaryColor);
+                  doc.line(
+                    pageWidth - margin - sigWidth - 25,
+                    y + sigHeight + 2,
+                    pageWidth - margin - 5,
+                    y + sigHeight + 2
+                  );
+                  doc.setFontSize(9);
+                  doc.text(
+                    "FIRMA DE CONFORMIDAD CLIENTE",
+                    pageWidth - margin - sigWidth - 22,
+                    y + sigHeight + 7
+                  );
+                } catch (e) {
+                  console.warn("Client signature error", e);
+                }
+              }
+
+              y += 50;
+
+              // --- FOOTER ---
+              doc.setFillColor(primaryColor);
+              doc.rect(0, pageHeight - 15, pageWidth, 15, "F");
+              doc.setFontSize(8);
+              doc.setTextColor("#FFFFFF");
+              doc.text(
+                "© 2025 SEGURIDAD 24/7 ECUADOR & MCV (MALLITAXI CODE VISION). DOCUMENTO OFICIAL DE SERVICIO.",
+                pageWidth / 2,
+                pageHeight - 6,
+                { align: "center" }
+              );
+
+              doc.save(
+                `INFORME_${document
+                  .getElementById("reportClientName")
+                  .innerText.toUpperCase()
+                  .replace(/\s+/g, "_")}.pdf`
+              );
+            }
+          });
+
+        // Filtros de trabajos
+        document
+          .getElementById("jobUrgencyFilter")
+          .addEventListener("change", (e) => {
+            const val = e.target.value;
+            const search = document
+              .getElementById("jobSearchInput")
+              .value.toLowerCase();
+            const filtered = window.allTrabajos.filter(
+              (j) =>
+                (val === "todas" || j.jobUrgency === val) &&
+                j.clientName.toLowerCase().includes(search)
+            );
+            renderTrabajos(filtered);
+          });
+
+        document
+          .getElementById("jobSearchInput")
+          .addEventListener("input", (e) => {
+            const val = e.target.value.toLowerCase();
+            const urgency = document.getElementById("jobUrgencyFilter").value;
+            const filtered = window.allTrabajos.filter(
+              (j) =>
+                (urgency === "todas" || j.jobUrgency === urgency) &&
+                j.clientName.toLowerCase().includes(val)
+            );
+            renderTrabajos(filtered);
+          });
 
         const passwordSearchInput = document.getElementById(
           "passwordSearchInput"

@@ -551,63 +551,89 @@
             ></button>
           </div>
           <div class="modal-body modal-report-body" id="reportContentArea">
-            <div class="row">
-              <!-- Columna 1: Detalles del Trabajo -->
-              <div class="col-md-6">
-                <div class="report-section">
-                  <h6 class="report-section-title">Detalles del Trabajo</h6>
-                  <p>
-                    <strong>Cliente:</strong>
-                    <span id="reportClientName"></span>
-                  </p>
-                  <p>
-                    <strong>Fecha de Asignación:</strong>
-                    <span id="reportJobDate"></span>
-                  </p>
+            <div class="report-grid">
+              <!-- Detalles del Trabajo -->
+              <div class="report-card">
+                <div class="report-card-title">
+                  <i class="fa-solid fa-briefcase"></i> Detalles del Trabajo
+                </div>
+                <div class="report-info-item">
+                  <span class="report-info-label">Cliente:</span>
+                  <span class="report-info-value" id="reportClientName"></span>
+                </div>
+                <div class="report-info-item">
+                  <span class="report-info-label">Asignación:</span>
+                  <span class="report-info-value" id="reportJobDate"></span>
                 </div>
               </div>
 
-              <!-- Columna 2: Informe Técnico -->
-              <div class="col-md-6">
-                <div class="report-section">
-                  <h6 class="report-section-title">Detalles del Informe</h6>
-                  <p>
-                    <strong>Estado:</strong> <span id="reportStatus"></span>
-                  </p>
-                  <p>
-                    <strong>Finalizado el:</strong> <span id="reportDate"></span
-                    ><strong> a las:</strong> <span id="reportTime"></span>
-                  </p>
+              <!-- Detalles del Informe -->
+              <div class="report-card">
+                <div class="report-card-title">
+                  <i class="fa-solid fa-clipboard-check"></i> Detalles del Informe
                 </div>
-              </div>
-            </div>
-
-            <!-- Fila para el Reporte Escrito -->
-            <div class="row mt-4">
-              <div class="col-12">
-                <div class="report-section">
-                  <h6 class="report-section-title">
-                    Informe de Trabajo Realizado
-                  </h6>
-                  <div id="reportText" class="report-text-box"></div>
+                <div class="report-info-item">
+                  <span class="report-info-label">Estado:</span>
+                  <span class="report-info-value text-gold" id="reportStatus"></span>
+                </div>
+                <div class="report-info-item">
+                  <span class="report-info-label">Finalizado:</span>
+                  <span class="report-info-value">
+                    <span id="reportDate"></span> - <span id="reportTime"></span>
+                  </span>
                 </div>
               </div>
             </div>
 
-            <!-- Fila para Evidencia Fotográfica -->
-            <div class="report-section mt-4">
-              <h6 class="report-section-title">Evidencia Fotográfica</h6>
-              <div
-                class="d-flex justify-content-around gap-3 evidence-container"
-              >
-                <img id="reportImage1" class="report-image" alt="Evidencia 1" />
-                <img id="reportImage2" class="report-image" alt="Evidencia 2" />
+            <!-- Informe de Trabajo Realizado -->
+            <div class="report-card mb-4">
+              <div class="report-card-title">
+                <i class="fa-solid fa-pen-fancy"></i> Informe de Trabajo Realizado
+              </div>
+              <div id="reportText" class="report-text-area"></div>
+            </div>
+
+            <!-- Evidencia Fotográfica -->
+            <div class="report-card mb-4">
+              <div class="report-card-title">
+                <i class="fa-solid fa-images"></i> Evidencia Fotográfica
+              </div>
+              <div class="report-evidence-grid">
+                <div class="report-img-container">
+                  <img id="reportImage1" src="" alt="Evidencia 1" />
+                </div>
+                <div class="report-img-container">
+                  <img id="reportImage2" src="" alt="Evidencia 2" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Firmas -->
+            <div id="reportSignaturesSection" style="display: none">
+              <div class="report-card">
+                <div class="report-card-title">
+                  <i class="fa-solid fa-file-signature"></i> Firmas de Conformidad
+                </div>
+                <div class="report-signature-grid">
+                  <div class="text-center">
+                    <small class="text-gold d-block mb-2">Sello Técnico</small>
+                    <div class="signature-box">
+                      <img src="assets/img/firma.png" alt="Sello Técnico" />
+                    </div>
+                  </div>
+                  <div class="text-center">
+                    <small class="text-gold d-block mb-2">Firma Cliente</small>
+                    <div class="signature-box">
+                      <img id="reportClientSignature" src="" alt="Firma del Cliente" />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          <div class="modal-footer modal-report-footer">
-            <button type="button" class="btn btn-gold" id="generatePdfBtn">
-              Generar PDF
+          <div class="modal-report-footer">
+            <button type="button" class="btn-pdf-premium" id="generatePdfBtn">
+              <i class="fa-solid fa-file-pdf me-2"></i> Generar PDF
             </button>
           </div>
         </div>

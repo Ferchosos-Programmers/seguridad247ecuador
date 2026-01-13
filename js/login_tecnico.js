@@ -863,10 +863,102 @@ function configurarModalInforme() {
   const reportModal = document.getElementById("technicalReportModal");
   if (!reportModal) return;
 
+  // Canvas de Firma del Reporte
+  const canvas = document.getElementById("reportSignatureCanvas");
+  let ctx = null;
+  let isDrawing = false;
+  let lastX = 0;
+  let lastY = 0;
+
+  if (canvas) {
+    ctx = canvas.getContext("2d");
+    
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = 150;
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 2;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+    }
+
+    canvas.hasSignature = false;
+
+    // Mouse events
+    canvas.addEventListener("mousedown", (e) => {
+      isDrawing = true;
+      const rect = canvas.getBoundingClientRect();
+      lastX = e.clientX - rect.left;
+      lastY = e.clientY - rect.top;
+    });
+
+    canvas.addEventListener("mousemove", (e) => {
+      if (!isDrawing) return;
+      const rect = canvas.getBoundingClientRect();
+      const currentX = e.clientX - rect.left;
+      const currentY = e.clientY - rect.top;
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(currentX, currentY);
+      ctx.stroke();
+      canvas.hasSignature = true;
+      lastX = currentX;
+      lastY = currentY;
+    });
+
+    canvas.addEventListener("mouseup", () => isDrawing = false);
+    canvas.addEventListener("mouseout", () => isDrawing = false);
+
+    // Touch events
+    canvas.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      isDrawing = true;
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      lastX = touch.clientX - rect.left;
+      lastY = touch.clientY - rect.top;
+    });
+
+    canvas.addEventListener("touchmove", (e) => {
+      e.preventDefault();
+      if (!isDrawing) return;
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      const currentX = touch.clientX - rect.left;
+      const currentY = touch.clientY - rect.top;
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(currentX, currentY);
+      ctx.stroke();
+      canvas.hasSignature = true;
+      lastX = currentX;
+      lastY = currentY;
+    });
+
+    canvas.addEventListener("touchend", () => isDrawing = false);
+
+    const clearBtn = document.getElementById("clearReportSignatureBtn");
+    if (clearBtn) {
+      clearBtn.addEventListener("click", () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        canvas.hasSignature = false;
+      });
+    }
+  }
+
   reportModal.addEventListener("show.bs.modal", async (event) => {
     const button = event.relatedTarget;
     const jobId = button.getAttribute("data-id");
     document.getElementById("jobId").value = jobId;
+
+    // Reset canvas on open
+    if (canvas && ctx) {
+      setTimeout(() => {
+        resizeCanvas();
+        canvas.hasSignature = false;
+      }, 200);
+    }
 
     const jobDetailsContainer = document.getElementById("jobDetails");
     jobDetailsContainer.innerHTML = "Cargando detalles...";
@@ -910,6 +1002,11 @@ function configurarModalInforme() {
       return;
     }
 
+    if (!canvas.hasSignature) {
+      Swal.fire("Error", "Por favor, capture la firma del cliente.", "error");
+      return;
+    }
+
     saveReportBtn.disabled = true;
     saveReportBtn.innerHTML = "Guardando...";
 
@@ -918,6 +1015,7 @@ function configurarModalInforme() {
         report: reportText,
         status: jobStatus,
         reportDate: new Date(),
+        clientSignature: canvas.toDataURL("image/png"),
       };
 
       // Convertir imágenes a Base64

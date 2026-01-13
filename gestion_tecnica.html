@@ -636,9 +636,10 @@
               <input type="hidden" id="jobId" />
               <div id="jobDetails" class="mb-3"></div>
               <div class="mb-3">
-                <label for="reportText" class="form-label"
-                  >Informe de Trabajo Realizado</label
-                >
+                <label for="reportText" class="form-label text-gold">
+                  <i class="fa-solid fa-pen-to-square me-2"></i>Informe de
+                  Trabajo Realizado
+                </label>
                 <textarea
                   class="form-control"
                   id="reportText"
@@ -647,40 +648,107 @@
                 ></textarea>
               </div>
               <div class="row">
-                <div class="col-md-6 mb-3">
-                  <label for="evidencePhoto1" class="form-label"
-                    >Evidencia 1 (Foto)</label
-                  >
-                  <input
-                    type="file"
-                    class="form-control"
-                    id="evidencePhoto1"
-                    accept="image/*"
-                  />
+                <div class="col-md-6 mb-4">
+                  <div class="report-input-group">
+                    <label for="evidencePhoto1" class="form-label text-gold">
+                      <i class="fa-solid fa-camera me-2"></i>Evidencia 1 (Foto)
+                    </label>
+                    <input
+                      type="file"
+                      class="form-control bg-dark border-gold text-white"
+                      id="evidencePhoto1"
+                      accept="image/*"
+                    />
+                  </div>
                 </div>
-                <div class="col-md-6 mb-3">
-                  <label for="evidencePhoto2" class="form-label"
-                    >Evidencia 2 (Foto)</label
-                  >
-                  <input
-                    type="file"
-                    class="form-control"
-                    id="evidencePhoto2"
-                    accept="image/*"
-                  />
+                <div class="col-md-6 mb-4">
+                  <div class="report-input-group">
+                    <label for="evidencePhoto2" class="form-label text-gold">
+                      <i class="fa-solid fa-camera me-2"></i>Evidencia 2 (Foto)
+                    </label>
+                    <input
+                      type="file"
+                      class="form-control bg-dark border-gold text-white"
+                      id="evidencePhoto2"
+                      accept="image/*"
+                    />
+                  </div>
                 </div>
               </div>
-              <div class="mb-3">
-                <label for="jobStatus" class="form-label"
-                  >Estado del Trabajo</label
+
+              <div class="mb-4">
+                <label for="jobStatus" class="form-label text-gold">
+                  <i class="fa-solid fa-list-check me-2"></i>Estado Final del
+                  Trabajo
+                </label>
+                <select
+                  class="form-select bg-dark border-gold text-white"
+                  id="jobStatus"
+                  required
                 >
-                <select class="form-select" id="jobStatus" required>
                   <option value="" disabled selected>
                     Seleccione un estado
                   </option>
                   <option value="Pendiente">Pendiente</option>
                   <option value="Culminado">Culminado</option>
                 </select>
+              </div>
+
+              <div class="row g-4 mt-2">
+                <!-- Firma por Defecto (Sello Técnico) -->
+                <div class="col-md-6">
+                  <div class="signature-display-box">
+                    <label class="form-label text-gold">
+                      <i class="fa-solid fa-stamp me-2"></i>Sello de Servicio
+                      Técnico
+                    </label>
+                    <div class="signature-container default-seal">
+                      <img
+                        src="assets/img/firma.png"
+                        alt="Sello Técnico"
+                        class="img-fluid"
+                        style="max-height: 100px"
+                      />
+                    </div>
+                    <small class="text-white-50 mt-1 d-block text-center"
+                      >Este sello se incluirá por defecto en el informe.</small
+                    >
+                  </div>
+                </div>
+
+                <!-- Firma del Cliente -->
+                <div class="col-md-6">
+                  <div class="signature-capture-box">
+                    <label class="form-label text-gold">
+                      <i class="fa-solid fa-signature me-2"></i>Firma de
+                      Conformidad Cliente
+                    </label>
+                    <div class="signature-container bg-white rounded-3 p-1">
+                      <canvas
+                        id="reportSignatureCanvas"
+                        style="
+                          width: 100%;
+                          height: 120px;
+                          cursor: crosshair;
+                          touch-action: none;
+                          border-radius: 4px;
+                        "
+                      ></canvas>
+                    </div>
+                    <div class="d-flex justify-content-between mt-2">
+                      <small class="text-white-50"
+                        >Capture la firma del cliente aquí.</small
+                      >
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        id="clearReportSignatureBtn"
+                      >
+                        <i class="fa-solid fa-eraser me-1"></i>Limpiar
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </form>
           </div>

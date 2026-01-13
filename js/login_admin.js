@@ -218,146 +218,271 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("generatePdfBtn").addEventListener("click", () => {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
-
-      // ======================================================
-      //  1. CONFIGURACIÓN DE ESTILOS Y COLORES
-      // ======================================================
-      const primaryColor = "#d4af37"; // Dorado
-      const textColor = "#000"; // Blanco
-      const backgroundColor = "#fff"; // Negro/Carbón
-
-      // ======================================================
-      //  2. CABECERA DEL DOCUMENTO
-      // ======================================================
       const logo = new Image();
-      logo.src = "assets/img/logo.png"; // Usar logo claro para fondo oscuro
+      const seal = new Image();
+      logo.src = "assets/img/logo.png";
+      seal.src = "assets/img/firma.png";
 
-      logo.onload = function () {
-        // Fondo general del documento
-        doc.setFillColor(backgroundColor);
-        doc.rect(0, 0, 210, 297, "F");
+      let imagesLoaded = 0;
+      const checkImages = () => {
+        imagesLoaded++;
+        if (imagesLoaded === 2) generatePDF();
+      };
+      logo.onload = checkImages;
+      seal.onload = checkImages;
+      logo.onerror = checkImages;
+      seal.onerror = checkImages;
 
-        // Fondo de la cabecera
+      function generatePDF() {
+        const primaryColor = "#d4af37"; // Gold
+        const secondaryColor = "#1a1a1a"; // Dark Gray/Black
+        const lightBG = "#f8f9fa";
+
+        // --- PAGE CONFIG ---
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const margin = 20;
+        const contentWidth = pageWidth - margin * 2;
+
+        // --- HEADER ---
+        // Dark Header Background
+        doc.setFillColor(secondaryColor);
+        doc.rect(0, 0, pageWidth, 40, "F");
+
+        // Gold accent line
         doc.setFillColor(primaryColor);
-        doc.rect(0, 0, 210, 30, "F");
+        doc.rect(0, 0, pageWidth, 4, "F");
 
         // Logo
-        doc.addImage(logo, "PNG", 15, 5, 20, 20);
+        try {
+          doc.addImage(logo, "PNG", margin, 10, 20, 20);
+        } catch (e) {
+          console.error("Logo error", e);
+        }
 
-        // Título
-        doc.setFont("Times-Roman", "bold");
-        doc.setFontSize(22);
+        // Title
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(16);
         doc.setTextColor("#FFFFFF");
-        doc.text("Informe Técnico de Trabajo", 45, 18);
+        doc.text("SERVICIO TÉCNICO ESPECIALIZADO", 55, 18);
 
-        // ======================================================
-        //  3. CUERPO DEL INFORME
-        // ======================================================
-        let y = 45; // Posición inicial en Y
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+        doc.text("SEGURIDAD 24/7 ECUADOR - INFORME TÉCNICO", 55, 26);
 
-        // --- Detalles del Cliente y Trabajo ---
-        doc.setFont("Times-Roman", "bold");
-        doc.setFontSize(16);
-        doc.setTextColor(primaryColor);
-        doc.text("Detalles del Cliente y Trabajo", 15, y);
-        y += 8;
+        let y = 55;
 
-        doc.setFont("Times-Roman", "normal");
+        // --- SECTION: CLIENT INFO (Boxed) ---
+        doc.setFillColor(lightBG);
+        doc.roundedRect(margin, y, contentWidth, 35, 3, 3, "F");
+        doc.setDrawColor(primaryColor);
+        doc.setLineWidth(0.5);
+        doc.line(margin + 5, y + 10, margin + 60, y + 10);
+
+        doc.setFont("helvetica", "bold");
         doc.setFontSize(12);
-        doc.setTextColor(textColor);
+        doc.setTextColor(primaryColor);
+        doc.text("DATOS DE LA ORDEN", margin + 5, y + 7);
+
+        doc.setFontSize(10);
+        doc.setTextColor(secondaryColor);
+        doc.setFont("helvetica", "bold");
+        doc.text("CLIENTE:", margin + 5, y + 20);
+        doc.setFont("helvetica", "normal");
         doc.text(
-          `Cliente: ${document.getElementById("reportClientName").textContent}`,
-          20,
-          y
+          document.getElementById("reportClientName").innerText,
+          margin + 45,
+          y + 20
         );
-        y += 7;
+
+        doc.setFont("helvetica", "bold");
+        doc.text("FECHA ASIGNACIÓN:", margin + 5, y + 28);
+        doc.setFont("helvetica", "normal");
         doc.text(
-          `Fecha de Asignación: ${document.getElementById("reportJobDate").textContent
+          document.getElementById("reportJobDate").innerText,
+          margin + 45,
+          y + 28
+        );
+
+        y += 45;
+
+        // --- SECTION: STATUS ---
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(12);
+        doc.setTextColor(primaryColor);
+        doc.text("ESTADO DE FINALIZACIÓN", margin, y);
+        doc.setDrawColor("#e0e0e0");
+        doc.line(margin, y + 2, margin + contentWidth, y + 2);
+        y += 10;
+
+        doc.setFontSize(10);
+        doc.setTextColor(secondaryColor);
+        doc.text("ESTADO ACTUAL:", margin, y);
+        const status = document.getElementById("reportStatus").innerText;
+        doc.setTextColor(status === "Culminado" ? "#28a745" : primaryColor);
+        doc.text(status.toUpperCase(), margin + 40, y);
+
+        doc.setTextColor(secondaryColor);
+        y += 7;
+        doc.setFont("helvetica", "bold");
+        doc.text("FECHA CIERRE:", margin, y);
+        doc.setFont("helvetica", "normal");
+        doc.text(
+          `${document.getElementById("reportDate").innerText} - ${
+            document.getElementById("reportTime").innerText
           }`,
-          20,
+          margin + 40,
           y
         );
-        y += 12;
 
-        // --- Detalles del Informe ---
-        doc.setFont("Times-Roman", "bold");
-        doc.setFontSize(16);
-        doc.setTextColor(primaryColor);
-        doc.text("Estado y Finalización del Informe", 15, y);
-        y += 8;
+        y += 15;
 
-        doc.setFont("Times-Roman", "normal");
+        // --- SECTION: REPORT TEXT ---
+        doc.setFont("helvetica", "bold");
         doc.setFontSize(12);
-        doc.setTextColor(textColor);
-        doc.text(
-          `Estado: ${document.getElementById("reportStatus").textContent}`,
-          20,
-          y
-        );
-        y += 7;
-        doc.text(
-          `Finalizado el: ${document.getElementById("reportDate").textContent
-          } a las: ${document.getElementById("reportTime").textContent}`,
-          20,
-          y
-        );
-        y += 12;
-
-        // --- Informe Escrito ---
-        doc.setFont("Times-Roman", "bold");
-        doc.setFontSize(16);
         doc.setTextColor(primaryColor);
-        doc.text("Informe de Trabajo Realizado", 15, y);
-        y += 8;
+        doc.text("DETALLE DEL TRABAJO REALIZADO", margin, y);
+        doc.line(margin, y + 2, margin + contentWidth, y + 2);
+        y += 10;
 
-        doc.setFont("Times-Roman", "normal");
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor("#444444");
+        const reportLines = doc.splitTextToSize(
+          document.getElementById("reportText").innerText,
+          contentWidth
+        );
+        doc.text(reportLines, margin, y);
+        y += reportLines.length * 5 + 20;
+
+        // --- SECTION: IMAGES ---
+        if (y > 200) {
+          doc.addPage();
+          y = margin + 10;
+        }
+
+        doc.setFont("helvetica", "bold");
         doc.setFontSize(12);
-        doc.setTextColor(textColor);
-        const reportText = doc.splitTextToSize(
-          document.getElementById("reportText").textContent,
-          175
-        );
-        doc.text(reportText, 20, y);
-        y += reportText.length * 6 + 10;
-
-        // --- Evidencia Fotográfica ---
-        doc.setFont("Times-Roman", "bold");
-        doc.setFontSize(16);
         doc.setTextColor(primaryColor);
-        doc.text("Evidencia Fotográfica", 15, y);
+        doc.text("EVIDENCIA FOTOGRÁFICA", margin, y);
+        doc.line(margin, y + 2, margin + contentWidth, y + 2);
         y += 10;
 
         const img1 = document.getElementById("reportImage1");
         const img2 = document.getElementById("reportImage2");
 
-        if (img1.src) doc.addImage(img1, "PNG", 15, y, 80, 60);
-        if (img2.src) doc.addImage(img2, "PNG", 115, y, 80, 60);
-        y += 70;
+        const imgWidth = (contentWidth - 10) / 2;
+        const imgHeight = 60;
 
-        // ======================================================
-        //  4. PIE DE PÁGINA
-        // ======================================================
+        if (img1.src && img1.src.startsWith("data:")) {
+          doc.setDrawColor("#ddd");
+          doc.rect(margin - 1, y - 1, imgWidth + 2, imgHeight + 2);
+          doc.addImage(img1.src, "JPEG", margin, y, imgWidth, imgHeight);
+        }
+        if (img2.src && img2.src.startsWith("data:")) {
+          doc.setDrawColor("#ddd");
+          doc.rect(
+            margin + imgWidth + 9,
+            y - 1,
+            imgWidth + 2,
+            imgHeight + 2
+          );
+          doc.addImage(
+            img2.src,
+            "JPEG",
+            margin + imgWidth + 10,
+            y,
+            imgWidth,
+            imgHeight
+          );
+        }
+
+        y += imgHeight + 30;
+
+        // --- SIGNATURES SECTION ---
+        if (y > 230) {
+          doc.addPage();
+          y = 30;
+        }
+
+        const sigWidth = 50;
+        const sigHeight = 30;
+
+        // Technical Support Seal
+        try {
+          doc.addImage(seal, "PNG", margin + 15, y, sigWidth, sigHeight);
+          doc.setDrawColor(primaryColor);
+          doc.line(
+            margin + 5,
+            y + sigHeight + 2,
+            margin + sigWidth + 25,
+            y + sigHeight + 2
+          );
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(9);
+          doc.setTextColor(secondaryColor);
+          doc.text(
+            "SELLO DE SOPORTE TÉCNICO",
+            margin + 12,
+            y + sigHeight + 7
+          );
+        } catch (e) {
+          console.warn("Seal image not available");
+        }
+
+        // Client Signature
+        const clientSigBase64 = document.getElementById(
+          "reportClientSignature"
+        ).src;
+        if (clientSigBase64 && clientSigBase64.startsWith("data:")) {
+          try {
+            doc.addImage(
+              clientSigBase64,
+              "PNG",
+              pageWidth - margin - sigWidth - 15,
+              y,
+              sigWidth,
+              sigHeight
+            );
+            doc.setDrawColor(primaryColor);
+            doc.line(
+              pageWidth - margin - sigWidth - 25,
+              y + sigHeight + 2,
+              pageWidth - margin - 5,
+              y + sigHeight + 2
+            );
+            doc.setFontSize(9);
+            doc.text(
+              "FIRMA DE CONFORMIDAD CLIENTE",
+              pageWidth - margin - sigWidth - 22,
+              y + sigHeight + 7
+            );
+          } catch (e) {
+            console.warn("Client signature error", e);
+          }
+        }
+
+        y += 50;
+
+        // --- FOOTER ---
         doc.setFillColor(primaryColor);
-        doc.rect(0, 287, 210, 10, "F");
-        doc.setFont("Times-Roman", "normal");
-        doc.setFontSize(10);
+        doc.rect(0, pageHeight - 15, pageWidth, 15, "F");
+        doc.setFontSize(8);
         doc.setTextColor("#FFFFFF");
         doc.text(
-          "© 2025 Seguridad 247 Ecuador & MCV (Mallitaxi Code Vision) — Todos los derechos reservados",
-          105,
-          293,
+          "© 2025 SEGURIDAD 24/7 ECUADOR & MCV (MALLITAXI CODE VISION). DOCUMENTO OFICIAL DE SERVICIO.",
+          pageWidth / 2,
+          pageHeight - 6,
           { align: "center" }
         );
 
-        // ======================================================
-        //  5. GUARDAR EL PDF
-        // ======================================================
-        doc.save("reporte-tecnico-final.pdf");
-      };
-
-      logo.onerror = function () {
-        Swal.fire("Error", "No se pudo cargar el logo para el PDF.", "error");
-      };
+        doc.save(
+          `INFORME_${document
+            .getElementById("reportClientName")
+            .innerText.toUpperCase()
+            .replace(/\s+/g, "_")}.pdf`
+        );
+      }
     });
 
     // Lógica para el formulario de contrato
@@ -1432,6 +1557,17 @@ async function verReporte(id) {
     document.getElementById("reportText").innerText = data.report;
     document.getElementById("reportImage1").src = data.evidenceBase64[0];
     document.getElementById("reportImage2").src = data.evidenceBase64[1];
+
+    // Manejar Firmas
+    const signaturesSection = document.getElementById("reportSignaturesSection");
+    const signatureImg = document.getElementById("reportClientSignature");
+    if (data.clientSignature) {
+      signatureImg.src = data.clientSignature;
+      signaturesSection.style.display = "block";
+    } else {
+      signatureImg.src = "";
+      signaturesSection.style.display = "none";
+    }
 
     const reportModal = new bootstrap.Modal(
       document.getElementById("reportModal")
