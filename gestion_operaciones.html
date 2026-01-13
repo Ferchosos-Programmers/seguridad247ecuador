@@ -470,35 +470,14 @@
           <div class="modal-body p-4">
             <form id="addJobForm">
               <div class="mb-3">
-                <div
-                  class="d-flex justify-content-between align-items-center mb-2"
-                >
-                  <label class="form-label mb-0"
-                    >Nombre del Cliente (Conjunto)</label
-                  >
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-outline-gold"
-                    data-bs-toggle="modal"
-                    data-bs-target="#addComplexModal"
-                    style="
-                      --bs-btn-padding-y: 0.1rem;
-                      --bs-btn-padding-x: 0.4rem;
-                      --bs-btn-font-size: 0.75rem;
-                    "
-                  >
-                    <i class="fa-solid fa-plus me-1"></i> Nuevo Conjunto
-                  </button>
-                </div>
-                <select
+                <label class="form-label">Nombre del Cliente (Conjunto)</label>
+                <input
+                  type="text"
                   id="clientName"
-                  class="form-select select2-complex"
+                  class="form-control force-uppercase"
+                  placeholder="Ej: Urbanización Los Pinos"
                   required
-                >
-                  <option value="" disabled selected>
-                    Seleccione un conjunto...
-                  </option>
-                </select>
+                />
               </div>
               <div class="mb-3">
                 <label class="form-label">Fecha de Publicación</label>
@@ -558,15 +537,13 @@
               <input type="hidden" id="editJobId" />
               <div class="mb-3">
                 <label class="form-label">Nombre del Cliente (Conjunto)</label>
-                <select
+                <input
+                  type="text"
                   id="editClientName"
-                  class="form-select select2-complex"
+                  class="form-control force-uppercase"
+                  placeholder="Ej: Urbanización Los Pinos"
                   required
-                >
-                  <option value="" disabled selected>
-                    Seleccione un conjunto...
-                  </option>
-                </select>
+                />
               </div>
               <div class="mb-3">
                 <label class="form-label">Fecha de Publicación</label>
@@ -701,7 +678,7 @@
                   <div class="text-center">
                     <small class="text-gold d-block mb-2">Sello Técnico</small>
                     <div class="signature-box">
-                      <img src="assets/img/firma.png" alt="Sello Técnico" />
+                      <img src="assets/img/sello.png" alt="Sello Técnico" />
                     </div>
                   </div>
                   <div class="text-center">
@@ -1742,7 +1719,9 @@
           .addEventListener("submit", async (e) => {
             e.preventDefault();
             const jobData = {
-              clientName: ($("#clientName").val() || "").toUpperCase(),
+              clientName: document
+                .getElementById("clientName")
+                .value.toUpperCase(),
               jobDate: document.getElementById("jobDate").value,
               jobUrgency: document.getElementById("jobUrgency").value,
               contactName: document
@@ -1778,7 +1757,7 @@
           if (!doc.exists) return;
           const data = doc.data();
           document.getElementById("editJobId").value = id;
-          $("#editClientName").val(data.clientName).trigger("change");
+          document.getElementById("editClientName").value = data.clientName;
           document.getElementById("editJobDate").value = data.jobDate;
           document.getElementById("editJobUrgency").value = data.jobUrgency;
           document.getElementById("editContactName").value = data.contactName;
@@ -1792,7 +1771,9 @@
             e.preventDefault();
             const id = document.getElementById("editJobId").value;
             const updatedData = {
-              clientName: ($("#editClientName").val() || "").toUpperCase(),
+              clientName: document
+                .getElementById("editClientName")
+                .value.toUpperCase(),
               jobDate: document.getElementById("editJobDate").value,
               jobUrgency: document.getElementById("editJobUrgency").value,
               contactName: document
@@ -1898,7 +1879,7 @@
             const logo = new Image();
             const seal = new Image();
             logo.src = "assets/img/logo.png";
-            seal.src = "assets/img/firma.png";
+            seal.src = "assets/img/sello.png";
 
             let imagesLoaded = 0;
             const checkImages = () => {
@@ -2084,58 +2065,61 @@
                 y = 30;
               }
 
-              const sigWidth = 50;
-              const sigHeight = 30;
+              // Unified Dimensions for perfect symmetry
+              const rectWidth = 55;
+              const rectHeight = 40;
+              const lineWidth = 65; // Line slightly wider than image
 
-              // Technical Support Seal
-              try {
-                doc.addImage(seal, "PNG", margin + 15, y, sigWidth, sigHeight);
+              // Helper for centering in a specific x-range
+              const drawCenteredData = (imgData, startX) => {
+                // Center image within the line width
+                const imgX = startX + (lineWidth - rectWidth) / 2;
+                doc.addImage(imgData, "PNG", imgX, y, rectWidth, rectHeight);
+
+                // Draw Line centered
                 doc.setDrawColor(primaryColor);
                 doc.line(
-                  margin + 5,
-                  y + sigHeight + 2,
-                  margin + sigWidth + 25,
-                  y + sigHeight + 2
+                  startX,
+                  y + rectHeight + 5,
+                  startX + lineWidth,
+                  y + rectHeight + 5
                 );
+              };
+
+              const centerTextInRange = (text, startX) => {
+                const centerX = startX + lineWidth / 2;
+                doc.text(text, centerX, y + rectHeight + 10, {
+                  align: "center",
+                });
+              };
+
+              // --- LEFT SIDE: Technical Seal ---
+              const leftX = margin + 10;
+              try {
+                // If seal is available, draw it
+                drawCenteredData(seal, leftX);
+
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(9);
                 doc.setTextColor(secondaryColor);
-                doc.text(
-                  "SELLO DE SOPORTE TÉCNICO",
-                  margin + 12,
-                  y + sigHeight + 7
-                );
+                centerTextInRange("SELLO DE SOPORTE TÉCNICO", leftX);
               } catch (e) {
                 console.warn("Seal image not available");
               }
 
-              // Client Signature
+              // --- RIGHT SIDE: Client Signature ---
+              // Calculate rightX symmetric to leftX
+              const rightX = pageWidth - margin - 10 - lineWidth;
+
               const clientSigBase64 = document.getElementById(
                 "reportClientSignature"
               ).src;
               if (clientSigBase64 && clientSigBase64.startsWith("data:")) {
                 try {
-                  doc.addImage(
-                    clientSigBase64,
-                    "PNG",
-                    pageWidth - margin - sigWidth - 15,
-                    y,
-                    sigWidth,
-                    sigHeight
-                  );
-                  doc.setDrawColor(primaryColor);
-                  doc.line(
-                    pageWidth - margin - sigWidth - 25,
-                    y + sigHeight + 2,
-                    pageWidth - margin - 5,
-                    y + sigHeight + 2
-                  );
-                  doc.setFontSize(9);
-                  doc.text(
-                    "FIRMA DE CONFORMIDAD CLIENTE",
-                    pageWidth - margin - sigWidth - 22,
-                    y + sigHeight + 7
-                  );
+                  drawCenteredData(clientSigBase64, rightX);
+
+                  doc.setFontSize(9); // Ensure font size match
+                  centerTextInRange("FIRMA DE CONFORMIDAD CLIENTE", rightX);
                 } catch (e) {
                   console.warn("Client signature error", e);
                 }
