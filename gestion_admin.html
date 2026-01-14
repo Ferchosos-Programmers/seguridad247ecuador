@@ -381,67 +381,84 @@
       aria-labelledby="addJobModalLabel"
       aria-hidden="true"
     >
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Agregar Trabajo</h5>
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-dark border-gold shadow-lg">
+          <div class="modal-header border-bottom border-secondary">
+            <h5 class="modal-title text-gold">
+               <i class="fa-solid fa-briefcase me-2"></i> Agregar Trabajo
+            </h5>
             <button
               type="button"
-              class="btn-close"
+              class="btn-close btn-close-white"
               data-bs-dismiss="modal"
             ></button>
           </div>
 
-          <div class="modal-body">
+          <div class="modal-body p-4">
             <form id="jobForm">
-              <div class="mb-3">
-                <label class="form-label">Nombre del Cliente (Conjunto)</label>
-                <input
-                  type="text"
-                  class="form-control force-uppercase"
-                  id="clientName"
-                  placeholder="Ej: Urbanización Los Pinos"
-                  required
-                />
+              <div class="row g-3">
+                 <!-- Left Col -->
+                <div class="col-md-6 mb-3">
+                  <label class="form-label text-gold fw-bold text-uppercase small">Nombre del Cliente (Conjunto)</label>
+                  <input
+                    type="text"
+                    class="form-control force-uppercase bg-secondary text-white border-0"
+                    id="clientName"
+                    placeholder="Ej: Urbanización Los Pinos"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label class="form-label text-gold fw-bold text-uppercase small">Fecha de Publicación</label>
+                  <input type="date" class="form-control bg-secondary text-white border-0" id="jobDate" required />
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label class="form-label text-gold fw-bold text-uppercase small">Estado de Urgencia</label>
+                  <select class="form-select bg-secondary text-white border-0" id="jobUrgency" required>
+                    <option value="Normal">Normal</option>
+                    <option value="Urgente">Urgente</option>
+                    <option value="Crítico">Crítico</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label class="form-label text-gold fw-bold text-uppercase small">Nombre de Contacto</label>
+                  <input
+                    type="text"
+                    class="form-control force-uppercase bg-secondary text-white border-0"
+                    id="contactName"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label class="form-label text-gold fw-bold text-uppercase small">Número de Contacto</label>
+                  <input
+                    type="text"
+                    class="form-control bg-secondary text-white border-0"
+                    id="contactPhone"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label class="form-label text-gold fw-bold text-uppercase small">Imagen del Problema</label>
+                  <input class="form-control bg-secondary text-white border-0" type="file" id="jobImage" accept="image/*">
+                </div>
+
+                <div class="col-12 mb-3">
+                  <label class="form-label text-gold fw-bold text-uppercase small">Descripción del Problema</label>
+                  <textarea class="form-control bg-secondary text-white border-0" id="jobDescription" rows="4" placeholder="Describa el problema brevemente..." required></textarea>
+                </div>
               </div>
 
-              <div class="mb-3">
-                <label class="form-label">Fecha de Publicación</label>
-                <input type="date" class="form-control" id="jobDate" required />
+              <div class="d-grid mt-4">
+                 <button type="submit" class="btn btn-gold py-2 fw-bold shadow-sm">
+                   <i class="fa-solid fa-save me-2"></i> AGREGAR TRABAJO
+                 </button>
               </div>
-
-              <div class="mb-3">
-                <label class="form-label">Estado de Urgencia</label>
-                <select class="form-select" id="jobUrgency" required>
-                  <option value="Normal">Normal</option>
-                  <option value="Urgente">Urgente</option>
-                  <option value="Crítico">Crítico</option>
-                </select>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">Nombre de Contacto</label>
-                <input
-                  type="text"
-                  class="form-control force-uppercase"
-                  id="contactName"
-                  required
-                />
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">Número de Contacto</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="contactPhone"
-                  required
-                />
-              </div>
-
-              <button type="submit" class="btn btn-success w-100">
-                Agregar Trabajo
-              </button>
             </form>
           </div>
         </div>
@@ -533,109 +550,216 @@
     </div>
 
     <!-- ========================================= -->
-    <!--  MODAL PARA VER REPORTE (NUEVO) -->
+    <!--  MODAL INFORME TÉCNICO (LAYOUT 2 COLUMNAS) -->
     <!-- ========================================= -->
     <div
       class="modal fade"
       id="reportModal"
       tabindex="-1"
-      aria-labelledby="reportModalLabel"
       aria-hidden="true"
     >
-      <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content modal-report-content">
-          <div class="modal-header modal-report-header">
-            <h5 class="modal-title">Informe Técnico de Trabajo</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-            ></button>
+      <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+        <div class="modal-content" style="background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%); border: 2px solid #d4af37; border-radius: 20px; overflow: hidden;">
+          
+          <!-- HEADER PREMIUM -->
+          <div style="background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%); padding: 20px 25px; position: relative; overflow: hidden;">
+            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 20px); opacity: 0.3;"></div>
+            
+            <div class="d-flex align-items-center justify-content-between position-relative">
+              <div class="d-flex align-items-center">
+                <div style="width: 50px; height: 50px; background: rgba(0,0,0,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
+                  <i class="fa-solid fa-file-lines" style="color: #000; font-size: 1.5rem;"></i>
+                </div>
+                <div>
+                  <h5 class="mb-0 fw-bold" style="color: #000; font-size: 1.3rem; letter-spacing: 0.5px;">INFORME TÉCNICO</h5>
+                  <small style="color: rgba(0,0,0,0.7); font-weight: 600;">Reporte de Trabajo Completado</small>
+                </div>
+              </div>
+              <button
+                type="button"
+                class="btn-close btn-close-white"
+                data-bs-dismiss="modal"
+                style="background-color: transparent; border-radius: 8px; padding: 10px; opacity: 1;"
+              ></button>
+            </div>
           </div>
-          <div class="modal-body modal-report-body" id="reportContentArea">
-            <div class="report-grid">
-              <!-- Detalles del Trabajo -->
-              <div class="report-card">
-                <div class="report-card-title">
-                  <i class="fa-solid fa-briefcase"></i> Detalles del Trabajo
+
+          <!-- BODY CON LAYOUT 2 COLUMNAS -->
+          <div class="modal-body" style="padding: 20px; max-height: 70vh; overflow-y: auto;">
+            
+            <!-- INFO CARDS COMPACTAS -->
+            <div class="row g-2 mb-3">
+              <div class="col-6 col-md-3">
+                <div style="background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 12px; padding: 12px; height: 100%; display: flex; flex-direction: column; justify-content: center;">
+                  <div class="d-flex align-items-center mb-2">
+                    <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #d4af37, #f4d03f); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 8px;">
+                      <i class="fa-solid fa-user" style="color: #000; font-size: 0.9rem;"></i>
+                    </div>
+                    <span style="color: #d4af37; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Cliente</span>
+                  </div>
+                  <span id="reportClientName" style="color: #fff; font-weight: 600; font-size: 0.85rem; display: block; line-height: 1.2;"></span>
                 </div>
-                <div class="report-info-item">
-                  <span class="report-info-label">Cliente:</span>
-                  <span class="report-info-value" id="reportClientName"></span>
-                </div>
-                <div class="report-info-item">
-                  <span class="report-info-label">Asignación:</span>
-                  <span class="report-info-value" id="reportJobDate"></span>
+              </div>
+              
+              <div class="col-6 col-md-3">
+                <div style="background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 12px; padding: 12px; height: 100%; display: flex; flex-direction: column; justify-content: center;">
+                  <div class="d-flex align-items-center mb-2">
+                    <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #28a745, #20c997); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 8px;">
+                      <i class="fa-solid fa-check-circle" style="color: #fff; font-size: 0.9rem;"></i>
+                    </div>
+                    <span style="color: #d4af37; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Estado</span>
+                  </div>
+                  <span id="reportStatus" style="font-weight: 700; font-size: 0.85rem; display: block;"></span>
                 </div>
               </div>
 
-              <!-- Detalles del Informe -->
-              <div class="report-card">
-                <div class="report-card-title">
-                  <i class="fa-solid fa-clipboard-check"></i> Detalles del Informe
+              <div class="col-6 col-md-3">
+                <div style="background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 12px; padding: 12px; height: 100%; display: flex; flex-direction: column; justify-content: center;">
+                  <span style="color: #888; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Asignación</span>
+                  <span id="reportJobDate" style="color: #fff; font-weight: 600; display: block; font-size: 0.85rem;"></span>
                 </div>
-                <div class="report-info-item">
-                  <span class="report-info-label">Estado:</span>
-                  <span class="report-info-value text-gold" id="reportStatus"></span>
-                </div>
-                <div class="report-info-item">
-                  <span class="report-info-label">Finalizado:</span>
-                  <span class="report-info-value">
-                    <span id="reportDate"></span> - <span id="reportTime"></span>
+              </div>
+              
+              <div class="col-6 col-md-3">
+                <div style="background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 12px; padding: 12px; height: 100%; display: flex; flex-direction: column; justify-content: center;">
+                  <span style="color: #888; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Finalización</span>
+                  <span style="color: #fff; font-weight: 600; display: block; font-size: 0.85rem;">
+                    <span id="reportDate"></span> <span id="reportTime"></span>
                   </span>
                 </div>
               </div>
             </div>
 
-            <!-- Informe de Trabajo Realizado -->
-            <div class="report-card mb-4">
-              <div class="report-card-title">
-                <i class="fa-solid fa-pen-fancy"></i> Informe de Trabajo Realizado
-              </div>
-              <div id="reportText" class="report-text-area"></div>
-            </div>
-
-            <!-- Evidencia Fotográfica -->
-            <div class="report-card mb-4">
-              <div class="report-card-title">
-                <i class="fa-solid fa-images"></i> Evidencia Fotográfica
-              </div>
-              <div class="report-evidence-grid">
-                <div class="report-img-container">
-                  <img id="reportImage1" src="" alt="Evidencia 1" />
-                </div>
-                <div class="report-img-container">
-                  <img id="reportImage2" src="" alt="Evidencia 2" />
-                </div>
-              </div>
-            </div>
-
-            <!-- Firmas -->
-            <div id="reportSignaturesSection" style="display: none">
-              <div class="report-card">
-                <div class="report-card-title">
-                  <i class="fa-solid fa-file-signature"></i> Firmas de Conformidad
-                </div>
-                <div class="report-signature-grid">
-                  <div class="text-center">
-                    <small class="text-gold d-block mb-2">Sello Técnico</small>
-                    <div class="signature-box">
-                      <img src="assets/img/sello.png" alt="Sello Técnico" />
+            <!-- LAYOUT 2 COLUMNAS: PROBLEMA | TRABAJO -->
+            <div class="row g-3 mb-3">
+              
+              <!-- COLUMNA IZQUIERDA: PROBLEMA REPORTADO -->
+              <div class="col-lg-6">
+                <div id="initialProblemSection" style="display: none; height: 100%;">
+                  <div style="background: linear-gradient(135deg, rgba(255, 193, 7, 0.12), rgba(255, 152, 0, 0.08)); border: 2px solid rgba(255, 193, 7, 0.3); border-radius: 15px; padding: 20px; height: 100%; display: flex; flex-direction: column;">
+                    <div class="d-flex align-items-center mb-3">
+                      <div style="width: 40px; height: 40px; background: rgba(255, 193, 7, 0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                        <i class="fa-solid fa-exclamation-triangle" style="color: #ffc107; font-size: 1.2rem;"></i>
+                      </div>
+                      <h6 class="mb-0 fw-bold" style="color: #ffc107; font-size: 1rem; letter-spacing: 0.5px;">PROBLEMA REPORTADO</h6>
                     </div>
-                  </div>
-                  <div class="text-center">
-                    <small class="text-gold d-block mb-2">Firma Cliente</small>
-                    <div class="signature-box">
-                      <img id="reportClientSignature" src="" alt="Firma del Cliente" />
+                    
+                    <div class="mb-3">
+                      <strong style="color: #ffc107; font-size: 0.85rem; display: block; margin-bottom: 8px;">Descripción:</strong>
+                      <p id="reportProblemDescription" style="color: #e0e0e0; margin: 0; line-height: 1.6; font-size: 0.9rem;"></p>
+                    </div>
+                    
+                    <div id="reportProblemImageContainer" class="mt-auto text-center">
+                      <strong style="color: #ffc107; font-size: 0.85rem; display: block; margin-bottom: 10px;">Imagen del Problema:</strong>
+                      <div style="border: 2px solid rgba(255, 193, 7, 0.4); border-radius: 12px; overflow: hidden; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 193, 7, 0.2); max-width: 50%; margin: 0 auto;" onclick="openImageFullscreen(document.getElementById('reportProblemImage').src)">
+                        <img id="reportProblemImage" src="" alt="Problema" style="width: 100%; height: auto; display: block; transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"/>
+                      </div>
+                      <small style="color: #ffc107; display: block; margin-top: 8px; font-size: 0.75rem; text-align: center;">
+                        <i class="fa-solid fa-expand"></i> Click para ampliar
+                      </small>
                     </div>
                   </div>
                 </div>
               </div>
+
+              <!-- COLUMNA DERECHA: TRABAJO + EVIDENCIAS -->
+              <div class="col-lg-6">
+                <div style="display: flex; flex-direction: column; gap: 15px; height: 100%;">
+                  
+                  <!-- TRABAJO REALIZADO -->
+                  <div style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.08), rgba(212, 175, 55, 0.03)); border: 2px solid rgba(212, 175, 55, 0.25); border-radius: 15px; padding: 20px; flex: 1;">
+                    <div class="d-flex align-items-center mb-3">
+                      <div style="width: 40px; height: 40px; background: rgba(212, 175, 55, 0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                        <i class="fa-solid fa-wrench" style="color: #d4af37; font-size: 1.2rem;"></i>
+                      </div>
+                      <h6 class="mb-0 fw-bold" style="color: #d4af37; font-size: 1rem; letter-spacing: 0.5px;">TRABAJO REALIZADO</h6>
+                    </div>
+                    <div id="reportText" style="color: #e0e0e0; line-height: 1.7; font-size: 0.9rem; white-space: pre-wrap;"></div>
+                  </div>
+
+                  <!-- EVIDENCIAS FOTOGRÁFICAS -->
+                  <div style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.08), rgba(212, 175, 55, 0.03)); border: 2px solid rgba(212, 175, 55, 0.25); border-radius: 15px; padding: 20px;">
+                    <div class="d-flex align-items-center mb-3">
+                      <div style="width: 40px; height: 40px; background: rgba(212, 175, 55, 0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                        <i class="fa-solid fa-camera" style="color: #d4af37; font-size: 1.2rem;"></i>
+                      </div>
+                      <h6 class="mb-0 fw-bold" style="color: #d4af37; font-size: 1rem; letter-spacing: 0.5px;">EVIDENCIAS</h6>
+                    </div>
+                    <div class="row g-2">
+                      <div class="col-6">
+                        <div style="border: 2px solid rgba(212, 175, 55, 0.3); border-radius: 10px; overflow: hidden; aspect-ratio: 4/3; background: #000; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                          <img id="reportImage1" src="" alt="Evidencia 1" style="width: 100%; height: 100%; object-fit: cover;"/>
+                        </div>
+                      </div>
+                      <div class="col-6">
+                        <div style="border: 2px solid rgba(212, 175, 55, 0.3); border-radius: 10px; overflow: hidden; aspect-ratio: 4/3; background: #000; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                          <img id="reportImage2" src="" alt="Evidencia 2" style="width: 100%; height: 100%; object-fit: cover;"/>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
             </div>
+
+            <!-- FIRMAS (ANCHO COMPLETO) -->
+            <div id="reportSignaturesSection" style="display: none;">
+              <div style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.08), rgba(212, 175, 55, 0.03)); border: 2px solid rgba(212, 175, 55, 0.25); border-radius: 15px; padding: 20px;">
+                <div class="d-flex align-items-center mb-3">
+                  <div style="width: 40px; height: 40px; background: rgba(212, 175, 55, 0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                    <i class="fa-solid fa-signature" style="color: #d4af37; font-size: 1.2rem;"></i>
+                  </div>
+                  <h6 class="mb-0 fw-bold" style="color: #d4af37; font-size: 1rem; letter-spacing: 0.5px;">FIRMAS DE CONFORMIDAD</h6>
+                </div>
+                <div class="row g-4 justify-content-center">
+                  <div class="col-md-6 d-flex justify-content-center">
+                    <div style="background: rgba(0,0,0,0.2); border: 2px solid rgba(212, 175, 55, 0.3); border-radius: 16px; padding: 25px; width: 100%; max-width: 350px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; box-shadow: inset 0 0 20px rgba(0,0,0,0.3);">
+                      <small class="d-block mb-3 fw-bold" style="color: #d4af37; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">Sello Técnico</small>
+                      <div style="background: rgba(255,255,255,0.03); border-radius: 12px; padding: 15px; width: 100%; display: flex; align-items: center; justify-content: center; min-height: 160px; border: 1px dashed rgba(212, 175, 55, 0.3);">
+                        <img src="assets/img/sello.png" alt="Sello" style="max-height: 120px; max-width: 100%; width: auto; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)); transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"/>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6 d-flex justify-content-center">
+                    <div style="background: rgba(0,0,0,0.2); border: 2px solid rgba(212, 175, 55, 0.3); border-radius: 16px; padding: 25px; width: 100%; max-width: 350px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; box-shadow: inset 0 0 20px rgba(0,0,0,0.3);">
+                      <small class="d-block mb-3 fw-bold" style="color: #d4af37; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">Firma del Cliente</small>
+                      <div style="background: rgba(255,255,255,0.03); border-radius: 12px; padding: 15px; width: 100%; display: flex; align-items: center; justify-content: center; min-height: 160px; border: 1px dashed rgba(212, 175, 55, 0.3);">
+                        <img id="reportClientSignature" src="" alt="Firma" style="max-height: 120px; max-width: 100%; width: auto; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)); transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"/>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
-          <div class="modal-report-footer">
-            <button type="button" class="btn-pdf-premium" id="generatePdfBtn">
-              <i class="fa-solid fa-file-pdf me-2"></i> Generar PDF
+
+          <!-- FOOTER CON BOTÓN PDF -->
+          <div style="background: linear-gradient(180deg, #0a0a0a 0%, #000 100%); border-top: 1px solid rgba(212, 175, 55, 0.3); padding: 15px 20px;">
+            <button 
+              type="button" 
+              id="generatePdfBtn"
+              style="
+                background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+                border: none;
+                color: #000;
+                padding: 14px 30px;
+                border-radius: 12px;
+                font-weight: 700;
+                font-size: 1rem;
+                letter-spacing: 1px;
+                box-shadow: 0 4px 20px rgba(212, 175, 55, 0.5);
+                transition: all 0.3s ease;
+                cursor: pointer;
+                width: 100%;
+                text-transform: uppercase;
+              "
+              onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 30px rgba(212, 175, 55, 0.7)';"
+              onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(212, 175, 55, 0.5)';"
+            >
+              <i class="fa-solid fa-file-pdf me-2"></i>
+              GENERAR PDF
             </button>
           </div>
         </div>
@@ -1009,6 +1133,7 @@
     <script src="js/login_admin.js"></script>
     <!-- Aquí está el CRUD completo -->
     <script src="js/sweetalert2.js"></script>
+    <script src="js/pdf_generator_modern.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   </body>
 </html>

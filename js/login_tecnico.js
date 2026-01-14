@@ -1,3 +1,20 @@
+// Global function to open image in fullscreen
+window.openImageFullscreen = function (imageUrl) {
+  Swal.fire({
+    imageUrl: imageUrl,
+    imageAlt: "Imagen del Problema",
+    showConfirmButton: false,
+    showCloseButton: true,
+    background: "#000",
+    backdrop: "rgba(0,0,0,0.95)",
+    customClass: {
+      image: "fullscreen-image-modal",
+    },
+    width: "90%",
+    padding: "20px",
+  });
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("techLoginForm");
 
@@ -290,12 +307,13 @@ document.addEventListener("DOMContentLoaded", () => {
         else renderTutorialesTecnicos(window.allTutorials);
       } else if (view === "passwords") {
         passwordsSection.style.display = "block";
-        
+
         // Controlar visibilidad del botón "Agregar Nueva Clave" (Permitido para jefe y obrero)
         const addPasswordBtn = document.getElementById("addPasswordBtn");
         const subRole = window.actualUserData?.subRole || "";
         if (addPasswordBtn) {
-          const canManageKeys = subRole === "tecnico-jefe" || subRole === "tecnico-obrero";
+          const canManageKeys =
+            subRole === "tecnico-jefe" || subRole === "tecnico-obrero";
           addPasswordBtn.style.display = canManageKeys ? "block" : "none";
         }
 
@@ -658,7 +676,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // Mostrar botón de agregar claves para jefe y obrero
     const addPasswordBtn = document.getElementById("addPasswordBtn");
     if (addPasswordBtn) {
-      if (data.subRole === "tecnico-jefe" || data.subRole === "tecnico-obrero") {
+      if (
+        data.subRole === "tecnico-jefe" ||
+        data.subRole === "tecnico-obrero"
+      ) {
         addPasswordBtn.style.display = "block";
       } else {
         addPasswordBtn.style.display = "none";
@@ -872,11 +893,11 @@ function configurarModalInforme() {
 
   if (canvas) {
     ctx = canvas.getContext("2d");
-    
+
     function resizeCanvas() {
       const rect = canvas.getBoundingClientRect();
       canvas.width = rect.width;
-      canvas.height = 150;
+      canvas.height = 120;
       ctx.strokeStyle = "#000";
       ctx.lineWidth = 2;
       ctx.lineCap = "round";
@@ -907,8 +928,8 @@ function configurarModalInforme() {
       lastY = currentY;
     });
 
-    canvas.addEventListener("mouseup", () => isDrawing = false);
-    canvas.addEventListener("mouseout", () => isDrawing = false);
+    canvas.addEventListener("mouseup", () => (isDrawing = false));
+    canvas.addEventListener("mouseout", () => (isDrawing = false));
 
     // Touch events
     canvas.addEventListener("touchstart", (e) => {
@@ -936,7 +957,7 @@ function configurarModalInforme() {
       lastY = currentY;
     });
 
-    canvas.addEventListener("touchend", () => isDrawing = false);
+    canvas.addEventListener("touchend", () => (isDrawing = false));
 
     const clearBtn = document.getElementById("clearReportSignatureBtn");
     if (clearBtn) {
@@ -959,6 +980,29 @@ function configurarModalInforme() {
         canvas.hasSignature = false;
       }, 200);
     }
+    
+    // Resetear inputs de imágenes y previews al abrir el modal
+    ['1', '2'].forEach(num => {
+        const input = document.getElementById(`evidencePhoto${num}`);
+        const placeholder = document.getElementById(`placeholder${num}`);
+        const preview = document.getElementById(`preview${num}`);
+        const removeBtn = document.getElementById(`removePhoto${num}`);
+        
+        if(input) {
+           input.value = '';
+           const container = input.closest('.position-relative');
+           if(container) {
+               container.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+               container.style.background = 'rgba(0, 0, 0, 0.2)';
+           }
+        }
+        if(placeholder) {
+           placeholder.style.display = 'block';
+           placeholder.classList.remove('d-none');
+        }
+        if(preview) { preview.style.display = 'none'; preview.src = ''; }
+        if(removeBtn) removeBtn.style.display = 'none';
+    });
 
     const jobDetailsContainer = document.getElementById("jobDetails");
     jobDetailsContainer.innerHTML = "Cargando detalles...";
@@ -969,11 +1013,50 @@ function configurarModalInforme() {
         const data = doc.data();
 
         jobDetailsContainer.innerHTML = `
-          <div class="job-details-header text-center">
-            <h6 class="mb-3">Detalles del Trabajo</h6>
-            <p><strong>Cliente:</strong> ${data.clientName}</p>
-            <p><strong>Fecha:</strong> ${data.jobDate}</p>
-            <p><strong>Descripción:</strong> ${data.jobDescription}</p>
+            <div class="h-100 d-flex flex-column">
+                <div class="text-center mb-3">
+                  <h5 class="mb-2" style="color: #d4af37; font-weight: 700; letter-spacing: 0.5px; font-size: 1.1rem;">
+                    <i class="fa-solid fa-file-invoice me-2"></i>Detalles del Trabajo
+                  </h5>
+                  
+                  <div class="d-flex justify-content-center gap-3 text-white-50" style="font-size: 0.85rem;">
+                     <span><i class="fa-solid fa-user me-1"></i> ${data.clientName}</span>
+                     <span><i class="fa-calendar-days fa-solid me-1"></i> ${data.jobDate}</span>
+                  </div>
+                </div>
+                
+                <div class="mb-2 text-gold fw-bold" style="font-size: 0.9rem;">
+                  <i class="fa-solid fa-triangle-exclamation me-2"></i>Problema Reportado
+                </div>
+                
+                <div class="p-2 mb-3 text-start flex-grow-1 overflow-auto" 
+                     style="background: rgba(0, 0, 0, 0.4); border-radius: 8px; border-left: 3px solid #d4af37; max-height: 150px;">
+                  <p class="mb-0 text-white-50" style="font-size: 0.9rem; line-height: 1.5;">
+                    ${data.jobDescription || 'Sin descripción detallada del problema.'}
+                  </p>
+                </div>
+                
+                ${data.jobImageUrl ? `
+                  <div class="mt-auto text-center">
+                    <div class="position-relative d-inline-block group-hover-effect" 
+                         style="width: 100%; height: 160px; cursor: pointer; border-radius: 8px; overflow: hidden; border: 1px solid rgba(212, 175, 55, 0.3);"
+                         onclick="openImageFullscreen('${data.jobImageUrl}')">
+                      
+                      <img src="${data.jobImageUrl}" 
+                           alt="Problema" 
+                           style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;"
+                           onmouseover="this.style.transform='scale(1.05)'" 
+                           onmouseout="this.style.transform='scale(1)'">
+                           
+                      <div class="position-absolute bottom-0 start-0 w-100 p-1 text-center" 
+                           style="background: rgba(0,0,0,0.7); backdrop-filter: blur(2px);">
+                        <small style="color: #d4af37; font-size: 0.75rem;">
+                          <i class="fa-solid fa-expand me-1"></i> Ver Imagen
+                        </small>
+                      </div>
+                    </div>
+                  </div>
+                ` : ''}
           </div>
         `;
       } else {
@@ -1036,7 +1119,30 @@ function configurarModalInforme() {
 
       await db.collection("trabajos").doc(jobId).update(updateData);
 
-      Swal.fire("¡Éxito!", "Informe guardado correctamente.", "success");
+      const doc = await db.collection("trabajos").doc(jobId).get();
+      const jobData = doc.data();
+
+      Swal.fire({
+        icon: "success",
+        title: "¡Informe Enviado!",
+        text: "Se procederá a notificar a administración y monitoreo.",
+        showConfirmButton: true,
+      }).then(() => {
+        // Notificación WhatsApp Automática
+        const message =
+          `🛠️ *INFORME TÉCNICO FINALIZADO*\n\n` +
+          `El técnico *${auth.currentUser.email}* ha completado un trabajo.\n\n` +
+          `📋 *Cliente:* ${jobData.clientName}\n` +
+          `📅 *Fecha Asignación:* ${jobData.jobDate}\n` +
+          `✅ *Estado:* ${jobStatus}\n\n` +
+          `📝 *Detalle:* ${reportText}\n\n` +
+          `👉 *Informe disponible en plataforma para revisión.*`;
+
+        window.open(
+          `https://wa.me/?text=${encodeURIComponent(message)}`,
+          "_blank"
+        );
+      });
 
       const modal = bootstrap.Modal.getInstance(reportModal);
       modal.hide();
@@ -1268,24 +1374,85 @@ function configurarModalContrato() {
     });
   }
 
-  // Preview de foto de cédula
-  const idPhotoInput = document.getElementById("clientIdPhoto");
-  const idPhotoPreview = document.getElementById("idPhotoPreview");
-  const idPhotoPreviewImg = document.getElementById("idPhotoPreviewImg");
+  // Helper para configurar preview de imágenes
+  function setupImagePreview(inputId, placeholderId, previewId, removeBtnId) {
+    const input = document.getElementById(inputId);
+    const placeholder = document.getElementById(placeholderId);
+    const preview = document.getElementById(previewId);
+    const removeBtn = document.getElementById(removeBtnId);
 
-  if (idPhotoInput && idPhotoPreview && idPhotoPreviewImg) {
-    idPhotoInput.addEventListener("change", (e) => {
+    if (!input || !placeholder || !preview || !removeBtn) return;
+    
+    const container = input.closest('.position-relative');
+
+    input.addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (file) {
         const reader = new FileReader();
-        reader.onload = (event) => {
-          idPhotoPreviewImg.src = event.target.result;
-          idPhotoPreview.style.display = "block";
-        };
+        reader.onload = function(e) {
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+          removeBtn.style.display = 'flex';
+          
+          // Force hide placeholder securely
+          placeholder.style.display = 'none';
+          placeholder.classList.add('d-none');
+          
+          // Visual success indicator
+          if(container) {
+              container.style.borderColor = '#28a745'; // Green success
+              container.style.background = '#000'; // Dark background
+          }
+
+          // Notificación de éxito (Toast)
+          const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            background: '#1a1a1a',
+            color: '#fff',
+            iconColor: '#28a745',
+            timerProgressBar: true,
+            didOpen: (toast) => {
+              toast.addEventListener('mouseenter', Swal.stopTimer)
+              toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+          });
+
+          Toast.fire({
+            icon: 'success',
+            title: 'Imagen cargada correctamente'
+          });
+        }
         reader.readAsDataURL(file);
       }
     });
+
+    removeBtn.addEventListener('click', function(e) {
+      e.preventDefault(); 
+      e.stopPropagation(); // Stop event bubbling
+      input.value = ''; 
+      preview.src = '';
+      preview.style.display = 'none';
+      removeBtn.style.display = 'none';
+      
+      placeholder.style.display = 'block';
+      placeholder.classList.remove('d-none');
+      
+      if(container) {
+          container.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+          container.style.background = 'rgba(0, 0, 0, 0.2)';
+      }
+    });
   }
+
+  // Inicializar preview para la foto de cédula
+  setupImagePreview('clientIdPhoto', 'idPhotoPlaceholder', 'idPhotoPreviewImg', 'removeIdPhotoBtn');
+
+  // Inicializar previews para evidencias del reporte técnico
+  setupImagePreview('evidencePhoto1', 'placeholder1', 'preview1', 'removePhoto1');
+  setupImagePreview('evidencePhoto2', 'placeholder2', 'preview2', 'removePhoto2');
 
   // Reinicializar canvas cuando se abre el modal
   fillContractModal.addEventListener("shown.bs.modal", () => {
@@ -1342,7 +1509,29 @@ function configurarModalContrato() {
           completedBy: auth.currentUser.email,
         });
 
-        Swal.fire("¡Éxito!", "Contrato completado correctamente.", "success");
+        const doc = await db.collection("contracts").doc(contractId).get();
+        const contractData = doc.data();
+
+        Swal.fire({
+          icon: "success",
+          title: "¡Contrato Guardado!",
+          text: "Se procederá a notificar a administración y monitoreo.",
+          showConfirmButton: true,
+        }).then(() => {
+          // Notificación WhatsApp Automática
+          const message =
+            `📄 *CONTRATO FINALIZADO Y FIRMADO*\n\n` +
+            `El técnico *${auth.currentUser.email}* ha completado la firma del contrato.\n\n` +
+            `👤 *Cliente:* ${contractData.clientName}\n` +
+            `🆔 *Cédula:* ${contractData.clientId}\n\n` +
+            `✅ *Estado:* Firmado y con evidencia.\n` +
+            `👉 *Favor validar en plataforma.*`;
+
+          window.open(
+            `https://wa.me/?text=${encodeURIComponent(message)}`,
+            "_blank"
+          );
+        });
 
         const modal = bootstrap.Modal.getInstance(fillContractModal);
         modal.hide();
@@ -2301,12 +2490,17 @@ function configurarModalClave() {
     const passwordId = document.getElementById("passwordId").value;
 
     if (!complexName) {
-      Swal.fire("Atención", "El nombre del conjunto es obligatorio.", "warning");
+      Swal.fire(
+        "Atención",
+        "El nombre del conjunto es obligatorio.",
+        "warning"
+      );
       return;
     }
 
     savePasswordBtn.disabled = true;
-    savePasswordBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...';
+    savePasswordBtn.innerHTML =
+      '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...';
 
     try {
       const passwordData = {
@@ -2319,13 +2513,17 @@ function configurarModalClave() {
         camPass: camPass,
         notes: notes,
         updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-        updatedBy: auth.currentUser.email
+        updatedBy: auth.currentUser.email,
       };
 
       if (passwordId) {
-        await db.collection("device_passwords").doc(passwordId).update(passwordData);
+        await db
+          .collection("device_passwords")
+          .doc(passwordId)
+          .update(passwordData);
       } else {
-        passwordData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+        passwordData.createdAt =
+          firebase.firestore.FieldValue.serverTimestamp();
         await db.collection("device_passwords").add(passwordData);
       }
 
@@ -2334,7 +2532,7 @@ function configurarModalClave() {
         title: "¡Claves Guardadas!",
         text: "La información se ha actualizado correctamente.",
         timer: 1500,
-        showConfirmButton: false
+        showConfirmButton: false,
       }).then(() => {
         const modalEl = document.getElementById("addPasswordModal");
         if (modalEl) bootstrap.Modal.getInstance(modalEl).hide();
@@ -2342,7 +2540,6 @@ function configurarModalClave() {
         document.getElementById("passwordId").value = "";
         cargarClavesTecnicas();
       });
-
     } catch (error) {
       console.error("Error al guardar claves:", error);
       Swal.fire("Error", "Hubo un problema al guardar los datos.", "error");
@@ -2354,10 +2551,11 @@ function configurarModalClave() {
 
   const addPasswordModal = document.getElementById("addPasswordModal");
   if (addPasswordModal) {
-    addPasswordModal.addEventListener('hidden.bs.modal', () => {
+    addPasswordModal.addEventListener("hidden.bs.modal", () => {
       document.getElementById("passwordForm").reset();
       document.getElementById("passwordId").value = "";
-      document.getElementById("addPasswordModalLabel").textContent = "Gestionar Clave de Dispositivo";
+      document.getElementById("addPasswordModalLabel").textContent =
+        "Gestionar Clave de Dispositivo";
     });
   }
 }
@@ -2369,15 +2567,16 @@ async function cargarClavesTecnicas() {
   container.innerHTML = `<p class="text-center text-white w-100">Cargando claves...</p>`;
 
   try {
-    const query = await db.collection("device_passwords")
+    const query = await db
+      .collection("device_passwords")
       .orderBy("complexName", "asc")
       .get();
-      
+
     window.allPasswords = [];
-    query.forEach(doc => {
+    query.forEach((doc) => {
       window.allPasswords.push({ id: doc.id, ...doc.data() });
     });
-    
+
     window.passwordsLoaded = true;
     renderClavesTecnicas(window.allPasswords);
   } catch (error) {
@@ -2399,7 +2598,7 @@ function renderClavesTecnicas(passwordsList) {
 
   const subRole = window.actualUserData?.subRole || "";
 
-  passwordsList.forEach(pass => {
+  passwordsList.forEach((pass) => {
     container.innerHTML += `
       <div class="col-md-6 col-lg-4">
         <div class="card-job h-100">
@@ -2410,7 +2609,9 @@ function renderClavesTecnicas(passwordsList) {
                 <span class="badge bg-gold">Gestión Técnica</span>
               </div>
               
-              ${(subRole === "tecnico-jefe" || subRole === "tecnico-obrero") ? `
+              ${
+                subRole === "tecnico-jefe" || subRole === "tecnico-obrero"
+                  ? `
               <div class="dropdown">
                 <button class="btn btn-link text-white p-0" data-bs-toggle="dropdown">
                   <i class="fa-solid fa-ellipsis-vertical"></i>
@@ -2420,30 +2621,44 @@ function renderClavesTecnicas(passwordsList) {
                   <li><a class="dropdown-item text-danger" href="#" onclick="eliminarClave('${pass.id}', '${pass.complexName}')"><i class="fa-solid fa-trash me-2"></i> Eliminar</a></li>
                 </ul>
               </div>
-              ` : ""}
+              `
+                  : ""
+              }
             </div>
             
             <div class="bg-dark p-3 rounded mb-3">
               <div class="row g-2">
                 <div class="col-6">
                   <span class="text-white-50 x-small d-block">Citófono:</span>
-                  <span class="text-white small font-monospace">${pass.citofono || '---'}</span>
+                  <span class="text-white small font-monospace">${
+                    pass.citofono || "---"
+                  }</span>
                 </div>
                 <div class="col-6">
                   <span class="text-white-50 x-small d-block">DVR:</span>
-                  <span class="text-white small font-monospace">${pass.dvr || '---'}</span>
+                  <span class="text-white small font-monospace">${
+                    pass.dvr || "---"
+                  }</span>
                 </div>
                 
                 <div class="col-12 border-top border-secondary my-2"></div>
                 
                 <div class="col-6 border-end border-secondary pe-2">
                   <div class="mb-2">
-                    <span class="text-white-50 x-small d-block">Wifi: ${pass.wifiName || 'N/A'}</span>
-                    <span class="text-gold small font-monospace">${pass.wifiPass || '---'}</span>
+                    <span class="text-white-50 x-small d-block">Wifi: ${
+                      pass.wifiName || "N/A"
+                    }</span>
+                    <span class="text-gold small font-monospace">${
+                      pass.wifiPass || "---"
+                    }</span>
                   </div>
                   <div>
-                    <span class="text-white-50 x-small d-block">Cámaras (${pass.camBrand || 'N/A'}):</span>
-                    <span class="text-white small font-monospace">${pass.camPass || '---'}</span>
+                    <span class="text-white-50 x-small d-block">Cámaras (${
+                      pass.camBrand || "N/A"
+                    }):</span>
+                    <span class="text-white small font-monospace">${
+                      pass.camPass || "---"
+                    }</span>
                   </div>
                 </div>
                 
@@ -2462,8 +2677,8 @@ function renderClavesTecnicas(passwordsList) {
   });
 }
 
-window.editarClave = function(id) {
-  const pass = window.allPasswords.find(p => p.id === id);
+window.editarClave = function (id) {
+  const pass = window.allPasswords.find((p) => p.id === id);
   if (!pass) return;
 
   document.getElementById("passwordId").value = pass.id;
@@ -2473,18 +2688,22 @@ window.editarClave = function(id) {
   document.getElementById("passWifiName").value = pass.wifiName || "";
   document.getElementById("passWifiPass").value = pass.wifiPass || "";
   if (document.getElementById("passCamBrand")) {
-    document.getElementById("passCamBrand").value = pass.camBrand || "Hikvision";
+    document.getElementById("passCamBrand").value =
+      pass.camBrand || "Hikvision";
   }
   document.getElementById("passCamPass").value = pass.camPass || "";
   document.getElementById("passNotes").value = pass.notes || "";
-  
-  document.getElementById("addPasswordModalLabel").textContent = "Editar Datos del Conjunto";
-  
-  const modal = new bootstrap.Modal(document.getElementById("addPasswordModal"));
+
+  document.getElementById("addPasswordModalLabel").textContent =
+    "Editar Datos del Conjunto";
+
+  const modal = new bootstrap.Modal(
+    document.getElementById("addPasswordModal")
+  );
   modal.show();
 };
 
-window.eliminarClave = async function(id, label) {
+window.eliminarClave = async function (id, label) {
   const result = await Swal.fire({
     title: "¿Eliminar registro?",
     text: `¿Estás seguro de que deseas eliminar los datos de "${label}"?`,
@@ -2493,7 +2712,7 @@ window.eliminarClave = async function(id, label) {
     confirmButtonColor: "#d33",
     cancelButtonColor: "#3085d6",
     confirmButtonText: "Sí, eliminar",
-    cancelButtonText: "Cancelar"
+    cancelButtonText: "Cancelar",
   });
 
   if (result.isConfirmed) {

@@ -1135,7 +1135,7 @@ h1 {
 }
 
 #passwordsSection .font-monospace {
-  font-family: 'Courier New', Courier, monospace;
+  font-family: "Courier New", Courier, monospace;
 }
 
 /* ======== MODERN REPORT MODAL STYLES ======== */
@@ -1145,7 +1145,8 @@ h1 {
   display: block;
 }
 
-.signature-display-box, .signature-capture-box {
+.signature-display-box,
+.signature-capture-box {
   background: rgba(0, 0, 0, 0.2);
   padding: 15px;
   border-radius: 12px;
@@ -1167,7 +1168,7 @@ h1 {
 }
 
 .signature-container.default-seal img {
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 .text-gold {
@@ -1182,8 +1183,22 @@ h1 {
   padding: 2rem;
 }
 
-#technicalReportModal .form-control:focus, 
+#technicalReportModal .form-control:focus,
 #technicalReportModal .form-select:focus {
   box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.25);
   border-color: #d4af37;
+}
+
+/* Fullscreen Image Modal */
+.fullscreen-image-modal {
+  max-width: 95% !important;
+  max-height: 95vh !important;
+  object-fit: contain !important;
+  border-radius: 8px !important;
+}
+
+.swal2-image {
+  max-width: 100% !important;
+  max-height: 85vh !important;
+  object-fit: contain !important;
 }

@@ -1,4 +1,26 @@
 // ===============================
+// GLOBAL FUNCTIONS
+// ===============================
+// Function to open image in fullscreen
+window.openImageFullscreen = function(imageUrl) {
+  if (!imageUrl || imageUrl === window.location.href) return;
+  
+  Swal.fire({
+    imageUrl: imageUrl,
+    imageAlt: 'Imagen Ampliada',
+    showConfirmButton: false,
+    showCloseButton: true,
+    background: '#000',
+    backdrop: 'rgba(0,0,0,0.95)',
+    customClass: {
+      image: 'fullscreen-image-modal'
+    },
+    width: '90%',
+    padding: '20px'
+  });
+};
+
+// ===============================
 // INICIALIZACIÓN GENERAL
 // ===============================
 document.addEventListener("DOMContentLoaded", () => {
@@ -215,275 +237,51 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Listener para generar PDF
-    document.getElementById("generatePdfBtn").addEventListener("click", () => {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      const logo = new Image();
-      const seal = new Image();
-      logo.src = "assets/img/logo.png";
-      seal.src = "assets/img/firma.png";
-
-      let imagesLoaded = 0;
-      const checkImages = () => {
-        imagesLoaded++;
-        if (imagesLoaded === 2) generatePDF();
-      };
-      logo.onload = checkImages;
-      seal.onload = checkImages;
-      logo.onerror = checkImages;
-      seal.onerror = checkImages;
-
-      function generatePDF() {
-        const primaryColor = "#d4af37"; // Gold
-        const secondaryColor = "#1a1a1a"; // Dark Gray/Black
-        const lightBG = "#f8f9fa";
-
-        // --- PAGE CONFIG ---
-        const pageWidth = doc.internal.pageSize.getWidth();
-        const pageHeight = doc.internal.pageSize.getHeight();
-        const margin = 20;
-        const contentWidth = pageWidth - margin * 2;
-
-        // --- HEADER ---
-        // Dark Header Background
-        doc.setFillColor(secondaryColor);
-        doc.rect(0, 0, pageWidth, 40, "F");
-
-        // Gold accent line
-        doc.setFillColor(primaryColor);
-        doc.rect(0, 0, pageWidth, 4, "F");
-
-        // Logo
-        try {
-          doc.addImage(logo, "PNG", margin, 10, 20, 20);
-        } catch (e) {
-          console.error("Logo error", e);
-        }
-
-        // Title
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(16);
-        doc.setTextColor("#FFFFFF");
-        doc.text("SERVICIO TÉCNICO ESPECIALIZADO", 55, 18);
-
-        doc.setFontSize(10);
-        doc.setFont("helvetica", "normal");
-        doc.text("SEGURIDAD 24/7 ECUADOR - INFORME TÉCNICO", 55, 26);
-
-        let y = 55;
-
-        // --- SECTION: CLIENT INFO (Boxed) ---
-        doc.setFillColor(lightBG);
-        doc.roundedRect(margin, y, contentWidth, 35, 3, 3, "F");
-        doc.setDrawColor(primaryColor);
-        doc.setLineWidth(0.5);
-        doc.line(margin + 5, y + 10, margin + 60, y + 10);
-
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(12);
-        doc.setTextColor(primaryColor);
-        doc.text("DATOS DE LA ORDEN", margin + 5, y + 7);
-
-        doc.setFontSize(10);
-        doc.setTextColor(secondaryColor);
-        doc.setFont("helvetica", "bold");
-        doc.text("CLIENTE:", margin + 5, y + 20);
-        doc.setFont("helvetica", "normal");
-        doc.text(
-          document.getElementById("reportClientName").innerText,
-          margin + 45,
-          y + 20
-        );
-
-        doc.setFont("helvetica", "bold");
-        doc.text("FECHA ASIGNACIÓN:", margin + 5, y + 28);
-        doc.setFont("helvetica", "normal");
-        doc.text(
-          document.getElementById("reportJobDate").innerText,
-          margin + 45,
-          y + 28
-        );
-
-        y += 45;
-
-        // --- SECTION: STATUS ---
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(12);
-        doc.setTextColor(primaryColor);
-        doc.text("ESTADO DE FINALIZACIÓN", margin, y);
-        doc.setDrawColor("#e0e0e0");
-        doc.line(margin, y + 2, margin + contentWidth, y + 2);
-        y += 10;
-
-        doc.setFontSize(10);
-        doc.setTextColor(secondaryColor);
-        doc.text("ESTADO ACTUAL:", margin, y);
-        const status = document.getElementById("reportStatus").innerText;
-        doc.setTextColor(status === "Culminado" ? "#28a745" : primaryColor);
-        doc.text(status.toUpperCase(), margin + 40, y);
-
-        doc.setTextColor(secondaryColor);
-        y += 7;
-        doc.setFont("helvetica", "bold");
-        doc.text("FECHA CIERRE:", margin, y);
-        doc.setFont("helvetica", "normal");
-        doc.text(
-          `${document.getElementById("reportDate").innerText} - ${
-            document.getElementById("reportTime").innerText
-          }`,
-          margin + 40,
-          y
-        );
-
-        y += 15;
-
-        // --- SECTION: REPORT TEXT ---
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(12);
-        doc.setTextColor(primaryColor);
-        doc.text("DETALLE DEL TRABAJO REALIZADO", margin, y);
-        doc.line(margin, y + 2, margin + contentWidth, y + 2);
-        y += 10;
-
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(10);
-        doc.setTextColor("#444444");
-        const reportLines = doc.splitTextToSize(
-          document.getElementById("reportText").innerText,
-          contentWidth
-        );
-        doc.text(reportLines, margin, y);
-        y += reportLines.length * 5 + 20;
-
-        // --- SECTION: IMAGES ---
-        if (y > 200) {
-          doc.addPage();
-          y = margin + 10;
-        }
-
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(12);
-        doc.setTextColor(primaryColor);
-        doc.text("EVIDENCIA FOTOGRÁFICA", margin, y);
-        doc.line(margin, y + 2, margin + contentWidth, y + 2);
-        y += 10;
-
-        const img1 = document.getElementById("reportImage1");
-        const img2 = document.getElementById("reportImage2");
-
-        const imgWidth = (contentWidth - 10) / 2;
-        const imgHeight = 60;
-
-        if (img1.src && img1.src.startsWith("data:")) {
-          doc.setDrawColor("#ddd");
-          doc.rect(margin - 1, y - 1, imgWidth + 2, imgHeight + 2);
-          doc.addImage(img1.src, "JPEG", margin, y, imgWidth, imgHeight);
-        }
-        if (img2.src && img2.src.startsWith("data:")) {
-          doc.setDrawColor("#ddd");
-          doc.rect(
-            margin + imgWidth + 9,
-            y - 1,
-            imgWidth + 2,
-            imgHeight + 2
-          );
-          doc.addImage(
-            img2.src,
-            "JPEG",
-            margin + imgWidth + 10,
-            y,
-            imgWidth,
-            imgHeight
-          );
-        }
-
-        y += imgHeight + 30;
-
-        // --- SIGNATURES SECTION ---
-        if (y > 230) {
-          doc.addPage();
-          y = 30;
-        }
-
-        const sigWidth = 50;
-        const sigHeight = 30;
-
-        // Technical Support Seal
-        try {
-          doc.addImage(seal, "PNG", margin + 15, y, sigWidth, sigHeight);
-          doc.setDrawColor(primaryColor);
-          doc.line(
-            margin + 5,
-            y + sigHeight + 2,
-            margin + sigWidth + 25,
-            y + sigHeight + 2
-          );
-          doc.setFont("helvetica", "bold");
-          doc.setFontSize(9);
-          doc.setTextColor(secondaryColor);
-          doc.text(
-            "SELLO DE SOPORTE TÉCNICO",
-            margin + 12,
-            y + sigHeight + 7
-          );
-        } catch (e) {
-          console.warn("Seal image not available");
-        }
-
-        // Client Signature
-        const clientSigBase64 = document.getElementById(
-          "reportClientSignature"
-        ).src;
-        if (clientSigBase64 && clientSigBase64.startsWith("data:")) {
-          try {
-            doc.addImage(
-              clientSigBase64,
-              "PNG",
-              pageWidth - margin - sigWidth - 15,
-              y,
-              sigWidth,
-              sigHeight
-            );
-            doc.setDrawColor(primaryColor);
-            doc.line(
-              pageWidth - margin - sigWidth - 25,
-              y + sigHeight + 2,
-              pageWidth - margin - 5,
-              y + sigHeight + 2
-            );
-            doc.setFontSize(9);
-            doc.text(
-              "FIRMA DE CONFORMIDAD CLIENTE",
-              pageWidth - margin - sigWidth - 22,
-              y + sigHeight + 7
-            );
-          } catch (e) {
-            console.warn("Client signature error", e);
-          }
-        }
-
-        y += 50;
-
-        // --- FOOTER ---
-        doc.setFillColor(primaryColor);
-        doc.rect(0, pageHeight - 15, pageWidth, 15, "F");
-        doc.setFontSize(8);
-        doc.setTextColor("#FFFFFF");
-        doc.text(
-          "© 2025 SEGURIDAD 24/7 ECUADOR & MCV (MALLITAXI CODE VISION). DOCUMENTO OFICIAL DE SERVICIO.",
-          pageWidth / 2,
-          pageHeight - 6,
-          { align: "center" }
-        );
-
-        doc.save(
-          `INFORME_${document
-            .getElementById("reportClientName")
-            .innerText.toUpperCase()
-            .replace(/\s+/g, "_")}.pdf`
-        );
+    // Listener para generar PDF (One-time generation)
+    const generatePdfBtn = document.getElementById("generatePdfBtn");
+    generatePdfBtn.onclick = () => {
+      if (typeof window.generateModernPDF === 'function') {
+        const btn = document.getElementById("generatePdfBtn");
+        const originalText = btn.innerHTML;
+        
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Generando...';
+        
+        window.generateModernPDF()
+          .then(() => {
+            // Success
+            Swal.fire({
+              icon: 'success',
+              title: 'PDF Generado',
+              text: 'El informe se ha descargado correctamente.',
+              timer: 3000,
+              showConfirmButton: false,
+              background: '#000', 
+              color: '#d4af37'
+            });
+          })
+          .catch(err => {
+            console.error("PDF Generation Error:", err);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Hubo un error al generar el PDF.',
+              confirmButtonColor: '#d4af37'
+            });
+          })
+          .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+          });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'El generador de PDF no está disponible. Por favor, recargue la página.',
+          confirmButtonColor: '#d4af37'
+        });
       }
-    });
+    };
 
     // Lógica para el formulario de contrato
     configurarFormularioContrato();
@@ -528,11 +326,30 @@ function configurarFormularioContrato() {
 
     try {
       // Guardar en Firestore
-      await db.collection("contracts").add(contractData);
-
-      Swal.fire("Éxito", "Contrato guardado correctamente", "success");
+      const docRef = await db.collection("contracts").add(contractData);
+      
+      Swal.fire({
+          icon: 'success',
+          title: '¡Contrato Guardado!',
+          text: 'Se procederá a notificar a monitoreo y técnicos vía WhatsApp.',
+          showConfirmButton: true,
+          confirmButtonColor: "#d4af37"
+      }).then(() => {
+          // Notificación Automática con los datos recién capturados
+          const message = `📄 *NUEVO CONTRATO DISPONIBLE*\n\n` +
+                          `📋 *Cliente:* ${contractData.clientName}\n` +
+                          `🏙️ *Ciudad:* ${contractData.city}\n` +
+                          `💰 *Monto:* $${contractData.servicePrice}\n` +
+                          `📅 *Duración:* ${contractData.duration} meses\n\n` +
+                          `👉 *Por favor enviar técnico para firma y recolección de evidencias.*`;
+          
+          window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+      });
 
       // Generar y mostrar el contrato
+      // Necesitamos el ID para el botón de PDF, así que usamos el ID del documento creado
+      document.getElementById("currentContractId").value = docRef.id;
+
       mostrarContrato(contractData);
 
       // Cerrar modal de creación y abrir modal de visualización
@@ -648,7 +465,7 @@ function configurarFormularioContrato() {
         function checkAndAddPage(currentY, neededSpace = 10) {
           if (currentY + neededSpace > maxY) {
             // Agregar footer a la página actual antes de cambiar
-            addFooterToPage();
+            // addFooterToPage();
             return addPageWithHeader();
           }
           return currentY;
@@ -1006,21 +823,40 @@ function configurarFormularioContrato() {
                 );
                 cedulaY += 5;
 
-                // 📐 Tamaño REAL proporcional (basado en 85.60 × 53.98 mm)
-                const imageWidth = 85.60; // mm
-                const imageHeight = 53.98; // mm
+                // 📐 Tamaño REAL (85.60 × 53.98 mm)
+                const targetW = 85.60; 
+                const targetH = 53.98;
+                const centerX = (pageWidth - targetW) / 2;
 
-                // Centro exacto horizontal
-                const centerX = (pageWidth - imageWidth) / 2;
+                // 🔄 Lógica de Rotación Vía Canvas (Más robusta)
+                let finalImgData = idPhotoImg.src;
+                
+                if (idPhotoImg.height > idPhotoImg.width) {
+                   // Crear canvas off-screen
+                   const canvas = document.createElement('canvas');
+                   // Intercambiar dimensiones
+                   canvas.width = idPhotoImg.height;
+                   canvas.height = idPhotoImg.width;
+                   const ctx = canvas.getContext('2d');
+                   
+                   // Rotar 90 grados (Clockwise) para corregir foto vertical
+                   // Trasladar al origen de rotación (arriba-derecha del nuevo canvas)
+                   ctx.translate(canvas.width, 0);
+                   ctx.rotate(90 * Math.PI / 180);
+                   
+                   // Dibujar imagen
+                   ctx.drawImage(idPhotoImg, 0, 0);
+                   
+                   finalImgData = canvas.toDataURL('image/png');
+                }
 
-                // 🟢 Imagen HORIZONTAL y CENTRADA
                 pdfDoc.addImage(
-                  idPhotoImg,
-                  "PNG",
-                  centerX,
-                  cedulaY,
-                  imageWidth,
-                  imageHeight
+                    finalImgData,
+                    "PNG",
+                    centerX,
+                    cedulaY,
+                    targetW,
+                    targetH
                 );
 
                 resolve();
@@ -1029,15 +865,43 @@ function configurarFormularioContrato() {
               idPhotoImg.onerror = resolve;
             });
           } catch (e) {
-            // continuar sin imagen si falla
+            console.error("Error drawing ID photo", e);
           }
         }
 
-        // Agregar footer a todas las páginas
+        // 🦶 FOOTER (Al final de cada página)
         const pageCount = pdfDoc.internal.getNumberOfPages();
         for (let i = 1; i <= pageCount; i++) {
           pdfDoc.setPage(i);
-          addFooterToPage();
+          
+          // 🦶 FOOTER PREMIUM (Negro con Borde Dorado)
+          const footerHeight = 20;
+          const footerY = pageHeight - footerHeight;
+
+          // Fondo Negro
+          pdfDoc.setFillColor(20, 20, 20); // Casi negro
+          pdfDoc.rect(0, footerY, pageWidth, footerHeight, "F");
+
+          // Línea Superior Dorada (Thick)
+          pdfDoc.setDrawColor(212, 175, 55); // Gold
+          pdfDoc.setLineWidth(1.5);
+          pdfDoc.line(0, footerY, pageWidth, footerY);
+
+          // Texto Copyright
+          pdfDoc.setFontSize(8);
+          pdfDoc.setTextColor(255, 255, 255); // Blanco
+          pdfDoc.text(
+            "© 2025 Seguridad 24/7 Ecuador & MCV (Mallitaxi Code Vision) — Todos los derechos reservados",
+            pageWidth / 2,
+            footerY + 12, // Centrado verticalmente aprox
+            { align: "center" }
+          );
+
+          // Línea decorativa inferior (sutil)
+          pdfDoc.setLineWidth(0.5);
+          pdfDoc.line(40, footerY + 16, pageWidth - 40, footerY + 16);
+          
+          /* Número de página eliminado a petición implicita de "tal como la imagen" */
         }
 
         // Guardar PDF
@@ -1393,46 +1257,138 @@ function activarLogout() {
 // ===========================
 // 📝 GUARDAR TRABAJO NUEVO
 // ===========================
+// Helper: Resize Image
+const resizeImage = (file, maxWidth = 800, quality = 0.7) => {
+  return new Promise((resolve, reject) => {
+     const reader = new FileReader();
+     reader.readAsDataURL(file);
+     reader.onload = (event) => {
+       const img = new Image();
+       img.src = event.target.result;
+       img.onload = () => {
+         const canvas = document.createElement('canvas');
+         let width = img.width;
+         let height = img.height;
+         if (width > maxWidth) {
+           height *= maxWidth / width;
+           width = maxWidth;
+         }
+         canvas.width = width;
+         canvas.height = height;
+         const ctx = canvas.getContext('2d');
+         ctx.drawImage(img, 0, 0, width, height);
+         resolve(canvas.toDataURL(file.type, quality));
+       };
+       img.onerror = error => reject(error);
+     };
+     reader.onerror = error => reject(error);
+  });
+};
+
 function configurarFormulario() {
   const form = document.getElementById("jobForm");
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const clientName = document.getElementById("clientName").value;
+    const clientName = document.getElementById("clientName").value.toUpperCase();
     const jobDate = document.getElementById("jobDate").value;
     const jobUrgency = document.getElementById("jobUrgency").value;
-    const contactName = document.getElementById("contactName").value;
+    const contactName = document.getElementById("contactName").value.toUpperCase();
     const contactPhone = document.getElementById("contactPhone").value;
+    const jobDescription = document.getElementById("jobDescription").value; 
+    const jobImageFile = document.getElementById("jobImage").files[0]; 
+
+    Swal.fire({
+        title: 'Guardando...',
+        text: 'Procesando datos e imagen...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
 
     try {
-      await db.collection("trabajos").add({
-        clientName: clientName.toUpperCase(),
+      let jobImageUrl = "";
+
+      // Convert image to Base64 and save to Firestore Database
+      if (jobImageFile) {
+          console.log("📸 Procesando imagen:", jobImageFile.name);
+          try {
+              console.log("🔄 Convirtiendo imagen a Base64...");
+              jobImageUrl = await resizeImage(jobImageFile);
+              console.log("✅ Imagen convertida a Base64 (tamaño:", jobImageUrl.length, "caracteres)");
+          } catch (resizeError) {
+              console.error("❌ Error al procesar imagen:", resizeError);
+              Swal.fire({
+                icon: "warning",
+                title: "Advertencia",
+                text: "No se pudo procesar la imagen. El trabajo se guardará sin imagen.",
+                timer: 2000,
+                showConfirmButton: false
+              });
+              jobImageUrl = "";
+          }
+      }
+
+      console.log("💾 Guardando trabajo en Firestore Database...");
+      const jobData = {
+        clientName,
         jobDate,
-        jobUrgency: jobUrgency.toUpperCase(),
-        contactName: contactName.toUpperCase(),
+        jobUrgency,
+        contactName,
         contactPhone,
+        jobDescription,
+        jobImageUrl,
+        status: "Pendiente",
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      };
+
+      console.log("📋 Datos a guardar:", { 
+        ...jobData, 
+        jobImageUrl: jobImageUrl ? `[Base64 - ${jobImageUrl.length} chars]` : "sin imagen" 
       });
+      
+      await db.collection("trabajos").add(jobData);
+      console.log("✅ Trabajo guardado exitosamente en Firestore Database");
 
       Swal.fire({
+        title: "¡Trabajo Guardado!",
+        text: "La orden ha sido creada y se notificará por WhatsApp",
         icon: "success",
-        title: "Trabajo agregado",
-        timer: 1500,
-        showConfirmButton: false,
+        timer: 3000,
+        showConfirmButton: false
+      }).then(() => {
+        // Enviar WhatsApp
+        let message = `🔔 *NUEVA ASIGNACIÓN TÉCNICA*\n\n` +
+                      `📋 *Cliente:* ${jobData.clientName}\n` +
+                      `📅 *Fecha:* ${jobData.jobDate}\n` +
+                      `🚨 *Urgencia:* ${jobData.jobUrgency}\n` +
+                      `👤 *Contacto:* ${jobData.contactName}\n` +
+                      `📞 *Teléfono:* ${jobData.contactPhone}\n` +
+                      `📝 *Problema:* ${jobDescription}\n`;
+
+        if (jobImageUrl) {
+            if (jobImageUrl.startsWith("http")) {
+                message += `🖼️ *Foto del Problema:* ${jobImageUrl}\n\n`;
+            } else {
+                 message += `🖼️ *Foto del Problema:* (Adjunta en el reporte del sistema)\n\n`;
+            }
+        } else {
+             message += `\n`;
+        }
+        
+        message += `👉 *Por favor, revisar portal para gestión.*`;
+
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, '_blank');
       });
 
       form.reset();
+      bootstrap.Modal.getInstance(document.getElementById("addJobModal")).hide();
+      cargarTrabajos(); // Recargar la lista
 
-      const modal = bootstrap.Modal.getInstance(
-        document.getElementById("addJobModal")
-      );
-      modal.hide();
-
-      cargarTrabajos();
     } catch (error) {
-      console.error(error);
-      Swal.fire("Error", "No se pudo guardar el trabajo", "error");
+      console.error("Error al guardar trabajo: ", error);
+      Swal.fire("Error", "No se pudo guardar el trabajo.", "error");
     }
   });
 }
@@ -1520,13 +1476,49 @@ function renderTrabajos(trabajosList) {
             <button class="btn-delete" onclick="eliminarTrabajo('${data.id}')">
               <i class="fa-solid fa-trash"></i> Eliminar
             </button>
+            </div>
+            
+
+
+            ${reportButton}
           </div>
-          ${reportButton}
         </div>
-      </div>
-    `;
-  });
-}
+      `;
+    });
+  }
+
+  // Helper Whatsapp Global
+  window.notificarWhatsapp = (type, id) => {
+    let message = "";
+    
+    if (type === 'job') {
+      const job = window.allTrabajos.find(j => j.id === id);
+      if (!job) return;
+      message = `🔔 *NUEVA ASIGNACIÓN TÉCNICA*\n\n` +
+                `📋 *Cliente:* ${job.clientName}\n` +
+                `📅 *Fecha:* ${job.jobDate}\n` +
+                `🚨 *Urgencia:* ${job.jobUrgency}\n` +
+                `👤 *Contacto:* ${job.contactName}\n` +
+                `📞 *Teléfono:* ${job.contactPhone}\n\n` +
+                `👉 *Por favor, revisa el portal de técnicos para más detalles.*`;
+    } else if (type === 'contract') {
+      const contract = window.allContratos.find(c => c.id === id);
+      if (!contract) return;
+       // Format Date
+      const cDate = new Date(contract.date + "T00:00:00").toLocaleDateString("es-ES");
+      
+      message = `📄 *NUEVO CONTRATO DISPONIBLE*\n\n` +
+                `🏢 *Cliente:* ${contract.clientName}\n` +
+                `📅 *Fecha:* ${cDate}\n` +
+                `💰 *Monto:* $${contract.servicePrice}\n` +
+                `📍 *Ciudad:* ${contract.city}\n\n` +
+                `👉 *Se requiere gestión técnica/administrativa. Revisa el portal.*`;
+    }
+
+    if (message) {
+      window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+    }
+  };
 
 // ===========================
 // 👁️ VER REPORTE
@@ -1557,6 +1549,26 @@ async function verReporte(id) {
     document.getElementById("reportText").innerText = data.report;
     document.getElementById("reportImage1").src = data.evidenceBase64[0];
     document.getElementById("reportImage2").src = data.evidenceBase64[1];
+
+    // Populate Initial Problem Section
+    const problemSection = document.getElementById("initialProblemSection");
+    const problemDesc = document.getElementById("reportProblemDescription");
+    const problemImg = document.getElementById("reportProblemImage");
+    
+    if (data.jobDescription || data.jobImageUrl) {
+        problemSection.style.display = "block";
+        problemDesc.innerText = data.jobDescription || "Sin descripción detallada.";
+        
+        if (data.jobImageUrl) {
+            document.getElementById("reportProblemImageContainer").style.display = "block";
+            problemImg.src = data.jobImageUrl;
+        } else {
+            document.getElementById("reportProblemImageContainer").style.display = "none";
+            problemImg.src = "";
+        }
+    } else {
+        problemSection.style.display = "none";
+    }
 
     // Manejar Firmas
     const signaturesSection = document.getElementById("reportSignaturesSection");
@@ -1741,11 +1753,11 @@ function renderContratos(contratosList) {
             `
         : ""
       }
-            <button class="btn-delete" onclick="eliminarContrato('${data.id
-      }')">
+            <button class="btn-delete" onclick="eliminarContrato('${data.id}')">
               <i class="fa-solid fa-trash"></i> Eliminar
             </button>
           </div>
+
         </div>
       </div>
     `;
@@ -1756,17 +1768,31 @@ function renderContratos(contratosList) {
 //  VER Y ELIMINAR CONTRATO
 // =========================================
 async function verContrato(id) {
-  const doc = await db.collection("contracts").doc(id).get();
-  const data = doc.data();
+  try {
+    const doc = await db.collection("contracts").doc(id).get();
+    if (!doc.exists) {
+      Swal.fire("Error", "El contrato no existe.", "error");
+      return;
+    }
+    const data = doc.data();
 
-  // Guardar el ID del contrato actual para el PDF
-  document.getElementById("currentContractId").value = id;
+    // Guardar el ID del contrato actual para el PDF
+    const hiddenInput = document.getElementById("currentContractId");
+    if (hiddenInput) {
+      hiddenInput.value = id;
+    } else {
+      console.error("No se encontró el input hidden 'currentContractId'");
+    }
 
-  mostrarContrato(data);
-  const viewModal = new bootstrap.Modal(
-    document.getElementById("viewContractModal")
-  );
-  viewModal.show();
+    mostrarContrato(data);
+    const viewModal = new bootstrap.Modal(
+      document.getElementById("viewContractModal")
+    );
+    viewModal.show();
+  } catch (error) {
+    console.error("Error al ver contrato:", error);
+    Swal.fire("Error", "No se pudo cargar el contrato.", "error");
+  }
 }
 
 function eliminarContrato(id) {
@@ -3075,258 +3101,4 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// ==========================================
-// 📄 GENERACIÓN DE PDF (ADMINISTRADOR)
-// ==========================================
-document.addEventListener("DOMContentLoaded", () => {
-  const generatePdfBtn = document.getElementById("generatePdfBtn");
-  if (generatePdfBtn) {
-    generatePdfBtn.addEventListener("click", () => {
-      // Verificar si jsPDF está disponible
-      if (!window.jspdf) {
-        Swal.fire("Error", "La librería PDF no se ha cargado correctamente.", "error");
-        return;
-      }
-      
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      const logo = new Image();
-      const seal = new Image();
-      logo.src = "assets/img/logo.png";
-      seal.src = "assets/img/sello.png";
 
-      let imagesLoaded = 0;
-      const checkImages = () => {
-        imagesLoaded++;
-        if (imagesLoaded === 2) generatePDF();
-      };
-      
-      // Manejar carga de imágenes
-      logo.onload = checkImages;
-      seal.onload = checkImages;
-      logo.onerror = () => { console.warn("Logo failed to load"); checkImages(); };
-      seal.onerror = () => { console.warn("Seal failed to load"); checkImages(); };
-
-      function generatePDF() {
-        const primaryColor = "#d4af37"; // Gold
-        const secondaryColor = "#1a1a1a"; // Dark Gray/Black
-        const lightBG = "#f8f9fa";
-
-        // --- PAGE CONFIG ---
-        const pageWidth = doc.internal.pageSize.getWidth();
-        const pageHeight = doc.internal.pageSize.getHeight();
-        const margin = 20;
-        const contentWidth = pageWidth - margin * 2;
-
-        // --- HEADER ---
-        // Dark Header Background
-        doc.setFillColor(secondaryColor);
-        doc.rect(0, 0, pageWidth, 40, "F");
-
-        // Gold accent line
-        doc.setFillColor(primaryColor);
-        doc.rect(0, 0, pageWidth, 4, "F");
-
-        // Logo
-        try {
-          doc.addImage(logo, "PNG", margin, 10, 20, 20);
-        } catch (e) {
-          console.error("Logo error", e);
-        }
-
-        // Title
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(16);
-        doc.setTextColor("#FFFFFF");
-        doc.text("SERVICIO TÉCNICO ESPECIALIZADO", 55, 18);
-
-        doc.setFontSize(10);
-        doc.setFont("helvetica", "normal");
-        doc.text("SEGURIDAD 24/7 ECUADOR - INFORME TÉCNICO", 55, 26);
-
-        let y = 55;
-
-        // --- SECTION: CLIENT INFO (Boxed) ---
-        doc.setFillColor(lightBG);
-        doc.roundedRect(margin, y, contentWidth, 35, 3, 3, "F");
-        doc.setDrawColor(primaryColor);
-        doc.setLineWidth(0.5);
-        doc.line(margin + 5, y + 10, margin + 60, y + 10);
-
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(12);
-        doc.setTextColor(primaryColor);
-        doc.text("DATOS DE LA ORDEN", margin + 5, y + 7);
-
-        doc.setFontSize(10);
-        doc.setTextColor(secondaryColor);
-        doc.setFont("helvetica", "bold");
-        doc.text("CLIENTE:", margin + 5, y + 20);
-        doc.setFont("helvetica", "normal");
-        const clientName = document.getElementById("reportClientName") ? document.getElementById("reportClientName").innerText : "N/A";
-        doc.text(clientName, margin + 45, y + 20);
-
-        doc.setFont("helvetica", "bold");
-        doc.text("FECHA ASIGNACIÓN:", margin + 5, y + 28);
-        doc.setFont("helvetica", "normal");
-        const jobDate = document.getElementById("reportJobDate") ? document.getElementById("reportJobDate").innerText : "N/A";
-        doc.text(jobDate, margin + 45, y + 28);
-
-        y += 45;
-
-        // --- SECTION: STATUS ---
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(12);
-        doc.setTextColor(primaryColor);
-        doc.text("ESTADO DE FINALIZACIÓN", margin, y);
-        doc.setDrawColor("#e0e0e0");
-        doc.line(margin, y + 2, margin + contentWidth, y + 2);
-        y += 10;
-
-        doc.setFontSize(10);
-        doc.setTextColor(secondaryColor);
-        doc.text("ESTADO ACTUAL:", margin, y);
-        const status = document.getElementById("reportStatus") ? document.getElementById("reportStatus").innerText : "N/A";
-        doc.setTextColor(status === "Culminado" ? "#28a745" : primaryColor);
-        doc.text(status.toUpperCase(), margin + 40, y);
-
-        doc.setTextColor(secondaryColor);
-        y += 7;
-        doc.setFont("helvetica", "bold");
-        doc.text("FECHA CIERRE:", margin, y);
-        doc.setFont("helvetica", "normal");
-        const rDate = document.getElementById("reportDate") ? document.getElementById("reportDate").innerText : "";
-        const rTime = document.getElementById("reportTime") ? document.getElementById("reportTime").innerText : "";
-        doc.text(`${rDate} - ${rTime}`, margin + 40, y);
-
-        y += 15;
-
-        // --- SECTION: REPORT TEXT ---
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(12);
-        doc.setTextColor(primaryColor);
-        doc.text("DETALLE DEL TRABAJO REALIZADO", margin, y);
-        doc.line(margin, y + 2, margin + contentWidth, y + 2);
-        y += 10;
-
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(10);
-        doc.setTextColor("#444444");
-        const rawText = document.getElementById("reportText") ? document.getElementById("reportTextinnerText") || document.getElementById("reportText").innerText : "Sin detalles";
-        const reportLines = doc.splitTextToSize(rawText, contentWidth);
-        doc.text(reportLines, margin, y);
-        y += reportLines.length * 5 + 20;
-
-        // --- SECTION: IMAGES ---
-        if (y > 200) {
-          doc.addPage();
-          y = margin + 10;
-        }
-
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(12);
-        doc.setTextColor(primaryColor);
-        doc.text("EVIDENCIA FOTOGRÁFICA", margin, y);
-        doc.line(margin, y + 2, margin + contentWidth, y + 2);
-        y += 10;
-
-        const img1 = document.getElementById("reportImage1");
-        const img2 = document.getElementById("reportImage2");
-
-        const imgWidth = (contentWidth - 10) / 2;
-        const imgHeight = 60;
-
-        if (img1 && img1.src && img1.src.startsWith("data:")) {
-          doc.setDrawColor("#ddd");
-          doc.rect(margin - 1, y - 1, imgWidth + 2, imgHeight + 2);
-          doc.addImage(img1.src, "JPEG", margin, y, imgWidth, imgHeight);
-        }
-        if (img2 && img2.src && img2.src.startsWith("data:")) {
-          // Ajustar posición para segunda imagen
-          const img2X = margin + imgWidth + 10; 
-          doc.setDrawColor("#ddd");
-          doc.rect(img2X - 1, y - 1, imgWidth + 2, imgHeight + 2);
-          doc.addImage(img2.src, "JPEG", img2X, y, imgWidth, imgHeight);
-        }
-
-        y += imgHeight + 30;
-
-        // --- SIGNATURES SECTION ---
-        if (y > 230) {
-          doc.addPage();
-          y = 30;
-        }
-
-         // Unified Dimensions for perfect symmetry
-        const rectWidth = 55;
-        const rectHeight = 40;
-        const lineWidth = 65; // Line slightly wider than image
-
-        // Helper for centering in a specific x-range
-        const drawCenteredData = (imgData, startX) => {
-          // Center image within the line width
-          const imgX = startX + (lineWidth - rectWidth) / 2;
-          doc.addImage(imgData, "PNG", imgX, y, rectWidth, rectHeight);
-
-          // Draw Line centered
-          doc.setDrawColor(primaryColor);
-          doc.line(startX, y + rectHeight + 5, startX + lineWidth, y + rectHeight + 5);
-        };
-
-        const centerTextInRange = (text, startX) => {
-            const centerX = startX + lineWidth / 2;
-            doc.text(text, centerX, y + rectHeight + 10, { align: "center" });
-        };
-
-        // --- LEFT SIDE: Technical Seal ---
-        const leftX = margin + 10;
-        try {
-          // If seal is available, draw it
-          drawCenteredData(seal, leftX);
-        
-          doc.setFont("helvetica", "bold");
-          doc.setFontSize(9);
-          doc.setTextColor(secondaryColor);
-          centerTextInRange("SELLO DE SOPORTE TÉCNICO", leftX);
-        } catch (e) {
-          console.warn("Seal image not available");
-        }
-
-        // --- RIGHT SIDE: Client Signature ---
-        // Calculate rightX symmetric to leftX
-        const rightX = pageWidth - margin - 10 - lineWidth; 
-        
-        const clientSigEl = document.getElementById("reportClientSignature");
-        if (clientSigEl && clientSigEl.src && clientSigEl.src.startsWith("data:")) {
-          try {
-            drawCenteredData(clientSigEl.src, rightX);
-            
-            doc.setFontSize(9); // Ensure font size match
-            centerTextInRange("FIRMA DE CONFORMIDAD CLIENTE", rightX);
-          } catch (e) {
-            console.warn("Client signature error", e);
-          }
-        }
-
-        y += 50;
-
-        // --- FOOTER ---
-        doc.setFillColor(primaryColor);
-        doc.rect(0, pageHeight - 15, pageWidth, 15, "F");
-        doc.setFontSize(8);
-        doc.setTextColor("#FFFFFF");
-        doc.text(
-          "© 2025 SEGURIDAD 24/7 ECUADOR & MCV (MALLITAXI CODE VISION). DOCUMENTO OFICIAL DE SERVICIO.",
-          pageWidth / 2,
-          pageHeight - 6,
-          { align: "center" }
-        );
-
-        // Guardar el PDF
-        doc.save(
-          `INFORME_${clientName.toUpperCase().replace(/\s+/g, "_")}.pdf`
-        );
-      }
-    });
-  }
-});
