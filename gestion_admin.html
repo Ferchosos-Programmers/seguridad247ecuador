@@ -14,7 +14,10 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
     />
     <link rel="icon" href="assets/img/logo.ico" type="image/x-icon" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   </head>
 
   <body>
@@ -50,6 +53,11 @@
           <li class="sidebar-item">
             <a class="sidebar-link active" data-view="todos">
               <i class="fa-solid fa-house"></i> Dashboard
+            </a>
+          </li>
+          <li class="sidebar-item">
+            <a class="sidebar-link" data-view="complexes">
+              <i class="fa-solid fa-building-shield"></i> Conjuntos
             </a>
           </li>
           <li class="sidebar-item">
@@ -291,12 +299,35 @@
             >
               Crear Contrato
             </button>
+
           </div>
 
           <!-- Contenedor con los trabajos cargados -->
           <div id="jobsSection" style="display: none">
             <h2 style="color: #fff; margin-top: 20px">Trabajos Creados</h2>
             <div id="jobsContainer" class="row g-4"></div>
+          </div>
+
+          <!-- Contenedor para los conjuntos -->
+          <div id="complexesSection" style="display: none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2 class="text-gold mb-0">Listado de Conjuntos</h2>
+              <button
+                id="addComplexBtn"
+                type="button"
+                class="btn btn-gold"
+                data-bs-toggle="modal"
+                data-bs-target="#addComplexModal"
+              >
+                <i class="fa-solid fa-plus me-2"></i> Nuevo Conjunto
+              </button>
+            </div>
+            <div class="row g-4" id="complexesGrid">
+              <!-- Se cargará dinámicamente -->
+              <div class="col-12 text-center py-5 text-muted">
+                <i class="fa-solid fa-spinner fa-spin fa-2x mb-2"></i><br />Cargando conjuntos...
+              </div>
+            </div>
           </div>
 
           <!-- Contenedor para los contratos -->
@@ -988,7 +1019,7 @@
 
     <!-- Modal: Agregar Usuario Management (NUEVO) -->
     <div class="modal fade" id="addUserManagementModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content bg-dark text-white border-gold shadow-lg">
           <div class="modal-header border-bottom border-secondary">
             <h5 class="modal-title text-gold"><i class="fa-solid fa-user-plus me-2"></i> Crear Nuevo Usuario</h5>
@@ -996,49 +1027,73 @@
           </div>
           <div class="modal-body p-4">
             <form id="newUserManagementForm">
-              <div class="mb-3">
-                <label class="form-label fw-bold text-white text-uppercase small">Nombre Completo</label>
-                <input type="text" id="newUserName" class="form-control" style="background: white; border: 1px solid #d4af37; color: black;" placeholder="Ej: Juan Pérez" required />
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-bold text-white text-uppercase small">Correo Electrónico</label>
-                <input type="email" id="newUserEmail" class="form-control" style="background: white; border: 1px solid #d4af37; color: black;" placeholder="correo@ejemplo.com" required />
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-bold text-white text-uppercase small">Contraseña</label>
-                <input type="password" id="newUserPassword" class="form-control" style="background: white; border: 1px solid #d4af37; color: black;" placeholder="Mínimo 6 caracteres" minlength="6" required />
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-bold text-white text-uppercase small">Rol del Sistema</label>
-                <select id="newUserRole" class="form-select" style="background: white; border: 1px solid #d4af37; color: black;" required>
-                  <option value="" disabled selected>Seleccione un rol...</option>
-                  <option value="administrador">Administrador General</option>
-                  <option value="ADMIN_CONJUNTO">Administrador de Conjunto</option>
-                  <option value="tecnico">Técnico</option>
-                  <option value="monitoreo">Monitoreo / Operaciones</option>
-                </select>
-              </div>
-              <!-- Campos dinámicos según el rol -->
-              <div id="techFields" style="display: none;">
-                <div class="mb-3">
-                  <label class="form-label fw-bold text-white text-uppercase small">Sub-Rol Técnico</label>
-                  <select id="newUserSubRole" class="form-select" style="background: white; border: 1px solid #d4af37; color: black;">
-                    <option value="tecnico-obrero">Técnico Obrero</option>
-                    <option value="tecnico-jefe">Técnico Jefe</option>
-                  </select>
+              <div class="row">
+                <!-- Columna Izquierda: Información Básica -->
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label fw-bold text-white text-uppercase small">Nombre Completo</label>
+                    <input type="text" id="newUserName" class="form-control" style="background: white; border: 1px solid #d4af37; color: black;" placeholder="Ej: Juan Pérez" required />
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-bold text-white text-uppercase small">Correo Electrónico</label>
+                    <input type="email" id="newUserEmail" class="form-control" style="background: white; border: 1px solid #d4af37; color: black;" placeholder="correo@ejemplo.com" required />
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-bold text-white text-uppercase small">Contraseña</label>
+                    <div class="input-group">
+                      <input type="password" id="newUserPassword" class="form-control" style="background: white; border: 1px solid #d4af37; color: black; border-right: none;" placeholder="Se generará automáticamente" minlength="6" required />
+                      <button class="btn btn-outline-secondary" type="button" id="toggleNewUserPassword" style="background: white; border: 1px solid #d4af37; border-left: none; color: #d4af37;">
+                        <i class="fa-solid fa-eye-slash"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Columna Derecha: Roles y Asignaciones -->
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label fw-bold text-white text-uppercase small">Rol del Sistema</label>
+                    <select id="newUserRole" class="form-select" style="background: white; border: 1px solid #d4af37; color: black;" required>
+                      <option value="" disabled selected>Seleccione un rol...</option>
+                      <option value="administrador">Administrador General</option>
+                      <option value="ADMIN_CONJUNTO">Administrador de Conjunto</option>
+                      <option value="tecnico">Técnico</option>
+                      <option value="monitoreo">Monitoreo / Operaciones</option>
+                    </select>
+                  </div>
+
+                  <!-- Campos dinámicos según el rol -->
+                  <div id="techFields" style="display: none;">
+                    <div class="mb-3">
+                      <label class="form-label fw-bold text-white text-uppercase small">Sub-Rol Técnico</label>
+                      <select id="newUserSubRole" class="form-select" style="background: white; border: 1px solid #d4af37; color: black;">
+                        <option value="tecnico-obrero">Técnico Obrero</option>
+                        <option value="tecnico-jefe">Técnico Jefe</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div id="adminFields" style="display: none;">
+                    <div class="mb-3" id="contractFieldCreate" style="display: none;">
+                       <label class="form-label fw-bold text-white text-uppercase small">Contrato Asociado</label>
+                       <select id="newUserContract" class="form-select" style="background: white; border: 1px solid #d4af37; color: black;">
+                         <option value="" selected disabled>Seleccione un contrato...</option>
+                       </select>
+                    </div>
+                    <!-- Nuevo campo: Conjunto Asociado -->
+                    <div class="mb-3" id="complexFieldCreate" style="display: none;">
+                       <label class="form-label fw-bold text-white text-uppercase small">Conjunto Asociado</label>
+                       <select id="newUserComplex" class="form-select" style="background: white; border: 1px solid #d4af37; color: black;">
+                         <option value="" selected disabled>Seleccione un conjunto...</option>
+                       </select>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div id="adminFields" style="display: none;">
-                <div class="mb-3" id="contractFieldCreate" style="display: none;">
-                   <label class="form-label fw-bold text-white text-uppercase small">Contrato Asociado</label>
-                   <select id="newUserContract" class="form-select" style="background: white; border: 1px solid #d4af37; color: black;">
-                     <option value="" selected disabled>Seleccione un contrato...</option>
-                   </select>
-                </div>
-              </div>
+
               <div class="d-grid mt-4">
-                <button type="submit" class="btn btn-gold py-2 fw-bold">
-                  <i class="fa-solid fa-save me-2"></i> Guardar Usuario
+                <button type="submit" class="btn btn-gold py-2 fw-bold shadow-sm">
+                  <i class="fa-solid fa-save me-2"></i> CREAR USUARIO Y REGISTRAR
                 </button>
               </div>
             </form>
@@ -1060,7 +1115,7 @@
 
     <!-- Modal: Editar Usuario Management (NUEVO) -->
     <div class="modal fade" id="editUserManagementModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content bg-dark text-white border-gold shadow-lg">
           <div class="modal-header border-bottom border-secondary">
             <h5 class="modal-title text-gold"><i class="fa-solid fa-user-pen me-2"></i> Editar Usuario</h5>
@@ -1069,31 +1124,46 @@
           <div class="modal-body p-4">
             <form id="editUserManagementForm">
               <input type="hidden" id="editUserId" />
-              <div class="mb-3">
-                <label class="form-label fw-bold text-white text-uppercase small">Nombre Completo</label>
-                <input type="text" id="editUserName" class="form-control" style="background: white; border: 1px solid #d4af37; color: black;" required />
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-bold text-white text-uppercase small">Correo Electrónico (Solo Lectura)</label>
-                <input type="email" id="editUserEmail" class="form-control" style="background: #e9ecef; border: 1px solid #ccc; color: #555;" readonly />
-              </div>
-              
-              <!-- Campos dinámicos según el rol -->
-              <div id="editTechFields" style="display: none;">
-                <div class="mb-3">
-                  <label class="form-label fw-bold text-white text-uppercase small">Sub-Rol Técnico</label>
-                  <select id="editUserSubRole" class="form-select" style="background: white; border: 1px solid #d4af37; color: black;">
-                    <option value="tecnico-obrero">Técnico Obrero</option>
-                    <option value="tecnico-jefe">Técnico Jefe</option>
-                  </select>
+              <div class="row">
+                <!-- Columna Izquierda -->
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label fw-bold text-white text-uppercase small">Nombre Completo</label>
+                    <input type="text" id="editUserName" class="form-control" style="background: white; border: 1px solid #d4af37; color: black;" required />
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-bold text-white text-uppercase small">Correo Electrónico (Solo Lectura)</label>
+                    <input type="email" id="editUserEmail" class="form-control" style="background: #e9ecef; border: 1px solid #ccc; color: #555;" readonly />
+                  </div>
                 </div>
-              </div>
-              <div id="editAdminFields" style="display: none;">
-                <div class="mb-3" id="contractFieldEdit" style="display: none;">
-                  <label class="form-label fw-bold text-white text-uppercase small">Contrato Asociado</label>
-                  <select id="editUserContract" class="form-select" style="background: white; border: 1px solid #d4af37; color: black;">
-                    <option value="" selected disabled>Seleccione un contrato...</option>
-                  </select>
+
+                <!-- Columna Derecha -->
+                <div class="col-md-6">
+                  <!-- Campos dinámicos según el rol -->
+                  <div id="editTechFields" style="display: none;">
+                    <div class="mb-3">
+                      <label class="form-label fw-bold text-white text-uppercase small">Sub-Rol Técnico</label>
+                      <select id="editUserSubRole" class="form-select" style="background: white; border: 1px solid #d4af37; color: black;">
+                        <option value="tecnico-obrero">Técnico Obrero</option>
+                        <option value="tecnico-jefe">Técnico Jefe</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div id="editAdminFields" style="display: none;">
+                    <div class="mb-3" id="contractFieldEdit" style="display: none;">
+                      <label class="form-label fw-bold text-white text-uppercase small">Contrato Asociado</label>
+                      <select id="editUserContract" class="form-select" style="background: white; border: 1px solid #d4af37; color: black;">
+                        <option value="" selected disabled>Seleccione un contrato...</option>
+                      </select>
+                    </div>
+                    <!-- Nuevo campo: Conjunto Asociado (Edición) -->
+                    <div class="mb-3" id="complexFieldEdit" style="display: none;">
+                      <label class="form-label fw-bold text-white text-uppercase small">Conjunto Asociado</label>
+                      <select id="editUserComplex" class="form-select" style="background: white; border: 1px solid #d4af37; color: black;">
+                        <option value="" selected disabled>Seleccione un conjunto...</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -1108,8 +1178,222 @@
               </div>
 
               <div class="d-grid mt-4">
-                <button type="submit" class="btn btn-gold py-2 fw-bold">
-                  <i class="fa-solid fa-save me-2"></i> Guardar Cambios
+                <button type="submit" class="btn btn-gold py-2 fw-bold shadow-sm">
+                  <i class="fa-solid fa-save me-2"></i> GUARDAR CAMBIOS
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL AGREGAR CONJUNTO -->
+    <div
+      class="modal fade"
+      id="addComplexModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Registrar Conjunto</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body p-4">
+            <form id="addComplexForm">
+              <div class="mb-3">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-1"
+                >
+                  <label class="form-label mb-0"
+                    >REPRESENTANTE / ADMINISTRADOR</label
+                  >
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="toggleAdminManual"
+                      style="cursor: pointer"
+                    />
+                    <label
+                      class="form-check-label small text-white-50"
+                      for="toggleAdminManual"
+                      style="cursor: pointer; font-size: 0.7rem"
+                    >
+                      No registrado aún
+                    </label>
+                  </div>
+                </div>
+
+                <div id="adminLinkWrapper">
+                  <select id="complexAdmin" class="form-select select2-admin">
+                    <option value="" disabled selected>
+                      Seleccione un administrador...
+                    </option>
+                  </select>
+                </div>
+
+                <div id="adminManualWrapper" style="display: none">
+                  <input
+                    type="text"
+                    id="complexAdminManual"
+                    class="form-control force-uppercase"
+                    placeholder="Escriba el nombre del administrador"
+                  />
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">NOMBRE DEL CONJUNTO</label>
+                <input
+                  type="text"
+                  id="complexName"
+                  class="form-control force-uppercase"
+                  placeholder="Ej: Urbanización Los Pinos"
+                  required
+                />
+              </div>
+              <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-gold">
+                  <i class="fa-solid fa-save me-2"></i> GUARDAR CONJUNTO
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL VER REGISTROS -->
+    <div
+      class="modal fade"
+      id="viewRegistriesModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div
+        class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"
+      >
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title d-flex align-items-center flex-wrap">
+              <i class="fa-solid fa-clipboard-list me-2"></i>
+              <span>Registros de&nbsp;</span>
+              <span id="registriesComplexName" class="fw-bold"></span>
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body p-4">
+            <div id="registriesTableContainer">
+              <div class="text-center py-5">
+                <i class="fa-solid fa-spinner fa-spin fa-2x text-gold mb-3"></i>
+                <p class="text-muted">Cargando registros...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL EDITAR REGISTRO -->
+    <div
+      class="modal fade"
+      id="editRegistryModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fa-solid fa-pen-to-square text-white me-2"></i>
+              Editar Registro de Residente
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body p-4">
+            <form id="editRegistryForm">
+              <input type="hidden" id="editRegId" />
+              <input type="hidden" id="editRegComplexName" />
+
+              <div class="row g-3 mb-4">
+                <div class="col-md-7">
+                  <label class="form-label">CASA / DEPARTAMENTO #</label>
+                  <input
+                    type="text"
+                    id="editRegHouseNum"
+                    class="form-control force-uppercase"
+                    placeholder="Ej: Villa 05"
+                    required
+                  />
+                </div>
+                <div class="col-md-5">
+                  <label class="form-label">TIPO</label>
+                  <select id="editRegResType" class="form-select" required>
+                    <option value="propietario">Propietario</option>
+                    <option value="arrendatario">Arrendatario</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-2"
+                >
+                  <h6 class="text-gold mb-0 fw-bold">
+                    <i class="fa-solid fa-users me-2"></i> Residentes
+                  </h6>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-gold"
+                    onclick="addResidentEntryEdit()"
+                  >
+                    <i class="fa-solid fa-plus me-1"></i> Añadir
+                  </button>
+                </div>
+                <div
+                  id="editResidentsContainer"
+                  class="d-flex flex-column gap-3"
+                ></div>
+              </div>
+
+              <div class="mb-4">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-2"
+                >
+                  <h6 class="text-gold mb-0 fw-bold">
+                    <i class="fa-solid fa-car me-2"></i> Vehículos
+                  </h6>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-gold"
+                    onclick="addVehicleEntryEdit()"
+                  >
+                    <i class="fa-solid fa-plus me-1"></i> Añadir
+                  </button>
+                </div>
+                <div
+                  id="editVehiclesContainer"
+                  class="d-flex flex-column gap-3"
+                ></div>
+              </div>
+
+              <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-gold">
+                  <i class="fa-solid fa-save me-2"></i> ACTUALIZAR REGISTRO
                 </button>
               </div>
             </form>

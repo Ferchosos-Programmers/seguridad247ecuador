@@ -7,71 +7,143 @@ document.addEventListener("DOMContentLoaded", () => {
   const userNameDisplay = document.getElementById("userNameDisplay");
   const paymentsTableBody = document.getElementById("paymentsTableBody");
 
-  // 1. CHECK AUTH
+  // 1. CHECK AUTH AND INITIALIZE VIEW
   console.log("Iniciando protección de ruta clientes...");
+  
+  // Variables de estado para modo invitado
+  window.currentGuestComplex = null;
+  window.currentGuestContractId = null;
+
   auth.onAuthStateChanged(async (user) => {
-    if (!user) {
-      console.warn("No hay sesión activa (Cliente), redirigiendo a control_center.html");
-      window.location.href = "control_center.html";
-      return;
-    }
+    const authInfo = document.getElementById("authRequiredInfo");
+    const noAuthInfo = document.getElementById("noAuthInfo");
+    const publicSearch = document.getElementById("publicSearchSection");
+    const mainContent = document.getElementById("mainPortalContent");
+    const profileSection = document.getElementById("userProfileSection");
 
-    try {
+    if (user) {
       console.log("Sesión activa detectada (Cliente):", user.email);
-      const doc = await db.collection("users").doc(user.uid).get();
+      try {
+        const doc = await db.collection("users").doc(user.uid).get();
+        if (doc.exists) {
+            const userData = doc.data();
+            // Mostrar UI autenticada
+            if (authInfo) authInfo.style.display = "flex";
+            if (noAuthInfo) noAuthInfo.style.display = "none";
+            if (publicSearch) publicSearch.style.display = "none";
+            if (mainContent) mainContent.style.display = "flex";
+            if (profileSection) profileSection.style.display = "block";
+
+            if (userNameDisplay) {
+                userNameDisplay.textContent = userData.adminName || userData.name || user.email.split("@")[0];
+            }
+            
+            const userNameEl = document.getElementById("userName");
+            const userEmailEl = document.getElementById("userEmail");
+            
+            if (userNameEl) userNameEl.textContent = userData.adminName || userData.name || "Administrador Conjunto";
+            if (userEmailEl) userEmailEl.textContent = userData.email || user.email;
+
+            loadPayments(user.uid);
+            loadContractData(user.uid);
+        }
+      } catch (error) {
+        console.error("Error al cargar datos de usuario:", error);
+      }
+    } else {
+      console.log("Modo público habilitado");
+      if (authInfo) authInfo.style.display = "none";
+      if (noAuthInfo) noAuthInfo.style.display = "block";
+      if (publicSearch) publicSearch.style.display = "flex";
+      if (mainContent) mainContent.style.display = "none";
+      if (profileSection) profileSection.style.display = "none";
       
-      if (!doc.exists) {
-          console.error("No se encontró documento de cliente.");
-          throw new Error("Su cuenta no tiene perfil de residente configurado.");
-      }
-
-      const userData = doc.data();
-      const role = userData.role ? userData.role.toUpperCase() : ""; // Clientes usan ADMIN_CONJUNTO en mayúsculas
-
-      // PROTECCIÓN DE RUTA: Solo ADMIN_CONJUNTO
-      if (role !== 'ADMIN_CONJUNTO') {
-        console.warn("Acceso no autorizado a Portal Clientes. Redirigiendo...");
-        await auth.signOut();
-        Swal.fire({
-          icon: "error",
-          title: "Acceso Denegado",
-          text: "Su cuenta no tiene permisos para acceder al portal de residentes.",
-          confirmButtonColor: "#d4af37",
-        }).then(() => {
-          window.location.href = "control_center.html";
-        });
-        return;
-      }
-
-      console.log("Usuario autorizado:", user.email);
-      if (userNameDisplay) {
-        userNameDisplay.textContent = (userData.adminName || userData.name || user.email.split("@")[0]);
-      }
-
-      const userNameEl = document.getElementById("userName");
-      const userEmailEl = document.getElementById("userEmail");
-      const userProfileCard = document.getElementById("userProfileCard");
-      
-      if (userNameEl) userNameEl.textContent = userData.adminName || userData.name || "Administrador Conjunto";
-      if (userEmailEl) userEmailEl.textContent = userData.email || user.email;
-      if (userProfileCard) userProfileCard.style.display = "block";
-
-      loadPayments(user.uid);
-      loadContractData(user.uid);
-
-    } catch (error) {
-      console.error("Error validando sesión (Cliente):", error);
-      await auth.signOut();
-      Swal.fire({
-        icon: "error",
-        title: "Error de Sesión",
-        text: error.message || "Error al verificar permisos de residente.",
-        confirmButtonColor: "#d4af37"
-      }).then(() => {
-        window.location.href = "control_center.html";
-      });
+      initPublicSearch();
     }
   });
+
+  // Función para inicializar búsqueda por RUC/Cédula
+  function initPublicSearch() {
+    const btnEnter = document.getElementById("btnEnterPublic");
+    const idInput = document.getElementById("publicIdInput");
+    
+    if (!btnEnter || !idInput) return;
+
+    btnEnter.addEventListener("click", async () => {
+        const idValue = idInput.value.trim();
+        if (!idValue) {
+            Swal.fire("Atención", "Por favor ingresa tu número de cédula o RUC.", "warning");
+            return;
+        }
+
+        Swal.fire({
+            title: 'Buscando contrato...',
+            didOpen: () => Swal.showLoading()
+        });
+
+        try {
+            // Buscar contrato por RUC/Cédula (nombre del campo en DB: clientId)
+            const contractSnapshot = await db.collection("contracts")
+                .where("clientId", "==", idValue)
+                .limit(1)
+                .get();
+
+            if (contractSnapshot.empty) {
+                Swal.fire("No encontrado", "No se encontró ningún contrato con esa identificación.", "error");
+                return;
+            }
+
+            const contractData = contractSnapshot.docs[0].data();
+            const contractId = contractSnapshot.docs[0].id;
+
+            // Ahora debemos encontrar al administrador (user) asociado a este contrato o conjunto
+            const userSnapshot = await db.collection("users")
+                .where("contractId", "==", contractId)
+                .limit(1)
+                .get();
+
+            if (userSnapshot.empty) {
+                Swal.fire("Aviso", "Contrato encontrado, pero no hay un perfil de usuario asignado. Contacte a soporte.", "info");
+                return;
+            }
+
+            const userData = userSnapshot.docs[0].data();
+            
+            // Configurar sesión de invitado global
+            window.currentGuestUserId = userSnapshot.docs[0].id;
+            window.currentGuestEmail = userData.email;
+            window.currentGuestComplex = userData.complexName;
+            window.currentGuestContractId = contractId;
+
+            // Mostrar interfaz de pago
+            document.getElementById("publicSearchSection").style.display = "none";
+            document.getElementById("mainPortalContent").style.display = "flex";
+            
+            // Cargar datos (estos ya usan currentGuestUserId)
+            loadPayments(window.currentGuestUserId);
+            loadContractData(window.currentGuestUserId);
+            
+            Swal.close();
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: `Bienvenido, ${userData.adminName || userData.name}`,
+                showConfirmButton: false,
+                timer: 3000
+            });
+
+        } catch (err) {
+            console.error(err);
+            Swal.fire("Error", "Ocurrió un error al consultar la información.", "error");
+        }
+    });
+
+    // Enter Key Support
+    idInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") btnEnter.click();
+    });
+  }
 
   // 2. LOGOUT
   if (logoutBtn) {
@@ -99,7 +171,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // 4. PROCESS PAYMENT (COMMON FUNCTION)
   async function processPayment(method, notes, extraData = {}, silent = false) {
     const user = auth.currentUser;
-    if (!user) return false;
+    const userId = user ? user.uid : window.currentGuestUserId;
+    const userEmail = user ? user.email : window.currentGuestEmail;
+
+    if (!userId || !userEmail) return false;
 
     const service = document.getElementById("commonService").value;
     const amount = parseFloat(document.getElementById("commonAmount").value);
@@ -115,8 +190,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Prepara datos
     const paymentData = {
-      userId: user.uid,
-      userEmail: user.email,
+      userId: userId,
+      userEmail: userEmail,
       service: service,
       amount: amount,
       method: method, // 'Tarjeta' or 'Transferencia'
@@ -126,6 +201,7 @@ document.addEventListener("DOMContentLoaded", () => {
       proofUrl: extraData.proofUrl || null,
       date: new Date(),
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      isGuestMode: !user
     };
 
     try {
@@ -259,6 +335,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!userId) {
       const user = auth.currentUser;
       if (user) userId = user.uid;
+      else if (window.currentGuestUserId) userId = window.currentGuestUserId;
       else return;
     }
 
@@ -350,7 +427,7 @@ document.addEventListener("DOMContentLoaded", () => {
         amountInput.value = priceWithIva.toFixed(2);
       }
 
-      if (userData.complexName) {
+      if (userData.complexName && userNameDisplay) {
         userNameDisplay.textContent = `${userData.adminName} (${userData.complexName})`;
       }
 
@@ -365,13 +442,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!scheduleBody) return;
 
     const user = auth.currentUser;
-    if (!user) return;
+    const currentId = user ? user.uid : window.currentGuestUserId;
+    if (!currentId) return;
 
     let reportedPayments = {};
     try {
       const paymentsSnapshot = await db
         .collection("payments")
-        .where("userId", "==", user.uid)
+        .where("userId", "==", currentId)
         .get();
 
       paymentsSnapshot.forEach((doc) => {

@@ -17,7 +17,6 @@ body {
   padding-top: 70px; /* Altura de la navbar fija */
   position: relative;
   margin-bottom: -2.9%;
-  
 }
 
 .sidebar {
@@ -38,10 +37,10 @@ body {
 }
 
 .sidebar-logo {
- display: flex;
-  flex-direction: column;      /* Logo arriba, texto abajo */
-  align-items: center;         /* Centra horizontal */
-  justify-content: center;     /* Centra vertical */
+  display: flex;
+  flex-direction: column; /* Logo arriba, texto abajo */
+  align-items: center; /* Centra horizontal */
+  justify-content: center; /* Centra vertical */
   text-align: center;
   padding: 20px 0;
 }
@@ -156,19 +155,20 @@ body {
   .admin-wrapper {
     padding-top: 80px; /* Increased to avoid overlapping fixed navbar */
   }
-  
+
   /* Center content on tablets */
   .container-fluid {
     max-width: 100%;
     padding-left: 20px !important;
     padding-right: 20px !important;
   }
-  
+
   /* Center headers */
-  h1, h2 {
+  h1,
+  h2 {
     text-align: center !important;
   }
-  
+
   /* Improve filter layout on tablets */
   .d-flex.justify-content-between.align-items-center.mb-5 {
     flex-direction: column;
@@ -176,23 +176,23 @@ body {
     text-align: center;
     gap: 15px;
   }
-  
+
   .d-flex.gap-3.align-items-center {
     width: 100%;
     justify-content: center;
   }
-  
+
   /* Center action buttons */
   .action-buttons {
     justify-content: center;
     flex-wrap: wrap;
   }
-  
+
   /* Add spacing to stat cards on tablets */
   .stat-card {
     margin-top: 20px;
   }
-  
+
   .row.g-4 .col-xl-3,
   .row.g-4 .col-md-6 {
     margin-top: 15px;
@@ -207,31 +207,34 @@ body {
     flex-direction: column;
     align-items: center;
   }
-  
+
   .container-fluid {
     width: 100%;
     max-width: 100%;
   }
-  
+
   /* Center stat cards */
   .row.g-4 {
     justify-content: center;
   }
-  
+
   /* Full width cards on mobile with spacing */
-  .col-xl-3, .col-md-6, .col-lg-6, .col-12 {
+  .col-xl-3,
+  .col-md-6,
+  .col-lg-6,
+  .col-12 {
     width: 100% !important;
     max-width: 500px; /* Limit max width for better readability */
     margin: 0 auto;
     margin-top: 20px !important; /* Add top margin for separation */
   }
-  
+
   /* First card should not have margin-top */
   .row.g-4 > .col-xl-3:first-child,
   .row.g-4 > .col-md-6:first-child {
     margin-top: 0 !important;
   }
-  
+
   .stat-card {
     margin-top: 0; /* Reset since we're using column margin */
   }
@@ -241,30 +244,31 @@ body {
   .main-content {
     padding: 15px 10px 15px; /* Tighter padding for very small screens */
   }
-  
+
   .admin-wrapper {
     padding-top: 90px; /* Even more padding for small mobile navbars */
   }
-  
-  h1, h2 {
+
+  h1,
+  h2 {
     font-size: 1.4rem !important;
     margin-top: 10px !important; /* Added safety margin */
     line-height: 1.3;
     text-align: center !important;
   }
-  
+
   /* Enhanced spacing for stat cards on small screens */
   .stat-card {
     padding: 15px;
     margin-bottom: 15px; /* Add bottom margin for extra separation */
   }
-  
+
   .stat-card-icon {
     width: 45px;
     height: 45px;
     font-size: 1rem;
   }
-  
+
   .stat-card-info h3 {
     font-size: 1.25rem;
   }
@@ -289,7 +293,11 @@ body {
   }
 
   /* Smarter Buttons for Mobile */
-  .btn, .btn-gold, .btn-edit, .btn-delete, .btn-view-report {
+  .btn,
+  .btn-gold,
+  .btn-edit,
+  .btn-delete,
+  .btn-view-report {
     padding: 8px 12px !important;
     font-size: 0.8rem !important;
     min-height: 38px;
@@ -297,44 +305,53 @@ body {
     align-items: center;
     justify-content: center;
   }
-  
+
   /* Center filters on mobile */
-  #urgencyFilterContainer, #nameFilterContainer {
+  #urgencyFilterContainer,
+  #nameFilterContainer {
     width: 100%;
     max-width: 400px;
   }
-  
-  .modern-select, .modern-input {
+
+  .modern-select,
+  .modern-input {
     width: 100% !important;
   }
-  
+
   /* Center action buttons */
   .action-buttons {
     width: 100%;
     justify-content: center;
     padding-left: 0;
   }
-  
+
   .action-buttons button {
     flex: 1;
     min-width: 140px;
     max-width: 200px;
   }
-  
+
   /* Center dashboard sections */
-  #dashboardSection, #jobsSection, #contractsSection, #adminsSection, #paymentsSection {
+  #dashboardSection,
+  #jobsSection,
+  #contractsSection,
+  #adminsSection,
+  #paymentsSection {
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
   }
-  
-  #jobsContainer, #contractsContainer, #adminsContainer, #paymentsContainer {
+
+  #jobsContainer,
+  #contractsContainer,
+  #adminsContainer,
+  #paymentsContainer {
     width: 100%;
     max-width: 500px;
     margin: 0 auto;
   }
-  
+
   /* Extra spacing for stat cards on very small screens */
   .row.g-4 .col-xl-3,
   .row.g-4 .col-md-6,
@@ -342,12 +359,12 @@ body {
     margin-top: 25px !important; /* Increased spacing */
     margin-bottom: 10px;
   }
-  
+
   /* Keep first card without top margin */
   .row.g-4 > div:first-child {
     margin-top: 0 !important;
   }
-  
+
   /* Maintain dashboard margin-top on mobile */
   #dashboardSection {
     margin-top: -50px !important;
@@ -526,7 +543,8 @@ h1 {
   font-size: 0.9rem;
 }
 
-body, html {
+body,
+html {
   background-color: #0a0a0a;
   color: #fff;
   min-height: 100vh;
@@ -547,7 +565,9 @@ main {
   padding: 10px 20px;
   border-radius: 5px;
   font-weight: bold;
-  transition: background-color 0.3s, box-shadow 0.3s;
+  transition:
+    background-color 0.3s,
+    box-shadow 0.3s;
 }
 
 .btn-gold:hover {
@@ -564,7 +584,9 @@ main {
   padding: 10px 20px;
   border-radius: 30px;
   font-weight: bold;
-  transition: background-color 0.3s, box-shadow 0.3s;
+  transition:
+    background-color 0.3s,
+    box-shadow 0.3s;
 }
 
 .btn-info:hover {
@@ -575,12 +597,10 @@ main {
 
 /* Estilo para el header del modal */
 .modal-header {
-  background-color: #d4af37;
-  /* Tono dorado */
-  color: #fff;
-  /* Texto blanco */
-  border-bottom: none;
-  /* Opcional: quita el borde inferior */
+  background-color: #d4af37 !important;
+  color: #fff !important;
+  border: none !important;
+  padding: 15px 25px !important;
 }
 
 .modal-header .btn-close {
@@ -616,7 +636,7 @@ main {
 }
 
 .job-card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -643,12 +663,12 @@ main {
     flex-direction: column;
     align-items: center;
   }
-  
+
   .report-image {
     width: 100%;
     max-width: 350px;
   }
-  
+
   .modal-lg {
     max-width: 95%;
     margin: 10px auto;
@@ -1015,13 +1035,14 @@ main {
   .header-filters {
     width: 100%;
   }
-  
+
   .header-filters > div {
     flex: 1;
     min-width: 150px;
   }
-  
-  .modern-input, .modern-select {
+
+  .modern-input,
+  .modern-select {
     width: 100%;
   }
 }
@@ -1119,7 +1140,7 @@ main {
 }
 
 .stat-card::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   right: 0;
@@ -1340,7 +1361,8 @@ main {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3);
   }
@@ -1517,11 +1539,11 @@ main {
     width: 60px;
     height: 60px;
   }
-  
+
   .notification-icon-wrapper i {
     font-size: 1.5rem;
   }
-  
+
   .notification-header,
   .notification-body,
   .notification-footer {
@@ -1542,7 +1564,7 @@ main {
     flex-direction: column;
     gap: 5px;
   }
-  
+
   #notificationsModalBody {
     padding: 15px;
   }
@@ -1553,13 +1575,13 @@ main {
     width: 55px;
     height: 55px;
   }
-  
+
   .notification-badge-icon {
     font-size: 0.65rem;
     padding: 2px 6px;
     min-width: 20px;
   }
-  
+
   .notification-header h5 {
     font-size: 1rem;
   }
@@ -1710,7 +1732,7 @@ main {
   align-items: center;
   justify-content: center;
   min-height: 120px;
-  box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .signature-box img {
@@ -1742,4 +1764,213 @@ main {
   transform: translateY(-3px);
   box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3);
   color: #000;
+}
+
+/* REGISTRIES TABLE - MODERN DARK & GOLD THEME */
+.table-dark-premium {
+  border-radius: 12px;
+  background: #1a1a1a !important;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  overflow: hidden;
+  width: 100%;
+  margin-bottom: 0;
+  color: #fff !important;
+  border-collapse: collapse;
+}
+
+.table-dark-premium thead th {
+  background: rgba(212, 175, 55, 0.15) !important;
+  color: #d4af37 !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  padding: 15px 10px;
+  border: 1px solid rgba(212, 175, 55, 0.2) !important;
+  text-align: center;
+}
+
+.table-dark-premium tbody td {
+  padding: 12px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  vertical-align: middle;
+  font-size: 0.9rem;
+  color: #e0e0e0 !important;
+  background-color: transparent !important;
+}
+
+.btn-action-table {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  cursor: pointer;
+  background: transparent;
+  color: #fff;
+}
+
+.btn-action-table:hover {
+  background: rgba(212, 175, 55, 0.1);
+  transform: scale(1.1);
+}
+
+.text-gold-premium {
+  color: #d4af37 !important;
+  font-weight: 700;
+}
+
+.form-label-gold {
+  color: #d4af37;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bg-gold {
+  background-color: #d4af37 !important;
+  color: #000 !important;
+}
+
+.bg-outline-gold {
+  background-color: transparent !important;
+  border: 1px solid #d4af37 !important;
+  color: #d4af37 !important;
+}
+
+.contact-icon {
+  font-size: 1.1rem;
+  transition: transform 0.2s ease;
+}
+
+.contact-icon:hover {
+  transform: scale(1.2);
+}
+
+.btn-edit-registry {
+  color: #ffc107 !important;
+}
+
+.btn-edit-registry:hover {
+  background: rgba(255, 193, 7, 0.2) !important;
+}
+
+.btn-delete-registry {
+  color: #ff4444 !important;
+}
+
+.btn-delete-registry:hover {
+  background: rgba(255, 68, 68, 0.2) !important;
+}
+
+/* SELECT2 CUSTOM STYLING - DARK & GOLD THEME */
+.select2-container--default .select2-selection--single {
+  background-color: #fff !important;
+  border: 2px solid #d4af37 !important;
+  border-radius: 8px !important;
+  height: 48px !important;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.select2-container--default
+  .select2-selection--single
+  .select2-selection__rendered {
+  color: #000 !important;
+  font-weight: 600 !important;
+  padding-left: 15px !important;
+  font-size: 0.95rem;
+}
+
+.select2-container--default
+  .select2-selection--single
+  .select2-selection__placeholder {
+  color: #666 !important;
+}
+
+.select2-container--default
+  .select2-selection--single
+  .select2-selection__arrow {
+  height: 46px !important;
+  right: 10px !important;
+}
+
+.select2-dropdown {
+  background-color: #1a1a1a !important;
+  border: 2px solid #d4af37 !important;
+  border-radius: 12px !important;
+  color: #fff !important;
+  z-index: 2000 !important;
+  margin-top: 5px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8) !important;
+  overflow: hidden;
+}
+
+.select2-search--dropdown {
+  padding: 12px !important;
+  background-color: #111 !important;
+}
+
+.select2-search__field {
+  background-color: #222 !important;
+  border: 1px solid rgba(212, 175, 55, 0.4) !important;
+  color: #fff !important;
+  border-radius: 6px !important;
+  padding: 10px 15px !important;
+  font-size: 0.9rem !important;
+}
+
+.select2-results__option {
+  padding: 12px 18px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background-color: transparent !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 0.9rem;
+}
+
+.select2-container--default
+  .select2-results__option--highlighted[aria-selected] {
+  background-color: #d4af37 !important;
+  color: #000 !important;
+}
+
+.select2-container--default .select2-results__option[aria-selected="true"] {
+  background-color: rgba(212, 175, 55, 0.15) !important;
+  color: #d4af37 !important;
+  font-weight: 700;
+}
+
+/* Fix for nested elements in Select2 results */
+.select2-results__option--highlighted *,
+.select2-results__option--highlighted div,
+.select2-results__option--highlighted span,
+.select2-results__option--highlighted i {
+  color: #000 !important;
+}
+
+/* Modal Label Visibility Enhancement */
+.modal-body .form-label {
+  color: #d4af37 !important;
+  font-weight: 800 !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.5px !important;
+  opacity: 1 !important;
+}
+
+.form-check-label {
+  color: #fff !important;
+  opacity: 0.9;
+}
+
+.admin-option-name {
+  color: #d4af37;
+}
+
+.admin-option-sub {
+  color: rgba(255, 255, 255, 0.5);
 }

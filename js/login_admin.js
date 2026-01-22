@@ -48,8 +48,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const dashboardSection = document.getElementById("dashboardSection");
     const jobsSection = document.getElementById("jobsSection");
     const contractsSection = document.getElementById("contractsSection");
+    const complexesSection = document.getElementById("complexesSection");
     const createJobBtn = document.getElementById("createJobBtn");
     const createContractBtn = document.getElementById("createContractBtn");
+    const addComplexBtn = document.getElementById("addComplexBtn");
 
     // Contenedores de filtros secundarios
     const urgencyFilterContainer = document.getElementById("urgencyFilterContainer");
@@ -76,12 +78,13 @@ document.addEventListener("DOMContentLoaded", () => {
       if (dashboardSection) dashboardSection.style.display = "none";
       jobsSection.style.display = "none";
       contractsSection.style.display = "none";
-      const paymentsSection = document.getElementById("paymentsSection");
       if (paymentsSection) paymentsSection.style.display = "none";
       if (usersManagementSection) usersManagementSection.style.display = "none";
+      if (complexesSection) complexesSection.style.display = "none";
 
       createJobBtn.style.display = "none";
       createContractBtn.style.display = "none";
+      if (addComplexBtn) addComplexBtn.style.display = "none";
       urgencyFilterContainer.style.display = "none";
       nameFilterContainer.style.display = "none";
       
@@ -103,6 +106,11 @@ document.addEventListener("DOMContentLoaded", () => {
       } else if (viewValue === "users-management") {
         if (usersManagementSection) usersManagementSection.style.display = "block";
         cargarUsuariosManagement();
+      } else if (viewValue === "complexes") {
+        if (complexesSection) complexesSection.style.display = "block";
+        if (addComplexBtn) addComplexBtn.style.display = "flex";
+        cargarConjuntos();
+        cargarOpcionesSelect2();
       } else if (viewValue === "todos") {
         if (dashboardSection) dashboardSection.style.display = "block";
         actualizarContadoresDashboard();
@@ -178,6 +186,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const pagosSnap = await db.collection("payments").where("status", "==", "Pendiente").get();
         const countPayments = document.getElementById("countPayments");
         if (countPayments) countPayments.textContent = pagosSnap.size;
+
+        // Conjuntos
+        const complexesSnap = await db.collection("complexes").get();
+        const statTotalComplexes = document.getElementById("statTotalComplexes");
+        if (statTotalComplexes) statTotalComplexes.textContent = complexesSnap.size;
         
       } catch (error) {
         console.error("Error al actualizar contadores:", error);
@@ -283,10 +296,295 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     };
 
+    // Lógica para el formulario de conjunto
+    window.formatAdminResult = function(admin) {
+      if (!admin.id || !admin.element) return admin.text;
+      const complex = $(admin.element).data("complex");
+      return $(`
+            <div class="p-1">
+                <div class="admin-option-name" style="font-weight: 700; font-size: 0.95rem;">${admin.text}</div>
+                <div class="admin-option-sub" style="font-size: 0.75rem; margin-top: 2px;">
+                    <i class="fa-solid fa-building me-1"></i> ${complex || "Sin conjunto asignado"}
+                </div>
+            </div>
+        `);
+    };
+
+    window.cargarOpcionesSelect2 = async function() {
+      try {
+        const snapshot = await db.collection("users").where("role", "==", "ADMIN_CONJUNTO").get();
+        const select = $("#complexAdmin");
+        select.empty().append('<option value="" disabled selected>Seleccione un administrador...</option>');
+
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          const name = data.adminName || data.name || "Sin nombre";
+          const complex = data.complexName || "No asignado";
+          const option = new Option(name, name, false, false);
+          $(option).attr("data-complex", complex);
+          select.append(option);
+        });
+
+        $(".select2-admin").select2({
+          dropdownParent: $("#addComplexModal"),
+          width: "100%",
+          templateResult: formatAdminResult,
+          templateSelection: (state) => state.text
+        }).on("select2:select", function (e) {
+          const data = e.params.data;
+          const complexName = $(data.element).data("complex");
+          if (complexName && complexName !== "No asignado") {
+            $("#complexName").val(complexName);
+          }
+        });
+      } catch (error) {
+        console.error("Error cargando admins para Select2:", error);
+      }
+    };
+
+    document.getElementById("toggleAdminManual").addEventListener("change", function (e) {
+      const manualWrapper = document.getElementById("adminManualWrapper");
+      const linkWrapper = document.getElementById("adminLinkWrapper");
+      const manualInput = document.getElementById("complexAdminManual");
+
+      if (e.target.checked) {
+        manualWrapper.style.display = "block";
+        linkWrapper.style.display = "none";
+        manualInput.setAttribute("required", "required");
+      } else {
+        manualWrapper.style.display = "none";
+        linkWrapper.style.display = "block";
+        manualInput.removeAttribute("required");
+      }
+    });
+
+    document.getElementById("addComplexForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("complexName").value.trim().toUpperCase();
+      const isManual = document.getElementById("toggleAdminManual").checked;
+      const admin = (isManual ? document.getElementById("complexAdminManual").value.trim() : document.getElementById("complexAdmin").value || "").toUpperCase();
+
+      Swal.fire({ title: "Guardando...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+      try {
+        await db.collection("complexes").add({
+          name: name,
+          admin,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+        Swal.fire("¡Éxito!", "El conjunto ha sido registrado correctamente.", "success");
+        bootstrap.Modal.getInstance(document.getElementById("addComplexModal")).hide();
+        e.target.reset();
+        $("#complexAdmin").val("").trigger("change");
+        cargarConjuntos();
+        actualizarContadoresDashboard();
+      } catch (error) {
+        console.error("Error al guardar:", error);
+        Swal.fire("Error", "No se pudo registrar.", "error");
+      }
+    });
+
+    document.getElementById("editRegistryForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("editRegId").value;
+      const complexName = document.getElementById("editRegComplexName").value;
+
+      const residents = [];
+      document.querySelectorAll("#editResidentsContainer > div").forEach((div) => {
+        residents.push({
+          name: div.querySelector(".resident-name").value.trim().toUpperCase(),
+          lastname: div.querySelector(".resident-lastname").value.trim().toUpperCase(),
+          phone: div.querySelector(".resident-phone").value.trim(),
+        });
+      });
+
+      const vehicles = [];
+      document.querySelectorAll("#editVehiclesContainer > div").forEach((div) => {
+        vehicles.push({
+          brand: div.querySelector(".v-brand").value.trim().toUpperCase(),
+          model: div.querySelector(".v-model").value.trim().toUpperCase(),
+          color: div.querySelector(".v-color").value.trim().toUpperCase(),
+          plate: div.querySelector(".v-plate").value.trim().toUpperCase(),
+        });
+      });
+
+      Swal.fire({ title: "Actualizando...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+      try {
+        await db.collection("residents_registry").doc(id).update({
+          houseNum: document.getElementById("editRegHouseNum").value.toUpperCase(),
+          resType: document.getElementById("editRegResType").value.toUpperCase(),
+          residents,
+          vehicles,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+        Swal.fire("¡Éxito!", "Registro actualizado correctamente.", "success");
+        bootstrap.Modal.getInstance(document.getElementById("editRegistryModal")).hide();
+        verRegistros(complexName);
+      } catch (error) {
+        console.error("Error al actualizar:", error);
+        Swal.fire("Error", "No se pudo actualizar el registro.", "error");
+      }
+    });
+
     // Lógica para el formulario de contrato
     configurarFormularioContrato();
   }
 });
+
+// FUNCIONES TOP-LEVEL PARA CONJUNTOS
+window.cargarConjuntos = async function() {
+  const container = document.getElementById("complexesGrid");
+  if (!container) return;
+  try {
+    const snapshot = await db.collection("complexes").orderBy("createdAt", "desc").get();
+    container.innerHTML = "";
+    if (snapshot.empty) {
+      container.innerHTML = '<div class="col-12 text-center py-5 text-white-50">No hay conjuntos registrados aún.</div>';
+      return;
+    }
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      const card = `
+        <div class="col-xl-3 col-lg-4 col-md-6">
+          <div class="stat-card" style="display: block; height: auto; padding: 20px; border-radius: 15px;">
+            <div class="text-center mb-3">
+              <div style="width: 50px; height: 50px; background: rgba(212,175,55,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; border: 1px solid rgba(212,175,55,0.3);">
+                <i class="fa-solid fa-building" style="font-size: 1.3rem; color: #d4af37;"></i>
+              </div>
+            </div>
+            <h5 class="text-gold mb-2 text-center text-truncate" style="font-size: 1rem; font-weight: 700;">${data.name}</h5>
+            <div class="text-center mb-3" style="padding: 8px; background: rgba(255,255,255,0.02); border-radius: 8px;">
+              <i class="fa-solid fa-user-shield text-gold me-1" style="font-size: 0.75rem;"></i>
+              <span class="small text-white" style="font-size: 0.75rem;">${data.admin}</span>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-gold w-100 py-2" onclick="verRegistros('${data.name}')" style="font-size: 0.75rem; border-radius: 8px;">
+                <i class="fa-solid fa-clipboard-list me-1"></i> Registros
+              </button>
+              <button class="btn btn-sm btn-outline-danger" onclick="eliminarConjunto('${doc.id}')" title="Eliminar" style="width: 45px; border-radius: 8px;">
+                <i class="fa-solid fa-trash" style="font-size: 0.8rem;"></i>
+              </button>
+            </div>
+          </div>
+        </div>`;
+      container.innerHTML += card;
+    });
+  } catch (error) {
+    console.error("Error al cargar conjuntos:", error);
+    container.innerHTML = '<div class="col-12 text-center py-5 text-danger">Error al cargar la lista.</div>';
+  }
+};
+
+window.verRegistros = async (complexName) => {
+  document.getElementById("registriesComplexName").textContent = complexName;
+  const modal = new bootstrap.Modal(document.getElementById("viewRegistriesModal"));
+  modal.show();
+
+  const container = document.getElementById("registriesTableContainer");
+  try {
+    const snapshot = await db.collection("residents_registry").where("complexName", "==", complexName).get();
+    if (snapshot.empty) {
+      container.innerHTML = '<div class="text-center py-5"><i class="fa-solid fa-inbox fa-3x text-muted mb-3"></i><p class="text-muted">No hay registros para este conjunto aún.</p></div>';
+      return;
+    }
+    const registros = [];
+    snapshot.forEach((doc) => registros.push({ id: doc.id, ...doc.data() }));
+    registros.sort((a, b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
+
+    let tableHTML = `<div class="table-responsive"><table class="table table-dark-premium table-hover align-middle"><thead><tr><th class="text-center">Vivienda</th><th class="text-center">Tipo</th><th class="text-center">Residente(s)</th><th class="text-center">Teléfono/WhatsApp</th><th class="text-center">Marca</th><th class="text-center">Modelo</th><th class="text-center">Color</th><th class="text-center">Placa</th><th class="text-center">Acciones</th></tr></thead><tbody>`;
+    registros.forEach((data) => {
+      const maxRows = Math.max(data.residents?.length || 0, data.vehicles?.length || 0, 1);
+      const singleVehicle = data.vehicles?.length === 1 && data.residents?.length > 1;
+      for (let i = 0; i < maxRows; i++) {
+        const res = data.residents?.[i];
+        const veh = data.vehicles?.[i];
+        tableHTML += `<tr>`;
+        if (i === 0) {
+          tableHTML += `<td class="text-center fw-bold text-gold" rowspan="${maxRows}">${data.houseNum}</td><td class="text-center align-middle" rowspan="${maxRows}"><span class="badge ${data.resType === "PROPIETARIO" ? "bg-gold text-dark" : "bg-outline-gold"}">${data.resType || "PROPIETARIO"}</span></td>`;
+        }
+        tableHTML += `<td class="text-center align-middle">${res ? res.name + ' ' + res.lastname : '-'}</td>`;
+        if (res?.phone) {
+          const clean = res.phone.replace(/\D/g, "");
+          tableHTML += `<td class="text-center"><div class="d-flex align-items-center justify-content-center gap-2"><span>${res.phone}</span><a href="https://wa.me/${clean}" target="_blank" class="text-success contact-icon"><i class="fa-brands fa-whatsapp"></i></a><a href="tel:${res.phone}" class="text-info contact-icon"><i class="fa-solid fa-phone" style="font-size: 0.8rem;"></i></a></div></td>`;
+        } else { tableHTML += `<td class="text-center text-muted">-</td>`; }
+        
+        if (singleVehicle && i === 0) {
+          const v = data.vehicles[0];
+          tableHTML += `<td class="text-center fw-bold" rowspan="${maxRows}">${v.brand}</td><td class="text-center" rowspan="${maxRows}">${v.model}</td><td class="text-center" rowspan="${maxRows}">${v.color}</td><td class="text-center text-gold-premium" rowspan="${maxRows}">${v.plate}</td>`;
+        } else if (!singleVehicle) {
+          tableHTML += `<td class="text-center fw-bold">${veh?.brand || '-'}</td><td class="text-center">${veh?.model || '-'}</td><td class="text-center">${veh?.color || '-'}</td><td class="text-center text-gold-premium">${veh?.plate || '-'}</td>`;
+        }
+        if (i === 0) {
+          tableHTML += `<td class="text-center align-middle" rowspan="${maxRows}"><div class="d-flex flex-column gap-1"><button class="btn-action-table btn-edit-registry" onclick="abrirEditarRegistro('${data.id}')" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button><button class="btn-action-table btn-delete-registry" onclick="eliminarRegistro('${data.id}', '${complexName}')" title="Eliminar"><i class="fa-solid fa-trash-can"></i></button></div></td>`;
+        }
+        tableHTML += `</tr>`;
+      }
+    });
+    tableHTML += `</tbody></table></div>`;
+    container.innerHTML = tableHTML;
+  } catch (error) {
+    console.error("Error:", error);
+    container.innerHTML = '<div class="alert alert-danger">Error al cargar los registros.</div>';
+  }
+};
+
+window.eliminarConjunto = (id) => {
+  Swal.fire({ title: "¿Eliminar?", text: "No se puede deshacer.", icon: "warning", showCancelButton: true, confirmButtonColor: "#d4af37", confirmButtonText: "Sí, eliminar" }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        await db.collection("complexes").doc(id).delete();
+        Swal.fire("Eliminado", "Borrado con éxito.", "success");
+        cargarConjuntos();
+        actualizarContadoresDashboard();
+      } catch (error) { Swal.fire("Error", "No se pudo eliminar.", "error"); }
+    }
+  });
+};
+
+window.addResidentEntryEdit = (data = null) => {
+  const container = document.getElementById("editResidentsContainer");
+  const div = document.createElement("div");
+  div.className = "p-3 rounded border border-secondary border-opacity-25 position-relative bg-dark bg-opacity-25";
+  div.innerHTML = `<button type="button" class="btn-close btn-close-white position-absolute end-0 top-0 m-2" onclick="this.parentElement.remove()" style="font-size: 0.6rem;"></button><div class="row g-2"><div class="col-6"><label class="form-label-gold mb-1" style="font-size: 0.65rem;">NOMBRE</label><input type="text" class="form-control resident-name py-1" value="${data ? data.name : ""}" required /></div><div class="col-6"><label class="form-label-gold mb-1" style="font-size: 0.65rem;">APELLIDO</label><input type="text" class="form-control resident-lastname py-1" value="${data ? data.lastname : ""}" required /></div><div class="col-12"><label class="form-label-gold mb-1" style="font-size: 0.65rem;">TELÉFONO</label><input type="tel" class="form-control resident-phone py-1" value="${data ? data.phone : ""}" required /></div></div>`;
+  container.appendChild(div);
+};
+
+window.addVehicleEntryEdit = (data = null) => {
+  const container = document.getElementById("editVehiclesContainer");
+  const div = document.createElement("div");
+  div.className = "p-3 rounded border border-secondary border-opacity-25 position-relative bg-dark bg-opacity-25";
+  div.innerHTML = `<button type="button" class="btn-close btn-close-white position-absolute end-0 top-0 m-2" onclick="this.parentElement.remove()" style="font-size: 0.6rem;"></button><div class="row g-2"><div class="col-6"><label class="form-label-gold mb-1" style="font-size: 0.65rem;">MARCA</label><input type="text" class="form-control v-brand py-1" value="${data ? data.brand : ""}" required /></div><div class="col-6"><label class="form-label-gold mb-1" style="font-size: 0.65rem;">MODELO</label><input type="text" class="form-control v-model py-1" value="${data ? data.model : ""}" required /></div><div class="col-6"><label class="form-label-gold mb-1" style="font-size: 0.65rem;">COLOR</label><input type="text" class="form-control v-color py-1" value="${data ? data.color : ""}" required /></div><div class="col-6"><label class="form-label-gold mb-1" style="font-size: 0.65rem;">PLACA</label><input type="text" class="form-control v-plate py-1" value="${data ? data.plate : ""}" required /></div></div>`;
+  container.appendChild(div);
+};
+
+window.abrirEditarRegistro = async (id) => {
+  Swal.fire({ title: "Cargando datos...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+  try {
+    const doc = await db.collection("residents_registry").doc(id).get();
+    const data = doc.data();
+    document.getElementById("editRegId").value = id;
+    document.getElementById("editRegComplexName").value = data.complexName;
+    document.getElementById("editRegHouseNum").value = data.houseNum;
+    document.getElementById("editRegResType").value = data.resType?.toLowerCase() || "propietario";
+    const resCon = document.getElementById("editResidentsContainer"); resCon.innerHTML = "";
+    if (data.residents?.length) data.residents.forEach(r => addResidentEntryEdit(r)); else addResidentEntryEdit();
+    const vehCon = document.getElementById("editVehiclesContainer"); vehCon.innerHTML = "";
+    if (data.vehicles?.length) data.vehicles.forEach(v => addVehicleEntryEdit(v));
+    Swal.close();
+    new bootstrap.Modal(document.getElementById("editRegistryModal")).show();
+  } catch (error) { Swal.fire("Error", "No se pudieron cargar los datos.", "error"); }
+};
+
+window.eliminarRegistro = (id, complexName) => {
+  Swal.fire({ title: "¿Estás seguro?", icon: "warning", showCancelButton: true, confirmButtonColor: "#dc3545", confirmButtonText: "Sí, eliminar" }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        await db.collection("residents_registry").doc(id).delete();
+        Swal.fire("¡Eliminado!", "El registro ha sido eliminado.", "success");
+        verRegistros(complexName);
+      } catch (error) { Swal.fire("Error", "No se pudo eliminar el registro.", "error"); }
+    }
+  });
+};
 
 // =========================================
 //  CONFIGURAR FORMULARIO DE CONTRATO
@@ -2137,15 +2435,59 @@ async function cargarOpcionesContrato() {
       if (!select) return;
       const currentValue = select.value;
       let optionsHTML = '<option value="" selected disabled>Seleccione un contrato...</option>';
+      optionsHTML += '<option value="no-dispone">❌ No dispone de contrato</option>';
       snapshot.forEach(doc => {
         const data = doc.data();
         optionsHTML += `<option value="${doc.id}">${data.clientName} - ${data.date || ''}</option>`;
       });
       select.innerHTML = optionsHTML;
       if (currentValue) select.value = currentValue;
+      
+      // Inicializar Select2
+      $(select).select2({
+        dropdownParent: $(select).closest('.modal'),
+        width: '100%',
+        theme: 'default'
+      });
     });
   } catch (error) {
     console.error("Error al cargar opciones de contrato:", error);
+  }
+}
+
+// =========================================
+//  CARGAR OPCIONES DE CONJUNTO (COMPLEXES)
+// =========================================
+async function cargarOpcionesComplejos() {
+  const selects = [
+    document.getElementById("newUserComplex"),
+    document.getElementById("editUserComplex")
+  ];
+
+  try {
+    const snapshot = await db.collection("complexes").orderBy("name", "asc").get();
+    
+    selects.forEach(select => {
+      if (!select) return;
+      const currentValue = select.value;
+      let optionsHTML = '<option value="" selected disabled>Seleccione un conjunto...</option>';
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        // Mostrar campo 'admin' como texto principal
+        optionsHTML += `<option value="${data.name}">${data.admin || data.name}</option>`;
+      });
+      select.innerHTML = optionsHTML;
+      if (currentValue) select.value = currentValue;
+
+      // Inicializar Select2
+      $(select).select2({
+        dropdownParent: $(select).closest('.modal'),
+        width: '100%',
+        theme: 'default'
+      });
+    });
+  } catch (error) {
+    console.error("Error al cargar opciones de complejos:", error);
   }
 }
 
@@ -2776,6 +3118,45 @@ async function cargarUsuariosManagement() {
           .bg-gold-gradient {
             background: linear-gradient(135deg, #d4af37, #f9df91);
           }
+
+          /* Estilos Select2 Premium Dark/Gold */
+          .select2-container--default .select2-selection--single {
+            background-color: #fff !important;
+            border: 1px solid #d4af37 !important;
+            height: 45px !important;
+            border-radius: 8px !important;
+            display: flex;
+            align-items: center;
+          }
+          .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #000 !important;
+            line-height: 45px !important;
+            padding-left: 15px !important;
+          }
+          .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 45px !important;
+          }
+          .select2-dropdown {
+            background-color: #1a1a1a !important;
+            border: 1px solid #d4af37 !important;
+            color: #fff !important;
+            border-radius: 8px !important;
+            overflow: hidden;
+          }
+          .select2-search__field {
+            background-color: #000 !important;
+            border: 1px solid #d4af37 !important;
+            color: #fff !important;
+            border-radius: 4px !important;
+          }
+          .select2-results__option--highlighted[aria-selected] {
+            background-color: #d4af37 !important;
+            color: #000 !important;
+          }
+          .select2-results__option[aria-selected="true"] {
+            background-color: rgba(212, 175, 55, 0.2) !important;
+            color: #d4af37 !important;
+          }
         </style>
       `;
       document.head.insertAdjacentHTML("beforeend", styles);
@@ -2903,15 +3284,20 @@ window.abrirEditarUsuario = (id) => {
   const techFields = document.getElementById("editTechFields");
   const adminFields = document.getElementById("editAdminFields");
   const contractFieldEdit = document.getElementById("contractFieldEdit");
+  const complexFieldEdit = document.getElementById("complexFieldEdit");
   
   if (techFields) techFields.style.display = isTech ? 'block' : 'none';
   if (adminFields) adminFields.style.display = isAdmin ? 'block' : 'none';
   if (contractFieldEdit) contractFieldEdit.style.display = user.role === 'ADMIN_CONJUNTO' ? 'block' : 'none';
+  if (complexFieldEdit) complexFieldEdit.style.display = user.role === 'ADMIN_CONJUNTO' ? 'block' : 'none';
 
   if (isTech) document.getElementById("editUserSubRole").value = user.subRole || "tecnico-obrero";
   if (isAdmin && user.role === 'ADMIN_CONJUNTO') {
     cargarOpcionesContrato().then(() => {
       document.getElementById("editUserContract").value = user.contractId || "";
+    });
+    cargarOpcionesComplejos().then(() => {
+      document.getElementById("editUserComplex").value = user.complexName || "";
     });
   }
 
@@ -2968,6 +3354,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const name = document.getElementById("editUserName").value;
             const subRole = document.getElementById("editUserSubRole").value;
             const contractId = document.getElementById("editUserContract") ? document.getElementById("editUserContract").value : "";
+            const complexName = document.getElementById("editUserComplex") ? document.getElementById("editUserComplex").value : "";
 
             Swal.fire({
                 title: 'Actualizando usuario...',
@@ -2989,17 +3376,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (isAdmin) {
                     if (user.role === 'ADMIN_CONJUNTO') {
                         updateData.contractId = contractId;
-                        // Obtener el complejo directamente de Firestore para mayor seguridad
-                        if (contractId) {
-                            try {
-                                const contractDoc = await db.collection("contracts").doc(contractId).get();
-                                if (contractDoc.exists) {
-                                    updateData.complexName = contractDoc.data().clientName || "";
-                                }
-                            } catch (err) {
-                                console.error("Error al obtener nombre del conjunto:", err);
-                            }
-                        }
+                        updateData.complexName = complexName;
                     }
                 }
 
@@ -3025,10 +3402,57 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("techFields").style.display = role === 'tecnico' ? 'block' : 'none';
             document.getElementById("adminFields").style.display = (role === 'administrador' || role === 'ADMIN_CONJUNTO') ? 'block' : 'none';
             document.getElementById("contractFieldCreate").style.display = role === 'ADMIN_CONJUNTO' ? 'block' : 'none';
+            document.getElementById("complexFieldCreate").style.display = role === 'ADMIN_CONJUNTO' ? 'block' : 'none';
             
             if (role === 'ADMIN_CONJUNTO') {
                 cargarOpcionesContrato();
+                cargarOpcionesComplejos();
             }
+        });
+    }
+
+    // Generación automática de correo y contraseña
+    const newUserNameInput = document.getElementById("newUserName");
+    const newUserEmailInput = document.getElementById("newUserEmail");
+    const newUserPasswordInput = document.getElementById("newUserPassword");
+    const togglePasswordBtn = document.getElementById("toggleNewUserPassword");
+
+    if (newUserNameInput && newUserEmailInput && newUserPasswordInput) {
+        newUserNameInput.addEventListener("input", (e) => {
+            const fullName = e.target.value.trim();
+            if (!fullName) {
+                newUserEmailInput.value = "";
+                newUserPasswordInput.value = "";
+                return;
+            }
+
+            const parts = fullName.split(/\s+/);
+            if (parts.length >= 1) {
+                const firstName = parts[0].toLowerCase();
+                let email = firstName;
+                let passwordBase = firstName;
+                
+                if (parts.length >= 2) {
+                    const lastNameInitial = parts[1].charAt(0).toLowerCase();
+                    email += lastNameInitial;
+                    // Para la contraseña usamos el primer nombre completo para que sea más fácil de recordar pero segura
+                }
+                
+                // Generar Correo
+                newUserEmailInput.value = `${email}@seguridad247.com`;
+
+                // Generar Contraseña (seg247 + nombre)
+                newUserPasswordInput.value = `seg247${passwordBase}`;
+            }
+        });
+    }
+
+    // Toggle para ver contraseña
+    if (togglePasswordBtn && newUserPasswordInput) {
+        togglePasswordBtn.addEventListener("click", () => {
+            const isPassword = newUserPasswordInput.type === "password";
+            newUserPasswordInput.type = isPassword ? "text" : "password";
+            togglePasswordBtn.innerHTML = isPassword ? '<i class="fa-solid fa-eye"></i>' : '<i class="fa-solid fa-eye-slash"></i>';
         });
     }
 
@@ -3043,6 +3467,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const role = document.getElementById("newUserRole").value;
             const subRole = document.getElementById("newUserSubRole").value;
             const contractId = document.getElementById("newUserContract") ? document.getElementById("newUserContract").value : "";
+            const complexName = document.getElementById("newUserComplex") ? document.getElementById("newUserComplex").value : "";
 
             Swal.fire({
                 title: 'Creando usuario...',
@@ -3058,19 +3483,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 const userCredential = await secondaryApp.auth().createUserWithEmailAndPassword(email, password);
                 const uid = userCredential.user.uid;
-
-                // Extraer el nombre del conjunto del contrato asociado
-                let complexName = "";
-                if (role === 'ADMIN_CONJUNTO' && contractId) {
-                    try {
-                        const contractDoc = await db.collection("contracts").doc(contractId).get();
-                        if (contractDoc.exists) {
-                            complexName = contractDoc.data().clientName || "";
-                        }
-                    } catch (err) {
-                        console.error("Error al obtener nombre del conjunto:", err);
-                    }
-                }
 
                 // Guardar en Firestore
                 await db.collection("users").doc(uid).set({

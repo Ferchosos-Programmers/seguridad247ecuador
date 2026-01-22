@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
@@ -7,292 +7,237 @@
     <link rel="stylesheet" href="css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/index.css" />
     <link rel="stylesheet" href="css/control_center.css" />
+    <link rel="stylesheet" href="css/conjunto.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
     />
     <link rel="icon" href="assets/img/logo.ico" type="image/x-icon" />
     <script src="js/bootstrap.min.js"></script>
-    <style>
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(15px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      .resident-entry label,
-      .vehicle-entry label {
-        font-size: 0.75rem;
-        letter-spacing: 0.5px;
-      }
-      .form-control::placeholder {
-        color: rgba(255, 255, 255, 0.3);
-      }
-
-      .main-content {
-        padding-top: 120px;
-        min-height: 80vh;
-      }
-
-      .page-header {
-        margin-bottom: 50px;
-      }
-
-      .title-premium {
-        font-size: 2.8rem;
-        background: linear-gradient(135deg, #fff 0%, #d4af37 100%);
-        background-clip: text;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        font-weight: 800;
-        margin-bottom: 10px;
-      }
-
-      .subtitle-modern {
-        color: rgba(255, 255, 255, 0.4);
-        font-size: 1rem;
-        letter-spacing: 1px;
-      }
-
-      /* Compact Cards */
-      .complex-card {
-        background: rgba(255, 255, 255, 0.02);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        border: 1px solid rgba(212, 175, 55, 0.15);
-        border-radius: 20px;
-        padding: 30px 20px;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        text-align: center;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .complex-card:hover {
-        transform: translateY(-8px);
-        border-color: #d4af37;
-        background: rgba(255, 255, 255, 0.05);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
-      }
-
-      .icon-circle-premium {
-        width: 65px;
-        height: 65px;
-        background: rgba(212, 175, 55, 0.08);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid rgba(212, 175, 55, 0.2);
-        margin: 0 auto 20px;
-        transition: all 0.3s ease;
-      }
-
-      .complex-card:hover .icon-circle-premium {
-        background: #d4af37;
-        transform: scale(1.05);
-      }
-
-      .btn-premium {
-        background: linear-gradient(135deg, #d4af37 0%, #b8962e 100%);
-        color: #000;
-        border-radius: 8px;
-        font-weight: 700;
-        letter-spacing: 1px;
-        border: none;
-        padding: 8px 20px;
-        font-size: 0.8rem;
-        transition: all 0.3s ease;
-      }
-
-      /* Modal Refinement */
-      .modal-backdrop.show {
-        backdrop-filter: blur(8px);
-        background-color: rgba(0, 0, 0, 0.7);
-      }
-
-      /* Compact & Elegant Modal */
-      .modal-dialog {
-        max-width: 580px;
-      }
-
-      .modal-content {
-        background: rgba(10, 10, 10, 0.98) !important;
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(212, 175, 55, 0.3) !important;
-        border-radius: 18px !important;
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
-      }
-
-      .modal-header {
-        border-bottom: 1px solid rgba(212, 175, 55, 0.08) !important;
-        padding: 25px 30px 15px !important;
-      }
-
-      .modal-body {
-        padding: 20px 30px 30px !important;
-      }
-
-      .section-divider {
-        height: 1px;
-        background: linear-gradient(
-          90deg,
-          transparent,
-          rgba(212, 175, 55, 0.3),
-          transparent
-        );
-        margin: 15px 0;
-        opacity: 0.5;
-      }
-
-      .entry-card {
-        background: rgba(255, 255, 255, 0.02) !important;
-        border: 1px solid rgba(212, 175, 55, 0.15) !important;
-        border-radius: 15px !important;
-        padding: 20px !important;
-        position: relative;
-        transition: all 0.3s ease;
-        animation: fadeIn 0.4s ease;
-      }
-
-      .entry-card:hover {
-        border-color: rgba(212, 175, 55, 0.4) !important;
-        background: rgba(255, 255, 255, 0.04) !important;
-      }
-
-      .btn-add-section {
-        background: rgba(212, 175, 55, 0.1);
-        border: 1px solid rgba(212, 175, 55, 0.3);
-        color: #d4af37;
-        font-size: 0.65rem;
-        font-weight: 800;
-        letter-spacing: 1px;
-        padding: 6px 15px;
-        border-radius: 50px;
-        transition: all 0.3s ease;
-        text-transform: uppercase;
-      }
-
-      .btn-add-section:hover {
-        background: #d4af37;
-        color: #000;
-        transform: translateY(-2px);
-      }
-
-      .form-label-gold {
-        color: #d4af37;
-        font-size: 0.65rem;
-        font-weight: 700;
-        letter-spacing: 0.8px;
-        text-transform: uppercase;
-        margin-bottom: 6px;
-        display: block;
-      }
-
-      .form-control,
-      .form-select {
-        background: rgba(255, 255, 255, 0.02) !important;
-        border: 1px solid rgba(255, 255, 255, 0.06) !important;
-        border-radius: 8px !important;
-        color: white !important;
-        padding: 10px 15px !important;
-        font-size: 0.9rem !important;
-        transition: all 0.3s ease !important;
-      }
-
-      .form-control:focus,
-      .form-select:focus {
-        border-color: #d4af37 !important;
-        box-shadow: 0 0 8px rgba(212, 175, 55, 0.3) !important;
-        background: rgba(255, 255, 255, 0.04) !important;
-      }
-
-      .form-select option {
-        background-color: #1a1a1a !important;
-        color: white !important;
-        padding: 10px !important;
-      }
-
-      .form-select option:hover {
-        background-color: #2a2a2a !important;
-      }
-
-      .force-uppercase {
-        text-transform: uppercase;
-      }
-    </style>
   </head>
 
   <body>
-    <!-- NAVBAR -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
       <div class="container">
-        <a class="navbar-brand" href="index.html">SEGURIDAD 24/7 ECUADOR</a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-        >
+        <a class="navbar-brand" href="#">SEGURIDAD 24/7 ECUADOR</a>
+
+        <button class="navbar-toggler" type="button" id="mobileSidebarToggle">
           <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="index.html">Inicio</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="servicios.html">Servicios</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="nosotros.html">Nosotros</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="contactos.html">Contacto</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link control-center-box" href="control_center.html">
-                <i class="fa-solid fa-users"></i> 24/7 Control Center
-              </a>
-            </li>
-          </ul>
+        <div id="navLogout" style="display: none">
+          <button class="btn-logout-nav" onclick="cerrarSesion()">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span class="d-none d-sm-inline">Cerrar Sesión</span>
+          </button>
         </div>
       </div>
     </nav>
 
     <!-- CONTENT -->
     <main class="container main-content">
-      <div class="page-header text-center" style="margin-top: -400px">
-        <h1 class="title-premium">CONJUNTOS RESIDENCIALES</h1>
-        <p class="subtitle-modern">
-          Seleccione su conjunto para iniciar el registro de seguridad
-        </p>
+      <!-- MODO PÚBLICO: SELECCIÓN DE CONJUNTO -->
+      <div id="publicView">
+        <div class="page-header text-center">
+          <h1 class="title-premium">CONJUNTOS RESIDENCIALES</h1>
+          <p class="subtitle-modern">
+            Seleccione su conjunto para iniciar el registro de seguridad
+          </p>
+        </div>
+
+        <div class="row g-5 justify-content-start" id="publicComplexesGrid">
+          <!-- Cargando... -->
+          <div class="col-12 text-center py-5">
+            <i class="fa-solid fa-spinner fa-spin fa-3x text-gold mb-3"></i>
+            <p class="text-muted">Cargando la red de conjuntos...</p>
+          </div>
+        </div>
       </div>
 
-      <div class="row g-5 justify-content-start" id="publicComplexesGrid">
-        <!-- Cargando... -->
-        <div class="col-12 text-center py-5">
-          <i class="fa-solid fa-spinner fa-spin fa-3x text-gold mb-3"></i>
-          <p class="text-muted">Cargando la red de conjuntos...</p>
+      <!-- MODO ADMIN: DASHBOARD DEL CONJUNTO -->
+      <div id="adminView" class="admin-view-container" style="display: none">
+        <div class="d-flex justify-content-between align-items-end mb-5">
+          <div class="text-start">
+            <h1
+              class="title-premium mb-0"
+              id="adminComplexTitle"
+              style="font-size: 2.2rem"
+            >
+              CALIPSO
+            </h1>
+            <p class="subtitle-modern mb-0" id="adminComplexSubtitle">
+              Panel de Gestión Administrativa Residencial
+            </p>
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-contract" id="btnAdminContract">
+              <i class="fa-solid fa-file-pdf"></i> CONTRATO
+            </button>
+            <button class="btn btn-premium" id="btnAdminAdd">
+              <i class="fa-solid fa-plus me-2"></i> REGISTRAR RESIDENTE
+            </button>
+          </div>
+        </div>
+
+        <!-- Estadísticas Rápidas -->
+        <div class="row g-4 mb-5">
+          <div class="col-md-4">
+            <div class="stat-card-premium">
+              <div class="stat-value" id="statTotalResidents">0</div>
+              <div class="stat-label">Residentes Totales</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="stat-card-premium">
+              <div class="stat-value" id="statTotalHouses">0</div>
+              <div class="stat-label">Casas Registradas</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="stat-card-premium">
+              <div class="stat-value" id="statTotalVehicles">0</div>
+              <div class="stat-label">Vehículos Autorizados</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabla de Residentes -->
+        <div
+          class="stat-card-premium p-0 overflow-hidden"
+          style="text-align: left"
+        >
+          <div
+            class="p-4 d-flex flex-column flex-md-row justify-content-between align-items-center border-bottom border-secondary border-opacity-10 gap-3"
+          >
+            <h5
+              class="text-white mb-0"
+              style="
+                font-family: inherit;
+                font-weight: 700;
+                letter-spacing: 1px;
+              "
+            >
+              <i class="fa-solid fa-list-check text-gold me-2"></i>REGISTRO
+              ACTUAL
+            </h5>
+            <div
+              class="position-relative"
+              style="width: 100%; max-width: 350px"
+            >
+              <i
+                class="fa-solid fa-magnifying-glass position-absolute start-0 top-50 translate-middle-y ms-3 text-gold opacity-50"
+              ></i>
+              <input
+                type="text"
+                class="form-control"
+                id="adminSearchInput"
+                placeholder="Buscar residente, casa o placa..."
+                style="
+                  padding-left: 45px;
+                  background: rgba(0, 0, 0, 0.3);
+                  border: 1px solid rgba(212, 175, 55, 0.2);
+                  color: #fff;
+                  border-radius: 10px;
+                "
+              />
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-dark-premium table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>VIVIENDA</th>
+                  <th>TIPO</th>
+                  <th>RESIDENTE(S)</th>
+                  <th>TELÉFONO/WHATSAPP</th>
+                  <th>MARCA</th>
+                  <th>MODELO</th>
+                  <th>COLOR</th>
+                  <th>PLACA</th>
+                  <th>ACCIONES</th>
+                </tr>
+              </thead>
+              <tbody id="adminResidentsTableBody">
+                <tr>
+                  <td colspan="9" class="text-center py-5">
+                    <i
+                      class="fa-solid fa-circle-notch fa-spin text-gold mb-2"
+                    ></i
+                    ><br />
+                    <span class="text-white-50 small"
+                      >Consultando registros...</span
+                    >
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </main>
 
-    <!-- FOOTER -->
-    <footer class="footer mt-auto">
-      © 2025 Seguridad 24/7 Ecuador & MCV — Todos los derechos reservados
+    <footer class="footer">
+      © 2025 Seguridad 24/7 Ecuador &
+      <a
+        href="https://mallitaxicodevision.netlify.app/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="footer-link"
+      >
+        MCV (Mallitaxi Code Vision)
+      </a>
+      — Todos los derechos reservados
     </footer>
+    <!-- MODAL VER CONTRATO -->
+    <div
+      class="modal fade"
+      id="contractViewModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div
+          class="modal-content"
+          style="
+            background: #fff !important;
+            color: #333 !important;
+            border: 4px solid #d4af37 !important;
+          "
+        >
+          <div class="modal-header border-bottom-0">
+            <h5 class="modal-title" style="color: #333; font-weight: 800">
+              VISUALIZACIÓN DE CONTRATO
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div
+            class="modal-body p-0"
+            id="contractContentArea"
+            style="max-height: 70vh; overflow-y: auto"
+          >
+            <!-- El contenido se cargará dinámicamente -->
+          </div>
+          <div
+            class="modal-footer border-top-0 d-flex justify-content-center pb-4"
+          >
+            <button class="btn btn-dark px-4" onclick="generarPDFContrato()">
+              <i class="fa-solid fa-file-pdf me-2"></i> IMPRIMIR / PDF
+            </button>
+            <button
+              class="btn btn-outline-secondary px-4"
+              data-bs-dismiss="modal"
+            >
+              CERRAR
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- MODAL REGISTRO RESIDENTES -->
     <div
@@ -325,6 +270,7 @@
           </div>
           <div class="modal-body">
             <form id="residentRegForm">
+              <input type="hidden" id="editDocId" />
               <input type="hidden" id="regComplexName" />
 
               <div class="row g-3 mb-3">
@@ -350,7 +296,6 @@
 
               <div class="mb-4">
                 <div
-                  <div
                   class="d-flex justify-content-between align-items-center mb-1"
                 >
                   <h6
@@ -439,8 +384,268 @@
 
     <script>
       document.addEventListener("DOMContentLoaded", function () {
+        // --- VARIABLES GLOBALES ---
+        let currentComplexId = ""; // Valor interno (name en DB)
+        let currentComplexDisplayName = ""; // Nombre para mostrar (admin en DB)
+        let currentContractId = "";
+        let allResidents = [];
+
+        // --- AUTH CHECK ---
+        firebase.auth().onAuthStateChanged(async (user) => {
+          if (user) {
+            try {
+              const userDoc = await db.collection("users").doc(user.uid).get();
+              if (userDoc.exists && userDoc.data().role === "ADMIN_CONJUNTO") {
+                const userData = userDoc.data();
+                currentComplexId = userData.complexName;
+                currentContractId = userData.contractId;
+
+                // Buscar el nombre real del conjunto (Soporta ID o Nombre)
+                let complexData = null;
+
+                // 1. Intentar buscar por ID de documento directamente
+                try {
+                  const directDoc = await db
+                    .collection("complexes")
+                    .doc(currentComplexId)
+                    .get();
+                  if (directDoc.exists) {
+                    complexData = directDoc.data();
+                  }
+                } catch (e) {}
+
+                // 2. Si no se encontró por ID, buscar por el campo "name"
+                if (!complexData) {
+                  const complexSnap = await db
+                    .collection("complexes")
+                    .where("name", "==", currentComplexId)
+                    .limit(1)
+                    .get();
+
+                  if (!complexSnap.empty) {
+                    complexData = complexSnap.docs[0].data();
+                  }
+                }
+
+                if (complexData) {
+                  // El usuario solicita que el título sea el campo "admin" (ej: OFICINA 247)
+                  currentComplexDisplayName =
+                    complexData.admin || complexData.name || currentComplexId;
+                  document.getElementById("adminComplexTitle").textContent =
+                    currentComplexDisplayName.toUpperCase();
+
+                  // El nombre del conjunto (ej: ING BAYRON ZAMBRANO) va como subtítulo
+                  document.getElementById("adminComplexSubtitle").textContent =
+                    (complexData.name || "PANEL DE GESTIÓN").toUpperCase();
+                } else {
+                  currentComplexDisplayName = currentComplexId;
+                  document.getElementById("adminComplexTitle").textContent =
+                    currentComplexDisplayName.toUpperCase();
+                }
+
+                // Activar Vista Admin
+                document.getElementById("publicView").style.display = "none";
+                document.getElementById("adminView").style.display = "block";
+                document.getElementById("navLogout").style.display = "block";
+
+                // Ocultar cualquier link de navegación pública si existe
+                const navLinks = document.getElementById("publicNavLinks");
+                if (navLinks) navLinks.style.display = "none";
+
+                document.getElementById("adminComplexTitle").textContent =
+                  currentComplexDisplayName.toUpperCase();
+
+                // Configurar botón de añadir residente para este conjunto específico
+                const btnAdd = document.getElementById("btnAdminAdd");
+                if (btnAdd) {
+                  btnAdd.onclick = () => abrirRegistro(currentComplexId);
+                }
+
+                const btnContract = document.getElementById("btnAdminContract");
+                if (btnContract) {
+                  btnContract.onclick = () => verMiContrato();
+                }
+
+                cargarResidentesAdmin();
+              } else {
+                // No es admin conjunto, mostrar vista pública
+                cargarConjuntos();
+              }
+            } catch (error) {
+              console.error("Error al validar sesión:", error);
+              cargarConjuntos();
+            }
+          } else {
+            // No hay sesión, mostrar vista pública
+            cargarConjuntos();
+          }
+        });
+
+        // --- LÓGICA DASHBOARD ADMIN ---
+        async function cargarResidentesAdmin() {
+          const tableBody = document.getElementById("adminResidentsTableBody");
+          if (!tableBody) return;
+
+          try {
+            const snapshot = await db
+              .collection("residents_registry")
+              .where("complexName", "==", currentComplexId)
+              .orderBy("createdAt", "desc")
+              .get();
+
+            allResidents = [];
+            let totalRes = 0;
+            let totalVeh = 0;
+
+            snapshot.forEach((doc) => {
+              const data = doc.data();
+              const item = { id: doc.id, ...data };
+              allResidents.push(item);
+
+              // Stats
+              totalRes += (data.residents || []).length;
+              totalVeh += (data.vehicles || []).length;
+            });
+
+            // Actualizar Stats
+            document.getElementById("statTotalResidents").textContent =
+              totalRes;
+            document.getElementById("statTotalHouses").textContent =
+              allResidents.length;
+            document.getElementById("statTotalVehicles").textContent = totalVeh;
+
+            renderResidentTable(allResidents);
+          } catch (error) {
+            console.error("Error al cargar residentes admin:", error);
+            tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-danger py-4">Error al cargar datos.</td></tr>`;
+          }
+        }
+
+        function renderResidentTable(dataList) {
+          const tableBody = document.getElementById("adminResidentsTableBody");
+          if (!tableBody) return;
+
+          if (dataList.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-white-50 py-5">
+              <i class="fa-solid fa-folder-open fa-2x mb-3 opacity-20"></i><br>
+              No existen registros para este conjunto.
+            </td></tr>`;
+            return;
+          }
+
+          let html = "";
+          dataList.forEach((data) => {
+            const maxRows = Math.max(
+              data.residents ? data.residents.length : 0,
+              data.vehicles ? data.vehicles.length : 0,
+              1,
+            );
+
+            for (let i = 0; i < maxRows; i++) {
+              const resident =
+                data.residents && data.residents[i] ? data.residents[i] : null;
+              const vehicle =
+                data.vehicles && data.vehicles[i] ? data.vehicles[i] : null;
+
+              html += `<tr style="animation: fadeIn 0.4s ease forwards;">`;
+
+              if (i === 0) {
+                html += `
+                  <td class="fw-bold text-white px-3" rowspan="${maxRows}">${data.houseNum}</td>
+                  <td class="align-middle text-uppercase" rowspan="${maxRows}" style="font-size: 0.7rem; opacity: 0.7;">
+                    ${data.resType || "PROPIETARIO"}
+                  </td>
+                `;
+              }
+
+              if (resident) {
+                const cleanPhone = resident.phone
+                  ? resident.phone.replace(/\D/g, "")
+                  : "";
+                const whatsappMessage = encodeURIComponent(
+                  `Hola ${resident.name}, le saludamos de Seguridad 24/7.`,
+                );
+                html += `
+                  <td class="align-middle fw-bold" style="letter-spacing: 0.5px;">${resident.name} ${resident.lastname}</td>
+                  <td class="align-middle">
+                    <div class="d-flex align-items-center justify-content-center gap-2">
+                      <span class="small">${resident.phone || "---"}</span>
+                      ${
+                        resident.phone
+                          ? `
+                        <a href="https://wa.me/${cleanPhone}?text=${whatsappMessage}" target="_blank" class="contact-icon text-success">
+                          <i class="fa-brands fa-whatsapp"></i>
+                        </a>
+                        <a href="tel:${resident.phone}" class="contact-icon text-info">
+                          <i class="fa-solid fa-phone" style="font-size: 0.85rem;"></i>
+                        </a>
+                      `
+                          : ""
+                      }
+                    </div>
+                  </td>
+                `;
+              } else {
+                html += `<td>-</td><td>-</td>`;
+              }
+
+              if (vehicle) {
+                html += `
+                  <td class="fw-bold">${vehicle.brand}</td>
+                  <td>${vehicle.model}</td>
+                  <td>${vehicle.color}</td>
+                  <td class="text-gold-premium">${vehicle.plate}</td>
+                `;
+              } else {
+                html += `<td>-</td><td>-</td><td>-</td><td>-</td>`;
+              }
+
+              if (i === 0) {
+                html += `
+                  <td class="align-middle" rowspan="${maxRows}">
+                    <div class="d-flex flex-column align-items-center gap-2">
+                      <button class="btn-action-table btn-edit-registry" onclick="editarRegistroResidente('${data.id}')" title="Editar Registro">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                      </button>
+                      <button class="btn-action-table btn-delete-registry" onclick="eliminarRegistroResidente('${data.id}')" title="Eliminar">
+                        <i class="fa-solid fa-trash-can"></i>
+                      </button>
+                    </div>
+                  </td>
+                `;
+              }
+              html += `</tr>`;
+            }
+          });
+          tableBody.innerHTML = html;
+        }
+
+        // --- BÚSQUEDA ---
+        const searchInput = document.getElementById("adminSearchInput");
+        if (searchInput) {
+          searchInput.addEventListener("input", (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = allResidents.filter((item) => {
+              const houseMatch = item.houseNum.toLowerCase().includes(term);
+              const residentMatch = (item.residents || []).some(
+                (r) =>
+                  `${r.name} ${r.lastname}`.toLowerCase().includes(term) ||
+                  (r.phone && r.phone.includes(term)),
+              );
+              const vehicleMatch = (item.vehicles || []).some((v) =>
+                v.plate.toLowerCase().includes(term),
+              );
+              return houseMatch || residentMatch || vehicleMatch;
+            });
+            renderResidentTable(filtered);
+          });
+        }
+
+        // --- LÓGICA PÚBLICA (CARGA DE CONJUNTOS) ---
         async function cargarConjuntos() {
           const container = document.getElementById("publicComplexesGrid");
+          if (!container) return;
+
           try {
             const snapshot = await db
               .collection("complexes")
@@ -481,10 +686,33 @@
           }
         }
 
+        // --- FUNCIONES GLOBALES ---
+        window.cerrarSesion = () => {
+          Swal.fire({
+            title: "¿Cerrar Sesión?",
+            text: "Se cerrará su acceso al panel administrativo.",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#d4af37",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Sí, Salir",
+            cancelButtonText: "Cancelar",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              firebase
+                .auth()
+                .signOut()
+                .then(() => {
+                  window.location.href = "control_center.html";
+                });
+            }
+          });
+        };
+
         window.abrirRegistro = (name) => {
-          document.getElementById(
-            "residentModalTitle"
-          ).innerHTML = `<i class="fa-solid fa-city text-gold me-2"></i> Registro: <span class="text-white">${name}</span>`;
+          document.getElementById("residentModalTitle").innerHTML =
+            `<i class="fa-solid fa-city text-gold me-2"></i> Nuevo Registro`;
+          document.getElementById("editDocId").value = "";
           document.getElementById("regComplexName").value = name;
           document.getElementById("residentRegForm").reset();
           document.getElementById("residentsListContainer").innerHTML = "";
@@ -492,7 +720,90 @@
           document.getElementById("vehiclesListContainer").innerHTML = "";
           addResidentEntry();
           new bootstrap.Modal(
-            document.getElementById("residentRegistrationModal")
+            document.getElementById("residentRegistrationModal"),
+          ).show();
+        };
+
+        window.editarRegistroResidente = (id) => {
+          const item = allResidents.find((r) => r.id === id);
+          if (!item) return;
+
+          document.getElementById("residentModalTitle").innerHTML =
+            `<i class="fa-solid fa-pen text-gold me-2"></i> Editar Registro: <span class="text-white">${item.houseNum}</span>`;
+          document.getElementById("editDocId").value = id;
+          document.getElementById("regComplexName").value = item.complexName;
+          document.getElementById("regHouseNum").value = item.houseNum;
+          document.getElementById("regResType").value = (
+            item.resType || ""
+          ).toLowerCase();
+
+          // Cargar Residentes
+          const resContainer = document.getElementById(
+            "residentsListContainer",
+          );
+          resContainer.innerHTML = "";
+          (item.residents || []).forEach((res) => {
+            const entry = document.createElement("div");
+            entry.className = "mb-3 entry-card";
+            entry.innerHTML = `
+              <button type="button" class="btn-close btn-close-white position-absolute end-0 top-0 m-3" onclick="this.parentElement.remove()" style="font-size: 0.5rem; opacity: 0.4;"></button>
+              <div class="row g-2">
+                  <div class="col-md-6 text-start">
+                      <label class="form-label-gold">NOMBRE</label>
+                      <input type="text" class="form-control resident-name force-uppercase" value="${res.name}" placeholder="Nombres" required>
+                  </div>
+                  <div class="col-md-6 text-start">
+                      <label class="form-label-gold">APELLIDO</label>
+                      <input type="text" class="form-control resident-lastname force-uppercase" value="${res.lastname}" placeholder="Apellidos" required>
+                  </div>
+                  <div class="col-12 text-start mt-2">
+                      <label class="form-label-gold">CONTACTO / IDENTIFICACIÓN</label>
+                      <input type="tel" class="form-control resident-phone" value="${res.phone}" placeholder="Ej: 09XXXXXXXX" required>
+                  </div>
+              </div>
+            `;
+            resContainer.appendChild(entry);
+          });
+          if (resContainer.children.length === 0) addResidentEntry();
+
+          // Cargar Vehículos
+          const vehContainer = document.getElementById("vehiclesListContainer");
+          vehContainer.innerHTML = "";
+          const hasVeh = item.vehicles && item.vehicles.length > 0;
+          document.getElementById("hasVehicleToggle").checked = hasVeh;
+          document.getElementById("vehiclesSection").style.display = hasVeh
+            ? "block"
+            : "none";
+
+          (item.vehicles || []).forEach((veh) => {
+            const entry = document.createElement("div");
+            entry.className = "mb-3 entry-card";
+            entry.innerHTML = `
+              <button type="button" class="btn-close btn-close-white position-absolute end-0 top-0 m-3" onclick="this.parentElement.remove()" style="font-size: 0.5rem; opacity: 0.4;"></button>
+              <div class="row g-2">
+                  <div class="col-6 text-start">
+                      <label class="form-label-gold">MARCA</label>
+                      <input type="text" class="form-control v-brand force-uppercase" value="${veh.brand}" placeholder="Marca" required>
+                  </div>
+                  <div class="col-6 text-start">
+                      <label class="form-label-gold">MODELO</label>
+                      <input type="text" class="form-control v-model force-uppercase" value="${veh.model}" placeholder="Modelo" required>
+                  </div>
+                  <div class="col-6 text-start mt-2">
+                      <label class="form-label-gold">COLOR</label>
+                      <input type="text" class="form-control v-color force-uppercase" value="${veh.color}" placeholder="Color" required>
+                  </div>
+                  <div class="col-6 text-start mt-2">
+                      <label class="form-label-gold">PLACA</label>
+                      <input type="text" class="form-control v-plate force-uppercase" value="${veh.plate}" placeholder="Placa" required>
+                  </div>
+              </div>
+            `;
+            vehContainer.appendChild(entry);
+          });
+
+          new bootstrap.Modal(
+            document.getElementById("residentRegistrationModal"),
           ).show();
         };
 
@@ -575,54 +886,45 @@
 
             const residents = [];
             const residentCards = document.querySelectorAll(
-              "#residentsListContainer .entry-card"
+              "#residentsListContainer .entry-card",
             );
-            console.log("Residentes encontrados:", residentCards.length);
-
             residentCards.forEach((el) => {
               const nameInput = el.querySelector(".resident-name");
               const lastnameInput = el.querySelector(".resident-lastname");
               const phoneInput = el.querySelector(".resident-phone");
-
               if (nameInput && lastnameInput && phoneInput) {
-                const residentData = {
+                residents.push({
                   name: nameInput.value.trim().toUpperCase(),
                   lastname: lastnameInput.value.trim().toUpperCase(),
                   phone: phoneInput.value.trim(),
-                };
-                console.log("Residente capturado:", residentData);
-                residents.push(residentData);
+                });
               }
             });
 
             const vehicles = [];
             if (document.getElementById("hasVehicleToggle").checked) {
               const vehicleCards = document.querySelectorAll(
-                "#vehiclesListContainer .entry-card"
+                "#vehiclesListContainer .entry-card",
               );
-              console.log("Vehículos encontrados:", vehicleCards.length);
-
               vehicleCards.forEach((el) => {
                 const brandInput = el.querySelector(".v-brand");
                 const modelInput = el.querySelector(".v-model");
                 const colorInput = el.querySelector(".v-color");
                 const plateInput = el.querySelector(".v-plate");
-
                 if (brandInput && modelInput && colorInput && plateInput) {
-                  const vehicleData = {
+                  vehicles.push({
                     brand: brandInput.value.trim().toUpperCase(),
                     model: modelInput.value.trim().toUpperCase(),
                     color: colorInput.value.trim().toUpperCase(),
                     plate: plateInput.value.trim().toUpperCase(),
-                  };
-                  console.log("Vehículo capturado:", vehicleData);
-                  vehicles.push(vehicleData);
+                  });
                 }
               });
             }
 
             try {
-              await db.collection("residents_registry").add({
+              const docId = document.getElementById("editDocId").value;
+              const payload = {
                 complexName: document.getElementById("regComplexName").value,
                 houseNum: document
                   .getElementById("regHouseNum")
@@ -633,25 +935,601 @@
                   .value.toUpperCase(),
                 residents,
                 vehicles,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                status: "pending_approval",
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+              };
+
+              if (docId) {
+                await db
+                  .collection("residents_registry")
+                  .doc(docId)
+                  .update(payload);
+              } else {
+                payload.createdAt =
+                  firebase.firestore.FieldValue.serverTimestamp();
+                payload.status = "pending_approval";
+                await db.collection("residents_registry").add(payload);
+              }
+
+              Swal.fire({
+                icon: "success",
+                title: docId ? "¡Actualización Exitosa!" : "¡Registro Exitoso!",
+                text: "Los datos han sido sincronizados en la nube.",
+                background: "#1a1a1a",
+                color: "#fff",
+                confirmButtonColor: "#d4af37",
               });
-              Swal.fire(
-                "¡Éxito!",
-                "Registro enviado correctamente.",
-                "success"
-              );
               bootstrap.Modal.getInstance(
-                document.getElementById("residentRegistrationModal")
+                document.getElementById("residentRegistrationModal"),
               ).hide();
+
+              // Si estamos en vista administrativa, recargar la tabla
+              if (
+                document.getElementById("adminView").style.display === "block"
+              ) {
+                cargarResidentesAdmin();
+              }
             } catch (error) {
               console.error(error);
-              Swal.fire("Error", "No se pudo completar el registro.", "error");
+              Swal.fire({
+                icon: "error",
+                title: "Error de Conexión",
+                text: "No se pudo sincronizar el registro.",
+                background: "#1a1a1a",
+                color: "#fff",
+                confirmButtonColor: "#d4af37",
+              });
             }
           });
 
-        cargarConjuntos();
+        window.eliminarRegistroResidente = async (id) => {
+          const result = await Swal.fire({
+            title: "¿Eliminar registro?",
+            text: "Esta acción no se puede deshacer.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Sí, eliminar",
+            cancelButtonText: "Cancelar",
+          });
+
+          if (result.isConfirmed) {
+            try {
+              await db.collection("residents_registry").doc(id).delete();
+              Swal.fire(
+                "Eliminado",
+                "El registro ha sido eliminado.",
+                "success",
+              );
+              cargarResidentesAdmin();
+            } catch (error) {
+              console.error(error);
+              Swal.fire("Error", "No se pudo eliminar el registro.", "error");
+            }
+          }
+        };
+
+        window.verMiContrato = async () => {
+          if (!currentContractId || currentContractId === "no-dispone") {
+            Swal.fire({
+              icon: "info",
+              title: "Contrato no disponible",
+              text: "No se ha vinculado un contrato a su cuenta administrativa.",
+              background: "#1a1a1a",
+              color: "#fff",
+              confirmButtonColor: "#d4af37",
+            });
+            return;
+          }
+
+          Swal.fire({
+            title: "Cargando contrato...",
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading(),
+          });
+
+          try {
+            const doc = await db
+              .collection("contracts")
+              .doc(currentContractId)
+              .get();
+            if (!doc.exists) {
+              Swal.close();
+              Swal.fire(
+                "Error",
+                "El documento del contrato no existe.",
+                "error",
+              );
+              return;
+            }
+
+            const data = doc.data();
+            renderizarContratoEnModal(data);
+            new bootstrap.Modal(
+              document.getElementById("contractViewModal"),
+            ).show();
+            Swal.close();
+          } catch (error) {
+            console.error(error);
+            Swal.close();
+            Swal.fire("Error", "No se pudo cargar el contrato.", "error");
+          }
+        };
+
+        function renderizarContratoEnModal(data) {
+          const area = document.getElementById("contractContentArea");
+          const contractDate = new Date(data.date + "T00:00:00");
+          const day = contractDate.getDate();
+          const month = contractDate.toLocaleString("es-ES", { month: "long" });
+          const year = contractDate.getFullYear();
+
+          const isCompleted = data.clientSignature && data.clientIdPhoto;
+          const firmaHTML = isCompleted
+            ? `<p style="font-size: 14px; margin-bottom: 10px; color: #555555;">Firma:</p><div style="margin: 15px 0;"><img src="${data.clientSignature}" alt="Firma del cliente" style="max-width: 200px; border: 2px solid #d4af37; background: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); display: block;"></div>`
+            : '<p style="font-size: 14px; margin-bottom: 10px; color: #555555;">Firma: ________________________________</p>';
+
+          area.innerHTML = `
+            <div style="font-family: 'Georgia', 'Times New Roman', serif; line-height: 1.8; color: #2c3e50; background: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);">
+              <h4 style="font-size: 24px; font-weight: 700; color: #1a1a1a; text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid #d4af37; letter-spacing: 1px;">CONTRATO DE PRESTACIÓN DEL SERVICIO DE GUARDIA VIRTUAL</h4>
+
+              <p style="font-size: 14px; line-height: 1.9; margin-bottom: 15px; color: #444444; text-align: justify;">En la ciudad de <strong style="color: #1a1a1a; font-weight: 600;">${data.city}</strong>, a los ${day} días del mes de ${month} del año ${year}, se celebra el presente Contrato de Prestación del Servicio de Guardia Virtual, al tenor de las siguientes cláusulas:</p>
+
+              <h5 style="font-size: 18px; font-weight: 700; color: #d4af37; margin-top: 30px; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #e8e8e8; letter-spacing: 0.5px;">COMPARECIENTES</h5>
+              <p style="font-size: 14px; line-height: 1.9; margin-bottom: 15px; color: #444444; text-align: justify;">Comparecen a la celebración del presente contrato, por una parte:</p>
+              <p style="font-size: 14px; line-height: 1.9; margin-bottom: 15px; color: #444444; text-align: justify;"><strong style="color: #1a1a1a; font-weight: 600;">247 DEL ECUADOR</strong>, empresa dedicada a la prestación de servicios de seguridad electrónica y vigilancia virtual, legalmente constituida conforme a las leyes de la República del Ecuador, a quien en adelante se la denominará "LA EMPRESA".</p>
+              <p style="font-size: 14px; line-height: 1.9; margin-bottom: 15px; color: #444444; text-align: justify;">Y por otra parte:</p>
+              <p style="font-size: 14px; line-height: 1.9; margin-bottom: 15px; color: #444444; text-align: justify;"><strong style="color: #1a1a1a; font-weight: 600;">Nombre completo del contratante:</strong> ${data.clientName}<br>
+              <strong style="color: #1a1a1a; font-weight: 600;">Cédula de identidad:</strong> ${data.clientId}<br>
+              <strong style="color: #1a1a1a; font-weight: 600;">Dirección domiciliaria:</strong> ${data.clientAddress}<br>
+              <strong style="color: #1a1a1a; font-weight: 600;">Teléfono:</strong> ${data.clientPhone}<br>
+              <strong style="color: #1a1a1a; font-weight: 600;">Correo electrónico:</strong> ${data.clientEmail}</p>
+              <p style="font-size: 14px; line-height: 1.9; margin-bottom: 15px; color: #444444; text-align: justify;">A quien en adelante se lo denominará "EL CONTRATANTE".</p>
+              <p style="font-size: 14px; line-height: 1.9; margin-bottom: 15px; color: #444444; text-align: justify;">Las partes declaran tener capacidad legal para contratar y obligarse, y de mutuo acuerdo celebran el presente contrato bajo las siguientes cláusulas:</p>
+
+              <h6 style="font-size: 16px; font-weight: 700; color: #1a1a1a; margin-top: 25px; margin-bottom: 12px; padding-left: 15px; border-left: 4px solid #d4af37;">CLÁUSULA PRIMERA: OBJETO DEL CONTRATO</h6>
+              <p style="font-size: 14px; line-height: 1.9; margin-bottom: 15px; color: #444444; text-align: justify;">LA EMPRESA se obliga a prestar a EL CONTRATANTE el Servicio de Guardia Virtual, el cual consiste en la monitoreo remoto, vigilancia electrónica y supervisión virtual de los sistemas de seguridad instalados, tales como cámaras de videovigilancia, alarmas u otros dispositivos tecnológicos, según el plan contratado.</p>
+
+              <h6 style="font-size: 16px; font-weight: 700; color: #1a1a1a; margin-top: 25px; margin-bottom: 12px; padding-left: 15px; border-left: 4px solid #d4af37;">CLÁUSULA QUINTA: VALOR DEL CONTRATO Y FORMA DE PAGO</h6>
+              <p style="font-size: 14px; line-height: 1.9; margin-bottom: 15px; color: #444444; text-align: justify;">El valor del servicio será de <strong style="color: #1a1a1a; font-weight: 600;">$${data.servicePrice} USD más IVA</strong>, acordado entre las partes según el plan contratado, el cual constará en un anexo o factura correspondiente.<br>
+              La forma de pago será: <strong style="color: #1a1a1a; font-weight: 600;">${data.paymentMethod}</strong><br>
+              La periodicidad del pago será: <strong style="color: #1a1a1a; font-weight: 600;">${data.paymentPeriod}</strong></p>
+
+              <h6 style="font-size: 16px; font-weight: 700; color: #1a1a1a; margin-top: 25px; margin-bottom: 12px; padding-left: 15px; border-left: 4px solid #d4af37;">CLÁUSULA SEXTA: PLAZO DE DURACIÓN</h6>
+              <p style="font-size: 14px; line-height: 1.9; margin-bottom: 15px; color: #444444; text-align: justify;">El presente contrato tendrá una duración de <strong style="color: #1a1a1a; font-weight: 600;">${data.duration} meses</strong>, contados a partir de la fecha de su firma, pudiendo renovarse previo acuerdo entre las partes.</p>
+
+              <h6 style="font-size: 16px; font-weight: 700; color: #1a1a1a; margin-top: 25px; margin-bottom: 12px; padding-left: 15px; border-left: 4px solid #d4af37;">CLÁUSULA NOVENA: TERMINACIÓN DEL CONTRATO</h6>
+              <p style="font-size: 14px; line-height: 1.9; margin-bottom: 15px; color: #444444; text-align: justify;">El presente contrato podrá darse por terminado:<br>
+              a) Por mutuo acuerdo entre las partes.<br>
+              b) Por incumplimiento de cualquiera de las cláusulas.<br>
+              c) Por decisión unilateral, con aviso previo de <strong style="color: #1a1a1a; font-weight: 600;">${data.terminationNotice} días</strong>.</p>
+
+              <div style="margin-top:50px;padding-top:30px;border-top:2px solid #e8e8e8; display:flex;justify-content:space-between;flex-wrap:wrap;gap:60px;">
+                <div style="flex:1;min-width:260px;">
+                  <p style="font-size:16px;font-weight:700;color:#1a1a1a; border-bottom:2px solid #d4af37;padding-bottom:8px;">POR LA EMPRESA</p>
+                  <p style="font-size:14px;color:#555;">247 DEL ECUADOR</p>
+                  <img src="assets/img/firma.png" style="max-width:200px;margin:15px 0; border:2px solid #d4af37;padding:10px;border-radius:8px;">
+                  <p style="font-size:14px;color:#555;">Nombre: ${data.companyName}</p>
+                  <p style="font-size:14px;color:#555;">Cargo: ${data.companyPosition}</p>
+                </div>
+                <div style="flex:1;min-width:260px;">
+                  <p style="font-size:16px;font-weight:700;color:#1a1a1a; border-bottom:2px solid #d4af37;padding-bottom:8px;">EL CONTRATANTE</p>
+                  ${firmaHTML}
+                  <p style="font-size:14px;color:#555;">Nombre completo: ${data.clientName}</p>
+                  <p style="font-size:14px;color:#555;">Cédula: ${data.clientId}</p>
+                  <p style="font-size:14px;color:#555;">Fecha: ${contractDate.toLocaleDateString("es-EC")}</p>
+                </div>
+              </div>
+
+              ${
+                data.clientIdPhoto
+                  ? `
+                <div style="margin-top: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+                  <p style="font-size: 16px; font-weight: 700; color: #1a1a1a; margin-bottom: 20px;">Cédula de Identidad del Contratante</p>
+                  <img src="${data.clientIdPhoto}" style="max-width: 420px; width: 100%; border: 2px solid #d4af37; background: #fff; padding: 12px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.25);">
+                </div>
+              `
+                  : ""
+              }
+            </div>
+          `;
+        }
+
+        window.generarPDFContrato = async () => {
+          if (!currentContractId || currentContractId === "no-dispone") {
+            Swal.fire("Error", "No hay un contrato vinculado.", "error");
+            return;
+          }
+
+          Swal.fire({
+            title: "Generando PDF Profesional...",
+            text: "Espere un momento por favor",
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading(),
+          });
+
+          try {
+            const doc = await db
+              .collection("contracts")
+              .doc(currentContractId)
+              .get();
+            if (!doc.exists) {
+              Swal.fire("Error", "No se encontró el contrato.", "error");
+              return;
+            }
+
+            const data = doc.data();
+            const { jsPDF } = window.jspdf;
+            const pdfDoc = new jsPDF();
+            const primaryColor = "#d4af37";
+            const backgroundColor = "#fff";
+            const pageHeight = 297;
+            const pageWidth = 210;
+            const marginTop = 35;
+            const marginBottom = 25;
+            const maxY = pageHeight - marginBottom;
+
+            // Función para agregar nueva página con cabecera moderna
+            function addPageWithHeader() {
+              pdfDoc.addPage();
+              pdfDoc.setFillColor(backgroundColor);
+              pdfDoc.rect(0, 0, pageWidth, pageHeight, "F");
+
+              pdfDoc.setFillColor("#1a1a1a");
+              pdfDoc.rect(0, 0, pageWidth, 30, "F");
+              pdfDoc.setFillColor(primaryColor);
+              pdfDoc.rect(0, 0, pageWidth, 5, "F");
+
+              pdfDoc.setFont("helvetica", "bold");
+              pdfDoc.setFontSize(20);
+              pdfDoc.setTextColor("#FFFFFF");
+              pdfDoc.text(
+                "CONTRATO DE PRESTACIÓN DEL SERVICIO",
+                pageWidth / 2,
+                13,
+                { align: "center" },
+              );
+              pdfDoc.setFontSize(16);
+              pdfDoc.text("DE GUARDIA VIRTUAL", pageWidth / 2, 22, {
+                align: "center",
+              });
+
+              pdfDoc.setDrawColor(primaryColor);
+              pdfDoc.setLineWidth(0.5);
+              pdfDoc.line(20, 28, pageWidth - 20, 28);
+
+              return marginTop + 5;
+            }
+
+            // Función para verificar y agregar página si es necesario
+            function checkAndAddPage(currentY, neededSpace = 10) {
+              if (currentY + neededSpace > maxY) {
+                return addPageWithHeader();
+              }
+              return currentY;
+            }
+
+            // Función para agregar texto con manejo de páginas múltiples
+            function addText(text, x, y, options = {}) {
+              const lines = pdfDoc.splitTextToSize(
+                text,
+                options.maxWidth || 180,
+              );
+              let currentY = y;
+
+              for (let i = 0; i < lines.length; i++) {
+                currentY = checkAndAddPage(currentY, 6);
+                pdfDoc.text(lines[i], x, currentY);
+                currentY += 6;
+              }
+
+              return currentY;
+            }
+
+            // --- INICIO DE GENERACIÓN ---
+            pdfDoc.setFillColor(backgroundColor);
+            pdfDoc.rect(0, 0, pageWidth, pageHeight, "F");
+
+            // Cabecera Página 1
+            pdfDoc.setFillColor("#1a1a1a");
+            pdfDoc.rect(0, 0, pageWidth, 30, "F");
+            pdfDoc.setFillColor(primaryColor);
+            pdfDoc.rect(0, 0, pageWidth, 5, "F");
+            pdfDoc.setFont("helvetica", "bold");
+            pdfDoc.setFontSize(20);
+            pdfDoc.setTextColor("#FFFFFF");
+            pdfDoc.text(
+              "CONTRATO DE PRESTACIÓN DEL SERVICIO",
+              pageWidth / 2,
+              13,
+              { align: "center" },
+            );
+            pdfDoc.setFontSize(16);
+            pdfDoc.text("DE GUARDIA VIRTUAL", pageWidth / 2, 22, {
+              align: "center",
+            });
+            pdfDoc.setDrawColor(primaryColor);
+            pdfDoc.setLineWidth(0.5);
+            pdfDoc.line(20, 28, pageWidth - 20, 28);
+
+            let y = marginTop + 10;
+            const contractDate = new Date(data.date + "T00:00:00");
+            const day = contractDate.getDate();
+            const month = contractDate.toLocaleString("es-ES", {
+              month: "long",
+            });
+            const year = contractDate.getFullYear();
+
+            pdfDoc.setFont("helvetica", "normal");
+            pdfDoc.setFontSize(10);
+            pdfDoc.setTextColor("#333333");
+            y = addText(
+              `En la ciudad de ${data.city}, a los ${day} días del mes de ${month} del año ${year}, se celebra el presente Contrato de Prestación del Servicio de Guardia Virtual, al tenor de las siguientes cláusulas:`,
+              20,
+              y,
+              { maxWidth: 170 },
+            );
+            y += 8;
+
+            // COMPARECIENTES
+            pdfDoc.setDrawColor(primaryColor);
+            pdfDoc.setLineWidth(0.8);
+            pdfDoc.line(15, y - 9, pageWidth - 15, y - 9);
+            pdfDoc.setFont("helvetica", "bold");
+            pdfDoc.setFontSize(12);
+            pdfDoc.setTextColor("#1a1a1a");
+            pdfDoc.text("COMPARECIENTES", 15, y);
+            y += 8;
+
+            pdfDoc.setFont("helvetica", "normal");
+            pdfDoc.setFontSize(9.5);
+            pdfDoc.setTextColor("#444444");
+            y = addText(
+              'Comparecen a la celebración del presente contrato, por una parte: 247 DEL ECUADOR, empresa dedicada a la prestación de servicios de seguridad electrónica y vigilancia virtual, legalmente constituida conforme a las leyes de la República del Ecuador, a quien en adelante se la denominará "LA EMPRESA".',
+              15,
+              y,
+            );
+            y += 2;
+            y = addText("Y por otra parte:", 15, y);
+            y = addText(
+              `Nombre completo del contratante: ${data.clientName}`,
+              15,
+              y,
+            );
+            y = addText(`Cédula de identidad: ${data.clientId}`, 15, y);
+            y = addText(`Dirección domiciliaria: ${data.clientAddress}`, 15, y);
+            y = addText(`Teléfono: ${data.clientPhone}`, 15, y);
+            y = addText(`Correo electrónico: ${data.clientEmail}`, 15, y);
+            y += 3;
+            y = addText(
+              'A quien en adelante se lo denominará "EL CONTRATANTE".',
+              15,
+              y,
+            );
+            y = addText(
+              "Las partes declaran tener capacidad legal para contratar y obligarse, y de mutuo acuerdo celebran el presente contrato bajo las siguientes cláusulas:",
+              15,
+              y,
+            );
+            y += 8;
+
+            // CLÁUSULAS PÁGINA 1
+            const clausesP1 = [
+              {
+                title: "CLÁUSULA PRIMERA: OBJETO DEL CONTRATO",
+                content:
+                  "LA EMPRESA se obliga a prestar a EL CONTRATANTE el Servicio de Guardia Virtual, el cual consiste en la monitoreo remoto, vigilancia electrónica y supervisión virtual de los sistemas de seguridad instalados, tales como cámaras de videovigilancia, alarmas u otros dispositivos tecnológicos, según el plan contratado.",
+              },
+              {
+                title: "CLÁUSULA QUINTA: VALOR DEL CONTRATO Y FORMA DE PAGO",
+                content: `El valor del servicio será de $${data.servicePrice} USD más IVA, acordado entre las partes según el plan contratado, el cual constará en un anexo o factura correspondiente.\nLa forma de pago será: ${data.paymentMethod}\nLa periodicidad del pago será: ${data.paymentPeriod}`,
+              },
+              {
+                title: "CLÁUSULA SEXTA: PLAZO DE DURACIÓN",
+                content: `El presente contrato tendrá una duración de ${data.duration} meses, contados a partir de la fecha de su firma, pudiendo renovarse previo acuerdo entre las partes.`,
+              },
+            ];
+
+            clausesP1.forEach((c) => {
+              pdfDoc.setFont("helvetica", "bold");
+              pdfDoc.setFontSize(10.5);
+              pdfDoc.setTextColor("#1a1a1a");
+              pdfDoc.text(c.title, 15, y);
+              y += 6;
+              pdfDoc.setFont("helvetica", "normal");
+              pdfDoc.setFontSize(9);
+              pdfDoc.setTextColor("#444444");
+              y = addText(c.content, 15, y);
+              y += 6;
+            });
+
+            // --- FORZAR PÁGINA 2 ---
+            y = addPageWithHeader();
+            y += 5;
+
+            // CLÁUSULA NOVENA EN PÁGINA 2
+            pdfDoc.setFont("helvetica", "bold");
+            pdfDoc.setFontSize(10.5);
+            pdfDoc.setTextColor("#1a1a1a");
+            pdfDoc.text("CLÁUSULA NOVENA: TERMINACIÓN DEL CONTRATO", 15, y);
+            y += 6;
+            pdfDoc.setFont("helvetica", "normal");
+            pdfDoc.setFontSize(9);
+            pdfDoc.setTextColor("#444444");
+            y = addText(
+              `El presente contrato podrá darse por terminado:\na) Por mutuo acuerdo entre las partes.\nb) Por incumplimiento de cualquiera de las cláusulas.\nc) Por decisión unilateral, con aviso previo de ${data.terminationNotice} días.`,
+              15,
+              y,
+            );
+            y += 12;
+
+            // FIRMAS
+            const isCompleted = data.clientSignature && data.clientIdPhoto;
+            pdfDoc.setDrawColor(primaryColor);
+            pdfDoc.setLineWidth(0.5);
+            pdfDoc.line(15, y - 5, pageWidth - 15, y - 5);
+            y += 10;
+
+            const empresaStartY = y;
+            pdfDoc.setFont("helvetica", "bold");
+            pdfDoc.setFontSize(11);
+            pdfDoc.setTextColor("#1a1a1a");
+            pdfDoc.text("POR LA EMPRESA", 15, y);
+            y += 8;
+            pdfDoc.setFont("helvetica", "normal");
+            pdfDoc.setFontSize(9.5);
+            pdfDoc.text("247 DEL ECUADOR", 15, y);
+            y += 5;
+
+            try {
+              const img = new Image();
+              img.src = "assets/img/firma.png";
+              await new Promise((resolve) => {
+                img.onload = () => {
+                  pdfDoc.addImage(img, "PNG", 15, y, 45, 18);
+                  resolve();
+                };
+                img.onerror = resolve;
+              });
+              y += 22;
+            } catch (e) {
+              y += 10;
+            }
+            pdfDoc.text(`Nombre: ${data.companyName}`, 15, y);
+            y += 5;
+            pdfDoc.text(`Cargo: ${data.companyPosition}`, 15, y);
+
+            let clientY = empresaStartY;
+            pdfDoc.setFont("helvetica", "bold");
+            pdfDoc.text("EL CONTRATANTE", 110, clientY);
+            clientY += 12;
+
+            if (isCompleted) {
+              try {
+                const sig = new Image();
+                sig.src = data.clientSignature;
+                await new Promise((resolve) => {
+                  sig.onload = () => {
+                    pdfDoc.addImage(sig, "PNG", 110, clientY, 45, 18);
+                    resolve();
+                  };
+                  sig.onerror = resolve;
+                });
+                clientY += 24;
+              } catch (e) {
+                clientY += 10;
+              }
+            } else {
+              pdfDoc.text("Firma: ___________________________", 110, clientY);
+              clientY += 15;
+            }
+            pdfDoc.setFont("helvetica", "normal");
+            pdfDoc.text(`Nombre completo: ${data.clientName}`, 110, clientY);
+            clientY += 5;
+            pdfDoc.text(`Cédula: ${data.clientId}`, 110, clientY);
+            clientY += 5;
+            pdfDoc.text(`Fecha: ${day} de ${month} de ${year}`, 110, clientY);
+
+            // CÉDULA EN LA MISMA HOJA PÁGINA 2
+            y = Math.max(y + 15, clientY + 10);
+            if (isCompleted && data.clientIdPhoto) {
+              pdfDoc.setFont("helvetica", "bold");
+              pdfDoc.setFontSize(10);
+              pdfDoc.text(
+                "Cédula de Identidad del Contratante",
+                pageWidth / 2,
+                y,
+                { align: "center" },
+              );
+              y += 6;
+              try {
+                const idImg = new Image();
+                idImg.src = data.clientIdPhoto;
+                await new Promise((resolve) => {
+                  idImg.onload = () => {
+                    const targetW = 85.6;
+                    const targetH = 53.98;
+                    let finalSrc = idImg.src;
+                    if (idImg.height > idImg.width) {
+                      const canvas = document.createElement("canvas");
+                      canvas.width = idImg.height;
+                      canvas.height = idImg.width;
+                      const ctx = canvas.getContext("2d");
+                      ctx.translate(canvas.width, 0);
+                      ctx.rotate((90 * Math.PI) / 180);
+                      ctx.drawImage(idImg, 0, 0);
+                      finalSrc = canvas.toDataURL("image/png");
+                    }
+                    pdfDoc.addImage(
+                      finalSrc,
+                      "PNG",
+                      (pageWidth - targetW) / 2,
+                      y,
+                      targetW,
+                      targetH,
+                    );
+                    resolve();
+                  };
+                  idImg.onerror = resolve;
+                });
+              } catch (e) {}
+            }
+
+            // Footers
+            const totalPages = pdfDoc.internal.getNumberOfPages();
+            for (let i = 1; i <= totalPages; i++) {
+              pdfDoc.setPage(i);
+              pdfDoc.setFillColor(20, 20, 20);
+              pdfDoc.rect(0, pageHeight - 15, pageWidth, 15, "F");
+              pdfDoc.setFillColor(primaryColor);
+              pdfDoc.rect(0, pageHeight - 15, pageWidth, 2, "F");
+              pdfDoc.setFont("helvetica", "normal");
+              pdfDoc.setFontSize(8);
+              pdfDoc.setTextColor("#FFFFFF");
+              pdfDoc.text(
+                "© 2025 Seguridad 24/7 Ecuador & MCV (Mallitaxi Code Vision) — Todos los derechos reservados",
+                pageWidth / 2,
+                pageHeight - 7,
+                { align: "center" },
+              );
+            }
+
+            pdfDoc.save(
+              `Contrato_247_${data.clientName.replace(/\s+/g, "_")}.pdf`,
+            );
+            Swal.close();
+          } catch (error) {
+            console.error(error);
+            Swal.fire("Error", "Ocurrió un error al generar el PDF.", "error");
+          }
+        };
+
+        window.verDetalleResidente = (id) => {
+          const item = allResidents.find((r) => r.id === id);
+          if (!item) return;
+
+          let content = `<div class="text-start" style="color: #eee;">
+            <p><strong class="text-gold">Casa:</strong> ${item.houseNum}</p>
+            <p><strong class="text-gold">Tipo:</strong> ${item.resType}</p>
+            <hr style="opacity: 0.1">
+            <h6 class="text-gold mb-2">Residentes:</h6>
+            <ul class="ps-3">${item.residents.map((r) => `<li>${r.name} ${r.lastname} <br><small class="text-white-50">${r.phone}</small></li>`).join("<div class='mb-2'></div>")}</ul>
+            <hr style="opacity: 0.1">
+            <h6 class="text-gold mb-2">Vehículos:</h6>
+            <ul class="ps-3">${item.vehicles.length > 0 ? item.vehicles.map((v) => `<li>${v.brand} ${v.model} <br><small class="text-white-50">Placa: ${v.plate} / Color: ${v.color}</small></li>`).join("<div class='mb-2'></div>") : "<li>Sin vehículos</li>"}</ul>
+          </div>`;
+
+          Swal.fire({
+            title: `<span class="text-gold">Detalle del Registro</span>`,
+            html: content,
+            background: "#1a1a1a",
+            confirmButtonColor: "#d4af37",
+            confirmButtonText: "Cerrar",
+          });
+        };
       });
     </script>
+    <!-- CDN para jspdf y html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   </body>
 </html>

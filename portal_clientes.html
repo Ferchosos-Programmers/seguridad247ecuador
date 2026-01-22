@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
@@ -101,29 +101,21 @@
     <!-- NAVBAR -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
       <div class="container">
-        <a class="navbar-brand" href="#"> SEGURIDAD 24/7 ECUADOR </a>
-
+        <a class="navbar-brand" href="index.html">SEGURIDAD 24/7 ECUADOR</a>
         <button
           class="navbar-toggler"
           type="button"
           data-bs-toggle="collapse"
-          data-bs-target="#navbarPortal"
+          data-bs-target="#navbarNav"
         >
           <span class="navbar-toggler-icon"></span>
         </button>
-
-        <div class="collapse navbar-collapse" id="navbarPortal">
-          <ul class="navbar-nav ms-auto align-items-center">
-            <li class="nav-item me-3">
-              <span class="text-white">
-                Hola,
-                <span id="userNameDisplay" class="fw-bold">Usuario</span>
-              </span>
-            </li>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
             <li class="nav-item">
-              <button class="btn btn-danger" id="logoutBtn">
-                <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
-              </button>
+              <a class="nav-link control-center-box" href="control_center.html">
+                <i class="fa-solid fa-users"></i> 24/7 Control Center
+              </a>
             </li>
           </ul>
         </div>
@@ -132,18 +124,49 @@
 
     <main class="container mt-5 pt-5">
       <div class="row mb-4">
-        <div class="col-12">
-          <h2 class="text-gold border-bottom pb-2 border-secondary">
-            <i class="fa-solid fa-building-user"></i> Portal de Gestión -
-            Conjuntos
+        <div class="col-12 text-center">
+          <h2 class="text-gold mb-1">
+            <i class="fa-solid fa-hand-holding-dollar"></i> Centro de Pagos
           </h2>
+          <p class="text-white-50">
+            Gestiona tus pagos y reportes de forma sencilla
+          </p>
+        </div>
+      </div>
+
+      <!-- SECCIÓN: BUSCADOR POR RUC/CÉDULA (PARA PÚBLICO) -->
+      <div class="row mb-4 justify-content-center" id="publicSearchSection">
+        <div class="col-md-6">
+          <div class="card-custom p-4 text-center">
+            <label class="form-label-gold mb-3"
+              >CONSULTA TU ESTADO DE PAGO</label
+            >
+            <p class="text-white-50 small mb-4">
+              Ingresa el RUC o Cédula registrado en tu contrato
+            </p>
+            <div class="input-group mb-3">
+              <span class="input-group-text bg-dark border-gold text-gold"
+                ><i class="fa-solid fa-id-card"></i
+              ></span>
+              <input
+                type="text"
+                id="publicIdInput"
+                class="form-control bg-dark text-white border-gold"
+                placeholder="Ej: 1725XXXXXX"
+              />
+            </div>
+            <button id="btnEnterPublic" class="btn btn-gold w-100 py-3 fw-bold">
+              <i class="fa-solid fa-magnifying-glass me-2"></i> CONSULTAR
+              HISTORIAL
+            </button>
+          </div>
         </div>
       </div>
 
       <!-- Welcome Profile Card -->
-      <div class="row mb-5">
+      <div class="row mb-5" id="userProfileSection" style="display: none">
         <div class="col-12">
-          <div class="job-card" id="userProfileCard" style="display: none">
+          <div class="job-card" id="userProfileCard">
             <div class="d-flex align-items-center gap-4">
               <div class="profile-avatar">
                 <i class="fa-solid fa-user-tie fa-2x"></i>
@@ -157,7 +180,7 @@
         </div>
       </div>
 
-      <div class="row g-4">
+      <div class="row g-4" id="mainPortalContent" style="display: none">
         <!-- SECCIÓN DE PAGOS -->
         <div class="col-md-5">
           <div class="card-custom h-100">

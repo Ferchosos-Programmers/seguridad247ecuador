@@ -12,6 +12,9 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
     />
     <link rel="icon" href="assets/img/logo.ico" type="image/x-icon" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="js/bootstrap.min.js"></script>
     <style>
       @keyframes fadeIn {
@@ -76,68 +79,99 @@
     <!-- DASHBOARD -->
     <main class="container py-5">
       <h1 class="text-center mb-5">24/7 Control Center</h1>
-      <div class="row dashboard-row g-4 justify-content-center mb-5">
-        <!-- 1. Tutoriales -->
-        <div class="col-lg-4 col-md-6 col-sm-12">
-          <div class="card-dashboard" onclick="location.href='tutoriales.html'">
-            <i class="fa-solid fa-video"></i>
-            <h5>Tutoriales</h5>
+      
+      <!-- SECCIÓN PÚBLICA -->
+      <div class="section-divider mb-5">
+        <div class="section-header public-section">
+          <div class="text-center">
+            <i class="fa-solid fa-globe"></i>
+            <h2>Acceso Público</h2>
+          </div>
+          <p>Recursos y portales disponibles para residentes y visitantes</p>
+        </div>
+        <div class="row dashboard-row g-4 justify-content-center">
+          <!-- 1. Tutoriales -->
+          <div class="col-lg-4 col-md-6 col-sm-12">
+            <div class="card-dashboard public-card" onclick="location.href='tutoriales.html'">
+              <i class="fa-solid fa-video"></i>
+              <h5>Tutoriales</h5>
+              <span class="card-badge public-badge">Público</span>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6 col-sm-12">
+            <div
+              class="card-dashboard public-card"
+              onclick="location.href='portal_clientes.html'"
+            >
+              <i class="fa-solid fa-hand-holding-dollar"></i>
+              <h5>Paga Aquí</h5>
+              <span class="card-badge public-badge">Público</span>
+            </div>
+          </div>
+
+          <!-- 3. Registro de Residentes Card (Public) -->
+          <div class="col-lg-4 col-md-6 col-sm-12">
+            <div
+              class="card-dashboard public-card"
+              data-bs-toggle="modal"
+              data-bs-target="#loginModalResidentes"
+            >
+              <i class="fa-solid fa-building-user"></i>
+              <h5>Registro de Residentes</h5>
+              <span class="card-badge public-badge">Público</span>
+            </div>
           </div>
         </div>
+      </div>
 
-        <!-- 2. Portal Conjuntos with modal -->
-        <div class="col-lg-4 col-md-6 col-sm-12">
-          <div
-            class="card-dashboard"
-            data-bs-toggle="modal"
-            data-bs-target="#loginModalCliente"
-          >
-            <i class="fa-solid fa-building-user"></i>
-            <h5>Portal Conjuntos</h5>
+      <!-- SECCIÓN INTERNA 24/7 -->
+      <div class="section-divider mb-5">
+        <div class="section-header internal-section">
+          <div class="text-center">
+            <i class="fa-solid fa-shield-halved"></i>
+            <h2>Gestión Interna 24/7</h2>
           </div>
+          <p>Acceso exclusivo para miembros del equipo de Seguridad 24/7 Ecuador</p>
         </div>
-
-        <!-- 3. Conjuntos Card (Public) -->
-        <div class="col-lg-4 col-md-6 col-sm-12">
-          <div class="card-dashboard" onclick="location.href='conjuntos.html'">
-            <i class="fa-solid fa-building-shield"></i>
-            <h5>Conjuntos</h5>
+        <div class="row dashboard-row g-4 justify-content-center">
+          <!-- 4. Gestión Admin with modal -->
+          <div class="col-lg-4 col-md-6 col-sm-12">
+            <div
+              class="card-dashboard internal-card"
+              data-bs-toggle="modal"
+              data-bs-target="#loginModalAdmin"
+            >
+              <i class="fa-solid fa-user-shield"></i>
+              <h5>Administración</h5>
+              <span class="card-badge internal-badge">Seguridad 24/7 </span>
+            </div>
           </div>
-        </div>
 
-        <!-- 4. Gestión Admin with modal -->
-        <div class="col-lg-4 col-md-6 col-sm-12">
-          <div
-            class="card-dashboard"
-            data-bs-toggle="modal"
-            data-bs-target="#loginModalAdmin"
-          >
-            <i class="fa-solid fa-user-shield"></i>
-            <h5>Administración</h5>
+          <!-- 5. Gestión Técnica with modal -->
+          <div class="col-lg-4 col-md-6 col-sm-12">
+            <div
+              class="card-dashboard internal-card"
+              data-bs-toggle="modal"
+              data-bs-target="#loginModal"
+            >
+              <i class="fa-solid fa-tools"></i>
+              <h5>Gestión Técnica</h5>
+              <span class="card-badge internal-badge">Seguridad 24/7 </span>
+            </div>
           </div>
-        </div>
 
-        <!-- 5. Gestión Técnica with modal -->
-        <div class="col-lg-4 col-md-6 col-sm-12">
-          <div
-            class="card-dashboard"
-            data-bs-toggle="modal"
-            data-bs-target="#loginModal"
-          >
-            <i class="fa-solid fa-tools"></i>
-            <h5>Gestión Técnica</h5>
-          </div>
-        </div>
-
-        <!-- 6. Departamento de Operaciones with modal -->
-        <div class="col-lg-4 col-md-6 col-sm-12">
-          <div
-            class="card-dashboard"
-            data-bs-toggle="modal"
-            data-bs-target="#loginModalOps"
-          >
-            <i class="fa-solid fa-desktop"></i>
-            <h5>Operaciones / Monitoreo</h5>
+          <!-- 6. Departamento de Operaciones with modal -->
+          <div class="col-lg-4 col-md-6 col-sm-12">
+            <div
+              class="card-dashboard internal-card"
+              data-bs-toggle="modal"
+              data-bs-target="#loginModalOps"
+            >
+              <i class="fa-solid fa-desktop"></i>
+              <h5>Operaciones / Monitoreo</h5>
+              <span class="card-badge internal-badge">Seguridad 24/7 </span>
+            </div>
           </div>
         </div>
       </div>
@@ -172,6 +206,7 @@
     <script src="js/login_admin.js"></script>
     <script src="js/login_clientes.js"></script>
     <script src="js/login_operaciones.js"></script>
+    <script src="js/login_residentes.js"></script>
     <script src="js/sweetalert2.js"></script>
 
     <!-- MODAL LOGIN TECNICO -->
@@ -198,12 +233,12 @@
           <div class="modal-body">
             <form id="techLoginForm">
               <div class="mb-3">
-                <label for="techUser" class="form-label">Usuario</label>
+                <label for="techUser" class="form-label">Email</label>
                 <input
                   type="text"
                   class="form-control"
                   id="techUser"
-                  placeholder="Ingresa tu usuario"
+                  placeholder="tecnico@seguridad247.com"
                 />
               </div>
               <div class="mb-3">
@@ -257,12 +292,12 @@
           <div class="modal-body">
             <form id="adminLoginForm">
               <div class="mb-3">
-                <label for="adminUser" class="form-label">Usuario</label>
+                <label for="adminUser" class="form-label">Email</label>
                 <input
                   type="text"
                   class="form-control"
                   id="adminUser"
-                  placeholder="Ingresa tu usuario"
+                  placeholder="admin@seguridad247.com"
                 />
               </div>
               <div class="mb-3">
@@ -317,7 +352,7 @@
             <form id="clientLoginForm">
               <div class="mb-3">
                 <label for="clientUser" class="form-label"
-                  >Email / Usuario</label
+                  >Email</label
                 >
                 <input
                   type="text"
@@ -366,7 +401,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="loginModalOpsLabel">
-              <i class="fa-solid fa-desktop"></i> Login Operaciones / Monitoreo
+              <i class="fa-solid fa-desktop"></i> Login Monitoreo
             </h5>
             <button
               type="button"
@@ -401,6 +436,65 @@
                     id="toggleOpsPassword"
                   >
                     <i class="fa-solid fa-eye" id="opsPasswordIcon"></i>
+                  </button>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-login w-100">
+                Ingresar
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL LOGIN REGISTRO DE RESIDENTES -->
+    <div
+      class="modal fade"
+      id="loginModalResidentes"
+      tabindex="-1"
+      aria-labelledby="loginModalResidentesLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="loginModalResidentesLabel">
+              <i class="fa-solid fa-building-user"></i> Login Residentes
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Cerrar"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="residentesLoginForm">
+              <div class="mb-3">
+                <label for="residentesUser" class="form-label">Email</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="residentesUser"
+                  placeholder="residente@seguridad247.com"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="residentesPassword" class="form-label">Contraseña</label>
+                <div class="input-group">
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="residentesPassword"
+                    placeholder="Ingresa tu contraseña"
+                  />
+                  <button
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    id="toggleResidentesPassword"
+                  >
+                    <i class="fa-solid fa-eye" id="residentesPasswordIcon"></i>
                   </button>
                 </div>
               </div>
@@ -487,6 +581,23 @@
             opsPassword.setAttribute("type", type);
             opsPasswordIcon.classList.toggle("fa-eye");
             opsPasswordIcon.classList.toggle("fa-eye-slash");
+          });
+        }
+
+        // Residentes Login Password Toggle
+        const toggleResidentesPassword = document.getElementById("toggleResidentesPassword");
+        const residentesPassword = document.getElementById("residentesPassword");
+        const residentesPasswordIcon = document.getElementById("residentesPasswordIcon");
+
+        if (toggleResidentesPassword) {
+          toggleResidentesPassword.addEventListener("click", function () {
+            const type =
+              residentesPassword.getAttribute("type") === "password"
+                ? "text"
+                : "password";
+            residentesPassword.setAttribute("type", type);
+            residentesPasswordIcon.classList.toggle("fa-eye");
+            residentesPasswordIcon.classList.toggle("fa-eye-slash");
           });
         }
 
