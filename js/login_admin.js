@@ -1768,11 +1768,11 @@ function renderTrabajos(trabajosList) {
           <div class="d-flex gap-2 mt-3">
             <button class="btn-edit" onclick="cargarTrabajoParaEditar('${data.id
       }')">
-              <i class="fa-solid fa-pen-to-square"></i> Editar
+              <i class="fa-solid fa-pen-to-square"></i> 
             </button>
 
             <button class="btn-delete" onclick="eliminarTrabajo('${data.id}')">
-              <i class="fa-solid fa-trash"></i> Eliminar
+              <i class="fa-solid fa-trash"></i> 
             </button>
             </div>
             
@@ -2041,18 +2041,18 @@ function renderContratos(contratosList) {
           <div class="d-flex gap-2 mt-3">
             <button class="btn-view-report" onclick="verContrato('${data.id
       }')">
-              <i class="fa-solid fa-eye"></i> Ver
+              <i class="fa-solid fa-eye"></i> 
             </button>
             ${isCompleted
         ? `
               <button class="btn btn-primary" onclick="verContrato('${data.id}')">
-                <i class="fa-solid fa-print"></i> Imprimir
+                <i class="fa-solid fa-print"></i> 
               </button>
             `
         : ""
       }
             <button class="btn-delete" onclick="eliminarContrato('${data.id}')">
-              <i class="fa-solid fa-trash"></i> Eliminar
+              <i class="fa-solid fa-trash"></i> 
             </button>
           </div>
 

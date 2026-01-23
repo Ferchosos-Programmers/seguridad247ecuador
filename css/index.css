@@ -2,399 +2,445 @@
    ESTILOS BASE (TU DISEÑO ORIGINAL)
 ==================================*/
 body {
-    background-color: #000;
-    color: #fff;
-    font-family: 'Times New Roman', Times, serif;
+  background-color: #000;
+  color: #fff;
+  font-family: "Times New Roman", Times, serif;
 }
 
 /* NAVBAR */
 .navbar {
-    background-color: #000 !important;
-    border-bottom: 2px solid #d4af37;
+  background-color: #000 !important;
+  border-bottom: 2px solid #d4af37;
 }
 .navbar-brand {
-    color: #d4af37 !important;
-    font-weight: bold;
-    font-size: 1.5rem;
+  color: #d4af37 !important;
+  font-weight: bold;
+  font-size: 1.5rem;
 }
 .nav-link {
-    color: #fff !important;
-    font-weight: 500;
+  color: #fff !important;
+  font-weight: 500;
 }
 .nav-link:hover {
-    color: #d4af37 !important;
+  color: #d4af37 !important;
 }
 
 /* HERO */
 .hero {
-    height: 90vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    text-align: center;
-    padding: 5px;
-    background: url('../assets/img/banner.jpg') center/cover no-repeat;
-    position: relative;
+  height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  padding: 5px;
+  background: url("../assets/img/banner.jpg") center/cover no-repeat;
+  position: relative;
 }
 .hero::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.65);
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.65);
 }
-.hero h1, .hero p, .hero .btn-gold {
-    position: relative;
-    z-index: 2;
+.hero h1,
+.hero p,
+.hero .btn-gold {
+  position: relative;
+  z-index: 2;
 }
 .hero h1 {
-    font-size: 3rem;
-    color: #d4af37;
-    font-weight: bold;
+  font-size: 3rem;
+  color: #d4af37;
+  font-weight: bold;
 }
 .hero p {
-    font-size: 1.2rem;
-    max-width: 700px;
-    margin-top: 15px;
-    color: #ddd;
+  font-size: 1.2rem;
+  max-width: 700px;
+  margin-top: 15px;
+  color: #ddd;
 }
 
 /* BOTÓN DORADO */
 .btn-gold {
-    background-color: #d4af37;
-    color: #000;
-    border-radius: 30px;
-    padding: 10px 30px;
-    font-weight: bold;
-    transition: 0.3s;
+  background-color: #d4af37;
+  color: #000;
+  border-radius: 30px;
+  padding: 10px 30px;
+  font-weight: bold;
+  transition: 0.3s;
 }
 .btn-gold:hover {
-    background-color: #b8922b;
-    color: #fff;
+  background-color: #b8922b;
+  color: #fff;
 }
 
 /* FOOTER */
 .footer {
-    background-color: #000;
-    border-top: 2px solid #d4af37;
-    padding: 20px;
-    text-align: center;
-    color: #fff;
-    margin-top: 60px;
+  background-color: #000;
+  border-top: 2px solid #d4af37;
+  padding: 20px;
+  text-align: center;
+  color: #fff;
+  margin-top: 60px;
 }
 
 .footer-link {
-    color: #d4af37;
-    text-decoration: none;
-    font-weight: bold;
-    transition: color 0.3s ease;
+  color: #d4af37;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease;
 }
 
 .footer-link:hover {
-    color: #fff;
+  color: #fff;
 }
 
 /* ================================
    SECCIÓN BANNER SUPERIOR
 ==================================*/
 .banner-section {
-    height: 55vh;
-    background: url('img/banner.jpg') center/cover no-repeat;
-    position: relative;
+  height: 55vh;
+  background: url("img/banner.jpg") center/cover no-repeat;
+  position: relative;
 }
 .banner-section::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        rgba(0, 0, 0, 0.7),
-        rgba(0, 0, 0, 0.8)
-    );
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8));
 }
-
 
 /* ================================
    SECCIÓN DOTACIÓN
 ==================================*/
 .dotacion-section {
-    position: relative;
-    /* background: url('img/fondo-oscuro.jpg') center/cover no-repeat fixed; */
-    padding: 120px 0;
+  position: relative;
+  /* background: url('img/fondo-oscuro.jpg') center/cover no-repeat fixed; */
+  padding: 120px 0;
 }
 .dotacion-section .overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.65);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.65);
 }
 
 /* Títulos */
 .section-title {
-    position: relative;
-    font-size: 38px;
-    font-weight: 700;
-    color: #d4af37;
-    letter-spacing: 1px;
-    margin-bottom: 10px;
-    z-index: 2;
+  position: relative;
+  font-size: 38px;
+  font-weight: 700;
+  color: #d4af37;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  z-index: 2;
 }
 .section-subtitle {
-    position: relative;
-    font-size: 16px;
-    color: #fff;
-    opacity: 0.9;
-    z-index: 2;
+  position: relative;
+  font-size: 16px;
+  color: #fff;
+  opacity: 0.9;
+  z-index: 2;
 }
 
 /* Tarjetas */
 .dot-card {
-    position: relative;
-    background: #111;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.5);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  background: #111;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.5);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .dot-card img {
-    width: 100%;
-    height: 280px;
-    object-fit: cover;
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
 }
 
 /* CUADRO DE TEXTO OCULTO */
 .dot-card .dot-text {
-    position: absolute;
-    bottom: -60px;
-    left: 0;
-    width: 100%;
-    padding: 12px;
-    background: rgba(0, 0, 0, 0.75);
-    color: #d4af37;
-    text-align: center;
-    font-weight: bold;
-    transition: bottom 0.3s ease;
-    font-size: 1rem;
+  position: absolute;
+  bottom: -60px;
+  left: 0;
+  width: 100%;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #d4af37;
+  text-align: center;
+  font-weight: bold;
+  transition: bottom 0.3s ease;
+  font-size: 1rem;
 }
 
 /* EFECTO AL PASAR EL CURSOR */
 .dot-card:hover .dot-text {
-    bottom: 0;
+  bottom: 0;
 }
 
 .dot-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5);
+  transform: translateY(-8px);
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5);
 }
 
 /* Cuadro moderno para el Control Center */
 .navbar .control-center-box {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #d4af37;  /* color dorado */
-    color: #111 !important;
-    font-weight: bold;
-    padding: 10px 18px;
-    border-radius: 8px;   /* ligeramente redondeado */
-    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-    transition: all 0.3s ease;
-    margin-left: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #d4af37; /* color dorado */
+  color: #111 !important;
+  font-weight: bold;
+  padding: 10px 18px;
+  border-radius: 8px; /* ligeramente redondeado */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease;
+  margin-left: 15px;
 }
 
 .navbar .control-center-box i {
-    margin-right: 8px;
-    font-size: 1.1rem;
+  margin-right: 8px;
+  font-size: 1.1rem;
 }
 
 .navbar .control-center-box:hover {
-    background: #fff;
-    color: #111 !important;
-    box-shadow: 0 8px 25px rgba(212,175,55,0.5);
-    transform: translateY(-3px);
+  background: #fff;
+  color: #111 !important;
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5);
+  transform: translateY(-3px);
 }
-
 
 /* ================================
    RESPONSIVE
 ==================================*/
 @media (max-width: 768px) {
-    .hero h1 {
-        font-size: 2.2rem;
-    }
-    .hero {
-        height: 75vh;
-    }
-    .section-title {
-        font-size: 30px;
-    }
-    .dot-card img {
-        height: 220px;
-    }
+  .hero h1 {
+    font-size: 2.2rem;
+  }
+  .hero {
+    min-height: 85vh;
+    height: auto;
+    padding-top: 80px;
+    padding-bottom: 50px;
+  }
+  .section-title {
+    font-size: 30px;
+  }
+  .dot-card img {
+    height: 220px;
+  }
 }
 
 @media (max-width: 576px) {
-    .hero h1 {
-        font-size: 1.8rem;
-    }
-    .hero p {
-        font-size: 1rem;
-    }
+  .hero h1 {
+    font-size: 1.8rem;
+  }
+  .hero p {
+    font-size: 1rem;
+  }
 }
 
 #chatbotBtn {
-    animation: bounce 1.8s infinite;
+  animation: bounce 1.8s infinite;
 }
 
 @keyframes bounce {
-    0%, 100% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(-8px);
-    }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
 }
 
 /* BOTÓN FLOTANTE */
 #chatbotBtn {
-    position: fixed;
-    bottom: 25px;
-    right: 25px;
-    background: #C9A227; /* Dorado */
-    color: #000000; /* Negro */
-    border-radius: 50%;
-    width: 65px;
-    height: 65px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 28px;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    z-index: 9999;
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  background: #c9a227; /* Dorado */
+  color: #000000; /* Negro */
+  border-radius: 50%;
+  width: 65px;
+  height: 65px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 28px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 9999;
 }
 
 /* VENTANA DEL CHAT */
 #chatWindow {
-    position: fixed;
-    bottom: 100px;
-    right: 25px;
-    width: 350px;
-    height: 450px;
-    background: #FFFFFF; /* Blanco */
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.25);
-    z-index: 9999;
-    display: none;
-    flex-direction: column;
-    overflow: hidden;
+  position: fixed;
+  bottom: 100px;
+  right: 25px;
+  width: 350px;
+  height: 450px;
+  background: #ffffff; /* Blanco */
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+  z-index: 9999;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* CABECERA DEL CHAT */
 #chatHeader {
-    background: #000000; /* Negro */
-    padding: 12px;
-    color: #C9A227; /* Dorado */
-    font-weight: bold;
-    text-align: center;
-    border-bottom: 3px solid #C9A227;
+  background: #000000; /* Negro */
+  padding: 12px;
+  color: #c9a227; /* Dorado */
+  font-weight: bold;
+  text-align: center;
+  border-bottom: 3px solid #c9a227;
 }
 
 /* CUERPO DEL CHAT */
 #chatBody {
-    flex: 1;
-    padding: 10px;
-    overflow-y: auto;
-    background: #FFFFFF; /* Blanco */
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  background: #ffffff; /* Blanco */
 }
 
 /* MENSAJES */
 .msg {
-    padding: 8px 12px;
-    border-radius: 10px;
-    margin: 6px 0;
-    max-width: 85%;
+  padding: 8px 12px;
+  border-radius: 10px;
+  margin: 6px 0;
+  max-width: 85%;
 }
 
 /* Mensaje del BOT */
 .bot {
-    background: #F3E7C7; /* Blanco con toque dorado */
-    color: #000000; /* Negro */
-    align-self: flex-start;
+  background: #f3e7c7; /* Blanco con toque dorado */
+  color: #000000; /* Negro */
+  align-self: flex-start;
 }
 
 /* Mensaje del USUARIO */
 .user {
-    background: #C9A227; /* Dorado */
-    color: #000000; /* Negro */
-    font-weight: bold;
-    align-self: flex-end;
+  background: #c9a227; /* Dorado */
+  color: #000000; /* Negro */
+  font-weight: bold;
+  align-self: flex-end;
 }
 
 /* INPUT */
 #chatInputBox {
-    display: flex;
-    border-top: 1px solid #ddd;
-    background: #FFFFFF;
+  display: flex;
+  border-top: 1px solid #ddd;
+  background: #ffffff;
 }
 
 #chatInput {
-    flex: 1;
-    padding: 10px;
-    border: none;
-    outline: none;
-    color: #000000;
+  flex: 1;
+  padding: 10px;
+  border: none;
+  outline: none;
+  color: #000000;
 }
 
 #sendBtn {
-    width: 70px;
-    background: #C9A227; /* Dorado */
-    color: #000000; /* Negro */
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
+  width: 70px;
+  background: #c9a227; /* Dorado */
+  color: #000000; /* Negro */
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
 }
 
 /* BOTONES DE OPCIONES */
 .option-btn {
-    background: #000000; /* Negro */
-    color: #FFFFFF;      /* Blanco */
-    padding: 8px;
-    margin: 6px 0;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    width: 100%;
-    font-weight: bold;
-    border: 2px solid #C9A227; /* Borde dorado */
+  background: #000000; /* Negro */
+  color: #ffffff; /* Blanco */
+  padding: 8px;
+  margin: 6px 0;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  font-weight: bold;
+  border: 2px solid #c9a227; /* Borde dorado */
 }
 
 .option-btn:hover {
-    background: #C9A227;
-    color: #000000;
+  background: #c9a227;
+  color: #000000;
 }
 
 /* BOTÓN WHATSAPP */
 .whatsapp-btn {
-    background: #25D366; /* Verde WhatsApp */
-    color: #FFFFFF; /* Blanco */
-    padding: 10px;
-    margin-top: 10px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    width: 100%;
-    font-weight: bold;
+  background: #25d366; /* Verde WhatsApp */
+  color: #ffffff; /* Blanco */
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  font-weight: bold;
 }
 
 .whatsapp-btn:hover {
-    background: #1ebe57;
+  background: #1ebe57;
+}
+
+/* ================================
+   SWEETALERT2 DARK MODE COMPATIBILITY
+==================================*/
+div:where(.swal2-container) div:where(.swal2-popup) {
+  background: #111 !important;
+  border: 1px solid #d4af37 !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8) !important;
+  border-radius: 15px !important;
+}
+
+div:where(.swal2-container) .swal2-title,
+div:where(.swal2-container) .swal2-html-container {
+  color: #e0e0e0 !important;
+}
+
+div:where(.swal2-container) .swal2-icon.swal2-success {
+  border-color: #d4af37 !important;
+  color: #d4af37 !important;
+}
+
+div:where(.swal2-container) .swal2-icon.swal2-error {
+  border-color: #e74c3c !important;
+  color: #e74c3c !important;
+}
+
+div:where(.swal2-container) .swal2-confirm {
+  background-color: #d4af37 !important;
+  color: #000 !important;
+  border-radius: 8px !important;
+  font-weight: bold !important;
+  box-shadow: none !important;
+}
+
+div:where(.swal2-container) .swal2-confirm:focus {
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.5) !important;
+}
+
+div:where(.swal2-container) .swal2-cancel {
+  background-color: #333 !important;
+  color: #fff !important;
+  border-radius: 8px !important;
 }

@@ -153,7 +153,7 @@ body {
     padding: 30px 20px 20px; /* Refined mobile padding */
   }
   .admin-wrapper {
-    padding-top: 80px; /* Increased to avoid overlapping fixed navbar */
+    padding-top: 130px; /* Increased to avoid overlapping fixed navbar */
   }
 
   /* Center content on tablets */
@@ -211,6 +211,8 @@ body {
   .container-fluid {
     width: 100%;
     max-width: 100%;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
   }
 
   /* Center stat cards */
@@ -238,15 +240,82 @@ body {
   .stat-card {
     margin-top: 0; /* Reset since we're using column margin */
   }
+
+  /* CENTRADO DE GESTIÓN DE USUARIOS (Mobile) */
+  #usersManagementSection .text-start {
+    text-align: center !important;
+  }
+
+  #usersManagementSection h2 {
+    justify-content: center !important;
+    text-align: center;
+    width: 100%;
+  }
+
+  #userRoleFilters {
+    justify-content: center !important;
+  }
+
+  #usersManagementSection .row.align-items-center {
+    justify-content: center;
+  }
+
+  /* FORCE CENTER EVERYTHING ON MOBILE */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    text-align: center !important;
+  }
+
+  .d-flex.justify-content-between {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 10px;
+  }
+
+  /* Reset for modal headers to keep them inline */
+  .modal-header .d-flex.justify-content-between {
+    flex-direction: row !important;
+  }
+
+  /* Ensure profile card text is center */
+  #userProfileCard .d-flex {
+    flex-direction: column !important;
+    text-align: center !important;
+  }
+
+  .profile-avatar {
+    margin-right: 0 !important;
+    margin-bottom: 15px;
+  }
+
+  /* Stat cards centered content */
+  .stat-card {
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+  }
+  /* Fix icons in stat cards when column */
+  .stat-card-icon {
+    margin-bottom: 15px;
+  }
+
+  /* Chart titles */
+  .job-card h5 {
+    text-align: center !important;
+  }
 }
 
 @media (max-width: 576px) {
   .main-content {
-    padding: 15px 10px 15px; /* Tighter padding for very small screens */
+    padding: 20px 35px 40px 20px; /* Extra right padding as requested */
   }
 
   .admin-wrapper {
-    padding-top: 90px; /* Even more padding for small mobile navbars */
+    padding-top: 150px; /* Even more padding for small mobile navbars */
   }
 
   h1,
@@ -259,8 +328,8 @@ body {
 
   /* Enhanced spacing for stat cards on small screens */
   .stat-card {
-    padding: 15px;
-    margin-bottom: 15px; /* Add bottom margin for extra separation */
+    padding: 20px 15px; /* Taller vertical, tighter horizontal */
+    margin-bottom: 0;
   }
 
   .stat-card-icon {
@@ -321,14 +390,40 @@ body {
   /* Center action buttons */
   .action-buttons {
     width: 100%;
+    display: flex;
     justify-content: center;
     padding-left: 0;
+    margin-bottom: 20px;
   }
 
   .action-buttons button {
-    flex: 1;
-    min-width: 140px;
-    max-width: 200px;
+    width: 100%;
+    max-width: 300px; /* Limit width */
+    margin: 0 auto;
+    display: block;
+    padding: 12px;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 1px;
+  }
+
+  /* Filter Container Layout */
+  #globalFilterContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+  }
+
+  .filter-container .row {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .filter-container .col-md-4,
+  .filter-container .col-md-8 {
+    width: 100%;
   }
 
   /* Center dashboard sections */
@@ -353,11 +448,31 @@ body {
   }
 
   /* Extra spacing for stat cards on very small screens */
+  /* Force row to stack vertically and center items */
+  .row.g-4 {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+
+  /* Force columns to have a fixed max-width and center - EVEN SMALLER & CENTERED */
   .row.g-4 .col-xl-3,
   .row.g-4 .col-md-6,
-  .row.g-4 .col-lg-6 {
-    margin-top: 25px !important; /* Increased spacing */
-    margin-bottom: 10px;
+  .row.g-4 .col-lg-6,
+  .row.g-4 .col-12 {
+    width: 100% !important;
+    max-width: 260px !important; /* Smaller size as requested */
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-bottom: 25px !important;
+    padding: 0 !important;
+  }
+
+  .stat-card,
+  .job-card {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    width: 100% !important; /* Take full width of the constrained column */
   }
 
   /* Keep first card without top margin */
@@ -365,9 +480,65 @@ body {
     margin-top: 0 !important;
   }
 
-  /* Maintain dashboard margin-top on mobile */
+  /* REFINED JOB CARD FOR MOBILE */
+  .card-job {
+    text-align: center !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .card-job .card-body {
+    width: 100%;
+  }
+
+  .card-job .card-title {
+    color: #d4af37 !important;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    padding-bottom: 10px;
+    width: 100%;
+  }
+
+  /* Force vertical list style for fields */
+  .card-job p {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+
+  .card-job p strong {
+    color: #fff;
+    margin-bottom: 2px;
+  }
+
+  /* Action buttons container */
+  .card-job .d-flex {
+    justify-content: center !important;
+    width: 100%;
+    gap: 10px;
+  }
+
+  /* Specific Button Styling for Mobile Card */
+  .btn-edit {
+    background-color: #d4af37 !important;
+    color: #000 !important;
+    width: auto !important;
+    min-width: 100px;
+  }
+
+  .btn-delete {
+    background-color: #8b0000 !important;
+    color: #fff !important;
+    width: auto !important;
+    min-width: 100px;
+  }
+
+  /* Adjust dashboard margin-top on mobile to account for stacked header */
   #dashboardSection {
-    margin-top: -50px !important;
+    margin-top: 20px !important;
   }
 }
 
@@ -1529,6 +1700,27 @@ main {
   font-size: 0.95rem;
 }
 
+@media (max-width: 576px) {
+  /* Force Modern Card Style on Mobile */
+  .stat-card-icon {
+    background-color: rgba(212, 175, 55, 0.1) !important;
+    color: #d4af37 !important;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    margin-bottom: 10px;
+  }
+
+  .stat-card {
+    background: linear-gradient(
+      145deg,
+      rgba(20, 20, 20, 0.9),
+      rgba(10, 10, 10, 0.95)
+    );
+    border-radius: 20px;
+  }
+}
+
 .text-gold {
   color: #d4af37 !important;
 }
@@ -1973,4 +2165,92 @@ main {
 
 .admin-option-sub {
   color: rgba(255, 255, 255, 0.5);
+}
+/* GESTIÓN DE USUARIOS - NUEVOS ESTILOS */
+.bg-gold-gradient {
+  background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+}
+
+.shadow-gold {
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+
+.premium-search {
+  position: relative;
+  width: 100%;
+}
+
+.search-icon-gold {
+  position: absolute;
+  top: 50%;
+  left: 15px;
+  transform: translateY(-50%);
+  color: #d4af37;
+  font-size: 1.1rem;
+  z-index: 5;
+}
+
+.search-input-glass {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(212, 175, 55, 0.3) !important;
+  color: #fff !important;
+  border-radius: 50px !important;
+  padding: 12px 20px 12px 45px !important; /* pl-45 for icon */
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.search-input-glass:focus {
+  background: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.2) !important;
+  border-color: #d4af37 !important;
+}
+
+.filter-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #aaa;
+  padding: 8px 16px;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.filter-btn:hover,
+.filter-btn.active {
+  background: #d4af37;
+  color: #000;
+  border-color: #d4af37;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+}
+
+/* User Card Styling */
+.card-user {
+  background: rgba(25, 25, 25, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  border-radius: 15px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.card-user:hover {
+  transform: translateY(-5px);
+  border-color: #d4af37;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.user-avatar {
+  width: 60px;
+  height: 60px;
+  background: #d4af37;
+  color: #000;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-right: 15px;
 }

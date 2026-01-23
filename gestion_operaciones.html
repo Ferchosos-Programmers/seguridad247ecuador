@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
@@ -28,7 +28,9 @@
     <!-- NAVBAR -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
       <div class="container">
-        <a class="navbar-brand" href="#">SEGURIDAD 24/7 ECUADOR</a>
+        <a class="navbar-brand" href="#"
+          >SEGURIDAD 24/7 <span class="d-none d-sm-inline">ECUADOR</span></a
+        >
 
         <button class="navbar-toggler" type="button" id="sidebarToggle">
           <span class="navbar-toggler-icon"></span>
@@ -1029,7 +1031,11 @@
                           max-width: 50%;
                           margin: 0 auto;
                         "
-                        onclick="openImageFullscreen(document.getElementById('reportProblemImage').src)"
+                        onclick="
+                          openImageFullscreen(
+                            document.getElementById('reportProblemImage').src,
+                          )
+                        "
                       >
                         <img
                           id="reportProblemImage"
@@ -1041,8 +1047,8 @@
                             display: block;
                             transition: transform 0.3s;
                           "
-                          onmouseover="this.style.transform='scale(1.05)'"
-                          onmouseout="this.style.transform='scale(1)'"
+                          onmouseover="this.style.transform = 'scale(1.05)'"
+                          onmouseout="this.style.transform = 'scale(1)'"
                         />
                       </div>
                       <small
@@ -1307,8 +1313,8 @@
                             filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
                             transition: transform 0.3s;
                           "
-                          onmouseover="this.style.transform='scale(1.05)'"
-                          onmouseout="this.style.transform='scale(1)'"
+                          onmouseover="this.style.transform = 'scale(1.05)'"
+                          onmouseout="this.style.transform = 'scale(1)'"
                         />
                       </div>
                     </div>
@@ -1365,8 +1371,8 @@
                             filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
                             transition: transform 0.3s;
                           "
-                          onmouseover="this.style.transform='scale(1.05)'"
-                          onmouseout="this.style.transform='scale(1)'"
+                          onmouseover="this.style.transform = 'scale(1.05)'"
+                          onmouseout="this.style.transform = 'scale(1)'"
                         />
                       </div>
                     </div>
@@ -1402,8 +1408,14 @@
                 width: 100%;
                 text-transform: uppercase;
               "
-              onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 30px rgba(212, 175, 55, 0.7)';"
-              onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(212, 175, 55, 0.5)';"
+              onmouseover="
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 6px 30px rgba(212, 175, 55, 0.7)';
+              "
+              onmouseout="
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '0 4px 20px rgba(212, 175, 55, 0.5)';
+              "
             >
               <i class="fa-solid fa-file-pdf me-2"></i>
               GENERAR PDF
@@ -1530,7 +1542,7 @@
             select
               .empty()
               .append(
-                '<option value="" disabled selected>Seleccione un administrador...</option>'
+                '<option value="" disabled selected>Seleccione un administrador...</option>',
               );
 
             snapshot.forEach((doc) => {
@@ -1597,7 +1609,7 @@
               $el
                 .empty()
                 .append(
-                  '<option value="" disabled selected>Seleccione un conjunto...</option>'
+                  '<option value="" disabled selected>Seleccione un conjunto...</option>',
                 );
 
               snapshot.forEach((doc) => {
@@ -1641,7 +1653,7 @@
 
           const jobsSnap = await db.collection("trabajos").get();
           const realJobsCount = jobsSnap.docs.filter(
-            (doc) => !doc.data().isGuide
+            (doc) => !doc.data().isGuide,
           ).length;
           document.getElementById("statTotalJobs").textContent = realJobsCount;
         }
@@ -1700,7 +1712,7 @@
           document.getElementById("registriesComplexName").textContent =
             complexName;
           const modal = new bootstrap.Modal(
-            document.getElementById("viewRegistriesModal")
+            document.getElementById("viewRegistriesModal"),
           );
           modal.show();
 
@@ -1756,7 +1768,7 @@
               const maxRows = Math.max(
                 data.residents ? data.residents.length : 0,
                 data.vehicles ? data.vehicles.length : 0,
-                1
+                1,
               );
 
               // Flag to handle cases with 1 vehicle but multiple residents (rowspan)
@@ -1779,8 +1791,8 @@
                 if (i === 0) {
                   tableHTML += `
                           <td class="text-center fw-bold text-gold" rowspan="${maxRows}">${
-                    data.houseNum
-                  }</td>
+                            data.houseNum
+                          }</td>
                           <td class="text-center align-middle" rowspan="${maxRows}">
                             <span class="badge ${
                               data.resType === "PROPIETARIO"
@@ -1805,7 +1817,7 @@
                   const cleanPhone = resident.phone.replace(/\D/g, "");
                   const residentName = resident.name || "";
                   const whatsappMessage = encodeURIComponent(
-                    `Hola ${residentName}, le saludamos de Seguridad 24/7 Ecuador.`
+                    `Hola ${residentName}, le saludamos de Seguridad 24/7 Ecuador.`,
                   );
                   tableHTML += `
                           <td class="text-center">
@@ -1978,7 +1990,7 @@
               data.resType || "propietario";
 
             const residentsContainer = document.getElementById(
-              "editResidentsContainer"
+              "editResidentsContainer",
             );
             residentsContainer.innerHTML = "";
             if (data.residents && data.residents.length > 0) {
@@ -1988,7 +2000,7 @@
             }
 
             const vehiclesContainer = document.getElementById(
-              "editVehiclesContainer"
+              "editVehiclesContainer",
             );
             vehiclesContainer.innerHTML = "";
             if (data.vehicles && data.vehicles.length > 0) {
@@ -1997,7 +2009,7 @@
 
             Swal.close();
             const editModal = new bootstrap.Modal(
-              document.getElementById("editRegistryModal")
+              document.getElementById("editRegistryModal"),
             );
             editModal.show();
           } catch (error) {
@@ -2023,7 +2035,7 @@
                 Swal.fire(
                   "¡Eliminado!",
                   "El registro ha sido eliminado.",
-                  "success"
+                  "success",
                 );
                 verRegistros(complexName); // Refrescar tabla
               } catch (error) {
@@ -2108,10 +2120,10 @@
               Swal.fire(
                 "¡Éxito!",
                 "Registro actualizado correctamente.",
-                "success"
+                "success",
               );
               bootstrap.Modal.getInstance(
-                document.getElementById("editRegistryModal")
+                document.getElementById("editRegistryModal"),
               ).hide();
               verRegistros(complexName); // Refrescar tabla
             } catch (error) {
@@ -2149,11 +2161,11 @@
               Swal.fire(
                 "¡Éxito!",
                 "El conjunto ha sido registrado correctamente.",
-                "success"
+                "success",
               );
 
               const modal = bootstrap.Modal.getInstance(
-                document.getElementById("addComplexModal")
+                document.getElementById("addComplexModal"),
               );
               modal.hide();
 
@@ -2190,7 +2202,7 @@
             Swal.fire(
               "Acceso Exitoso",
               `Conectado al servidor de video de ${name}`,
-              "success"
+              "success",
             );
           });
         };
@@ -2361,8 +2373,8 @@
               job.jobUrgency === "Normal"
                 ? "badge-normal"
                 : job.jobUrgency === "Urgente"
-                ? "badge-urgente"
-                : "badge-critico";
+                  ? "badge-urgente"
+                  : "badge-critico";
 
             container.innerHTML += `
               <div class="col-xl-4 col-md-6">
@@ -2505,7 +2517,7 @@
                   console.log(
                     "✅ Imagen convertida a Base64 (tamaño:",
                     jobImageUrl.length,
-                    "caracteres)"
+                    "caracteres)",
                   );
                 } catch (resizeError) {
                   console.error("❌ Error al procesar imagen:", resizeError);
@@ -2573,13 +2585,13 @@
 
                 window.open(
                   `https://wa.me/?text=${encodeURIComponent(message)}`,
-                  "_blank"
+                  "_blank",
                 );
               });
 
               e.target.reset();
               bootstrap.Modal.getInstance(
-                document.getElementById("addJobModal")
+                document.getElementById("addJobModal"),
               ).hide();
               cargarTrabajos();
             } catch (error) {
@@ -2628,7 +2640,7 @@
               await db.collection("trabajos").doc(id).update(updatedData);
               Swal.fire("¡Éxito!", "Trabajo actualizado.", "success");
               bootstrap.Modal.getInstance(
-                document.getElementById("editJobModal")
+                document.getElementById("editJobModal"),
               ).hide();
               cargarTrabajos();
             } catch (error) {
@@ -2685,10 +2697,10 @@
 
             // Populate Initial Problem Section
             const problemSection = document.getElementById(
-              "initialProblemSection"
+              "initialProblemSection",
             );
             const problemDesc = document.getElementById(
-              "reportProblemDescription"
+              "reportProblemDescription",
             );
             const problemImg = document.getElementById("reportProblemImage");
 
@@ -2699,12 +2711,12 @@
 
               if (data.jobImageUrl) {
                 document.getElementById(
-                  "reportProblemImageContainer"
+                  "reportProblemImageContainer",
                 ).style.display = "block";
                 problemImg.src = data.jobImageUrl;
               } else {
                 document.getElementById(
-                  "reportProblemImageContainer"
+                  "reportProblemImageContainer",
                 ).style.display = "none";
                 problemImg.src = "";
               }
@@ -2714,10 +2726,10 @@
 
             // Manejar Firmas
             const signaturesSection = document.getElementById(
-              "reportSignaturesSection"
+              "reportSignaturesSection",
             );
             const signatureImg = document.getElementById(
-              "reportClientSignature"
+              "reportClientSignature",
             );
             if (data.clientSignature) {
               signatureImg.src = data.clientSignature;
@@ -2774,7 +2786,7 @@
               Swal.fire(
                 "Error",
                 "La función de generar PDF no está disponible.",
-                "error"
+                "error",
               );
               btn.disabled = false;
               btn.innerHTML = originalText;
@@ -2792,7 +2804,7 @@
             const filtered = window.allTrabajos.filter(
               (j) =>
                 (val === "todas" || j.jobUrgency === val) &&
-                j.clientName.toLowerCase().includes(search)
+                j.clientName.toLowerCase().includes(search),
             );
             renderTrabajos(filtered);
           });
@@ -2805,13 +2817,13 @@
             const filtered = window.allTrabajos.filter(
               (j) =>
                 (urgency === "todas" || j.jobUrgency === urgency) &&
-                j.clientName.toLowerCase().includes(val)
+                j.clientName.toLowerCase().includes(val),
             );
             renderTrabajos(filtered);
           });
 
         const passwordSearchInput = document.getElementById(
-          "passwordSearchInput"
+          "passwordSearchInput",
         );
         if (passwordSearchInput) {
           passwordSearchInput.addEventListener("input", (e) => {
@@ -2819,7 +2831,7 @@
             const filtered = window.allPasswords.filter(
               (p) =>
                 p.complexName.toLowerCase().includes(val) ||
-                (p.wifiName && p.wifiName.toLowerCase().includes(val))
+                (p.wifiName && p.wifiName.toLowerCase().includes(val)),
             );
             renderClavesTecnicas(filtered);
           });

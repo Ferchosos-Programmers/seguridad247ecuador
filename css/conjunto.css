@@ -525,3 +525,79 @@ body {
 #residentSearch:focus + i {
   color: #d4af37 !important;
 }
+
+/* ==========================================
+   MOBILE OPTIMIZATIONS (RESPONSIVENESS)
+   ========================================== */
+@media (max-width: 768px) {
+  /* 1. Centered Header & smaller buttons */
+  #adminView .d-flex.justify-content-between {
+    flex-direction: column;
+    align-items: center !important;
+    text-align: center;
+    gap: 20px;
+  }
+
+  #adminView .text-start {
+    text-align: center !important;
+  }
+
+  #adminComplexTitle {
+    font-size: 1.8rem !important;
+  }
+
+  #adminView .d-flex.gap-2 {
+    width: 100%;
+    justify-content: center;
+    gap: 10px !important;
+  }
+
+  .btn-premium,
+  .btn-contract {
+    padding: 8px 12px !important;
+    font-size: 0.7rem !important;
+    width: auto;
+    flex: 1; /* Distribute space evenly */
+    justify-content: center;
+  }
+
+  /* 2. Stats cards adjustments */
+  .stat-card-premium {
+    padding: 15px;
+    margin-bottom: 10px;
+  }
+
+  .stat-card-premium .stat-value {
+    font-size: 2rem;
+  }
+
+  /* 3. Horizontal Scrolling for Table */
+  .table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 10px; /* Space for scrollbar */
+  }
+
+  .table-dark-premium {
+    min-width: 900px; /* Force table width to trigger scroll */
+  }
+
+  /* Search bar stack */
+  .stat-card-premium .d-flex.justify-content-between {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .stat-card-premium .position-relative {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Ajuste de márgenes globales */
+  .main-content {
+    padding-top: 150px; /* Aumentado para evitar que el navbar tape el título */
+    padding-bottom: 100px;
+  }
+}

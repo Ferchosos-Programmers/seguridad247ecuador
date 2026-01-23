@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 1. CHECK AUTH AND INITIALIZE VIEW
   console.log("Iniciando protección de ruta clientes...");
-  
+
   // Variables de estado para modo invitado
   window.currentGuestComplex = null;
   window.currentGuestContractId = null;
@@ -26,26 +26,30 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         const doc = await db.collection("users").doc(user.uid).get();
         if (doc.exists) {
-            const userData = doc.data();
-            // Mostrar UI autenticada
-            if (authInfo) authInfo.style.display = "flex";
-            if (noAuthInfo) noAuthInfo.style.display = "none";
-            if (publicSearch) publicSearch.style.display = "none";
-            if (mainContent) mainContent.style.display = "flex";
-            if (profileSection) profileSection.style.display = "block";
+          const userData = doc.data();
+          // Mostrar UI autenticada
+          if (authInfo) authInfo.style.display = "flex";
+          if (noAuthInfo) noAuthInfo.style.display = "none";
+          if (publicSearch) publicSearch.style.display = "none";
+          if (mainContent) mainContent.style.display = "flex";
+          if (profileSection) profileSection.style.display = "block";
 
-            if (userNameDisplay) {
-                userNameDisplay.textContent = userData.adminName || userData.name || user.email.split("@")[0];
-            }
-            
-            const userNameEl = document.getElementById("userName");
-            const userEmailEl = document.getElementById("userEmail");
-            
-            if (userNameEl) userNameEl.textContent = userData.adminName || userData.name || "Administrador Conjunto";
-            if (userEmailEl) userEmailEl.textContent = userData.email || user.email;
+          if (userNameDisplay) {
+            userNameDisplay.textContent =
+              userData.adminName || userData.name || user.email.split("@")[0];
+          }
 
-            loadPayments(user.uid);
-            loadContractData(user.uid);
+          const userNameEl = document.getElementById("userName");
+          const userEmailEl = document.getElementById("userEmail");
+
+          if (userNameEl)
+            userNameEl.textContent =
+              userData.adminName || userData.name || "Administrador Conjunto";
+          if (userEmailEl)
+            userEmailEl.textContent = userData.email || user.email;
+
+          loadPayments(user.uid);
+          loadContractData(user.uid);
         }
       } catch (error) {
         console.error("Error al cargar datos de usuario:", error);
@@ -57,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (publicSearch) publicSearch.style.display = "flex";
       if (mainContent) mainContent.style.display = "none";
       if (profileSection) profileSection.style.display = "none";
-      
+
       initPublicSearch();
     }
   });
@@ -66,82 +70,99 @@ document.addEventListener("DOMContentLoaded", () => {
   function initPublicSearch() {
     const btnEnter = document.getElementById("btnEnterPublic");
     const idInput = document.getElementById("publicIdInput");
-    
+
     if (!btnEnter || !idInput) return;
 
     btnEnter.addEventListener("click", async () => {
-        const idValue = idInput.value.trim();
-        if (!idValue) {
-            Swal.fire("Atención", "Por favor ingresa tu número de cédula o RUC.", "warning");
-            return;
+      const idValue = idInput.value.trim();
+      if (!idValue) {
+        Swal.fire(
+          "Atención",
+          "Por favor ingresa tu número de cédula o RUC.",
+          "warning",
+        );
+        return;
+      }
+
+      Swal.fire({
+        title: "Buscando contrato...",
+        didOpen: () => Swal.showLoading(),
+      });
+
+      try {
+        // Buscar contrato por RUC/Cédula (nombre del campo en DB: clientId)
+        const contractSnapshot = await db
+          .collection("contracts")
+          .where("clientId", "==", idValue)
+          .limit(1)
+          .get();
+
+        if (contractSnapshot.empty) {
+          Swal.fire(
+            "No encontrado",
+            "No se encontró ningún contrato con esa identificación.",
+            "error",
+          );
+          return;
         }
 
+        const contractData = contractSnapshot.docs[0].data();
+        const contractId = contractSnapshot.docs[0].id;
+
+        // Ahora debemos encontrar al administrador (user) asociado a este contrato o conjunto
+        const userSnapshot = await db
+          .collection("users")
+          .where("contractId", "==", contractId)
+          .limit(1)
+          .get();
+
+        if (userSnapshot.empty) {
+          Swal.fire(
+            "Aviso",
+            "Contrato encontrado, pero no hay un perfil de usuario asignado. Contacte a soporte.",
+            "info",
+          );
+          return;
+        }
+
+        const userData = userSnapshot.docs[0].data();
+
+        // Configurar sesión de invitado global
+        window.currentGuestUserId = userSnapshot.docs[0].id;
+        window.currentGuestEmail = userData.email;
+        window.currentGuestComplex = userData.complexName;
+        window.currentGuestContractId = contractId;
+
+        // Mostrar interfaz de pago
+        document.getElementById("publicSearchSection").style.display = "none";
+        document.getElementById("mainPortalContent").style.display = "flex";
+
+        // Cargar datos (estos ya usan currentGuestUserId)
+        loadPayments(window.currentGuestUserId);
+        loadContractData(window.currentGuestUserId);
+
+        Swal.close();
         Swal.fire({
-            title: 'Buscando contrato...',
-            didOpen: () => Swal.showLoading()
+          toast: true,
+          position: "top-end",
+          icon: "success",
+          title: `Bienvenido, ${userData.adminName || userData.name}`,
+          showConfirmButton: false,
+          timer: 3000,
         });
-
-        try {
-            // Buscar contrato por RUC/Cédula (nombre del campo en DB: clientId)
-            const contractSnapshot = await db.collection("contracts")
-                .where("clientId", "==", idValue)
-                .limit(1)
-                .get();
-
-            if (contractSnapshot.empty) {
-                Swal.fire("No encontrado", "No se encontró ningún contrato con esa identificación.", "error");
-                return;
-            }
-
-            const contractData = contractSnapshot.docs[0].data();
-            const contractId = contractSnapshot.docs[0].id;
-
-            // Ahora debemos encontrar al administrador (user) asociado a este contrato o conjunto
-            const userSnapshot = await db.collection("users")
-                .where("contractId", "==", contractId)
-                .limit(1)
-                .get();
-
-            if (userSnapshot.empty) {
-                Swal.fire("Aviso", "Contrato encontrado, pero no hay un perfil de usuario asignado. Contacte a soporte.", "info");
-                return;
-            }
-
-            const userData = userSnapshot.docs[0].data();
-            
-            // Configurar sesión de invitado global
-            window.currentGuestUserId = userSnapshot.docs[0].id;
-            window.currentGuestEmail = userData.email;
-            window.currentGuestComplex = userData.complexName;
-            window.currentGuestContractId = contractId;
-
-            // Mostrar interfaz de pago
-            document.getElementById("publicSearchSection").style.display = "none";
-            document.getElementById("mainPortalContent").style.display = "flex";
-            
-            // Cargar datos (estos ya usan currentGuestUserId)
-            loadPayments(window.currentGuestUserId);
-            loadContractData(window.currentGuestUserId);
-            
-            Swal.close();
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: 'success',
-                title: `Bienvenido, ${userData.adminName || userData.name}`,
-                showConfirmButton: false,
-                timer: 3000
-            });
-
-        } catch (err) {
-            console.error(err);
-            Swal.fire("Error", "Ocurrió un error al consultar la información.", "error");
-        }
+      } catch (err) {
+        console.error(err);
+        Swal.fire(
+          "Error",
+          "Ocurrió un error al consultar la información.",
+          "error",
+        );
+      }
     });
 
     // Enter Key Support
     idInput.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") btnEnter.click();
+      if (e.key === "Enter") btnEnter.click();
     });
   }
 
@@ -180,11 +201,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const amount = parseFloat(document.getElementById("commonAmount").value);
 
     if (!service || !amount) {
-      if (!silent) Swal.fire(
-        "Error",
-        "Por favor selecciona un servicio y un monto válido",
-        "warning"
-      );
+      if (!silent)
+        Swal.fire(
+          "Error",
+          "Por favor selecciona un servicio y un monto válido",
+          "warning",
+        );
       return false;
     }
 
@@ -201,7 +223,7 @@ document.addEventListener("DOMContentLoaded", () => {
       proofUrl: extraData.proofUrl || null,
       date: new Date(),
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      isGuestMode: !user
+      isGuestMode: !user,
     };
 
     try {
@@ -231,14 +253,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
       loadPayments(user.uid);
       return true;
-
     } catch (error) {
       console.error("Error al registrar pago:", error);
-      if (!silent) Swal.fire(
-        "Error",
-        "No se pudo registrar el pago. Intenta más tarde.",
-        "error"
-      );
+      if (!silent)
+        Swal.fire(
+          "Error",
+          "No se pudo registrar el pago. Intenta más tarde.",
+          "error",
+        );
       return false;
     }
   }
@@ -253,34 +275,39 @@ document.addEventListener("DOMContentLoaded", () => {
     payphoneLink.parentNode.replaceChild(newLink, payphoneLink);
 
     newLink.addEventListener("click", async (e) => {
-        e.preventDefault();
-        
+      e.preventDefault();
+
+      Swal.fire({
+        title: "Registrando intención de pago...",
+        text: "Serás redirigido a PayPhone en un momento.",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      // Registrar el pago como pendiente antes de ir al link
+      const success = await processPayment(
+        "Tarjeta",
+        `PayPhone Link - ${serviceName}`,
+        {
+          status: "Pendiente",
+        },
+        true,
+      ); // silent = true
+
+      if (success) {
+        window.open(newLink.href, "_blank");
+        Swal.close();
+
+        // Opcional: mostrar un mensaje de que debe reportar el pago si PayPhone no notifica
         Swal.fire({
-            title: 'Registrando intención de pago...',
-            text: 'Serás redirigido a PayPhone en un momento.',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
+          title: "Redirigido",
+          text: "Se ha abierto PayPhone en una nueva pestaña. Recuerda que una vez realizado el pago, el administrador lo validará para marcarlo como Pagado.",
+          icon: "info",
+          confirmButtonColor: "#d4af37",
         });
-
-        // Registrar el pago como pendiente antes de ir al link
-        const success = await processPayment("Tarjeta", `PayPhone Link - ${serviceName}`, { 
-            status: "Pendiente"
-        }, true); // silent = true
-
-        if (success) {
-            window.open(newLink.href, '_blank');
-            Swal.close();
-            
-            // Opcional: mostrar un mensaje de que debe reportar el pago si PayPhone no notifica
-            Swal.fire({
-              title: "Redirigido",
-              text: "Se ha abierto PayPhone en una nueva pestaña. Recuerda que una vez realizado el pago, el administrador lo validará para marcarlo como Pagado.",
-              icon: "info",
-              confirmButtonColor: "#d4af37"
-            });
-        }
+      }
     });
   }
 
@@ -295,7 +322,7 @@ document.addEventListener("DOMContentLoaded", () => {
         Swal.fire(
           "Requerido",
           "Por favor sube una foto del comprobante",
-          "warning"
+          "warning",
         );
         return;
       }
@@ -376,15 +403,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         html += `
                   <tr>
-                      <td>${dateStr}</td>
-                      <td>${data.service}</td>
-                      <td class="text-gold fw-bold">$${parseFloat(
-                        data.amount
+                      <td data-label="Fecha">${dateStr}</td>
+                      <td data-label="Servicio">${data.service}</td>
+                      <td data-label="Monto" class="text-gold fw-bold">$${parseFloat(
+                        data.amount,
                       ).toFixed(2)}</td>
-                      <td>${data.method}</td>
-                      <td><span class="badge-status ${statusClass}">${
-          data.status
-        }</span></td>
+                      <td data-label="Método">${data.method}</td>
+                      <td data-label="Estado"><span class="badge-status ${statusClass}">${
+                        data.status
+                      }</span></td>
                   </tr>
               `;
       });
@@ -497,27 +524,27 @@ document.addEventListener("DOMContentLoaded", () => {
       const serviceRowClass = isPaid
         ? "row-paid"
         : isPending
-        ? "row-pending-review"
-        : "row-pending";
+          ? "row-pending-review"
+          : "row-pending";
 
       html += `
               <tr class="${serviceRowClass}">
-                  <td>
+                  <td data-label="Pagar">
                        <div class="form-check custom-check">
                            <input class="form-check-input payment-checkbox" type="checkbox" name="paymentSelect" 
                                   id="chk_${i}" value="${amountWithIva.toFixed(
-        2
-      )}" 
+                                    2,
+                                  )}" 
                                   data-service="${serviceLabel}" ${
-        hideCheckbox ? 'style="display:none"' : ""
-      }>
+                                    hideCheckbox ? 'style="display:none"' : ""
+                                  }>
                        </div>
                    </td>
-                   <td class="fw-bold">${dateStr}</td>
-                   <td class="text-gold fw-bold">$${amountWithIva.toFixed(
-                     2
+                   <td data-label="Fecha Límite" class="fw-bold">${dateStr}</td>
+                   <td data-label="Monto (+IVA)" class="text-gold fw-bold">$${amountWithIva.toFixed(
+                     2,
                    )}</td>
-                   <td>${statusBadge}</td>
+                   <td data-label="Estado">${statusBadge}</td>
                </tr>
            `;
     }
