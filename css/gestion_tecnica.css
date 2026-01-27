@@ -599,12 +599,21 @@ h1 {
   .section-title {
     text-align: center !important;
   }
+
+  /* Reduce Notifications Card Size on Mobile - Narrower with margins */
+  .notifications-card {
+    max-width: 330px !important; /* Reduced to make it narrower */
+    width: 85% !important; /* Increased margins (7.5% each side) */
+    margin: 0 auto !important; /* Center horizontally */
+  }
 }
 
 @media (max-width: 576px) {
   .main-content {
-    /* Symmetric padding to ensure true centering */
-    padding: 20px 25px 40px 25px !important;
+    /* Remove horizontal padding to let auto-margins strictly control centering */
+    padding: 20px 0 40px 0 !important;
+    width: 100% !important;
+    overflow-x: hidden; /* Prevent horizontal scroll */
   }
   .admin-wrapper {
     padding-top: 150px;
@@ -633,8 +642,8 @@ h1 {
 
   /* --- FIX FILTERS (STACKING) --- */
   #globalFilterContainer {
-    width: 100% !important;
-    margin-bottom: 20px;
+    width: 90% !important; /* Match card width */
+    margin: 0 auto 20px auto !important;
   }
 
   .filter-container .row {
@@ -690,16 +699,19 @@ h1 {
     margin-bottom: 0;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     border: 1px solid rgba(212, 175, 55, 0.2);
-    width: 100% !important;
+    width: 90% !important; /* Uniform width with margins */
+    max-width: 400px;
+    margin: 0 auto !important;
   }
 
   /* Container adjustments */
   .container-fluid {
-    padding-left: 10px !important;
-    padding-right: 10px !important;
+    padding-left: 0 !important; /* Remove padding to avoid offsets */
+    padding-right: 0 !important;
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 100% !important;
   }
 
   /* Job Cards */
@@ -707,7 +719,9 @@ h1 {
   .job-card {
     padding: 20px !important;
     margin-bottom: 15px;
-    width: 100%;
+    width: 90% !important; /* Uniform width with margins */
+    max-width: 400px;
+    margin: 0 auto 15px auto !important;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -736,11 +750,12 @@ h1 {
 
   .row.g-4 .col-12 {
     width: 100% !important;
-    max-width: 100% !important; /* Allow full width for more space */
-    margin-left: auto !important;
-    margin-right: auto !important;
-    margin-bottom: 25px !important;
+    /* Reset max-width to allow card inside to control width via 90% rule above */
+    max-width: 100% !important;
+    margin: 0 !important;
     padding: 0 !important;
+    display: flex;
+    justify-content: center; /* Ensures the 90% card is centered in the 100% column */
   }
 
   /* Keep first card without top margin */
@@ -752,6 +767,13 @@ h1 {
   #userProfileCard .d-flex {
     flex-direction: column !important;
     text-align: center !important;
+  }
+
+  /* Center notification list items content on mobile */
+  .notification-item {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
   }
 
   .profile-avatar {
