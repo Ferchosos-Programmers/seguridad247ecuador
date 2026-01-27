@@ -236,87 +236,114 @@
 
           <!-- Guías Técnicas Section -->
           <div id="guidesSection" style="display: none">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-              <h2 class="section-title mb-0">Guías Técnicas</h2>
-              <button
-                class="btn btn-gold"
-                data-bs-toggle="modal"
-                data-bs-target="#uploadGuideModal"
-                style="display: none"
-              >
-                <i class="fa-solid fa-cloud-arrow-up me-2"></i> Subir Guía
-              </button>
+            <div
+              class="d-flex flex-column flex-lg-row align-items-center align-items-lg-center justify-content-lg-between gap-3 mb-4"
+            >
+              <!-- Button Container (Left on Desktop) -->
+              <div class="order-2 order-lg-1">
+                <button
+                  class="btn btn-gold"
+                  data-bs-toggle="modal"
+                  data-bs-target="#uploadGuideModal"
+                  style="display: none; width: auto; min-width: 200px"
+                >
+                  <i class="fa-solid fa-cloud-arrow-up me-2"></i> Subir Guía
+                </button>
+              </div>
+
+              <!-- Search Container (Right on Desktop) -->
+              <div class="order-1 order-lg-2 w-100" style="max-width: 500px">
+                <input
+                  type="text"
+                  id="guideSearchInput"
+                  class="form-control modern-input text-center text-lg-start"
+                  placeholder="Buscar por nombre de guía..."
+                />
+              </div>
             </div>
 
-            <div class="guides-search mb-4">
-              <input
-                type="text"
-                id="guideSearchInput"
-                class="form-control modern-input"
-                placeholder="Buscar por nombre de guía..."
-              />
-            </div>
-            <div id="guidesContainer" class="row g-4 mt-3">
-              <p class="text-center text-muted">Cargando guías...</p>
+            <div
+              id="guidesContainer"
+              class="row g-4 mt-3 justify-content-center justify-content-lg-start"
+            >
+              <p class="text-center text-muted w-100">Cargando guías...</p>
             </div>
           </div>
 
           <!-- Tutoriales Section -->
           <div id="tutorialsSection" style="display: none">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-              <h2 class="section-title mb-0">Tutoriales</h2>
-              <button
-                class="btn btn-gold"
-                id="uploadTutorialBtn"
-                data-bs-toggle="modal"
-                data-bs-target="#uploadTutorialModal"
-                style="display: none"
+            <div
+              class="d-flex flex-column flex-lg-row align-items-center align-items-lg-center justify-content-lg-between gap-3 mb-4"
+            >
+              <div class="order-2 order-lg-1">
+                <button
+                  class="btn btn-gold"
+                  id="uploadTutorialBtn"
+                  data-bs-toggle="modal"
+                  data-bs-target="#uploadTutorialModal"
+                  style="display: none; width: auto; min-width: 200px"
+                >
+                  <i class="fa-solid fa-plus me-2"></i> Agregar Tutorial
+                </button>
+              </div>
+
+              <div
+                class="order-1 order-lg-2 w-100 d-flex justify-content-center justify-content-lg-end"
+                style="max-width: 500px"
               >
-                <i class="fa-solid fa-plus me-2"></i> Agregar Tutorial
-              </button>
+                <input
+                  type="text"
+                  id="tutorialSearchInput"
+                  class="form-control modern-input text-center text-lg-start w-100"
+                  placeholder="Buscar tutorial..."
+                />
+              </div>
             </div>
 
-            <div class="guides-search mb-4">
-              <input
-                type="text"
-                id="tutorialSearchInput"
-                class="form-control modern-input"
-                placeholder="Buscar tutorial..."
-              />
-            </div>
-            <div id="tutorialsContainer" class="row g-4 mt-3">
-              <p class="text-center text-muted">Cargando tutoriales...</p>
+            <div
+              id="tutorialsContainer"
+              class="row g-4 mt-3 justify-content-center justify-content-lg-start"
+            >
+              <p class="text-center text-muted w-100">Cargando tutoriales...</p>
             </div>
           </div>
 
           <!-- Gestión de Claves Section -->
           <div id="passwordsSection" style="display: none">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-              <h2 class="section-title mb-0">Gestión de Claves Técnicas</h2>
-              <button
-                class="btn btn-gold"
-                id="addPasswordBtn"
-                data-bs-toggle="modal"
-                data-bs-target="#addPasswordModal"
+            <div
+              class="d-flex flex-column flex-lg-row align-items-center align-items-lg-center justify-content-lg-between gap-3 mb-4"
+            >
+              <div class="order-2 order-lg-1">
+                <button
+                  class="btn btn-gold"
+                  id="addPasswordBtn"
+                  data-bs-toggle="modal"
+                  data-bs-target="#addPasswordModal"
+                  style="width: auto; min-width: 200px"
+                >
+                  <i class="fa-solid fa-plus me-2"></i> Agregar Nueva Clave
+                </button>
+              </div>
+
+              <div
+                class="order-1 order-lg-2 w-100 d-flex justify-content-center justify-content-lg-end"
+                style="max-width: 500px"
               >
-                <i class="fa-solid fa-plus me-2"></i> Agregar Nueva Clave
-              </button>
+                <input
+                  type="text"
+                  id="passwordSearchInput"
+                  class="form-control modern-input text-center text-lg-start w-100"
+                  placeholder="Buscar por conjunto o dispositivo..."
+                />
+              </div>
             </div>
 
-            <div class="guides-search mb-4">
-              <input
-                type="text"
-                id="passwordSearchInput"
-                class="form-control modern-input"
-                placeholder="Buscar por conjunto o dispositivo..."
-              />
-            </div>
             <div
               id="passwordsContainer"
-              class="row g-4"
+              class="row g-4 justify-content-center justify-content-lg-start"
               style="margin-top: 20px"
             >
-              <p class="text-center text-muted">Cargando claves...</p>
+              <p class="text-center text-muted w-100">Cargando claves...</p>
             </div>
           </div>
 

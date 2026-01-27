@@ -263,6 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const urgencyFilterContainer = document.getElementById(
         "urgencyFilterContainer"
       );
+      const dynamicSectionTitle = document.getElementById("dynamicSectionTitle");
 
       if (
         !dashboardSection ||
@@ -282,6 +283,7 @@ document.addEventListener("DOMContentLoaded", () => {
       passwordsSection.style.display = "none";
       globalFilterContainer.style.display = "none";
       urgencyFilterContainer.style.display = "none";
+      if (dynamicSectionTitle) dynamicSectionTitle.style.display = "none";
 
       if (view === "dashboard") {
         dashboardSection.style.display = "block";
@@ -290,25 +292,45 @@ document.addEventListener("DOMContentLoaded", () => {
         jobsSection.style.display = "block";
         globalFilterContainer.style.display = "block";
         urgencyFilterContainer.style.display = "block";
+        if (dynamicSectionTitle) {
+            dynamicSectionTitle.textContent = "Gestión de Trabajos";
+            dynamicSectionTitle.style.display = "block";
+        }
         if (!window.trabajosLoaded) cargarTrabajosTecnicos();
         else renderTrabajosTecnicos(window.allTrabajos);
       } else if (view === "contracts") {
         contractsSection.style.display = "block";
         globalFilterContainer.style.display = "block";
+        if (dynamicSectionTitle) {
+            dynamicSectionTitle.textContent = "Contratos Disponibles";
+            dynamicSectionTitle.style.display = "block";
+        }
         if (!window.contratosLoaded) cargarContratosTecnicos();
         else renderContratosTecnicos(window.allContratos);
       } else if (view === "guides") {
         guidesSection.style.display = "block";
+        if(dynamicSectionTitle) {
+            dynamicSectionTitle.textContent = "Guías Técnicas";
+            dynamicSectionTitle.style.display = "block";
+        }
         if (!window.guidesLoaded) cargarGuiasTecnicas();
         else renderGuiasTecnicas(window.allGuides);
       } else if (view === "tutorials") {
         tutorialsSection.style.display = "block";
+        if(dynamicSectionTitle) {
+            dynamicSectionTitle.textContent = "Tutoriales";
+            dynamicSectionTitle.style.display = "block";
+        }
         if (!window.tutorialsLoaded) cargarTutorialesTecnicos();
         else renderTutorialesTecnicos(window.allTutorials);
       } else if (view === "passwords") {
         passwordsSection.style.display = "block";
+        if(dynamicSectionTitle) {
+            dynamicSectionTitle.textContent = "Claves Técnicas";
+            dynamicSectionTitle.style.display = "block";
+        }
 
-        // Controlar visibilidad del botón "Agregar Nueva Clave" (Permitido para jefe y obrero)
+        // Controlar visibilidad del botón "Agregar Nueva Clave"
         const addPasswordBtn = document.getElementById("addPasswordBtn");
         const subRole = window.actualUserData?.subRole || "";
         if (addPasswordBtn) {
@@ -2079,10 +2101,9 @@ function renderGuiasTecnicas(guidesList) {
           ${
             subRole === "tecnico-jefe"
               ? `
-          <button class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2" 
+          <button class="card-action-btn btn-delete position-absolute top-0 end-0 m-2" 
                   onclick="eliminarGuia('${guide.id}', '${guide.name}')" 
-                  title="Eliminar Guía"
-                  style="z-index: 10; background: rgba(0,0,0,0.5);">
+                  title="Eliminar Guía">
             <i class="fa-solid fa-trash"></i>
           </button>
           `
@@ -2382,23 +2403,20 @@ function renderTutorialesTecnicos(tutorialsList) {
             }</h5>
             <div class="d-flex gap-2 justify-content-center align-items-center">
               <span class="badge bg-secondary">${tutorial.category.toUpperCase()}</span>
-              <span class="badge ${
-                tutorial.tutorialType === "video" ? "bg-success" : "bg-danger"
-              }">${tutorial.tutorialType.toUpperCase()}</span>
-              
-              ${
-                subRole === "tecnico-jefe"
-                  ? `
-              <button class="btn btn-sm btn-danger ms-2" 
-                      onclick="eliminarTutorial('${tutorial.id}', '${tutorial.title}')" 
-                      title="Eliminar Tutorial">
-                <i class="fa-solid fa-trash"></i>
-              </button>
-              `
-                  : ""
-              }
             </div>
           </div>
+          ${
+            subRole === "tecnico-jefe"
+              ? `
+          <button class="card-action-btn btn-delete position-absolute top-0 end-0 m-2" 
+                  onclick="eliminarTutorial('${tutorial.id}', '${tutorial.title}')" 
+                  title="Eliminar Tutorial"
+                  style="z-index: 10;">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+          `
+              : ""
+          }
         </div>
       </div>
     `;
@@ -2643,12 +2661,12 @@ function renderClavesTecnicas(passwordsList) {
                 
                 <div class="col-12 border-top border-secondary my-2"></div>
                 
-                <div class="col-6 border-end border-secondary pe-2">
+                <div class="col-12 col-sm-6 mb-3 mb-sm-0">
                   <div class="mb-2">
                     <span class="text-white-50 x-small d-block">Wifi: ${
                       pass.wifiName || "N/A"
                     }</span>
-                    <span class="text-gold small font-monospace">${
+                    <span class="text-gold small font-monospace d-block text-break">${
                       pass.wifiPass || "---"
                     }</span>
                   </div>
@@ -2656,16 +2674,16 @@ function renderClavesTecnicas(passwordsList) {
                     <span class="text-white-50 x-small d-block">Cámaras (${
                       pass.camBrand || "N/A"
                     }):</span>
-                    <span class="text-white small font-monospace">${
+                    <span class="text-white small font-monospace d-block text-break">${
                       pass.camPass || "---"
                     }</span>
                   </div>
                 </div>
                 
-                <div class="col-6 ps-2">
-                  <span class="text-white-50 x-small d-block">Observaciones:</span>
-                  <div class="text-white-50 x-small" style="line-height:1.2; font-style: italic;">
-                    ${pass.notes || '<span class="text-muted">Sin notas</span>'}
+                <div class="col-12 col-sm-6 ps-sm-2 border-top border-sm-0 border-start-sm border-secondary pt-3 pt-sm-0">
+                  <span class="text-white-50 x-small d-block mb-1">OBSERVACIONES:</span>
+                  <div class="text-white-50 x-small text-break" style="line-height:1.3; font-style: italic;">
+                    ${pass.notes ? pass.notes.replace(/\n/g, '<br>') : '<span class="text-muted">Sin notas</span>'}
                   </div>
                 </div>
               </div>

@@ -298,10 +298,32 @@ h1 {
   margin-bottom: 2rem;
 }
 
+/* CENTER TITLES STRICTLY - MOBILE ONLY */
+@media (max-width: 991px) {
+  h1,
+  h2,
+  .section-title,
+  #dynamicSectionTitle {
+    text-align: center !important;
+  }
+
+  .section-title {
+    position: relative;
+    display: inline-block;
+    padding-bottom: 10px;
+    width: 100%;
+  }
+
+  /* Fix underline centering on mobile */
+  .section-title::after,
+  #dynamicSectionTitle::after {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+}
+
+/* Default Desktop Styles (Left Aligned) */
 .section-title {
-  color: #d4af37;
-  font-weight: 700;
-  font-size: 1.5rem;
   position: relative;
   display: inline-block;
   padding-bottom: 10px;
@@ -316,6 +338,22 @@ h1 {
   height: 3px;
   background: #d4af37;
   border-radius: 2px;
+}
+
+#dynamicSectionTitle {
+  color: #d4af37;
+  font-weight: 700;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  /* Centered by default due to HTML structure but overridden if needed */
+  text-align: center; /* Dynamic title usually sits above grid, keeping it center looks good, but can be left */
+}
+
+/* Override dynamic title for desktop if strict left is needed */
+@media (min-width: 992px) {
+  #dynamicSectionTitle {
+    text-align: center; /* Keep dynamic title centered as it spans full width usually */
+  }
 }
 
 /* NOTIFICATIONS SECTION */
@@ -475,27 +513,41 @@ h1 {
   }
   .main-content {
     margin-left: 0;
-    padding: 20px 20px 30px;
+    padding: 30px 20px 20px;
   }
   .admin-wrapper {
-    padding-top: 130px; /* Standardized high spacing for navbar safety */
+    padding-top: 130px;
   }
+
+  /* Center content on tablets */
   .container-fluid {
     max-width: 100%;
     padding-left: 20px !important;
     padding-right: 20px !important;
   }
+
   h1,
   h2,
   .section-title {
     text-align: center !important;
     margin-top: 20px !important;
   }
+
+  /* Stat cards spacing */
+  .stat-card {
+    margin-top: 20px;
+  }
+
+  .row.g-4 .col-xl-6,
+  .row.g-4 .col-md-6 {
+    margin-top: 15px;
+  }
 }
 
 @media (max-width: 768px) {
+  /* Center all content on mobile */
   .main-content {
-    padding: 10px 15px 30px;
+    padding: 20px 15px 15px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -505,10 +557,17 @@ h1 {
   }
   .container-fluid {
     width: 100%;
+    max-width: 100%;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
   }
+
+  /* Center stat cards */
   .row.g-4 {
     justify-content: center;
   }
+
+  /* Full width cards on mobile with spacing */
   .col-xl-6,
   .col-md-6,
   .col-lg-6,
@@ -518,45 +577,212 @@ h1 {
     margin: 0 auto;
     margin-top: 20px !important;
   }
+
   .row.g-4 > div:first-child {
     margin-top: 0 !important;
+  }
+
+  .stat-card {
+    margin-top: 0; /* Reset since we're using column margin */
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+  }
+
+  /* FORCE CENTER EVERYTHING ON MOBILE */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .section-title {
+    text-align: center !important;
   }
 }
 
 @media (max-width: 576px) {
   .main-content {
-    padding: 10px 10px 30px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    /* Symmetric padding to ensure true centering */
+    padding: 20px 25px 40px 25px !important;
   }
   .admin-wrapper {
     padding-top: 150px;
   }
+
+  /* FORCE CENTER TITLES */
   h1,
-  h2 {
-    font-size: 1.6rem !important;
-    margin-top: 30px !important;
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .section-title {
+    font-size: 1.4rem !important;
+    margin-top: 10px !important;
+    line-height: 1.3;
+    text-align: center !important;
+    width: 100%;
+    display: block;
+  }
+
+  .section-title::after {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+
+  /* --- FIX FILTERS (STACKING) --- */
+  #globalFilterContainer {
+    width: 100% !important;
+    margin-bottom: 20px;
+  }
+
+  .filter-container .row {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 15px !important;
+    margin: 0 !important; /* Remove bootstrap row negative margins */
+  }
+
+  .filter-container .col-md-4,
+  .filter-container .col-md-8 {
+    width: 100% !important;
+    padding: 0 !important;
+    display: flex;
+    justify-content: center;
+  }
+
+  #urgencyFilterContainer,
+  #nameFilterContainer {
+    width: 100% !important;
+  }
+
+  /* Ensure inputs take full width but look centered */
+  .modern-select,
+  .modern-input,
+  .form-select,
+  .form-control {
+    width: 100% !important;
+    max-width: 100% !important;
+    text-align: center; /* Center text inside inputs if desired, or keep left */
+    background-color: #fff !important; /* Force white background on mobile too */
+    color: #000 !important;
+  }
+  /* ------------------------------ */
+
+  /* Center dashboard sections */
+  #dashboardSection,
+  #jobsSection,
+  #contractsSection,
+  #guidesSection,
+  #tutorialsSection,
+  #passwordsSection {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px !important;
+  }
+
+  /* Start Cards */
+  .stat-card {
+    padding: 20px 15px;
+    margin-bottom: 0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    width: 100% !important;
+  }
+
+  /* Container adjustments */
+  .container-fluid {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Job Cards */
+  .card-job,
+  .job-card {
+    padding: 20px !important;
+    margin-bottom: 15px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+  }
+
+  /* Buttons in cards */
+  .card-job .btn,
+  .job-card .btn {
+    width: 100% !important;
+    display: flex;
+    justify-content: center;
+    margin-top: 5px;
+  }
+
+  /* Force row to stack vertically and center items */
+  .row.g-4 {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    width: 100%;
+    margin: 0 !important;
+  }
+
+  .row.g-4 .col-12 {
+    width: 100% !important;
+    max-width: 100% !important; /* Allow full width for more space */
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-bottom: 25px !important;
+    padding: 0 !important;
+  }
+
+  /* Keep first card without top margin */
+  .row.g-4 > div:first-child {
+    margin-top: 0 !important;
+  }
+
+  /* Ensure profile card text is center */
+  #userProfileCard .d-flex {
+    flex-direction: column !important;
     text-align: center !important;
   }
-  #dashboardSection {
-    margin-top: -50px !important;
+
+  .profile-avatar {
+    margin-right: 0 !important;
+    margin-bottom: 15px;
   }
 }
 
 /* ======== TARJETAS DE TRABAJOS ======== */
-.card-job {
-  background: #1a1a1a;
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(212, 175, 55, 0.1);
-  transition: all 0.3s ease;
-  border: 1px solid #333;
-  overflow: hidden;
+/* ======== TARJETAS DE TRABAJOS (MATCHING OPERATIONS) ======== */
+.card-job,
+.job-card {
+  background: rgba(20, 20, 20, 0.7);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
   color: #fff;
+  border-radius: 20px;
+  padding: 30px;
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   position: relative;
-  /* Needed for watermark positioning */
   overflow: hidden;
-  /* Keeps the watermark contained */
+  height: 100%;
+}
+
+.card-job:hover,
+.job-card:hover {
+  transform: translateY(-10px);
+  border-color: rgba(212, 175, 55, 0.4);
+  box-shadow: 0 15px 40px rgba(212, 175, 55, 0.1);
 }
 
 .card-job {
@@ -764,16 +990,99 @@ h1 {
   border-top: 1px solid #d4af37;
 }
 
+/* Modern Premium Buttons */
 .btn-gold {
-  background-color: #d4af37;
+  background: linear-gradient(135deg, #d4af37 0%, #b38f22 100%);
   color: #000;
   border: none;
-  font-weight: 600;
+  font-weight: 700;
+  padding: 12px 30px;
+  border-radius: 50px; /* Pillow shape for modern mobile feel */
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.9rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-gold::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: 0.5s;
 }
 
 .btn-gold:hover {
-  background-color: #b8941f;
+  background: linear-gradient(135deg, #f4d03f 0%, #d4af37 100%);
   color: #000;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5);
+}
+
+.btn-gold:hover::before {
+  left: 100%;
+}
+
+.btn-gold:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
+}
+
+/* Card Action Buttons (Delete/Edit on Cards) */
+.card-action-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+  cursor: pointer;
+}
+
+.card-action-btn.btn-delete {
+  background: rgba(220, 53, 69, 0.15);
+  color: #ff6b6b;
+  border-color: rgba(220, 53, 69, 0.3);
+}
+
+.card-action-btn.btn-delete:hover {
+  background: #dc3545;
+  color: white;
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 0 20px rgba(220, 53, 69, 0.6);
+}
+
+@media (max-width: 768px) {
+  .btn-gold {
+    width: 80% !important; /* Wider buttons on mobile for easier reach */
+    max-width: 300px;
+    padding: 14px 20px; /* Taller touch target */
+    font-size: 1rem;
+  }
+
+  /* Make card action buttons bigger on mobile */
+  .card-action-btn {
+    width: 45px;
+    height: 45px;
+    font-size: 1.2rem;
+  }
 }
 
 /* =================================
@@ -917,11 +1226,12 @@ h1 {
   font-weight: 700;
 }
 
+/* INPUTS (MATCHING OPERATIONS) */
 .modern-select,
 .modern-input {
-  background-color: #0f0f0f;
-  color: #e0e0e0;
-  border: 1px solid #333;
+  background-color: #fff; /* White background like operations search */
+  color: #000;
+  border: 1px solid rgba(212, 175, 55, 0.3);
   border-radius: 8px;
   padding: 12px 16px;
   font-size: 0.95rem;
@@ -932,8 +1242,8 @@ h1 {
 
 .modern-select:hover,
 .modern-input:hover {
-  border-color: #555;
-  background-color: #151515;
+  border-color: #d4af37;
+  background-color: #f8f9fa;
 }
 
 .modern-select:focus,
@@ -941,8 +1251,8 @@ h1 {
   border-color: #d4af37;
   box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.15);
   outline: none;
-  background-color: #000;
-  color: #fff;
+  background-color: #fff;
+  color: #000;
   transform: translateY(-1px);
 }
 

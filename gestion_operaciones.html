@@ -88,15 +88,31 @@
       <!-- CONTENT -->
       <main class="main-content">
         <div class="container-fluid">
+          <!-- Título Dinámico de Sección -->
+          <h2
+            id="dynamicSectionTitle"
+            class="section-title mb-4 text-center"
+            style="display: none; width: 100%"
+          >
+            Panel de Operaciones
+          </h2>
+
           <!-- Dashboard Section -->
           <div id="dashboardSection">
-            <h1 class="mb-5">Panel de Control de Operaciones</h1>
+            <!-- Título del Dashboard eliminado para usar dinámica si es necesario, 
+                 pero el dashboard suele tener su propio layout. 
+                 Mantendremos el h1 del dashboard visible solo en dashboard -->
+            <h1 class="mb-5 text-center" id="dashboardTitle">
+              Panel de Control de Operaciones
+            </h1>
 
             <!-- Welcome Profile Card -->
-            <div class="row mb-5">
-              <div class="col-12">
+            <div class="row mb-5 justify-content-center">
+              <div class="col-12 col-lg-8">
                 <div class="stat-card" id="userProfileCard">
-                  <div class="d-flex align-items-center gap-4">
+                  <div
+                    class="d-flex align-items-center gap-4 justify-content-center flex-wrap text-center"
+                  >
                     <div
                       class="stat-card-icon"
                       style="
@@ -115,7 +131,7 @@
               </div>
             </div>
 
-            <div class="row g-4 mb-5">
+            <div class="row g-4 mb-5 justify-content-center">
               <div class="col-xl-4 col-md-6">
                 <div class="stat-card">
                   <div
@@ -163,8 +179,7 @@
 
           <!-- Complexes Section -->
           <div id="complexesSection" style="display: none">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-              <h2 class="text-gold">Listado de Conjuntos</h2>
+            <div class="d-flex justify-content-center mb-4">
               <button
                 class="btn btn-gold"
                 data-bs-toggle="modal"
@@ -185,17 +200,14 @@
 
           <!-- Passwords Section (Read-Only) -->
           <div id="passwordsSection" style="display: none">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-              <h2 class="text-gold mb-0">Gestión de Claves Técnicas</h2>
-              <!-- Sin botón de agregar (Sólo lectura) -->
-            </div>
-
-            <div class="mb-4">
+            <!-- Título removido -->
+            <div class="mb-4 d-flex justify-content-center">
               <input
                 type="text"
                 id="passwordSearchInput"
                 class="form-control"
                 placeholder="Buscar por conjunto o dispositivo..."
+                style="max-width: 600px; text-align: center"
               />
             </div>
 
@@ -210,10 +222,17 @@
 
           <!-- Jobs Section -->
           <div id="jobsSection" style="display: none">
-            <div class="d-flex justify-content-between align-items-center mb-5">
-              <h2 class="text-gold mb-0">Gestión de Trabajos</h2>
-              <div class="d-flex gap-3 align-items-center">
-                <select id="jobUrgencyFilter" class="modern-select">
+            <!-- Container for filters under the title -->
+            <div
+              class="d-flex flex-column align-items-center gap-3 mb-5"
+              id="jobsFilterContainer"
+            >
+              <div class="d-flex gap-3 flex-wrap justify-content-center w-100">
+                <select
+                  id="jobUrgencyFilter"
+                  class="modern-select text-center"
+                  style="min-width: 200px"
+                >
                   <option value="todas">Urgencia: Todas</option>
                   <option value="Normal">Normal</option>
                   <option value="Urgente">Urgente</option>
@@ -222,17 +241,18 @@
                 <input
                   type="text"
                   id="jobSearchInput"
-                  class="modern-input"
+                  class="modern-input text-center"
                   placeholder="Buscar cliente..."
+                  style="min-width: 250px"
                 />
-                <button
-                  class="btn btn-gold px-4"
-                  data-bs-toggle="modal"
-                  data-bs-target="#addJobModal"
-                >
-                  <i class="fa-solid fa-plus me-2"></i> Crear Trabajo
-                </button>
               </div>
+              <button
+                class="btn btn-gold px-4"
+                data-bs-toggle="modal"
+                data-bs-target="#addJobModal"
+              >
+                <i class="fa-solid fa-plus me-2"></i> Crear Trabajo
+              </button>
             </div>
 
             <div id="jobsContainer" class="row g-4">
@@ -1491,22 +1511,42 @@
             sidebarLinks.forEach((l) => l.classList.remove("active"));
             link.classList.add("active");
 
+            // Hide all sections
             sections.forEach((s) => {
               const el = document.getElementById(s);
               if (el) el.style.display = "none";
             });
+
+            // Dynamic Title Logic
+            const dynamicTitle = document.getElementById("dynamicSectionTitle");
+            if (dynamicTitle) dynamicTitle.style.display = "none";
 
             const target = document.getElementById(view + "Section");
             if (target) target.style.display = "block";
 
             // Si es la vista de claves, cargar datos
             if (view === "passwords") {
+              if (dynamicTitle) {
+                dynamicTitle.textContent = "Claves Técnicas";
+                dynamicTitle.style.display = "block";
+              }
               if (!window.passwordsLoaded) cargarClavesTecnicas();
               else renderClavesTecnicas(window.allPasswords);
             }
 
             if (view === "jobs") {
+              if (dynamicTitle) {
+                dynamicTitle.textContent = "Gestión de Trabajos";
+                dynamicTitle.style.display = "block";
+              }
               cargarTrabajos();
+            }
+
+            if (view === "complexes") {
+              if (dynamicTitle) {
+                dynamicTitle.textContent = "Listado de Conjuntos";
+                dynamicTitle.style.display = "block";
+              }
             }
 
             const sidebar = document.getElementById("sidebar");
