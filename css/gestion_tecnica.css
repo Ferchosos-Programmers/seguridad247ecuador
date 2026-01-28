@@ -1515,6 +1515,12 @@ h1 {
   padding: 2rem;
 }
 
+@media (max-width: 576px) {
+  #technicalReportModal .modal-body {
+    padding: 1rem;
+  }
+}
+
 #technicalReportModal .form-control:focus,
 #technicalReportModal .form-select:focus {
   box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.25);
@@ -1533,4 +1539,15 @@ h1 {
   max-width: 100% !important;
   max-height: 85vh !important;
   object-fit: contain !important;
+}
+
+/* Responsive Modal Row */
+.report-modal-row {
+  min-height: 500px;
+}
+
+@media (max-width: 991px) {
+  .report-modal-row {
+    min-height: auto;
+  }
 }

@@ -991,7 +991,7 @@ function configurarModalInforme() {
       const touch = e.touches[0];
       lastX = touch.clientX - rect.left;
       lastY = touch.clientY - rect.top;
-    });
+    }, { passive: false });
 
     canvas.addEventListener("touchmove", (e) => {
       e.preventDefault();
@@ -1007,9 +1007,16 @@ function configurarModalInforme() {
       canvas.hasSignature = true;
       lastX = currentX;
       lastY = currentY;
-    });
+    }, { passive: false });
 
     canvas.addEventListener("touchend", () => (isDrawing = false));
+
+    // Handle window resize for canvas
+    window.addEventListener("resize", () => {
+      if (reportModal.classList.contains("show")) {
+        resizeCanvas();
+      }
+    });
 
     const clearBtn = document.getElementById("clearReportSignatureBtn");
     if (clearBtn) {
@@ -1408,7 +1415,7 @@ function configurarModalContrato() {
     const touch = e.touches[0];
     lastX = touch.clientX - rect.left;
     lastY = touch.clientY - rect.top;
-  });
+  }, { passive: false });
 
   canvas.addEventListener("touchmove", (e) => {
     e.preventDefault();
@@ -1426,7 +1433,7 @@ function configurarModalContrato() {
 
     lastX = currentX;
     lastY = currentY;
-  });
+  }, { passive: false });
 
   canvas.addEventListener("touchend", () => {
     isDrawing = false;
