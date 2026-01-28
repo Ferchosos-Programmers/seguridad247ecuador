@@ -821,150 +821,74 @@
             <form id="contractForm">
               <div class="row">
                 <div class="col-md-6">
-                  <h6>Datos del Contrato</h6>
+                  <h6 class="text-gold">Datos del Conjunto (Cliente)</h6>
                   <div class="mb-3">
-                    <label class="form-label">Ciudad</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="contractCity"
-                      required
-                    />
+                    <label class="form-label">Nombre del Conjunto</label>
+                    <input type="text" class="form-control force-uppercase" id="contractComplexName" placeholder="Ej: CONJUNTO RESIDENCIAL LOS ALAMOS" required />
                   </div>
                   <div class="mb-3">
-                    <label class="form-label">Fecha del Contrato</label>
-                    <input
-                      type="date"
-                      class="form-control"
-                      id="contractDate"
-                      required
-                    />
-                  </div>
-                  <hr />
-                  <h6>Datos del Cliente</h6>
-                  <div class="mb-3">
-                    <label class="form-label">Nombre completo</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="contractClientName"
-                      required
-                    />
+                    <label class="form-label">RUC del Conjunto</label>
+                    <input type="text" class="form-control" id="contractComplexRuc" placeholder="Ej: 179..." required />
                   </div>
                   <div class="mb-3">
-                    <label class="form-label">Cédula de identidad</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="contractClientId"
-                      required
-                    />
+                    <label class="form-label">Representante Legal (Conjunto)</label>
+                    <input type="text" class="form-control force-uppercase" id="contractComplexRep" required />
                   </div>
                   <div class="mb-3">
-                    <label class="form-label">Dirección</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="contractClientAddress"
-                      required
-                    />
+                    <label class="form-label">Cantón</label>
+                    <select class="form-select" id="contractCanton" required>
+                      <option value="Quito">Quito</option>
+                      <option value="Rumiñahui">Rumiñahui</option>
+                      <option value="Mejía">Mejía</option>
+                      <option value="Cayambe">Cayambe</option>
+                      <option value="Pedro Moncayo">Pedro Moncayo</option>
+                    </select>
                   </div>
                   <div class="mb-3">
-                    <label class="form-label">Teléfono</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="contractClientPhone"
-                      required
-                    />
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Correo electrónico</label>
-                    <input
-                      type="email"
-                      class="form-control"
-                      id="contractClientEmail"
-                      required
-                    />
+                    <label class="form-label">Dirección del Conjunto</label>
+                    <input type="text" class="form-control" id="contractAddress" required />
                   </div>
                 </div>
+
                 <div class="col-md-6">
-                  <h6>Detalles del Servicio</h6>
-                  <div class="mb-3">
-                    <label class="form-label">Precio del servicio (USD)</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      class="form-control"
-                      id="contractServicePrice"
-                      required
-                    />
+                  <h6 class="text-gold">Detalles del Contrato</h6>
+                  <div class="row">
+                    <div class="col-6 mb-3">
+                       <label class="form-label">Fecha Firma</label>
+                       <input type="date" class="form-control" id="contractDate" required />
+                    </div>
+                    <div class="col-6 mb-3">
+                       <label class="form-label">Fecha Inicio Servicio</label>
+                       <input type="date" class="form-control" id="contractStartDate" required />
+                    </div>
                   </div>
-                  <div class="mb-3">
-                    <label class="form-label">Forma de pago</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="contractPaymentMethod"
-                      required
-                    />
+                  
+                  <div class="row">
+                     <div class="col-6 mb-3">
+                        <label class="form-label">Valor Mensual ($)</label>
+                        <input type="number" step="0.01" class="form-control" id="contractPrice" placeholder="Sin IVA" required />
+                     </div>
+                     <div class="col-6 mb-3">
+                        <label class="form-label">Duración (Meses)</label>
+                        <input type="number" class="form-control" id="contractDuration" value="12" required />
+                     </div>
                   </div>
+
                   <div class="mb-3">
-                    <label class="form-label">Periodicidad del pago</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="contractPaymentPeriod"
-                      required
-                    />
+                    <label class="form-label">Anexo 1: Detalle de Equipos (Para Custodia)</label>
+                    <textarea class="form-control" id="contractAnnex" rows="4" placeholder="Enumerar o detallar los equipos colocados..."></textarea>
                   </div>
-                  <div class="mb-3">
-                    <label class="form-label"
-                      >Duración del contrato (meses)</label
-                    >
-                    <input
-                      type="number"
-                      class="form-control"
-                      id="contractDuration"
-                      required
-                    />
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label"
-                      >Días de aviso para terminación</label
-                    >
-                    <input
-                      type="number"
-                      class="form-control"
-                      id="contractTerminationNotice"
-                      required
-                    />
-                  </div>
-                  <hr />
-                  <h6>Datos del Representante (Empresa)</h6>
-                  <div class="mb-3">
-                    <label class="form-label">Nombre del representante</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="contractCompanyName"
-                      required
-                    />
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Cargo del representante</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="contractCompanyPosition"
-                      required
-                    />
-                  </div>
+                  
+                  <input type="hidden" id="contractCity" value="San Francisco de Quito">
+                  <input type="hidden" id="contractCompanyRep" value="EDWIN YUBILLO">
                 </div>
               </div>
-              <button type="submit" class="btn btn-primary w-100 mt-3">
-                Generar Contrato
-              </button>
+
+              <div class="d-grid mt-4">
+                 <button type="submit" class="btn btn-gold py-2 fw-bold shadow-sm">
+                   <i class="fa-solid fa-file-contract me-2"></i> GENERAR Y VISUALIZAR CONTRATO
+                 </button>
+              </div>
             </form>
           </div>
         </div>

@@ -1111,7 +1111,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="fillContractModalLabel">
-              Completar Contrato
+              CONTRATO DE PRESTACIÓN DE SERVICIO
             </h5>
             <button
               type="button"
@@ -1214,6 +1214,14 @@
             >
               Cerrar
             </button>
+            <button
+              type="button"
+              class="btn btn-gold"
+              id="generateContractPdfBtn"
+              style="display: none"
+            >
+              <i class="fa-solid fa-file-pdf me-2"></i> Imprimir / PDF
+            </button>
             <button type="button" class="btn btn-gold" id="saveContractBtn">
               Guardar Contrato Completado
             </button>
@@ -1301,6 +1309,10 @@
         </div>
       </div>
     </div>
+
+    <!-- CDN para jspdf y html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <!-- SCRIPTS -->
     <!-- FIREBASE -->

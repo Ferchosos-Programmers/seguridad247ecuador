@@ -221,7 +221,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (currentView === "contracts" || currentView === "todos") {
         const filteredContratos = window.allContratos.filter(contract => {
-          const matchName = contract.clientName.toLowerCase().includes(nameValue);
+          const name = contract.complexName || contract.clientName || "";
+          const matchName = name.toLowerCase().includes(nameValue);
           return matchName;
         });
         renderContratos(filteredContratos);
@@ -587,15 +588,19 @@ window.eliminarRegistro = (id, complexName) => {
 };
 
 // =========================================
-//  CONFIGURAR FORMULARIO DE CONTRATO
+//  CONFIGURAR FORMULARIO DE CONTRATO (UPDATED)
 // =========================================
 function configurarFormularioContrato() {
   const contractForm = document.getElementById("contractForm");
   if (!contractForm) return;
 
-  // Establecer valores por defecto
-  document.getElementById("contractCity").value = "Quito";
-  document.getElementById("contractDate").valueAsDate = new Date();
+  // Set default date
+  const today = new Date().toISOString().split('T')[0];
+  const dateInput = document.getElementById("contractDate");
+  const startDateInput = document.getElementById("contractStartDate");
+  
+  if (dateInput) dateInput.value = today;
+  if (startDateInput) startDateInput.value = today;
 
   contractForm.addEventListener("submit", async function (e) {
     e.preventDefault();
@@ -604,766 +609,362 @@ function configurarFormularioContrato() {
 
     // Recopilar datos del formulario
     const contractData = {
-      city: document.getElementById("contractCity").value,
-      date: document.getElementById("contractDate").value,
-      clientName: document.getElementById("contractClientName").value,
-      clientId: document.getElementById("contractClientId").value,
-      clientAddress: document.getElementById("contractClientAddress").value,
-      clientPhone: document.getElementById("contractClientPhone").value,
-      clientEmail: document.getElementById("contractClientEmail").value,
-      servicePrice: document.getElementById("contractServicePrice").value, // Nuevo campo
-      paymentMethod: document.getElementById("contractPaymentMethod").value,
-      paymentPeriod: document.getElementById("contractPaymentPeriod").value,
+      complexName: document.getElementById("contractComplexName").value.toUpperCase(),
+      complexRuc: document.getElementById("contractComplexRuc").value,
+      complexRep: document.getElementById("contractComplexRep").value.toUpperCase(),
+      canton: document.getElementById("contractCanton").value,
+      address: document.getElementById("contractAddress").value.toUpperCase(),
+      
+      signDate: document.getElementById("contractDate").value,
+      startDate: document.getElementById("contractStartDate").value,
+      
+      price: document.getElementById("contractPrice").value,
       duration: document.getElementById("contractDuration").value,
-      terminationNotice: document.getElementById("contractTerminationNotice")
-        .value,
-      companyName: document.getElementById("contractCompanyName").value,
-      companyPosition: document.getElementById("contractCompanyPosition").value,
+      annexDetails: document.getElementById("contractAnnex").value,
+      
+      city: "San Francisco de Quito", 
+      companyRep: "EDWIN YUBILLO",
+      companyName: "SEGURIDAD 24-7 DEL ECUADOR CIA. LTDA.",
+      companyRuc: "1793205916001",
+      
       createdAt: new Date(),
     };
 
     try {
+      Swal.fire({
+          title: 'Generando Contrato...',
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading()
+      });
+
       // Guardar en Firestore
       const docRef = await db.collection("contracts").add(contractData);
       
       Swal.fire({
           icon: 'success',
-          title: '¡Contrato Guardado!',
-          text: 'Se procederá a notificar a monitoreo y técnicos vía WhatsApp.',
-          showConfirmButton: true,
-          confirmButtonColor: "#d4af37"
-      }).then(() => {
-          // Notificación Automática con los datos recién capturados
-          const message = `📄 *NUEVO CONTRATO DISPONIBLE*\n\n` +
-                          `📋 *Cliente:* ${contractData.clientName}\n` +
-                          `🏙️ *Ciudad:* ${contractData.city}\n` +
-                          `💰 *Monto:* $${contractData.servicePrice}\n` +
-                          `📅 *Duración:* ${contractData.duration} meses\n\n` +
-                          `👉 *Por favor enviar técnico para firma y recolección de evidencias.*`;
-          
-          window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+          title: '¡Contrato Generado!',
+          text: 'El contrato ha sido guardado y está listo para visualizar.',
+          timer: 1500,
+          showConfirmButton: false
       });
 
-      // Generar y mostrar el contrato
-      // Necesitamos el ID para el botón de PDF, así que usamos el ID del documento creado
+      // Prepare data for display (ID needed for PDF generation later)
       document.getElementById("currentContractId").value = docRef.id;
 
+      // Render Contract HTML
       mostrarContrato(contractData);
 
-      // Cerrar modal de creación y abrir modal de visualización
-      const createModal = bootstrap.Modal.getInstance(
-        document.getElementById("createContractModal")
-      );
-      createModal.hide();
+      // Switch Modals
+      const createModal = bootstrap.Modal.getInstance(document.getElementById("createContractModal"));
+      if (createModal) createModal.hide();
 
-      const viewModal = new bootstrap.Modal(
-        document.getElementById("viewContractModal")
-      );
+      const viewModal = new bootstrap.Modal(document.getElementById("viewContractModal"));
       viewModal.show();
 
-      cargarContratos(); // Recargar contratos para mostrar el nuevo
+      // Refresh list if function exists
+      if (typeof cargarContratos === 'function') cargarContratos();
+
     } catch (error) {
-      Swal.fire(
-        "Error",
-        `No se pudo guardar el contrato: ${error.message}`,
-        "error"
-      );
+      console.error("Error generating contract:", error);
+      Swal.fire("Error", "No se pudo generar el contrato.", "error");
     }
   });
 
-  // Listener para generar PDF del contrato
-  document
-    .getElementById("generateContractPdfBtn")
-    .addEventListener("click", async function () {
-      const contractId = document.getElementById("currentContractId").value;
+  // PDF Generation Listener
+  const pdfBtn = document.getElementById("generateContractPdfBtn");
+  if (pdfBtn) {
+    // Clone to remove old listeners
+    const newBtn = pdfBtn.cloneNode(true);
+    pdfBtn.parentNode.replaceChild(newBtn, pdfBtn);
+    
+    newBtn.addEventListener("click", async () => {
+       const content = document.getElementById("contractContentArea");
+       if(!content) return;
 
-      if (!contractId) {
-        Swal.fire(
-          "Error",
-          "No se pudo obtener la información del contrato.",
-          "error"
-        );
-        return;
-      }
+       Swal.fire({
+         title: 'Generando PDF...',
+         text: 'Procesando documento legal...',
+         allowOutsideClick: false,
+         didOpen: () => Swal.showLoading()
+       });
 
-      try {
-        // Obtener datos completos del contrato
-        const doc = await db.collection("contracts").doc(contractId).get();
-        if (!doc.exists) {
-          Swal.fire("Error", "No se encontró el contrato.", "error");
-          return;
-        }
+       try {
+         const { jsPDF } = window.jspdf;
+         
+         // Wait briefly for images/signatures to load
+         await new Promise(resolve => setTimeout(resolve, 800));
 
-        const data = doc.data();
-        const { jsPDF } = window.jspdf;
-        const pdfDoc = new jsPDF();
-        const primaryColor = "#d4af37";
-        const textColor = "#000";
-        const backgroundColor = "#fff";
-        const pageHeight = 297;
-        const pageWidth = 210;
-        const marginTop = 35;
-        const marginBottom = 25;
-        const maxY = pageHeight - marginBottom;
+         const doc = new jsPDF('p', 'pt', 'a4');
+         await doc.html(content, {
+            callback: function(doc) {
+              const name = document.getElementById("contractComplexName")?.value || "Contrato";
+              doc.save(`Contrato_${name.replace(/\s+/g, '_')}.pdf`);
+              Swal.close();
+            },
+            x: 40,
+            y: 35,
+            html2canvas: {
+                scale: 0.72,
+                useCORS: true,
+                letterRendering: true
+            },
+            width: 515,
+            windowWidth: 800,
+            autoPaging: 'text'
+         });
 
-        // Función para agregar nueva página con cabecera moderna
-        function addPageWithHeader() {
-          pdfDoc.addPage();
-          pdfDoc.setFillColor(backgroundColor);
-          pdfDoc.rect(0, 0, pageWidth, pageHeight, "F");
-
-          // Cabecera moderna con gradiente y diseño elegante
-          pdfDoc.setFillColor("#1a1a1a");
-          pdfDoc.rect(0, 0, pageWidth, 30, "F");
-          pdfDoc.setFillColor(primaryColor);
-          pdfDoc.rect(0, 0, pageWidth, 5, "F");
-
-          // Título con estilo moderno
-          pdfDoc.setFont("helvetica", "bold");
-          pdfDoc.setFontSize(20);
-          pdfDoc.setTextColor("#FFFFFF");
-          pdfDoc.text(
-            "CONTRATO DE PRESTACIÓN DEL SERVICIO",
-            pageWidth / 2,
-            13,
-            { align: "center" }
-          );
-          pdfDoc.setFontSize(16);
-          pdfDoc.text("DE GUARDIA VIRTUAL", pageWidth / 2, 22, {
-            align: "center",
-          });
-
-          // Línea decorativa debajo del título
-          pdfDoc.setDrawColor(primaryColor);
-          pdfDoc.setLineWidth(0.5);
-          pdfDoc.line(20, 28, pageWidth - 20, 28);
-
-          return marginTop + 5;
-        }
-
-        // Función para agregar footer a una página (estilo moderno)
-        function addFooterToPage() {
-          // Fondo del footer con estilo moderno
-          pdfDoc.setFillColor("#1a1a1a");
-          pdfDoc.rect(0, maxY, pageWidth, 12, "F");
-          pdfDoc.setFillColor(primaryColor);
-          pdfDoc.rect(0, maxY, pageWidth, 2, "F");
-          pdfDoc.setFont("helvetica", "normal");
-          pdfDoc.setFontSize(8);
-          pdfDoc.setTextColor("#FFFFFF");
-          pdfDoc.text(
-            "© 2025 Seguridad 247 Ecuador & MCV (Mallitaxi Code Vision) — Todos los derechos reservados",
-            pageWidth / 2,
-            maxY + 8,
-            { align: "center" }
-          );
-        }
-
-        // Función para verificar y agregar página si es necesario
-        function checkAndAddPage(currentY, neededSpace = 10) {
-          if (currentY + neededSpace > maxY) {
-            // Agregar footer a la página actual antes de cambiar
-            // addFooterToPage();
-            return addPageWithHeader();
-          }
-          return currentY;
-        }
-
-        // Función para agregar texto con manejo de páginas múltiples
-        function addText(text, x, y, options = {}) {
-          const lines = pdfDoc.splitTextToSize(text, options.maxWidth || 180);
-          let currentY = y;
-
-          for (let i = 0; i < lines.length; i++) {
-            currentY = checkAndAddPage(currentY, 6);
-            pdfDoc.text(lines[i], x, currentY);
-            currentY += 6;
-          }
-
-          return currentY;
-        }
-
-        // Inicializar primera página con estilo moderno
-        pdfDoc.setFillColor(backgroundColor);
-        pdfDoc.rect(0, 0, pageWidth, pageHeight, "F");
-
-        // Cabecera moderna
-        pdfDoc.setFillColor("#1a1a1a");
-        pdfDoc.rect(0, 0, pageWidth, 30, "F");
-        pdfDoc.setFillColor(primaryColor);
-        pdfDoc.rect(0, 0, pageWidth, 5, "F");
-
-        // Título con estilo moderno
-        pdfDoc.setFont("helvetica", "bold");
-        pdfDoc.setFontSize(20);
-        pdfDoc.setTextColor("#FFFFFF");
-        pdfDoc.text("CONTRATO DE PRESTACIÓN DEL SERVICIO", pageWidth / 2, 13, {
-          align: "center",
-        });
-        pdfDoc.setFontSize(16);
-        pdfDoc.text("DE GUARDIA VIRTUAL", pageWidth / 2, 22, {
-          align: "center",
-        });
-
-        // Línea decorativa debajo del título
-        pdfDoc.setDrawColor(primaryColor);
-        pdfDoc.setLineWidth(0.5);
-        pdfDoc.line(20, 28, pageWidth - 20, 28);
-
-        let y = marginTop + 5;
-
-        // Fecha y ciudad
-        const contractDate = new Date(data.date + "T00:00:00");
-        const day = contractDate.getDate();
-        const month = contractDate.toLocaleString("es-ES", { month: "long" });
-        const year = contractDate.getFullYear();
-
-        pdfDoc.setFont("helvetica", "normal");
-        pdfDoc.setFontSize(11);
-        pdfDoc.setTextColor("#333333");
-        y = addText(
-          `En la ciudad de ${data.city}, a los ${day} días del mes de ${month} del año ${year}, se celebra el presente Contrato de Prestación del Servicio de Guardia Virtual, al tenor de las siguientes cláusulas:`,
-          20,
-          y,
-          { maxWidth: 170 }
-        );
-        y += 10;
-
-        // COMPARECIENTES con estilo moderno
-        y = checkAndAddPage(y, 10);
-
-        // Línea superior decorativa
-        pdfDoc.setDrawColor(primaryColor);
-        pdfDoc.setLineWidth(1);
-        pdfDoc.line(15, y - 9, pageWidth - 15, y - 9);
-
-        pdfDoc.setFont("helvetica", "bold");
-        pdfDoc.setFontSize(13);
-        pdfDoc.setTextColor("#1a1a1a");
-        pdfDoc.text("COMPARECIENTES", 15, y);
-        y += 10;
-
-        pdfDoc.setFont("helvetica", "normal");
-        pdfDoc.setFontSize(10.5);
-        pdfDoc.setTextColor("#444444");
-        y = addText(
-          "Comparecen a la celebración del presente contrato, por una parte:",
-          15,
-          y,
-          { maxWidth: 180 }
-        );
-        y = addText(
-          '247 DEL ECUADOR, empresa dedicada a la prestación de servicios de seguridad electrónica y vigilancia virtual, legalmente constituida conforme a las leyes de la República del Ecuador, a quien en adelante se la denominará "LA EMPRESA".',
-          15,
-          y,
-          { maxWidth: 180 }
-        );
-        y += 5;
-        y = addText("Y por otra parte:", 15, y, { maxWidth: 180 });
-        y = addText(
-          `Nombre completo del contratante: ${data.clientName}`,
-          15,
-          y,
-          { maxWidth: 180 }
-        );
-        y = addText(`Cédula de identidad: ${data.clientId}`, 15, y, {
-          maxWidth: 180,
-        });
-        y = addText(`Dirección domiciliaria: ${data.clientAddress}`, 15, y, {
-          maxWidth: 180,
-        });
-        y = addText(`Teléfono: ${data.clientPhone}`, 15, y, { maxWidth: 180 });
-        y = addText(`Correo electrónico: ${data.clientEmail}`, 15, y, {
-          maxWidth: 180,
-        });
-        y += 5;
-        y = addText(
-          'A quien en adelante se lo denominará "EL CONTRATANTE".',
-          15,
-          y,
-          { maxWidth: 180 }
-        );
-        y = addText(
-          "Las partes declaran tener capacidad legal para contratar y obligarse, y de mutuo acuerdo celebran el presente contrato bajo las siguientes cláusulas:",
-          15,
-          y,
-          { maxWidth: 180 }
-        );
-        y += 5;
-
-        // CLÁUSULAS con estilo moderno
-        y = checkAndAddPage(y, 12);
-        pdfDoc.setFont("helvetica", "bold");
-        pdfDoc.setFontSize(11.5);
-        pdfDoc.setTextColor("#1a1a1a");
-        pdfDoc.text("CLÁUSULA PRIMERA: OBJETO DEL CONTRATO", 15, y);
-        y += 8;
-        pdfDoc.setFont("helvetica", "normal");
-        pdfDoc.setFontSize(10);
-        pdfDoc.setTextColor("#444444");
-        y = addText(
-          "LA EMPRESA se obliga a prestar a EL CONTRATANTE el Servicio de Guardia Virtual, el cual consiste en la monitoreo remoto, vigilancia electrónica y supervisión virtual de los sistemas de seguridad instalados, tales como cámaras de videovigilancia, alarmas u otros dispositivos tecnológicos, según el plan contratado.",
-          15,
-          y,
-          { maxWidth: 180 }
-        );
-        y += 5;
-
-        y = checkAndAddPage(y, 12);
-        pdfDoc.setFont("helvetica", "bold");
-        pdfDoc.setFontSize(11.5);
-        pdfDoc.setTextColor("#1a1a1a");
-        pdfDoc.text(
-          "CLÁUSULA QUINTA: VALOR DEL CONTRATO Y FORMA DE PAGO",
-          15,
-          y
-        );
-        y += 8;
-        pdfDoc.setFont("helvetica", "normal");
-        pdfDoc.setFontSize(10);
-        pdfDoc.setTextColor("#444444");
-        y = addText(
-          `El valor del servicio será de $${data.servicePrice} USD más IVA, acordado entre las partes según el plan contratado, el cual constará en un anexo o factura correspondiente.`,
-          15,
-          y,
-          { maxWidth: 180 }
-        );
-        y = addText(`La forma de pago será: ${data.paymentMethod}`, 15, y, {
-          maxWidth: 180,
-        });
-        y = addText(
-          `La periodicidad del pago será: ${data.paymentPeriod}`,
-          15,
-          y,
-          { maxWidth: 180 }
-        );
-        y += 5;
-
-        y = checkAndAddPage(y, 12);
-        pdfDoc.setFont("helvetica", "bold");
-        pdfDoc.setFontSize(11.5);
-        pdfDoc.setTextColor("#1a1a1a");
-        pdfDoc.text("CLÁUSULA SEXTA: PLAZO DE DURACIÓN", 15, y);
-        y += 8;
-        pdfDoc.setFont("helvetica", "normal");
-        pdfDoc.setFontSize(10);
-        pdfDoc.setTextColor("#444444");
-        y = addText(
-          `El presente contrato tendrá una duración de ${data.duration} meses, contados a partir de la fecha de su firma, pudiendo renovarse previo acuerdo entre las partes.`,
-          15,
-          y,
-          { maxWidth: 180 }
-        );
-        y += 5;
-
-        y = checkAndAddPage(y, 15);
-        pdfDoc.setFont("helvetica", "bold");
-        pdfDoc.setFontSize(11.5);
-        pdfDoc.setTextColor("#1a1a1a");
-        pdfDoc.text("CLÁUSULA NOVENA: TERMINACIÓN DEL CONTRATO", 15, y);
-        y += 8;
-        pdfDoc.setFont("helvetica", "normal");
-        pdfDoc.setFontSize(10);
-        pdfDoc.setTextColor("#444444");
-        y = addText(`El presente contrato podrá darse por terminado:`, 15, y, {
-          maxWidth: 180,
-        });
-        y = addText("a) Por mutuo acuerdo entre las partes.", 20, y, {
-          maxWidth: 175,
-        });
-        y = addText(
-          "b) Por incumplimiento de cualquiera de las cláusulas.",
-          20,
-          y,
-          { maxWidth: 175 }
-        );
-        y = addText(
-          `c) Por decisión unilateral, con aviso previo de ${data.terminationNotice} días.`,
-          20,
-          y,
-          { maxWidth: 175 }
-        );
-        y += 10;
-
-        // FIRMAS - Estilo moderno y elegante
-        y = checkAndAddPage(y, 100);
-        const isCompleted = data.clientSignature && data.clientIdPhoto;
-
-        // Línea separadora antes de las firmas
-        pdfDoc.setDrawColor("#d4af37");
-        pdfDoc.setLineWidth(0.5);
-        pdfDoc.line(15, y - 5, pageWidth - 15, y - 5);
-        y += 5;
-
-        // Empresa (lado izquierdo)
-        const empresaStartY = y;
-        pdfDoc.setFont("helvetica", "bold");
-        pdfDoc.setFontSize(11);
-        pdfDoc.setTextColor("#1a1a1a");
-        pdfDoc.text("POR LA EMPRESA", 15, y);
-        y += 8;
-        pdfDoc.setFont("helvetica", "normal");
-        pdfDoc.setFontSize(10);
-        pdfDoc.setTextColor("#444444");
-        pdfDoc.text("247 DEL ECUADOR", 15, y);
-        y += 7;
-
-        // Agregar imagen de firma de la empresa
-        try {
-          const empresaFirmaImg = new Image();
-          empresaFirmaImg.src = "assets/img/firma.png";
-          await new Promise((resolve) => {
-            empresaFirmaImg.onload = () => {
-              // Verificar si hay espacio para la imagen
-              if (y + 25 > maxY) {
-                y = checkAndAddPage(y, 25);
-              }
-              pdfDoc.addImage(empresaFirmaImg, "PNG", 15, y, 50, 20);
-              resolve();
-            };
-            empresaFirmaImg.onerror = () => {
-              // Si falla la carga, mostrar línea de firma
-              pdfDoc.text("Firma: ________________________________", 15, y);
-              resolve();
-            };
-          });
-          y += 25;
-        } catch (e) {
-          // Si hay error, mostrar línea de firma
-          pdfDoc.text("Firma: ________________________________", 15, y);
-          y += 7;
-        }
-
-        pdfDoc.text(`Nombre: ${data.companyName}`, 15, y);
-        y += 6;
-        pdfDoc.text(`Cargo: ${data.companyPosition}`, 15, y);
-
-        // Cliente (lado derecho)
-        let clientY = empresaStartY;
-        pdfDoc.setFont("helvetica", "bold");
-        pdfDoc.setFontSize(11);
-        pdfDoc.setTextColor("#1a1a1a");
-        pdfDoc.text("EL CONTRATANTE", 110, clientY);
-        clientY += 8;
-
-        // Si hay firma, agregarla
-        if (isCompleted && data.clientSignature) {
-          try {
-            const signatureImg = new Image();
-            signatureImg.src = data.clientSignature;
-            await new Promise((resolve) => {
-              signatureImg.onload = () => {
-                // Verificar si hay espacio para la imagen
-                if (clientY + 25 > maxY) {
-                  clientY = checkAndAddPage(clientY, 25);
-                }
-                pdfDoc.addImage(signatureImg, "PNG", 110, clientY, 50, 20);
-                resolve();
-              };
-              signatureImg.onerror = () => {
-                pdfDoc.text(
-                  "Firma: ________________________________",
-                  110,
-                  clientY
-                );
-                resolve();
-              };
-            });
-            clientY += 28;
-          } catch (e) {
-            pdfDoc.text(
-              "Firma: ________________________________",
-              110,
-              clientY
-            );
-            clientY += 7;
-          }
-        } else {
-          pdfDoc.text("Firma: ________________________________", 110, clientY);
-          clientY += 7;
-        }
-
-        pdfDoc.setFont("helvetica", "normal");
-        pdfDoc.setFontSize(10);
-        pdfDoc.setTextColor("#444444");
-        pdfDoc.text(`Nombre completo: ${data.clientName}`, 110, clientY);
-        clientY += 7;
-        pdfDoc.text(`Cédula: ${data.clientId}`, 110, clientY);
-        clientY += 7;
-        pdfDoc.text(`Fecha: ${day} de ${month} de ${year}`, 110, clientY);
-
-        // Calcular la posición Y máxima después de las firmas
-        const maxSignatureY = Math.max(y, clientY + 5);
-        let cedulaY = maxSignatureY + 15;
-
-        // Si hay foto de cédula, agregarla centrada debajo de las firmas
-        if (isCompleted && data.clientIdPhoto) {
-          try {
-            const idPhotoImg = new Image();
-            idPhotoImg.src = data.clientIdPhoto;
-
-            await new Promise((resolve) => {
-              idPhotoImg.onload = () => {
-                // Espacio mínimo
-                if (cedulaY + 85 > maxY) {
-                  cedulaY = checkAndAddPage(cedulaY, 85);
-                }
-
-                // Título
-                pdfDoc.setFont("helvetica", "bold");
-                pdfDoc.setFontSize(10);
-                pdfDoc.setTextColor("#1a1a1a");
-                pdfDoc.text(
-                  "Cédula de Identidad del Contratante",
-                  pageWidth / 2,
-                  cedulaY,
-                  { align: "center" }
-                );
-                cedulaY += 5;
-
-                // 📐 Tamaño REAL (85.60 × 53.98 mm)
-                const targetW = 85.60; 
-                const targetH = 53.98;
-                const centerX = (pageWidth - targetW) / 2;
-
-                // 🔄 Lógica de Rotación Vía Canvas (Más robusta)
-                let finalImgData = idPhotoImg.src;
-                
-                if (idPhotoImg.height > idPhotoImg.width) {
-                   // Crear canvas off-screen
-                   const canvas = document.createElement('canvas');
-                   // Intercambiar dimensiones
-                   canvas.width = idPhotoImg.height;
-                   canvas.height = idPhotoImg.width;
-                   const ctx = canvas.getContext('2d');
-                   
-                   // Rotar 90 grados (Clockwise) para corregir foto vertical
-                   // Trasladar al origen de rotación (arriba-derecha del nuevo canvas)
-                   ctx.translate(canvas.width, 0);
-                   ctx.rotate(90 * Math.PI / 180);
-                   
-                   // Dibujar imagen
-                   ctx.drawImage(idPhotoImg, 0, 0);
-                   
-                   finalImgData = canvas.toDataURL('image/png');
-                }
-
-                pdfDoc.addImage(
-                    finalImgData,
-                    "PNG",
-                    centerX,
-                    cedulaY,
-                    targetW,
-                    targetH
-                );
-
-                resolve();
-              };
-
-              idPhotoImg.onerror = resolve;
-            });
-          } catch (e) {
-            console.error("Error drawing ID photo", e);
-          }
-        }
-
-        // 🦶 FOOTER (Al final de cada página)
-        const pageCount = pdfDoc.internal.getNumberOfPages();
-        for (let i = 1; i <= pageCount; i++) {
-          pdfDoc.setPage(i);
-          
-          // 🦶 FOOTER PREMIUM (Negro con Borde Dorado)
-          const footerHeight = 20;
-          const footerY = pageHeight - footerHeight;
-
-          // Fondo Negro
-          pdfDoc.setFillColor(20, 20, 20); // Casi negro
-          pdfDoc.rect(0, footerY, pageWidth, footerHeight, "F");
-
-          // Línea Superior Dorada (Thick)
-          pdfDoc.setDrawColor(212, 175, 55); // Gold
-          pdfDoc.setLineWidth(1.5);
-          pdfDoc.line(0, footerY, pageWidth, footerY);
-
-          // Texto Copyright
-          pdfDoc.setFontSize(8);
-          pdfDoc.setTextColor(255, 255, 255); // Blanco
-          pdfDoc.text(
-            "© 2025 Seguridad 24/7 Ecuador & MCV (Mallitaxi Code Vision) — Todos los derechos reservados",
-            pageWidth / 2,
-            footerY + 12, // Centrado verticalmente aprox
-            { align: "center" }
-          );
-
-          // Línea decorativa inferior (sutil)
-          pdfDoc.setLineWidth(0.5);
-          pdfDoc.line(40, footerY + 16, pageWidth - 40, footerY + 16);
-          
-          /* Número de página eliminado a petición implicita de "tal como la imagen" */
-        }
-
-        // Guardar PDF
-        pdfDoc.save(`contrato-${data.clientName}-${day}-${month}-${year}.pdf`);
-      } catch (error) {
-        console.error("Error al generar PDF:", error);
-        Swal.fire("Error", "No se pudo generar el PDF del contrato.", "error");
-      }
+       } catch (err) {
+         console.error("PDF Error:", err);
+         Swal.fire("Error", "No se pudo generar el PDF.", "error");
+       }
     });
+  }
 }
 
 // =========================================
-//  MOSTRAR CONTRATO GENERADO
+//  MOSTRAR CONTRATO GENERADO (TEXTO LEGAL ESPECÍFICO)
+// =========================================
+// =========================================
+//  MOSTRAR CONTRATO GENERADO (TEXTO LEGAL ESPECÍFICO)
+// =========================================
+// =========================================
+//  MOSTRAR CONTRATO GENERADO (TEXTO LEGAL ESPECÍFICO)
 // =========================================
 function mostrarContrato(data) {
   const contractContentArea = document.getElementById("contractContentArea");
-  const contractDate = new Date(data.date + "T00:00:00"); // Asegurar que la fecha se interprete correctamente
-
-  const day = contractDate.getDate();
-  const month = contractDate.toLocaleString("es-ES", { month: "long" });
-  const year = contractDate.getFullYear();
-
-  // Verificar si el contrato está completado (tiene firma y cédula)
-  const isCompleted = data.clientSignature && data.clientIdPhoto;
-
-  // Mostrar firma si existe
-  const firmaHTML =
-    isCompleted && data.clientSignature
-      ? `<p style="font-size: 14px; margin-bottom: 10px; color: #555555;">Firma:</p><div style="margin: 15px 0;"><img src="${data.clientSignature}" alt="Firma del cliente" style="max-width: 200px; border: 2px solid #d4af37; background: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); display: block;"></div>`
-      : '<p style="font-size: 14px; margin-bottom: 10px; color: #555555;">Firma: ________________________________</p>';
-
-  // Mostrar cédula si existe
-  const cedulaHTML =
-    isCompleted && data.clientIdPhoto
-      ? `<p style="font-size: 14px; margin-bottom: 10px; color: #555555; margin-top: 20px;">Cédula de Identidad:</p><div style="margin: 15px 0; text-align: center;"><img src="${data.clientIdPhoto}" alt="Cédula del cliente" style="max-width: 100%; max-height: 200px; border: 2px solid #d4af37; background: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); display: inline-block;"></div>`
-      : "";
-
-  const content = `
-    <div style="font-family: 'Georgia', 'Times New Roman', serif; line-height: 1.8; color: #2c3e50; background: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);">
-      <h4 style="font-size: 24px; font-weight: 700; color: #1a1a1a; text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid #d4af37; letter-spacing: 1px;">CONTRATO DE PRESTACIÓN DEL SERVICIO DE GUARDIA VIRTUAL</h4>
-      
-      <p style="font-size: 14px; line-height: 1.9; margin-bottom: 15px; color: #444444; text-align: justify;">En la ciudad de <strong style="color: #1a1a1a; font-weight: 600;">${data.city
-    }</strong>, a los ${day} días del mes de ${month} del año ${year}, se celebra el presente Contrato de Prestación del Servicio de Guardia Virtual, al tenor de las siguientes cláusulas:</p>
-      
-      <h5 style="font-size: 18px; font-weight: 700; color: #d4af37; margin-top: 30px; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #e8e8e8; letter-spacing: 0.5px;">COMPARECIENTES</h5>
-      <p style="font-size: 14px; line-height: 1.9; margin-bottom: 15px; color: #444444; text-align: justify;">Comparecen a la celebración del presente contrato, por una parte:</p>
-      <p style="font-size: 14px; line-height: 1.9; margin-bottom: 15px; color: #444444; text-align: justify;"><strong style="color: #1a1a1a; font-weight: 600;">247 DEL ECUADOR</strong>, empresa dedicada a la prestación de servicios de seguridad electrónica y vigilancia virtual, legalmente constituida conforme a las leyes de la República del Ecuador, a quien en adelante se la denominará "LA EMPRESA".</p>
-      <p style="font-size: 14px; line-height: 1.9; margin-bottom: 15px; color: #444444; text-align: justify;">Y por otra parte:</p>
-      <p style="font-size: 14px; line-height: 1.9; margin-bottom: 15px; color: #444444; text-align: justify;"><strong style="color: #1a1a1a; font-weight: 600;">Nombre completo del contratante:</strong> ${data.clientName
-    }<br>
-      <strong style="color: #1a1a1a; font-weight: 600;">Cédula de identidad:</strong> ${data.clientId
-    }<br>
-      <strong style="color: #1a1a1a; font-weight: 600;">Dirección domiciliaria:</strong> ${data.clientAddress
-    }<br>
-      <strong style="color: #1a1a1a; font-weight: 600;">Teléfono:</strong> ${data.clientPhone
-    }<br>
-      <strong style="color: #1a1a1a; font-weight: 600;">Correo electrónico:</strong> ${data.clientEmail
-    }</p>
-      <p style="font-size: 14px; line-height: 1.9; margin-bottom: 15px; color: #444444; text-align: justify;">A quien en adelante se lo denominará "EL CONTRATANTE".</p>
-      <p style="font-size: 14px; line-height: 1.9; margin-bottom: 15px; color: #444444; text-align: justify;">Las partes declaran tener capacidad legal para contratar y obligarse, y de mutuo acuerdo celebran el presente contrato bajo las siguientes cláusulas:</p>
-
-      <h6 style="font-size: 16px; font-weight: 700; color: #1a1a1a; margin-top: 25px; margin-bottom: 12px; padding-left: 15px; border-left: 4px solid #d4af37;">CLÁUSULA PRIMERA: OBJETO DEL CONTRATO</h6>
-      <p style="font-size: 14px; line-height: 1.9; margin-bottom: 15px; color: #444444; text-align: justify;">LA EMPRESA se obliga a prestar a EL CONTRATANTE el Servicio de Guardia Virtual, el cual consiste en la monitoreo remoto, vigilancia electrónica y supervisión virtual de los sistemas de seguridad instalados, tales como cámaras de videovigilancia, alarmas u otros dispositivos tecnológicos, según el plan contratado.</p>
-
-      <h6 style="font-size: 16px; font-weight: 700; color: #1a1a1a; margin-top: 25px; margin-bottom: 12px; padding-left: 15px; border-left: 4px solid #d4af37;">CLÁUSULA QUINTA: VALOR DEL CONTRATO Y FORMA DE PAGO</h6>
-      <p style="font-size: 14px; line-height: 1.9; margin-bottom: 15px; color: #444444; text-align: justify;">El valor del servicio será de <strong style="color: #1a1a1a; font-weight: 600;">$${data.servicePrice
-    } USD más IVA</strong>, acordado entre las partes según el plan contratado, el cual constará en un anexo o factura correspondiente.<br>
-      La forma de pago será: <strong style="color: #1a1a1a; font-weight: 600;">${data.paymentMethod
-    }</strong><br>
-      La periodicidad del pago será: <strong style="color: #1a1a1a; font-weight: 600;">${data.paymentPeriod
-    }</strong></p>
-
-      <h6 style="font-size: 16px; font-weight: 700; color: #1a1a1a; margin-top: 25px; margin-bottom: 12px; padding-left: 15px; border-left: 4px solid #d4af37;">CLÁUSULA SEXTA: PLAZO DE DURACIÓN</h6>
-      <p style="font-size: 14px; line-height: 1.9; margin-bottom: 15px; color: #444444; text-align: justify;">El presente contrato tendrá una duración de <strong style="color: #1a1a1a; font-weight: 600;">${data.duration
-    } meses</strong>, contados a partir de la fecha de su firma, pudiendo renovarse previo acuerdo entre las partes.</p>
-
-      <h6 style="font-size: 16px; font-weight: 700; color: #1a1a1a; margin-top: 25px; margin-bottom: 12px; padding-left: 15px; border-left: 4px solid #d4af37;">CLÁUSULA NOVENA: TERMINACIÓN DEL CONTRATO</h6>
-      <p style="font-size: 14px; line-height: 1.9; margin-bottom: 15px; color: #444444; text-align: justify;">El presente contrato podrá darse por terminado:<br>
-      a) Por mutuo acuerdo entre las partes.<br>
-      b) Por incumplimiento de cualquiera de las cláusulas.<br>
-      c) Por decisión unilateral, con aviso previo de <strong style="color: #1a1a1a; font-weight: 600;">${data.terminationNotice
-    } días</strong>.</p>
-
-            <div style="margin-top:50px;padding-top:30px;border-top:2px solid #e8e8e8;
-display:flex;justify-content:space-between;flex-wrap:wrap;gap:60px;">
-
-  <!-- POR LA EMPRESA -->
-  <div style="flex:1;min-width:260px;">
-    <p style="font-size:16px;font-weight:700;color:#1a1a1a;
-    border-bottom:2px solid #d4af37;padding-bottom:8px;">
-      POR LA EMPRESA
-    </p>
-
-    <p style="font-size:14px;color:#555;">247 DEL ECUADOR</p>
-
-    <img src="assets/img/firma.png"
-      alt="Firma de la empresa"
-      style="max-width:200px;margin:15px 0;
-      border:2px solid #d4af37;padding:10px;border-radius:8px;">
-
-    <p style="font-size:14px;color:#555;">Nombre: ${data.companyName}</p>
-    <p style="font-size:14px;color:#555;">Cargo: ${data.companyPosition}</p>
-  </div>
-
-  <!-- EL CONTRATANTE -->
-  <div style="flex:1;min-width:260px;">
-    <p style="font-size:16px;font-weight:700;color:#1a1a1a;
-    border-bottom:2px solid #d4af37;padding-bottom:8px;">
-      EL CONTRATANTE
-    </p>
-
-    ${firmaHTML}
-
-    <p style="font-size:14px;color:#555;">Nombre completo: ${data.clientName
-    }</p>
-    <p style="font-size:14px;color:#555;">Cédula: ${data.clientId}</p>
-    <p style="font-size:14px;color:#555;">Fecha: ${contractDate.toLocaleDateString(
-      "es-EC"
-    )}</p>
-  </div>
-
-</div>
-
-${data.clientIdPhoto
-      ? `
-  <div style="
-    margin-top:60px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-  ">
-    <p style="
-      font-size:16px;
-      font-weight:700;
-      color:#1a1a1a;
-      margin-bottom:20px;
-    ">
-      Cédula de Identidad del Contratante
-    </p>
   
-    <img src="${data.clientIdPhoto}"
-      alt="Cédula del cliente"
-      style="
-        max-width:420px;
-        width:100%;
-        border:2px solid #d4af37;
-        background:#fff;
-        padding:12px;
-        border-radius:10px;
-        box-shadow:0 4px 12px rgba(0,0,0,0.25);
-      ">
-  </div>
+  // Safe Data Access with Fallbacks for older records
+  const city = data.city || "San Francisco de Quito";
+  const signDate = data.signDate || data.date;
+  const startDate = data.startDate || data.date; // Fallback to sign date
+  
+  const complexName = data.complexName || data.clientName || "_________________";
+  const complexRuc = data.complexRuc || "_________________";
+  const complexRep = data.complexRep || data.clientName || "_________________";
+  const address = data.address || data.clientAddress || "_________________";
+  const canton = data.canton || "_________________";
+  const price = data.price || data.servicePrice || "0.00";
+  const duration = data.duration || "12";
+  const annexDetails = data.annexDetails || "No se han registrado equipos para este contrato.";
+
+  // Hardcoded Company Info
+  const companyName = "SEGURIDAD 24-7 DEL ECUADOR CIA. LTDA.";
+  const companyRep = "EDWIN YUBILLO";
+  const companyRuc = "1793205916001";
+
+  // Format Dates
+  const formatDateES = (dateString) => {
+      if(!dateString) return "______";
+      try {
+        // Handle Firestore Timestamp if applicable
+        if(dateString.toDate) dateString = dateString.toDate();
+        
+        const date = new Date(dateString);
+        // Fix timezone offset issue manually if needed, or simple string split if YYYY-MM-DD
+        if (typeof dateString === 'string' && dateString.includes('-')) {
+             const [y, m, d] = dateString.split('-');
+             const months = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+             return `${d} de ${months[parseInt(m)-1]} del ${y}`;
+        }
+        
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return date.toLocaleDateString('es-ES', options);
+      } catch (e) { return "______"; }
+  };
+
+  const signDateText = formatDateES(signDate);
+  const startDateText = formatDateES(startDate);
+
+  // Map signatures dynamically
+  const firmaHTML = data.clientSignature 
+    ? `
+    <div style="margin-top: 80px; display: flex; justify-content: space-between; page-break-inside: avoid;">
+        <div style="text-align: center; width: 45%;">
+            <div style="border-bottom: 2px solid #000; margin-bottom: 12px; height: 100px; display: flex; align-items: flex-end; justify-content: center;">
+                <!-- Company signature space -->
+            </div>
+            <p style="font-weight: 800; text-transform: uppercase; margin: 0; font-size: 14px; color: #000;">${companyRep}</p>
+            <p style="margin: 4px 0; font-size: 12px; color: #666; font-style: italic;">Representante Legal</p>
+            <p style="margin: 0; font-size: 11px; font-weight: 700; color: #d4af37; letter-spacing: 1px;">COMPAÑÍA DE SEGURIDAD</p>
+        </div>
+        <div style="text-align: center; width: 45%;">
+             <div style="border-bottom: 2px solid #000; margin-bottom: 12px; min-height: 100px; display: flex; align-items: center; justify-content: center;">
+                <img src="${data.clientSignature}" crossorigin="anonymous" alt="Firma del cliente" style="max-height: 90px; max-width: 180px;">
+             </div>
+             <p style="font-weight: 800; text-transform: uppercase; margin: 0; font-size: 14px; color: #000;">${complexRep}</p>
+             <p style="margin: 4px 0; font-size: 12px; color: #666; font-style: italic;">EL CLIENTE / CONTRATANTE</p>
+             <p style="margin: 0; font-size: 11px; font-weight: 700; color: #000; text-transform: uppercase;">${complexName}</p>
+        </div>
+    </div>
   `
-      : ""
-    }
-  
+    : `
+    <div style="margin-top: 80px; display: flex; justify-content: space-between; page-break-inside: avoid;">
+        <div style="text-align: center; width: 45%;">
+            <div style="border-bottom: 2px solid #000; margin-bottom: 12px; height: 100px;"></div>
+            <p style="font-weight: 800; text-transform: uppercase; margin: 0; font-size: 14px; color: #000;">${companyRep}</p>
+            <p style="margin: 4px 0; font-size: 12px; color: #666; font-style: italic;">Representante Legal</p>
+        </div>
+        <div style="text-align: center; width: 45%;">
+             <div style="border-bottom: 2px solid #000; margin-bottom: 12px; height: 100px;"></div>
+             <p style="font-weight: 800; text-transform: uppercase; margin: 0; font-size: 14px; color: #000;">${complexRep}</p>
+             <p style="margin: 4px 0; font-size: 12px; color: #666; font-style: italic;">EL CLIENTE</p>
+        </div>
+    </div>
+  `;
+
+  // Main Contract Template with Verbatim 11 clauses
+  const content = `
+    <div style="font-family: 'Times New Roman', serif; line-height: 1.6; color: #000; padding: 60px 50px; background: #fff; width: 800px; margin: 0 auto; box-sizing: border-box;">
+      
+      <!-- ELEGANT HEADER -->
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 40px; border-bottom: 3px solid #d4af37; padding-bottom: 20px;">
+        <div style="width: 160px;">
+          <img src="assets/img/logo.png" alt="Logo" style="max-width: 100%; height: auto;">
+        </div>
+        <div style="text-align: right;">
+          <h2 style="margin: 0; color: #d4af37; font-size: 24px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;">SEGURIDAD 24-7</h2>
+          <p style="margin: 4px 0 0; font-size: 10px; color: #444; font-family: 'Helvetica', sans-serif; text-transform: uppercase; letter-spacing: 2px; font-weight: 600;">Vigilancia Virtual de Alta Gama</p>
+          <p style="margin: 2px 0 0; font-size: 9px; color: #777; font-family: 'Helvetica', sans-serif;">RUC: ${companyRuc}</p>
+        </div>
+      </div>
+
+      <h3 style="text-align: center; font-weight: 900; margin-bottom: 40px; color: #000; text-transform: uppercase; font-size: 17px; letter-spacing: 0.5px; line-height: 1.4;">
+        CONTRATO DE PRESTACIÓN DE SERVICIOS DE SEGURIDAD PRIVADA Y<br>VIGILANCIA CON GUARDIAS VIRTUALES
+      </h3>
+
+      <div style="text-align: justify; font-size: 14px; color: #000;">
+        <p style="margin-bottom: 18px;">
+          En la ciudad de San Francisco de Quito, a los <strong>${signDateText}</strong>, comparecen, a celebrar el presente contrato mercantil de prestación de servicios de seguridad privada, por una parte <strong>${complexRep}</strong> en calidad de representante legal de <strong>${complexName}</strong> con RUC <strong>${complexRuc}</strong> a quien para los efectos del presente contrato se lo denominará también <strong>El Cliente</strong>; y, por otra parte, comparecen a la suscripción de este contrato el señor <strong>${companyRep}</strong>, en calidad de representante legal de <strong>SEGURIDAD 24-7 DEL ECUADOR CIA. LTDA.</strong>, con RUC <strong>${companyRuc}</strong> a quien para los efectos del presente contrato se lo podrá denominar <strong>la Compañía de Seguridad</strong>.
+        </p>
+
+        <p style="margin-bottom: 18px; font-style: italic; color: #222; text-align: center; border: 1px solid #f1e6c9; background: #fdfaf0; padding: 10px;">
+          Las partes libres y voluntariamente, por así convenir a sus mutuos intereses, acuerdan el contenido del presente contrato al tenor de las siguientes clausulas:
+        </p>
+
+        <!-- CLAUSE 1 -->
+        <div style="margin-bottom: 18px;">
+          <p style="margin-bottom: 5px;"><strong>PRIMERA.- ANTECEDENTES:</strong></p>
+          <p>
+            El Beneficiario requiere contratar los servicios de seguridad privada, resguardo y protección virtual, mediante el monitoreo al sistema de cámaras, perifoneo en tiempo real las 24 horas de lunes a domingo, desde el <strong>${startDateText}</strong> para custodiar <strong>${complexName}</strong> ubicado en la provincia de Pichincha, cantón <strong>${canton}</strong>, dirección: <strong>${address}</strong>, a fin de cuidarlo y protegerlo, conforme a las normas de seguridad privada y a las indicaciones proporcionadas por el Beneficiario, quien ha creído conveniente a sus intereses contratar este servicio.
+          </p>
+          <p style="margin-top: 8px;">
+            El Beneficiario solicita personal capacitado y calificado tanto en los procedimientos de vigilancia y control, como el manejo de equipos de comunicación, equipos de emergencia y otros que la función lo requiera.
+          </p>
+          <p style="margin-top: 8px;">
+            <strong>${companyName}</strong>, es una compañía legalmente constituida, cuyas oficinas se encuentran ubicadas en la calle Pedro Cando N59-116 y Antonio Macata (SECTOR LA KENNEDY) de la ciudad de San Francisco de Quito, dedicada de forma habitual y por cuenta propia, a prestar los servicios de prevención del delito, vigilancia y seguridad a favor de personas naturales y jurídicas, instalaciones y bienes, deposito, custodia y transporte de valores y otras conexas en el área de seguridad privada.
+          </p>
+        </div>
+
+        <!-- CLAUSE 2 -->
+        <div style="margin-bottom: 18px;">
+          <p style="margin-bottom: 5px;"><strong>SEGUNDA. - CONTRATACIÓN DEL SERVICIO DE SEGURIDAD:</strong></p>
+          <p>
+            Teniendo como base los antecedentes enunciados, El Cliente contrata resguardo y protección privada virtual, mediante el monitoreo al sistema de cámaras, perifoneo las 24 horas de lunes a domingo, adicional la empresa en caso de emergencia como intentos de robo, asalto, hurto, etc., la compañía coordinará con ECU 911, auxilio inmediato, además que personal motorizado propio de la compañía acudirá en auxilio, en un tiempo promedio de 20 minutos, para socorrer ante el incidente presentado con el fin de proteger, custodiar y brindar máxima seguridad interna y externa al lugar indicado.
+          </p>
+          <p style="margin-top: 8px;">
+            La Compañía de Seguridad se compromete a colocar la infraestructura necesaria que garantice:
+            <br>Alerta de identificación de movimiento/detección de personas en horas de poco tránsito para que, La Compañía de Seguridad alerte de forma temprana e identifique posibles riesgos.
+            <br>Para corroborar el cumplimiento de este, se anexará (Anexo 1) a este contrato un informe de los componentes instalados, Adicional, El Cliente podrá solicitar un nuevo informe del cumplimiento de cobertura de los vídeos cuando lo considere necesario. Si estos equipos presentan fallas y deben ser reparados o reposicionados, este costo lo asumirá la Compañía de Seguridad.
+            <br>La Compañía de Seguridad brindará el servicio de rondas a través de un motorizado o camioneta que visitará el Domicilio una vez al día en un horario aleatorio.
+          </p>
+        </div>
+
+        <!-- CLAUSE 3 -->
+        <div style="margin-bottom: 18px; background: #fdfbf5; padding: 20px; border-left: 5px solid #d4af37;">
+          <p style="margin: 0;"><strong>TERCERA. - PRECIO:</strong> El valor por el servicio de seguridad es por la cantidad de <span style="font-size: 18px; font-weight: 900; color: #d4af37;">$${price} USD</span> (+ IVA), cancelados los primeros 5 días del mes. El retiro del valor mensual a pagar será efectuado por un delegado oficial del personal administrativo debidamente autorizado de SEGURIDAD 24/7.</p>
+        </div>
+
+        <!-- CLAUSE 4 -->
+        <div style="margin-bottom: 18px;">
+          <p style="margin-bottom: 5px;"><strong>CUARTA. - PLAZO:</strong> El plazo de duración do el presente contrato es por <strong>${duration} meses</strong>, renovable automáticamente si no existe aviso previo de 30 días.</p>
+        </div>
+
+        <!-- CLAUSE 5 -->
+        <div style="margin-bottom: 18px;">
+          <p style="margin-bottom: 5px;"><strong>QUINTA. - CONDICIONES ESPECIALES:</strong> La empresa de seguridad., conjuntamente con el Supervisor de Seguridad controlarán coordinadamente la función de los Guardias Virtuales.</p>
+        </div>
+
+        <!-- CLAUSE 6 -->
+        <div style="margin-bottom: 18px;">
+            <p style="margin-bottom: 5px;"><strong>SEXTA. - RESPONSABILIDAD DE LA EMPRESA DE SEGURIDAD:</strong> La compañía se responsabiliza a disponer de una pantalla exclusiva para el monitoreo institucional y dar recomendaciones preventivas.</p>
+        </div>
+
+        <!-- CLAUSE 7 -->
+        <div style="margin-bottom: 18px;">
+            <p style="margin-bottom: 5px;"><strong>SEPTIMO. - SERVICIO ADICIONAL:</strong> SEGURIDAD 24/7 posee una póliza de responsabilidad civil de $100.000,00 USD contratada con la aseguradora Zúrich.</p>
+        </div>
+
+        <!-- CLAUSE 8 -->
+        <div style="margin-bottom: 18px;">
+            <p style="margin-bottom: 5px;"><strong>OCTAVA. - PARTES DEL CONTRATO:</strong> Nombramientos, copias de cédulas, oferta y Anexo 1 forman parte este contrato.</p>
+        </div>
+
+        <!-- CLAUSE 9 -->
+        <div style="margin-bottom: 18px;">
+            <p style="margin-bottom: 5px;"><strong>NOVENA. - FORMA DE PAGO:</strong> Pago dentro de los 5 primeros días. El incumplimiento causará la suspensión del servicio.</p>
+        </div>
+
+        <!-- CLAUSE 10 -->
+        <div style="margin-bottom: 18px;">
+            <p style="margin-bottom: 5px;"><strong>DECIMA. - TERMINACIÓN DEL CONTRATO:</strong> Terminación por violación de cláusulas o decisión unilateral con 30 días de aviso previo.</p>
+        </div>
+
+        <!-- CLAUSE 11 -->
+        <div style="margin-bottom: 18px;">
+            <p style="margin-bottom: 5px;"><strong>DECIMA PRIMERA. - JURISDICCIÓN Y COMPETENCIA:</strong> Sometimiento a mediación o a los jueces civiles del Distrito Metropolitano de Quito.</p>
+        </div>
+
+        <p style="margin-top: 40px; font-weight: 700; text-align: center; color: #111; padding-top: 20px; border-top: 1px solid #eee;">
+          Para constancia de lo estipulado, las partes firman el presente contrato digital.
+        </p>
+
+        ${firmaHTML}
+
+        <!-- ANNEX PAGE -->
+        <div style="page-break-before: always; border-top: 2px dashed #d4af37; margin-top: 50px; padding-top: 50px;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h4 style="font-weight: 900; color: #d4af37; text-transform: uppercase; font-size: 16px; letter-spacing: 1px;">ANEXO 1: EQUIPAMIENTO INSTALADO</h4>
+          </div>
+          <div style="border: 2px solid #f1e6c9; padding: 30px; min-height: 250px; background: #fffcf5; border-radius: 10px; white-space: pre-line; font-family: 'Courier New', monospace; font-size: 13px; color: #222;">
+            ${annexDetails}
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-top: 40px;">
+               <div style="text-align: center; width: 45%;">
+                   <p style="font-size: 11px; font-weight: 600; margin-bottom: 30px; color: #888;">ENTREGA EQUIPOS</p>
+                   <p style="border-top: 2px solid #000; padding-top: 8px; font-weight: 900; font-size: 13px;">${companyRep}</p>
+               </div>
+               <div style="text-align: center; width: 45%;">
+                   <p style="font-size: 11px; font-weight: 600; margin-bottom: 30px; color: #888;">RECIBE CONFORME</p>
+                   <p style="border-top: 2px solid #000; padding-top: 8px; font-weight: 900; font-size: 13px;">${complexRep}</p>
+               </div>
+          </div>
+        </div>
+
+        ${
+          data.clientIdPhoto
+            ? `
+          <div style="margin-top: 50px; text-align: center; page-break-before: always;">
+            <div style="border-bottom: 3px solid #d4af37; padding-bottom: 10px; margin-bottom: 25px;">
+                <h4 style="font-weight: 900; color: #000; text-transform: uppercase; font-size: 16px;">EVIDENCIA: CÉDULA DE IDENTIDAD / RUC</h4>
+            </div>
+            <div style="display: inline-block; padding: 10px; border: 1px solid #eee; background: #fff; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                <img src="${data.clientIdPhoto}" crossorigin="anonymous" alt="Cédula" style="max-width: 500px; width: 100%; height: auto; border-radius: 5px;">
+            </div>
+          </div>
+          `
+            : ""
+        }
+
+      </div>
     </div>
   `;
 
   contractContentArea.innerHTML = content;
 }
 
+// =========================================
+//  MOSTRAR CONTRATO GENERADO
+// =========================================
 // ===========================
 // ✅ LOGIN ADMIN
 // ===========================
@@ -2015,12 +1616,25 @@ function renderContratos(contratosList) {
   }
 
   contratosList.forEach((data) => {
-    const contractDate = new Date(data.date + "T00:00:00");
-    const formattedDate = contractDate.toLocaleDateString("es-ES", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
+    // Handling new and old field names
+    const signDate = data.signDate || data.date;
+    const name = data.complexName || data.clientName || "Sin Nombre";
+    const idNum = data.complexRuc || data.clientId || "---";
+    const priceVal = data.price || data.servicePrice || "0.00";
+
+    let formattedDate = "---";
+    if (signDate) {
+      try {
+        const contractDate = new Date(signDate + "T00:00:00");
+        formattedDate = contractDate.toLocaleDateString("es-ES", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        });
+      } catch (e) {
+        formattedDate = "Error Fecha";
+      }
+    }
 
     // Verificar si el contrato está completado
     const isCompleted = data.clientSignature && data.clientIdPhoto;
@@ -2031,16 +1645,15 @@ function renderContratos(contratosList) {
     container.innerHTML += `
       <div class="col-lg-4 col-md-6 col-12">
         <div class="job-card">
-          <h5>Contrato: ${data.clientName}</h5>
+          <h5>Contrato: ${name}</h5>
           <div class="job-divider"></div>
           ${statusBadge}
           <p><strong>Fecha:</strong> ${formattedDate}</p>
-          <p><strong>Cliente:</strong> ${data.clientName}</p>
-          <p><strong>Cédula:</strong> ${data.clientId}</p>
-          <p><strong>Precio:</strong> $${data.servicePrice} + IVA</p>
+          <p><strong>Cliente:</strong> ${name}</p>
+          <p><strong>Cédula/RUC:</strong> ${idNum}</p>
+          <p><strong>Precio:</strong> $${priceVal} + IVA</p>
           <div class="d-flex gap-2 mt-3">
-            <button class="btn-view-report" onclick="verContrato('${data.id
-      }')">
+            <button class="btn-view-report" onclick="verContrato('${data.id}')">
               <i class="fa-solid fa-eye"></i> 
             </button>
             ${isCompleted
@@ -2055,7 +1668,6 @@ function renderContratos(contratosList) {
               <i class="fa-solid fa-trash"></i> 
             </button>
           </div>
-
         </div>
       </div>
     `;
