@@ -222,37 +222,93 @@
 
           <!-- Jobs Section -->
           <div id="jobsSection" style="display: none">
-            <!-- Container for filters under the title -->
-            <div
-              class="d-flex flex-column align-items-center gap-3 mb-5"
-              id="jobsFilterContainer"
-            >
-              <div class="d-flex gap-3 flex-wrap justify-content-center w-100">
-                <select
-                  id="jobUrgencyFilter"
-                  class="modern-select text-center"
-                  style="min-width: 200px"
+            <!-- STATUS FILTER CARDS -->
+            <div class="row g-4 mb-5">
+              <div class="col-md-6">
+                <div
+                  class="stat-card status-filter-card active"
+                  id="filterPendingJobs"
+                  onclick="window.setStatusFilter('Pendiente')"
+                  style="cursor: pointer"
                 >
+                  <div
+                    class="stat-card-icon"
+                    style="background: rgba(212, 175, 55, 0.1); color: #d4af37"
+                  >
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                  </div>
+                  <div class="stat-card-info">
+                    <p class="stat-label">Trabajos</p>
+                    <h3 class="mb-0">
+                      <span id="countPendingJobs">0</span>
+                      <small style="font-size: 0.9rem; font-weight: 500"
+                        >Pendientes</small
+                      >
+                    </h3>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div
+                  class="stat-card status-filter-card"
+                  id="filterFinishedJobs"
+                  onclick="window.setStatusFilter('Culminado')"
+                  style="cursor: pointer"
+                >
+                  <div
+                    class="stat-card-icon"
+                    style="background: rgba(28, 182, 152, 0.1); color: #1cb698"
+                  >
+                    <i class="fa-solid fa-circle-check"></i>
+                  </div>
+                  <div class="stat-card-info">
+                    <p class="stat-label">Trabajos</p>
+                    <h3 class="mb-0">
+                      <span id="countFinishedJobs">0</span>
+                      <small style="font-size: 0.9rem; font-weight: 500"
+                        >Terminados</small
+                      >
+                    </h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- JOBS FILTERS & CREATE BUTTON (MODERN ROW) -->
+            <div class="row g-3 mb-5 align-items-center justify-content-center">
+              <div class="col-12 col-md-4">
+                <select id="jobUrgencyFilter" class="modern-select w-100">
                   <option value="todas">Urgencia: Todas</option>
                   <option value="Normal">Normal</option>
                   <option value="Urgente">Urgente</option>
                   <option value="Crítico">Crítico</option>
                 </select>
-                <input
-                  type="text"
-                  id="jobSearchInput"
-                  class="modern-input text-center"
-                  placeholder="Buscar cliente..."
-                  style="min-width: 250px"
-                />
               </div>
-              <button
-                class="btn btn-gold px-4"
-                data-bs-toggle="modal"
-                data-bs-target="#addJobModal"
-              >
-                <i class="fa-solid fa-plus me-2"></i> Crear Trabajo
-              </button>
+              <div class="col-12 col-md-5">
+                <div class="premium-search" style="height: 48px">
+                  <i class="fa-solid fa-magnifying-glass search-icon-gold"></i>
+                  <input
+                    type="text"
+                    id="jobSearchInput"
+                    class="form-control search-input-glass w-100 h-100"
+                    placeholder="Buscar cliente..."
+                    style="
+                      border-radius: 8px !important;
+                      padding-left: 45px !important;
+                    "
+                  />
+                </div>
+              </div>
+              <div class="col-12 col-md-3">
+                <button
+                  class="btn btn-gold w-100 h-100 py-2 fw-bold shadow-gold"
+                  data-bs-toggle="modal"
+                  data-bs-target="#addJobModal"
+                  style="min-height: 48px; border-radius: 8px"
+                >
+                  <i class="fa-solid fa-plus me-2"></i> Nuevo Trabajo
+                </button>
+              </div>
             </div>
 
             <div id="jobsContainer" class="row g-4">
@@ -1539,6 +1595,15 @@
                 dynamicTitle.textContent = "Gestión de Trabajos";
                 dynamicTitle.style.display = "block";
               }
+
+              // Reset Status Filter UI
+              window.currentJobStatusFilter = "Pendiente";
+              const pendingCard = document.getElementById("filterPendingJobs");
+              const finishedCard =
+                document.getElementById("filterFinishedJobs");
+              if (pendingCard) pendingCard.classList.add("active");
+              if (finishedCard) finishedCard.classList.remove("active");
+
               cargarTrabajos();
             }
 
@@ -2373,6 +2438,61 @@
 
         // --- GESTIÓN DE TRABAJOS (CRUD) ---
         window.allTrabajos = [];
+        window.currentJobStatusFilter = "Pendiente";
+
+        window.setStatusFilter = function (status) {
+          window.currentJobStatusFilter = status;
+
+          const pendingCard = document.getElementById("filterPendingJobs");
+          const finishedCard = document.getElementById("filterFinishedJobs");
+
+          if (pendingCard && finishedCard) {
+            if (status === "Pendiente") {
+              pendingCard.classList.add("active");
+              finishedCard.classList.remove("active");
+            } else {
+              pendingCard.classList.remove("active");
+              finishedCard.classList.add("active");
+            }
+          }
+
+          window.applyFilters();
+        };
+
+        window.applyFilters = function () {
+          console.log("Applying filters (Ops)...");
+          const urgencyFilter = document.getElementById("jobUrgencyFilter");
+          const nameFilter = document.getElementById("jobSearchInput");
+
+          const urgencyValue = urgencyFilter ? urgencyFilter.value : "todas";
+          const nameValue = nameFilter ? nameFilter.value.toLowerCase() : "";
+
+          console.log("Filter values (Ops):", {
+            urgencyValue,
+            nameValue,
+            status: window.currentJobStatusFilter,
+          });
+
+          const filtered = window.allTrabajos.filter((job) => {
+            const matchUrgency =
+              urgencyValue === "todas" || job.jobUrgency === urgencyValue;
+            const matchName = (job.clientName || "")
+              .toLowerCase()
+              .includes(nameValue);
+
+            let matchStatus = true;
+            if (window.currentJobStatusFilter === "Pendiente") {
+              matchStatus = job.status !== "Culminado";
+            } else {
+              matchStatus = job.status === "Culminado";
+            }
+
+            return matchUrgency && matchName && matchStatus;
+          });
+
+          console.log("Found jobs (Ops):", filtered.length);
+          window.renderTrabajos(filtered);
+        };
 
         window.cargarTrabajos = async () => {
           const container = document.getElementById("jobsContainer");
@@ -2391,7 +2511,22 @@
                 window.allTrabajos.push({ id: doc.id, ...data });
               }
             });
-            renderTrabajos(window.allTrabajos);
+
+            // Actualizar contadores de las cards de filtro
+            const pendingCount = window.allTrabajos.filter(
+              (j) => j.status !== "Culminado",
+            ).length;
+            const finishedCount = window.allTrabajos.filter(
+              (j) => j.status === "Culminado",
+            ).length;
+
+            const countPendingEl = document.getElementById("countPendingJobs");
+            const countFinishedEl =
+              document.getElementById("countFinishedJobs");
+            if (countPendingEl) countPendingEl.textContent = pendingCount;
+            if (countFinishedEl) countFinishedEl.textContent = finishedCount;
+
+            window.applyFilters();
           } catch (error) {
             console.error("Error al cargar trabajos:", error);
             container.innerHTML = `<p class="text-center text-danger w-100">Error al cargar los trabajos.</p>`;
@@ -2836,31 +2971,11 @@
         // Filtros de trabajos
         document
           .getElementById("jobUrgencyFilter")
-          .addEventListener("change", (e) => {
-            const val = e.target.value;
-            const search = document
-              .getElementById("jobSearchInput")
-              .value.toLowerCase();
-            const filtered = window.allTrabajos.filter(
-              (j) =>
-                (val === "todas" || j.jobUrgency === val) &&
-                j.clientName.toLowerCase().includes(search),
-            );
-            renderTrabajos(filtered);
-          });
+          .addEventListener("change", window.applyFilters);
 
         document
           .getElementById("jobSearchInput")
-          .addEventListener("input", (e) => {
-            const val = e.target.value.toLowerCase();
-            const urgency = document.getElementById("jobUrgencyFilter").value;
-            const filtered = window.allTrabajos.filter(
-              (j) =>
-                (urgency === "todas" || j.jobUrgency === urgency) &&
-                j.clientName.toLowerCase().includes(val),
-            );
-            renderTrabajos(filtered);
-          });
+          .addEventListener("input", window.applyFilters);
 
         const passwordSearchInput = document.getElementById(
           "passwordSearchInput",

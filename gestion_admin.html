@@ -97,7 +97,7 @@
               Gestión de Administrador
             </h1>
 
-            <!-- Filtros Secundarios Integrados -->
+            <!-- Filtros Secundarios Integrados (Solo para Contratos/Admins/Pagos) -->
             <div class="d-flex gap-3 align-items-center">
               <div id="urgencyFilterContainer" style="display: none">
                 <select
@@ -305,6 +305,8 @@
           <!-- Contenedor con los trabajos cargados -->
           <div id="jobsSection" style="display: none">
             
+            <h2 class="section-title mb-5">Gestión de Trabajos</h2>
+
             <!-- STATUS FILTER CARDS -->
             <div class="row g-4 mb-5">
               <div class="col-md-6">
@@ -331,8 +333,30 @@
               </div>
             </div>
 
-            <h2 style="color: #fff; margin-top: 20px">Listado de Trabajos</h2>
-            <div id="jobsContainer" class="row g-4"></div>
+            <!-- JOBS FILTERS & CREATE BUTTON (MODERN ROW) -->
+            <div class="row g-3 mb-5 align-items-center justify-content-center">
+              <div class="col-12 col-md-4">
+                <select id="jobUrgencyFilter" class="modern-select w-100">
+                  <option value="todas">Urgencia: Todas</option>
+                  <option value="Normal">Normal</option>
+                  <option value="Urgente">Urgente</option>
+                  <option value="Crítico">Crítico</option>
+                </select>
+              </div>
+              <div class="col-12 col-md-5">
+                <div class="premium-search" style="height: 48px;">
+                  <i class="fa-solid fa-magnifying-glass search-icon-gold"></i>
+                  <input type="text" id="jobSearchInput" class="form-control search-input-glass w-100 h-100" placeholder="Buscar cliente..." style="border-radius: 8px !important; padding-left: 45px !important;">
+                </div>
+              </div>
+              <div class="col-12 col-md-3">
+                <button class="btn btn-gold w-100 h-100 py-2 fw-bold shadow-gold" data-bs-toggle="modal" data-bs-target="#addJobModal" style="min-height: 48px; border-radius: 8px;">
+                  <i class="fa-solid fa-plus me-2"></i> Nuevo Trabajo
+                </button>
+              </div>
+            </div>
+
+            <div id="jobsContainer" class="row g-4" style="margin-bottom: 20px;"></div>
           </div>
 
           <!-- Contenedor para los conjuntos -->
@@ -442,7 +466,7 @@
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content bg-dark border-gold shadow-lg">
           <div class="modal-header border-bottom border-secondary">
-            <h5 class="modal-title text-gold">
+            <h5 class="modal-title text-white">
                <i class="fa-solid fa-briefcase me-2"></i> Agregar Trabajo
             </h5>
             <button

@@ -200,12 +200,30 @@ body {
 }
 
 @media (max-width: 768px) {
-  /* Center all content on mobile */
-  .main-content {
-    padding: 20px 15px 15px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  /* CENTER TITLES STRICTLY */
+  h1,
+  h2,
+  .section-title {
+    text-align: center !important;
+  }
+
+  .section-title {
+    position: relative;
+    display: inline-block;
+    padding-bottom: 15px;
+    width: 100%;
+  }
+
+  .section-title::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: #d4af37;
+    border-radius: 5px;
   }
 
   .container-fluid {
@@ -804,6 +822,9 @@ main {
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   position: relative;
   overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .job-card::before {
@@ -851,6 +872,28 @@ main {
   box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3);
 }
 
+.section-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #d4af37;
+  text-align: center;
+  margin-bottom: 40px;
+  padding-bottom: 15px;
+  position: relative;
+}
+
+.section-title::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 4px;
+  background-color: #d4af37;
+  border-radius: 2px;
+}
+
 .job-card h5 {
   color: #d4af37;
 }
@@ -863,31 +906,46 @@ main {
 
 /* BUTTON DELETE */
 .btn-delete {
-  background: #8b0000;
-  border: none;
-  color: #fff;
-  padding: 10px;
-  width: 100%;
-  border-radius: 10px;
+  background: #c0392b !important;
+  border: none !important;
+  color: #fff !important;
+  padding: 12px 10px !important;
+  width: 100% !important;
+  border-radius: 12px !important;
+  font-weight: 700 !important;
+  transition: all 0.3s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
 }
 
 .btn-delete:hover {
-  background: #b30000;
+  background: #e74c3c !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 5px 15px rgba(192, 57, 43, 0.4) !important;
 }
 
 /* BUTTON VIEW REPORT */
 .btn-view-report {
-  background: #17a2b8;
-  border: none;
-  color: #fff;
-  padding: 10px;
-  width: 100%;
-  border-radius: 10px;
-  text-align: center;
+  background: #17a2b8 !important;
+  border: none !important;
+  color: #fff !important;
+  padding: 12px !important;
+  width: 100% !important;
+  border-radius: 12px !important;
+  font-weight: 700 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  transition: all 0.3s ease !important;
 }
 
 .btn-view-report:hover {
-  background: #138496;
+  background: #138496 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 5px 15px rgba(23, 162, 184, 0.4) !important;
 }
 
 .evidence-container {
@@ -969,19 +1027,24 @@ main {
 
 /* BUTTON EDIT */
 .btn-edit {
-  background: #d4af37;
-  color: #000;
-  border: none;
-  padding: 10px;
-  border-radius: 10px;
-  font-weight: bold;
-  transition: 0.3s ease-in-out;
+  background: #d4af37 !important;
+  color: #000 !important;
+  border: none !important;
+  padding: 12px 10px !important;
+  width: 100% !important;
+  border-radius: 12px !important;
+  font-weight: 700 !important;
+  transition: all 0.3s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
 }
 
 .btn-edit:hover {
-  background: #f0c95c;
-  box-shadow: 0 0 12px rgba(212, 175, 55, 0.7);
-  color: #000;
+  background: #f1c40f !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4) !important;
 }
 
 .d-flex.gap-2.mt-3 button {
@@ -2194,7 +2257,7 @@ main {
   background: rgba(255, 255, 255, 0.05) !important;
   border: 1px solid rgba(212, 175, 55, 0.3) !important;
   color: #fff !important;
-  border-radius: 50px !important;
+  border-radius: 8px !important;
   padding: 12px 20px 12px 45px !important; /* pl-45 for icon */
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
@@ -2294,4 +2357,55 @@ main {
 
 #filterFinishedJobs.active::after {
   background: #1cb698;
+}
+
+/* Job Section Badges (Matching Ops) */
+.badge-normal {
+  background: #3498db !important;
+  color: #fff !important;
+}
+.badge-urgente {
+  background: #f1c40f !important;
+  color: #000 !important;
+}
+.badge-critico {
+  background: #e74c3c !important;
+  color: #fff !important;
+}
+
+.job-divider {
+  height: 2px;
+  background: linear-gradient(to right, #d4af37, transparent);
+  margin: 10px 0 15px;
+}
+
+.shadow-gold {
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+}
+
+/* Modern Input/Select (Global) */
+.modern-select,
+.modern-input,
+.search-input-glass {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(212, 175, 55, 0.3) !important;
+  color: #fff !important;
+  padding: 10px 15px !important;
+  border-radius: 8px !important;
+  outline: none !important;
+  transition: all 0.3s ease !important;
+  height: 48px !important;
+}
+
+.modern-select:focus,
+.modern-input:focus,
+.search-input-glass:focus {
+  border-color: #d4af37 !important;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.2) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.modern-select option {
+  background: #1a1a1a !important;
+  color: #fff !important;
 }

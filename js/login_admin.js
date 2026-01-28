@@ -111,9 +111,9 @@ document.addEventListener("DOMContentLoaded", () => {
       
       if (viewValue === "finished") {
         jobsSection.style.display = "block";
-        createJobBtn.style.display = "flex";
-        urgencyFilterContainer.style.display = "block";
-        nameFilterContainer.style.display = "block";
+        createJobBtn.style.display = "none"; // Now inside the section
+        urgencyFilterContainer.style.display = "none";
+        nameFilterContainer.style.display = "none";
         
         // Reset Filter UI
         window.currentJobStatusFilter = "Pendiente";
@@ -187,9 +187,84 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Handle logout from sidebar (Tied to activarLogout)
 
-    // Listeners para filtros secundarios
-    urgencyFilter.addEventListener("change", window.applyFilters);
-    nameFilter.addEventListener("input", window.applyFilters);
+    // --- Lógica de Filtrado Centralizada ---
+    window.applyFilters = function() {
+      console.log("Applying filters... Current View:", window.currentView);
+      let urgencyFilter, nameFilter;
+
+      if (window.currentView === "finished") {
+        urgencyFilter = document.getElementById("jobUrgencyFilter");
+        nameFilter = document.getElementById("jobSearchInput");
+      } else {
+        urgencyFilter = document.getElementById("urgencyFilter");
+        nameFilter = document.getElementById("nameFilter");
+      }
+      
+      const urgencyValue = urgencyFilter ? urgencyFilter.value : "todas";
+      const nameValue = nameFilter ? nameFilter.value.toLowerCase() : "";
+      const currentView = window.currentView;
+
+      console.log("Filter values:", { urgencyValue, nameValue, status: window.currentJobStatusFilter });
+
+      if (currentView === "finished" || currentView === "todos") {
+        const filteredTrabajos = window.allTrabajos.filter(job => {
+          const matchUrgency = urgencyValue === "todas" || job.jobUrgency === urgencyValue;
+          const matchName = (job.clientName || "").toLowerCase().includes(nameValue);
+          
+          let matchStatus = true;
+          if (currentView === "finished") {
+             if (window.currentJobStatusFilter === "Pendiente") {
+               matchStatus = job.status !== "Culminado";
+             } else {
+               matchStatus = job.status === "Culminado";
+             }
+          }
+          
+          return matchUrgency && matchName && matchStatus;
+        });
+        console.log("Found jobs:", filteredTrabajos.length);
+        window.renderTrabajos(filteredTrabajos);
+      }
+
+      if (currentView === "contracts" || currentView === "todos") {
+        const filteredContratos = window.allContratos.filter(contract => {
+          const name = contract.complexName || contract.clientName || "";
+          const matchName = name.toLowerCase().includes(nameValue);
+          return matchName;
+        });
+        if (typeof renderContratos === "function") renderContratos(filteredContratos);
+      }
+
+      if (currentView === "admins") {
+        const filteredAdmins = window.allAdmins.filter(admin => {
+          const matchName = admin.adminName?.toLowerCase().includes(nameValue) || 
+                            admin.complexName?.toLowerCase().includes(nameValue) ||
+                            admin.email?.toLowerCase().includes(nameValue);
+          return matchName;
+        });
+        if (typeof renderAdmins === "function") renderAdmins(filteredAdmins);
+      }
+
+      if (currentView === "payments") {
+        const filteredPayments = window.allPayments.filter(payment => {
+          const matchName = payment.userEmail?.toLowerCase().includes(nameValue) || 
+                            payment.service?.toLowerCase().includes(nameValue) ||
+                            payment.enrichedAdminName?.toLowerCase().includes(nameValue) ||
+                            payment.enrichedComplexName?.toLowerCase().includes(nameValue);
+          return matchName;
+        });
+        if (typeof renderPagos === "function") renderPagos(filteredPayments);
+      }
+    };
+
+    // --- Listeners para filtros automáticos ---
+    if (urgencyFilter) urgencyFilter.addEventListener("change", window.applyFilters);
+    if (nameFilter) nameFilter.addEventListener("input", window.applyFilters);
+
+    const jobUrgencyFilterAdmin = document.getElementById("jobUrgencyFilter");
+    const jobSearchInputAdmin = document.getElementById("jobSearchInput");
+    if (jobUrgencyFilterAdmin) jobUrgencyFilterAdmin.addEventListener("change", window.applyFilters);
+    if (jobSearchInputAdmin) jobSearchInputAdmin.addEventListener("input", window.applyFilters);
 
     async function actualizarContadoresDashboard() {
       const db = firebase.firestore();
@@ -234,63 +309,7 @@ document.addEventListener("DOMContentLoaded", () => {
       cargarNotificacionesPagosPendientes();
     }
 
-    window.applyFilters = function() {
-      const urgencyFilter = document.getElementById("urgencyFilter");
-      const nameFilter = document.getElementById("nameFilter");
-      
-      const urgencyValue = urgencyFilter ? urgencyFilter.value : "todas";
-      const nameValue = nameFilter ? nameFilter.value.toLowerCase() : "";
-      const currentView = window.currentView;
 
-      if (currentView === "finished" || currentView === "todos") {
-        const filteredTrabajos = window.allTrabajos.filter(job => {
-          const matchUrgency = urgencyValue === "todas" || job.jobUrgency === urgencyValue;
-          const matchName = job.clientName.toLowerCase().includes(nameValue);
-          
-          let matchStatus = true;
-          if (currentView === "finished") {
-            if (window.currentJobStatusFilter === "Pendiente") {
-              matchStatus = job.status !== "Culminado";
-            } else {
-              matchStatus = job.status === "Culminado";
-            }
-          }
-          
-          return matchUrgency && matchName && matchStatus;
-        });
-        renderTrabajos(filteredTrabajos);
-      }
-
-      if (currentView === "contracts" || currentView === "todos") {
-        const filteredContratos = window.allContratos.filter(contract => {
-          const name = contract.complexName || contract.clientName || "";
-          const matchName = name.toLowerCase().includes(nameValue);
-          return matchName;
-        });
-        renderContratos(filteredContratos);
-      }
-
-      if (currentView === "admins") {
-        const filteredAdmins = window.allAdmins.filter(admin => {
-          const matchName = admin.adminName?.toLowerCase().includes(nameValue) || 
-                            admin.complexName?.toLowerCase().includes(nameValue) ||
-                            admin.email?.toLowerCase().includes(nameValue);
-          return matchName;
-        });
-        renderAdmins(filteredAdmins);
-      }
-
-      if (currentView === "payments") {
-        const filteredPayments = window.allPayments.filter(payment => {
-          const matchName = payment.userEmail?.toLowerCase().includes(nameValue) || 
-                            payment.service?.toLowerCase().includes(nameValue) ||
-                            payment.enrichedAdminName?.toLowerCase().includes(nameValue) ||
-                            payment.enrichedComplexName?.toLowerCase().includes(nameValue);
-          return matchName;
-        });
-        renderPagos(filteredPayments);
-      }
-    };
 
     // Listener para generar PDF
     // Listener para generar PDF (One-time generation)
@@ -1372,70 +1391,70 @@ async function cargarTrabajos() {
   }
 }
 
-function renderTrabajos(trabajosList) {
+window.renderTrabajos = function (trabajosList) {
   const container = document.getElementById("jobsContainer");
   container.innerHTML = "";
 
   if (trabajosList.length === 0) {
-    container.innerHTML = `<p style="color:white; text-align:center;">No se encontraron trabajos.</p>`;
+    container.innerHTML = `<p style="color:white; text-align:center;" class="w-100 mt-4">No se encontraron trabajos.</p>`;
     return;
   }
 
   trabajosList.forEach((data) => {
-    let reportButton = "";
-    if (data.status === "Culminado") {
-      reportButton = `
-        <button class="btn-view-report mt-2" onclick="verReporte('${data.id}')">
-          <i class="fa-solid fa-eye"></i> Ver Reporte
-        </button>`;
-    }
-
-    container.innerHTML += `
-      <div class="col-lg-4 col-md-6 col-12">
-        <div class="job-card">
-          <h5>${data.clientName}</h5>
-
-          <div class="job-divider"></div>
-
-          <p><strong>Fecha:</strong> ${data.jobDate}</p>
-
-          <p>
-            <strong>Urgencia:</strong>
-            <span class="badge 
-              ${data.jobUrgency === "Normal"
+    const urgencyClass =
+      data.jobUrgency === "Normal"
         ? "badge-normal"
         : data.jobUrgency === "Urgente"
           ? "badge-urgente"
-          : "badge-critico"
-      }">
-              ${data.jobUrgency}
-            </span>
-          </p>
+          : "badge-critico";
 
-          <p><strong>Contacto:</strong> ${data.contactName}</p>
-          <p><strong>Teléfono:</strong> ${data.contactPhone}</p>
-          
-          ${data.status ? `<p><strong>Estado:</strong> ${data.status}</p>` : ""}
+    container.innerHTML += `
+      <div class="col-xl-4 col-md-6 col-12">
+        <div class="job-card">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <h5 class="text-gold mb-0 fw-bold">${data.clientName}</h5>
+            <span class="badge ${urgencyClass}">${data.jobUrgency}</span>
+          </div>
 
-          <div class="d-flex gap-2 mt-3">
-            <button class="btn-edit" onclick="cargarTrabajoParaEditar('${data.id
-      }')">
-              <i class="fa-solid fa-pen-to-square"></i> 
-            </button>
+          <div class="job-divider"></div>
 
-            <button class="btn-delete" onclick="eliminarTrabajo('${data.id}')">
-              <i class="fa-solid fa-trash"></i> 
-            </button>
+          <div class="mb-4 small">
+            <p class="mb-2"><i class="fa-solid fa-calendar-day text-gold me-2"></i><strong>Fecha:</strong> ${data.jobDate}</p>
+            <p class="mb-2"><i class="fa-solid fa-user-tag text-gold me-2"></i><strong>Contacto:</strong> ${data.contactName}</p>
+            <p class="mb-2"><i class="fa-solid fa-phone text-gold me-2"></i><strong>Teléfono:</strong> ${data.contactPhone}</p>
+            <p class="mb-0"><i class="fa-solid fa-circle-info text-gold me-2"></i><strong>Estado:</strong> <span class="fw-bold">${data.status || "Pendiente"}</span></p>
+          </div>
+
+          <div class="row g-2 mt-auto">
+            <div class="col-6">
+              <button class="btn-edit" onclick="cargarTrabajoParaEditar('${data.id}')">
+                <i class="fa-solid fa-pen-to-square me-1"></i> Editar
+              </button>
+            </div>
+
+            <div class="col-6">
+              <button class="btn-delete" onclick="eliminarTrabajo('${data.id}')">
+                <i class="fa-solid fa-trash me-1"></i> Borrar
+              </button>
             </div>
             
-
-
-            ${reportButton}
+            ${
+              data.status === "Culminado"
+                ? `
+            <div class="col-12 mt-2">
+              <button class="btn-view-report" onclick="verReporte('${data.id}')">
+                <i class="fa-solid fa-file-lines me-1"></i> Ver Reporte
+              </button>
+            </div>
+            `
+                : ""
+            }
           </div>
         </div>
+      </div>
       `;
-    });
-  }
+  });
+}
 
   // Helper Whatsapp Global
   window.notificarWhatsapp = (type, id) => {
