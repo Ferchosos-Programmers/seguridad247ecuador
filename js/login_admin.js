@@ -49,6 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const jobsSection = document.getElementById("jobsSection");
     const contractsSection = document.getElementById("contractsSection");
     const complexesSection = document.getElementById("complexesSection");
+    const paymentsSection = document.getElementById("paymentsSection");
     const createJobBtn = document.getElementById("createJobBtn");
     const createContractBtn = document.getElementById("createContractBtn");
     const addComplexBtn = document.getElementById("addComplexBtn");
@@ -991,7 +992,7 @@ function activarLoginAdmin() {
         console.log("Debug Login - User Data:", userData);
 
         // 1. Validar existencia de datos y Rol
-        const role = userData ? userData.role : null;
+        const role = userData && userData.role ? userData.role.toLowerCase() : null;
         const isMainAdmin = user.email === 'admin@gmail.com';
         
         // Solo permitir Administradores en este formulario
@@ -1156,8 +1157,8 @@ function activarLogout() {
 // ===========================
 // 📝 GUARDAR TRABAJO NUEVO
 // ===========================
-// Helper: Resize Image
-const resizeImage = (file, maxWidth = 800, quality = 0.7) => {
+// Helper: Resize Image (Scoped to avoid conflicts)
+const resizeImageAdmin = (file, maxWidth = 800, quality = 0.7) => {
   return new Promise((resolve, reject) => {
      const reader = new FileReader();
      reader.readAsDataURL(file);
@@ -1213,7 +1214,7 @@ function configurarFormulario() {
           console.log("📸 Procesando imagen:", jobImageFile.name);
           try {
               console.log("🔄 Convirtiendo imagen a Base64...");
-              jobImageUrl = await resizeImage(jobImageFile);
+              jobImageUrl = await resizeImageAdmin(jobImageFile);
               console.log("✅ Imagen convertida a Base64 (tamaño:", jobImageUrl.length, "caracteres)");
           } catch (resizeError) {
               console.error("❌ Error al procesar imagen:", resizeError);
