@@ -304,7 +304,34 @@
 
           <!-- Contenedor con los trabajos cargados -->
           <div id="jobsSection" style="display: none">
-            <h2 style="color: #fff; margin-top: 20px">Trabajos Creados</h2>
+            
+            <!-- STATUS FILTER CARDS -->
+            <div class="row g-4 mb-5">
+              <div class="col-md-6">
+                <div class="stat-card status-filter-card active" id="filterPendingJobs" onclick="window.setStatusFilter('Pendiente')" style="cursor: pointer;">
+                  <div class="stat-card-icon" style="background: rgba(212, 175, 55, 0.1); color: #d4af37">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                  </div>
+                  <div class="stat-card-info">
+                    <p class="stat-label">Trabajos</p>
+                    <h3 class="mb-0"><span id="countPendingJobs">0</span> <small style="font-size: 0.9rem; font-weight: 500;">Pendientes</small></h3>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="stat-card status-filter-card" id="filterFinishedJobs" onclick="window.setStatusFilter('Culminado')" style="cursor: pointer;">
+                  <div class="stat-card-icon" style="background: rgba(28, 182, 152, 0.1); color: #1cb698">
+                    <i class="fa-solid fa-circle-check"></i>
+                  </div>
+                  <div class="stat-card-info">
+                    <p class="stat-label">Trabajos</p>
+                    <h3 class="mb-0"><span id="countFinishedJobs">0</span> <small style="font-size: 0.9rem; font-weight: 500;">Terminados</small></h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <h2 style="color: #fff; margin-top: 20px">Listado de Trabajos</h2>
             <div id="jobsContainer" class="row g-4"></div>
           </div>
 

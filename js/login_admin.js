@@ -42,6 +42,26 @@ document.addEventListener("DOMContentLoaded", () => {
     window.allAdmins = [];
     window.allPayments = [];
     window.currentView = "todos";
+    window.currentJobStatusFilter = "Pendiente";
+
+    window.setStatusFilter = function(status) {
+      window.currentJobStatusFilter = status;
+      
+      const pendingCard = document.getElementById("filterPendingJobs");
+      const finishedCard = document.getElementById("filterFinishedJobs");
+      
+      if (pendingCard && finishedCard) {
+        if (status === "Pendiente") {
+          pendingCard.classList.add("active");
+          finishedCard.classList.remove("active");
+        } else {
+          pendingCard.classList.remove("active");
+          finishedCard.classList.add("active");
+        }
+      }
+      
+      window.applyFilters();
+    };
 
     // Sidebar navigation
     const sidebarLinks = document.querySelectorAll(".sidebar-link[data-view]");
@@ -94,6 +114,14 @@ document.addEventListener("DOMContentLoaded", () => {
         createJobBtn.style.display = "flex";
         urgencyFilterContainer.style.display = "block";
         nameFilterContainer.style.display = "block";
+        
+        // Reset Filter UI
+        window.currentJobStatusFilter = "Pendiente";
+        const pendingCard = document.getElementById("filterPendingJobs");
+        const finishedCard = document.getElementById("filterFinishedJobs");
+        if (pendingCard) pendingCard.classList.add("active");
+        if (finishedCard) finishedCard.classList.remove("active");
+
         cargarTrabajos();
       } else if (viewValue === "contracts") {
         contractsSection.style.display = "block";
@@ -160,8 +188,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Handle logout from sidebar (Tied to activarLogout)
 
     // Listeners para filtros secundarios
-    urgencyFilter.addEventListener("change", applyFilters);
-    nameFilter.addEventListener("input", applyFilters);
+    urgencyFilter.addEventListener("change", window.applyFilters);
+    nameFilter.addEventListener("input", window.applyFilters);
 
     async function actualizarContadoresDashboard() {
       const db = firebase.firestore();
@@ -206,16 +234,29 @@ document.addEventListener("DOMContentLoaded", () => {
       cargarNotificacionesPagosPendientes();
     }
 
-    function applyFilters() {
+    window.applyFilters = function() {
+      const urgencyFilter = document.getElementById("urgencyFilter");
+      const nameFilter = document.getElementById("nameFilter");
+      
       const urgencyValue = urgencyFilter ? urgencyFilter.value : "todas";
-      const nameValue = nameFilter.value.toLowerCase();
+      const nameValue = nameFilter ? nameFilter.value.toLowerCase() : "";
       const currentView = window.currentView;
 
       if (currentView === "finished" || currentView === "todos") {
         const filteredTrabajos = window.allTrabajos.filter(job => {
           const matchUrgency = urgencyValue === "todas" || job.jobUrgency === urgencyValue;
           const matchName = job.clientName.toLowerCase().includes(nameValue);
-          return matchUrgency && matchName;
+          
+          let matchStatus = true;
+          if (currentView === "finished") {
+            if (window.currentJobStatusFilter === "Pendiente") {
+              matchStatus = job.status !== "Culminado";
+            } else {
+              matchStatus = job.status === "Culminado";
+            }
+          }
+          
+          return matchUrgency && matchName && matchStatus;
         });
         renderTrabajos(filteredTrabajos);
       }
@@ -249,7 +290,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         renderPagos(filteredPayments);
       }
-    }
+    };
 
     // Listener para generar PDF
     // Listener para generar PDF (One-time generation)
@@ -1315,7 +1356,16 @@ async function cargarTrabajos() {
       }
     });
 
-    renderTrabajos(window.allTrabajos);
+    // Actualizar contadores de las cards de filtro
+    const pendingCount = window.allTrabajos.filter(j => j.status !== "Culminado").length;
+    const finishedCount = window.allTrabajos.filter(j => j.status === "Culminado").length;
+    
+    const countPendingEl = document.getElementById("countPendingJobs");
+    const countFinishedEl = document.getElementById("countFinishedJobs");
+    if (countPendingEl) countPendingEl.textContent = pendingCount;
+    if (countFinishedEl) countFinishedEl.textContent = finishedCount;
+
+    window.applyFilters();
   } catch (error) {
     console.error("Error cargando trabajos:", error);
     container.innerHTML = `<p style="color:red">Error al cargar trabajos</p>`;
