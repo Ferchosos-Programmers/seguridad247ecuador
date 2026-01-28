@@ -880,8 +880,28 @@ select {
 }
 
 .modern-select option {
-  background: #1a1a1a;
-  color: #fff;
+  background: #1a1a1a !important;
+  color: #fff !important;
+}
+
+/* Premium Search Utilities */
+.premium-search {
+  position: relative;
+  width: 100%;
+}
+
+.search-icon-gold {
+  position: absolute;
+  top: 50%;
+  left: 15px;
+  transform: translateY(-50%);
+  color: #d4af37;
+  font-size: 1.1rem;
+  z-index: 5;
+}
+
+.shadow-gold {
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
 }
 
 .text-gold {
