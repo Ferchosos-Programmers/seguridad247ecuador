@@ -247,26 +247,48 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-    // Filtros
-    const urgencyFilter = document.getElementById("urgencyFilter");
-    const nameFilter = document.getElementById("nameFilter");
-
     // Contenedores
     const dashboardSection = document.getElementById("dashboardSection");
     const jobsSection = document.getElementById("jobsSection");
     const contractsSection = document.getElementById("contractsSection");
-    const globalFilterContainer = document.getElementById(
-      "globalFilterContainer",
-    );
-    const urgencyFilterContainer = document.getElementById(
-      "urgencyFilterContainer",
-    );
 
     // Inicializar vista (Dashboard)
     switchView("dashboard");
 
-    if (urgencyFilter) urgencyFilter.addEventListener("change", applyFilters);
-    if (nameFilter) nameFilter.addEventListener("input", applyFilters);
+    // Click listeners for dashboard cards
+    const cardTrabajosPendientes = document.getElementById("cardTrabajosPendientes");
+    const cardTrabajosTerminados = document.getElementById("cardTrabajosTerminados");
+
+    if (cardTrabajosPendientes) {
+      cardTrabajosPendientes.addEventListener("click", () => {
+        const jobsLink = document.querySelector(".sidebar-link[data-view='jobs']");
+        if (jobsLink) {
+          jobsLink.click();
+          // Set filter to pending after a short delay to ensure jobs are loaded
+          setTimeout(() => {
+            if (window.setStatusFilter) {
+              window.setStatusFilter('Pendiente');
+            }
+          }, 100);
+        }
+      });
+    }
+
+    if (cardTrabajosTerminados) {
+      cardTrabajosTerminados.addEventListener("click", () => {
+        const jobsLink = document.querySelector(".sidebar-link[data-view='jobs']");
+        if (jobsLink) {
+          jobsLink.click();
+          // Set filter to finished after a short delay to ensure jobs are loaded
+          setTimeout(() => {
+            if (window.setStatusFilter) {
+              window.setStatusFilter('Culminado');
+            }
+          }, 100);
+        }
+      });
+    }
+
     const guideSearchInput = document.getElementById("guideSearchInput");
     if (guideSearchInput)
       guideSearchInput.addEventListener("input", applyFilters);
@@ -285,15 +307,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const guidesSection = document.getElementById("guidesSection");
       const tutorialsSection = document.getElementById("tutorialsSection");
       const passwordsSection = document.getElementById("passwordsSection");
-      const globalFilterContainer = document.getElementById(
-        "globalFilterContainer",
-      );
-      const urgencyFilterContainer = document.getElementById(
-        "urgencyFilterContainer",
-      );
-      const dynamicSectionTitle = document.getElementById(
-        "dynamicSectionTitle",
-      );
 
       if (
         !dashboardSection ||
@@ -311,54 +324,35 @@ document.addEventListener("DOMContentLoaded", () => {
       guidesSection.style.display = "none";
       tutorialsSection.style.display = "none";
       passwordsSection.style.display = "none";
-      globalFilterContainer.style.display = "none";
-      urgencyFilterContainer.style.display = "none";
-      if (dynamicSectionTitle) dynamicSectionTitle.style.display = "none";
 
       if (view === "dashboard") {
         dashboardSection.style.display = "block";
         actualizarEstadisticas();
       } else if (view === "jobs") {
         jobsSection.style.display = "block";
-        globalFilterContainer.style.display = "block";
-        urgencyFilterContainer.style.display = "block";
-        if (dynamicSectionTitle) {
-          dynamicSectionTitle.textContent = "Gestión de Trabajos";
-          dynamicSectionTitle.style.display = "block";
-        }
         if (!window.trabajosLoaded) cargarTrabajosTecnicos();
-        else renderTrabajosTecnicos(window.allTrabajos);
+        else {
+          renderTrabajosTecnicos(window.allTrabajos);
+          // Set default filter to pending jobs
+          const filterPendingJobs = document.getElementById('filterPendingJobs');
+          if (filterPendingJobs && !filterPendingJobs.classList.contains('active')) {
+            window.setStatusFilter('Pendiente');
+          }
+        }
       } else if (view === "contracts") {
         contractsSection.style.display = "block";
-        globalFilterContainer.style.display = "block";
-        if (dynamicSectionTitle) {
-          dynamicSectionTitle.textContent = "Contratos Disponibles";
-          dynamicSectionTitle.style.display = "block";
-        }
         if (!window.contratosLoaded) cargarContratosTecnicos();
         else renderContratosTecnicos(window.allContratos);
       } else if (view === "guides") {
         guidesSection.style.display = "block";
-        if (dynamicSectionTitle) {
-          dynamicSectionTitle.textContent = "Guías Técnicas";
-          dynamicSectionTitle.style.display = "block";
-        }
         if (!window.guidesLoaded) cargarGuiasTecnicas();
         else renderGuiasTecnicas(window.allGuides);
       } else if (view === "tutorials") {
         tutorialsSection.style.display = "block";
-        if (dynamicSectionTitle) {
-          dynamicSectionTitle.textContent = "Tutoriales";
-          dynamicSectionTitle.style.display = "block";
-        }
         if (!window.tutorialsLoaded) cargarTutorialesTecnicos();
         else renderTutorialesTecnicos(window.allTutorials);
       } else if (view === "passwords") {
         passwordsSection.style.display = "block";
-        if (dynamicSectionTitle) {
-          dynamicSectionTitle.textContent = "Claves Técnicas";
-          dynamicSectionTitle.style.display = "block";
-        }
 
         // Controlar visibilidad del botón "Agregar Nueva Clave"
         const addPasswordBtn = document.getElementById("addPasswordBtn");
@@ -377,22 +371,35 @@ document.addEventListener("DOMContentLoaded", () => {
     async function actualizarEstadisticas() {
       try {
         const queryTrabajos = await db.collection("trabajos").get();
-        // Filtramos para que no cuente las guías como trabajos pendientes
-        const pendingTrabajos = queryTrabajos.docs.filter((doc) => {
+        // Filtramos para que no cuente las guías como trabajos
+        const allFilteredTrabajos = queryTrabajos.docs.filter((doc) => {
           const d = doc.data();
-          return d.status !== "Culminado" && !d.isGuide && !d.isTutorial;
+          return !d.isGuide && !d.isTutorial;
+        });
+
+        const pendingTrabajos = allFilteredTrabajos.filter((doc) => {
+          const d = doc.data();
+          return d.status !== "Culminado";
         }).length;
-        document.getElementById("statTotalTrabajos").textContent =
-          pendingTrabajos;
+
+        const finishedTrabajos = allFilteredTrabajos.filter((doc) => {
+          const d = doc.data();
+          return d.status === "Culminado";
+        }).length;
+
+        const statTotalTrabajos = document.getElementById("statTotalTrabajos");
+        if (statTotalTrabajos) statTotalTrabajos.textContent = pendingTrabajos;
+        
+        const statTotalTerminados = document.getElementById("statTotalTerminados");
+        if (statTotalTerminados) statTotalTerminados.textContent = finishedTrabajos;
 
         const queryContratos = await db.collection("contracts").get();
         const pendingContratos = queryContratos.docs.filter(
           (doc) => !doc.data().clientSignature,
         ).length;
-        document.getElementById("statTotalContratos").textContent =
-          pendingContratos;
+        const statTotalContratos = document.getElementById("statTotalContratos");
+        if (statTotalContratos) statTotalContratos.textContent = pendingContratos;
 
-        // Cargar notificaciones (inicialmente todas)
         cargarNotificacionesDashboard("all");
       } catch (error) {
         console.error("Error al actualizar estadísticas:", error);
@@ -552,32 +559,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     function applyFilters() {
-      const urgencyValue = urgencyFilter?.value || "todas";
-      const nameValue = nameFilter?.value.toLowerCase() || "";
       const currentActiveLink = document.querySelector(".sidebar-link.active");
       const currentView = currentActiveLink?.getAttribute("data-view");
-
-      if (currentView === "jobs") {
-        const filteredTrabajos = window.allTrabajos.filter((job) => {
-          const matchUrgency =
-            urgencyValue === "todas" || job.jobUrgency === urgencyValue;
-          const matchName =
-            job.clientName.toLowerCase().includes(nameValue) ||
-            job.contactName.toLowerCase().includes(nameValue);
-          return matchUrgency && matchName;
-        });
-        renderTrabajosTecnicos(filteredTrabajos);
-      }
-
-      if (currentView === "contracts") {
-        const filteredContratos = window.allContratos.filter((contract) => {
-          const matchName = contract.clientName
-            .toLowerCase()
-            .includes(nameFilter?.value.toLowerCase() || "");
-          return matchName;
-        });
-        renderContratosTecnicos(filteredContratos);
-      }
 
       if (currentView === "guides") {
         const guideSearchInput = document.getElementById("guideSearchInput");
@@ -614,6 +597,107 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         renderClavesTecnicas(filteredPasswords);
       }
+    }
+
+    // Global function for status filter cards
+    window.setStatusFilter = function(status) {
+      const filterPendingJobs = document.getElementById('filterPendingJobs');
+      const filterFinishedJobs = document.getElementById('filterFinishedJobs');
+      const jobUrgencyFilter = document.getElementById('jobUrgencyFilter');
+      const jobSearchInput = document.getElementById('jobSearchInput');
+      
+      // Update active state
+      if (filterPendingJobs) filterPendingJobs.classList.remove('active');
+      if (filterFinishedJobs) filterFinishedJobs.classList.remove('active');
+      
+      if (status === 'Pendiente' && filterPendingJobs) {
+        filterPendingJobs.classList.add('active');
+      } else if (status === 'Culminado' && filterFinishedJobs) {
+        filterFinishedJobs.classList.add('active');
+      }
+      
+      // Filter jobs
+      const urgencyValue = jobUrgencyFilter?.value || 'todas';
+      const nameValue = jobSearchInput?.value.toLowerCase() || '';
+      
+      const filteredTrabajos = window.allTrabajos.filter((job) => {
+        const matchUrgency = urgencyValue === 'todas' || job.jobUrgency === urgencyValue;
+        
+        let matchStatus = true;
+        if (status === 'Pendiente') {
+          matchStatus = job.status !== 'Culminado';
+        } else if (status === 'Culminado') {
+          matchStatus = job.status === 'Culminado';
+        }
+        
+        const matchName = 
+          job.clientName.toLowerCase().includes(nameValue) ||
+          job.contactName.toLowerCase().includes(nameValue);
+        
+        return matchUrgency && matchName && matchStatus;
+      });
+      
+      renderTrabajosTecnicos(filteredTrabajos);
+    };
+
+    // Function to update job counts
+    window.updateJobCounts = function() {
+      if (!window.allTrabajos || window.allTrabajos.length === 0) return;
+      
+      const pendingCount = window.allTrabajos.filter(job => job.status !== 'Culminado').length;
+      const finishedCount = window.allTrabajos.filter(job => job.status === 'Culminado').length;
+      
+      const countPendingJobs = document.getElementById('countPendingJobs');
+      const countFinishedJobs = document.getElementById('countFinishedJobs');
+      
+      if (countPendingJobs) countPendingJobs.textContent = pendingCount;
+      if (countFinishedJobs) countFinishedJobs.textContent = finishedCount;
+    };
+
+    // Add event listeners for new filter inputs
+    const jobUrgencyFilter = document.getElementById('jobUrgencyFilter');
+    const jobSearchInput = document.getElementById('jobSearchInput');
+    
+    if (jobUrgencyFilter) {
+      jobUrgencyFilter.addEventListener('change', () => {
+        const filterPendingJobs = document.getElementById('filterPendingJobs');
+        const filterFinishedJobs = document.getElementById('filterFinishedJobs');
+        
+        // Determine current status filter
+        let currentStatus = null;
+        if (filterPendingJobs && filterPendingJobs.classList.contains('active')) {
+          currentStatus = 'Pendiente';
+        } else if (filterFinishedJobs && filterFinishedJobs.classList.contains('active')) {
+          currentStatus = 'Culminado';
+        }
+        
+        if (currentStatus) {
+          window.setStatusFilter(currentStatus);
+        } else {
+          applyFilters();
+        }
+      });
+    }
+    
+    if (jobSearchInput) {
+      jobSearchInput.addEventListener('input', () => {
+        const filterPendingJobs = document.getElementById('filterPendingJobs');
+        const filterFinishedJobs = document.getElementById('filterFinishedJobs');
+        
+        // Determine current status filter
+        let currentStatus = null;
+        if (filterPendingJobs && filterPendingJobs.classList.contains('active')) {
+          currentStatus = 'Pendiente';
+        } else if (filterFinishedJobs && filterFinishedJobs.classList.contains('active')) {
+          currentStatus = 'Culminado';
+        }
+        
+        if (currentStatus) {
+          window.setStatusFilter(currentStatus);
+        } else {
+          applyFilters();
+        }
+      });
     }
   }
 
@@ -874,59 +958,61 @@ function renderTrabajosTecnicos(trabajosList) {
   container.innerHTML = "";
 
   if (trabajosList.length === 0) {
-    container.innerHTML = `<p style="color:white; text-align:center;">No hay trabajos para mostrar.</p>`;
+    container.innerHTML = `<p style="color:white; text-align:center;" class="w-100 mt-4">No se encontraron trabajos.</p>`;
     return;
   }
 
   trabajosList.forEach((data) => {
     const isCompleted = data.status === "Culminado";
 
+    const urgencyClass =
+      data.jobUrgency === "Normal"
+        ? "badge-normal"
+        : data.jobUrgency === "Urgente"
+          ? "badge-urgente"
+          : "badge-critico";
+
     const watermark = isCompleted
       ? `<div class="watermark-seal">✔ Trabajo Realizado</div>`
       : "";
 
     const reportButton = !isCompleted
-      ? `<button class="btn btn-primary mt-3"
+      ? `<button class="btn btn-primary mt-3 w-100"
             data-bs-toggle="modal"
             data-bs-target="#technicalReportModal"
             data-id="${data.id}">
-            <i class="fa-solid fa-file-alt"></i> Informe Técnico
+            <i class="fa-solid fa-file-alt me-1"></i> Informe Técnico
           </button>`
       : "";
 
-    let badgeClass = "";
-    switch (data.jobUrgency) {
-      case "Urgente":
-        badgeClass = "badge bg-warning text-dark";
-        break;
-      case "Crítico":
-        badgeClass = "badge bg-danger";
-        break;
-      default:
-        badgeClass = "badge bg-success";
-    }
-
     container.innerHTML += `
-        <div class="col-md-4">
-          <div class="card-job">
-            ${watermark}
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <h5 class="card-title">${data.clientName}</h5>
-                <span class="${badgeClass}">${data.jobUrgency}</span>
-              </div>
-
-              <p class="card-text"><i class="fa-solid fa-calendar-days"></i> <strong>Fecha:</strong> ${data.jobDate}</p>
-              <p class="card-text"><i class="fa-solid fa-user"></i> <strong>Contacto:</strong> ${data.contactName}</p>
-              <p class="card-text"><i class="fa-solid fa-phone"></i> <strong>Teléfono:</strong> ${data.contactPhone}</p>
-
-              ${reportButton}
-
-            </div>
+      <div class="col-xl-4 col-md-6 col-12">
+        <div class="job-card">
+          ${watermark}
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <h5 class="text-gold mb-0 fw-bold">${data.clientName}</h5>
+            <span class="badge ${urgencyClass}">${data.jobUrgency}</span>
           </div>
+
+          <div class="job-divider"></div>
+
+          <div class="mb-4 small">
+            <p class="mb-2"><i class="fa-solid fa-calendar-day text-gold me-2"></i><strong>Fecha:</strong> ${data.jobDate}</p>
+            <p class="mb-2"><i class="fa-solid fa-user-tag text-gold me-2"></i><strong>Contacto:</strong> ${data.contactName}</p>
+            <p class="mb-2"><i class="fa-solid fa-phone text-gold me-2"></i><strong>Teléfono:</strong> ${data.contactPhone}</p>
+            <p class="mb-0"><i class="fa-solid fa-circle-info text-gold me-2"></i><strong>Estado:</strong> <span class="fw-bold">${data.status || "Pendiente"}</span></p>
+          </div>
+
+          ${reportButton}
         </div>
-      `;
+      </div>
+    `;
   });
+  
+  // Update job counts after rendering
+  if (window.updateJobCounts) {
+    window.updateJobCounts();
+  }
 }
 
 // =======================================================

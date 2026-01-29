@@ -115,13 +115,17 @@
             </div>
 
             <div class="row g-4 mb-5">
-              <div class="col-xl-6 col-md-6">
-                <div class="stat-card">
+              <div class="col-xl-4 col-md-6">
+                <div
+                  class="stat-card clickable-card"
+                  id="cardTrabajosPendientes"
+                  style="cursor: pointer; transition: transform 0.3s ease"
+                >
                   <div
                     class="stat-card-icon"
                     style="background: rgba(212, 175, 55, 0.1); color: #d4af37"
                   >
-                    <i class="fa-solid fa-screwdriver-wrench"></i>
+                    <i class="fa-solid fa-clock-rotate-left"></i>
                   </div>
                   <div class="stat-card-info">
                     <h3 id="statTotalTrabajos">0</h3>
@@ -129,7 +133,25 @@
                   </div>
                 </div>
               </div>
-              <div class="col-xl-6 col-md-6">
+              <div class="col-xl-4 col-md-6">
+                <div
+                  class="stat-card clickable-card"
+                  id="cardTrabajosTerminados"
+                  style="cursor: pointer; transition: transform 0.3s ease"
+                >
+                  <div
+                    class="stat-card-icon"
+                    style="background: rgba(40, 167, 69, 0.1); color: #28a745"
+                  >
+                    <i class="fa-solid fa-circle-check"></i>
+                  </div>
+                  <div class="stat-card-info">
+                    <h3 id="statTotalTerminados">0</h3>
+                    <p>Trabajos Terminados</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-4 col-md-6">
                 <div class="stat-card">
                   <div
                     class="stat-card-icon"
@@ -190,45 +212,105 @@
             </div>
           </div>
 
-          <!-- Filtros y Buscador (Se mostrarán según la vista) -->
-          <div
-            class="filter-container mb-4"
-            id="globalFilterContainer"
-            style="display: none"
-          >
-            <div class="row g-3 align-items-center">
-              <!-- Filtro Urgencia -->
-              <div
-                class="col-md-4"
-                id="urgencyFilterContainer"
-                style="display: none"
-              >
-                <label for="urgencyFilter" class="form-label">Urgencia:</label>
-                <select id="urgencyFilter" class="form-select modern-select">
-                  <option value="todas">Todas</option>
+          <!-- Contenedor con los trabajos cargados -->
+          <div id="jobsSection" style="display: none">
+            <h2 class="section-title mb-5">Gestión de Trabajos</h2>
+
+            <!-- STATUS FILTER CARDS -->
+            <div class="row g-4 mb-5">
+              <div class="col-md-6">
+                <div
+                  class="stat-card status-filter-card active"
+                  id="filterPendingJobs"
+                  onclick="window.setStatusFilter('Pendiente')"
+                  style="cursor: pointer"
+                >
+                  <div
+                    class="stat-card-icon"
+                    style="background: rgba(212, 175, 55, 0.1); color: #d4af37"
+                  >
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                  </div>
+                  <div class="stat-card-info">
+                    <p class="stat-label">Trabajos</p>
+                    <h3 class="mb-0">
+                      <span id="countPendingJobs">0</span>
+                      <small style="font-size: 0.9rem; font-weight: 500"
+                        >Pendientes</small
+                      >
+                    </h3>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div
+                  class="stat-card status-filter-card"
+                  id="filterFinishedJobs"
+                  onclick="window.setStatusFilter('Culminado')"
+                  style="cursor: pointer"
+                >
+                  <div
+                    class="stat-card-icon"
+                    style="background: rgba(28, 182, 152, 0.1); color: #1cb698"
+                  >
+                    <i class="fa-solid fa-circle-check"></i>
+                  </div>
+                  <div class="stat-card-info">
+                    <p class="stat-label">Trabajos</p>
+                    <h3 class="mb-0">
+                      <span id="countFinishedJobs">0</span>
+                      <small style="font-size: 0.9rem; font-weight: 500"
+                        >Terminados</small
+                      >
+                    </h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- JOBS FILTERS & CREATE BUTTON (MODERN ROW) -->
+            <div class="row g-3 mb-5 align-items-center">
+              <div class="col-12 col-lg-3">
+                <select id="jobUrgencyFilter" class="modern-select w-100">
+                  <option value="todas">Urgencia: Todas</option>
                   <option value="Normal">Normal</option>
                   <option value="Urgente">Urgente</option>
                   <option value="Crítico">Crítico</option>
                 </select>
               </div>
-
-              <!-- Buscador por Nombre -->
-              <div class="col-md-8" id="nameFilterContainer">
-                <label for="nameFilter" class="form-label">Buscar:</label>
-                <input
-                  type="text"
-                  id="nameFilter"
-                  class="form-control modern-input"
-                  placeholder="Buscar por cliente o contacto..."
-                />
+              <div class="col-12 col-lg-6">
+                <div class="premium-search">
+                  <i class="fa-solid fa-magnifying-glass search-icon-gold"></i>
+                  <input
+                    type="text"
+                    id="jobSearchInput"
+                    class="form-control search-input-glass w-100"
+                    placeholder="Buscar cliente por nombre..."
+                    style="
+                      height: 48px !important;
+                      border-radius: 8px !important;
+                      padding-left: 45px !important;
+                    "
+                  />
+                </div>
+              </div>
+              <div class="col-12 col-lg-3 text-end">
+                <button
+                  class="btn btn-gold w-100 h-100 py-2 fw-bold shadow-gold"
+                  id="btnGenerateReport"
+                  style="min-height: 48px; border-radius: 8px; display: none"
+                >
+                  <i class="fa-solid fa-file-signature me-2"></i> Generar
+                  Informe
+                </button>
               </div>
             </div>
-          </div>
 
-          <!-- Contenedor con los trabajos cargados -->
-          <div id="jobsSection" style="display: none">
-            <h2 class="section-title mb-4">Trabajos Pendientes</h2>
-            <div id="jobsContainer" class="row g-4"></div>
+            <div
+              id="jobsContainer"
+              class="row g-4"
+              style="margin-bottom: 20px"
+            ></div>
           </div>
 
           <!-- Contenedor para los contratos -->
