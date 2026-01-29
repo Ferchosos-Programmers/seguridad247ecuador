@@ -1459,13 +1459,14 @@
             </div>
           </div>
 
-          <!-- FOOTER CON BOTÓN PDF -->
+          <!-- FOOTER CON BOTONES PDF Y ENVIAR -->
           <div
             style="
               background: linear-gradient(180deg, #0a0a0a 0%, #000 100%);
               border-top: 1px solid rgba(212, 175, 55, 0.3);
               padding: 15px 20px;
             "
+            class="d-flex gap-2"
           >
             <button
               type="button"
@@ -1474,28 +1475,58 @@
                 background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
                 border: none;
                 color: #000;
-                padding: 14px 30px;
+                padding: 14px 15px;
                 border-radius: 12px;
                 font-weight: 700;
-                font-size: 1rem;
-                letter-spacing: 1px;
-                box-shadow: 0 4px 20px rgba(212, 175, 55, 0.5);
+                font-size: 0.9rem;
+                letter-spacing: 0.5px;
+                box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
                 transition: all 0.3s ease;
                 cursor: pointer;
-                width: 100%;
+                flex: 1;
                 text-transform: uppercase;
               "
               onmouseover="
                 this.style.transform = 'translateY(-2px)';
-                this.style.boxShadow = '0 6px 30px rgba(212, 175, 55, 0.7)';
+                this.style.boxShadow = '0 6px 20px rgba(212, 175, 55, 0.5)';
               "
               onmouseout="
                 this.style.transform = 'translateY(0)';
-                this.style.boxShadow = '0 4px 20px rgba(212, 175, 55, 0.5)';
+                this.style.boxShadow = '0 4px 15px rgba(212, 175, 55, 0.3)';
               "
             >
-              <i class="fa-solid fa-file-pdf me-2"></i>
-              GENERAR PDF
+              <i class="fa-solid fa-file-pdf me-1"></i>
+              PDF
+            </button>
+            <button
+              type="button"
+              id="sendReportBtn"
+              style="
+                background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+                border: none;
+                color: #fff;
+                padding: 14px 15px;
+                border-radius: 12px;
+                font-weight: 700;
+                font-size: 0.9rem;
+                letter-spacing: 0.5px;
+                box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+                transition: all 0.3s ease;
+                cursor: pointer;
+                flex: 1;
+                text-transform: uppercase;
+              "
+              onmouseover="
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 6px 20px rgba(37, 211, 102, 0.5)';
+              "
+              onmouseout="
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '0 4px 15px rgba(37, 211, 102, 0.3)';
+              "
+            >
+              <i class="fa-brands fa-whatsapp me-1"></i>
+              ENVIAR
             </button>
           </div>
         </div>
@@ -2851,6 +2882,8 @@
           try {
             const doc = await db.collection("trabajos").doc(id).get();
             const data = doc.data();
+            // Guardar trabajo actual para envío de reporte
+            window.currentReportingJob = { id: doc.id, ...data };
 
             const completionDateTime = data.reportDate.toDate();
             document.getElementById("reportClientName").innerText =
@@ -2968,6 +3001,22 @@
               btn.innerHTML = originalText;
             }
           });
+
+        // WhatsApp Report Sending Logic
+        const sendReportBtn = document.getElementById("sendReportBtn");
+        if (sendReportBtn) {
+          sendReportBtn.addEventListener("click", () => {
+            if (typeof window.sendModernPDF === "function") {
+              window.sendModernPDF();
+            } else {
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "El servicio de envío no está disponible.",
+              });
+            }
+          });
+        }
 
         // Filtros de trabajos
         document

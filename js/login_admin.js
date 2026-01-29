@@ -358,6 +358,23 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     };
 
+    // Listener para enviar PDF por WhatsApp
+    const sendReportBtn = document.getElementById("sendReportBtn");
+    if (sendReportBtn) {
+      sendReportBtn.onclick = () => {
+        if (typeof window.sendModernPDF === 'function') {
+          window.sendModernPDF();
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'El servicio de envío no está activo. Recargue la página.',
+            confirmButtonColor: '#d4af37'
+          });
+        }
+      };
+    }
+
     // Lógica para el formulario de conjunto
     window.formatAdminResult = function(admin) {
       if (!admin.id || !admin.element) return admin.text;
@@ -1501,6 +1518,8 @@ async function verReporte(id) {
     }
 
     const data = doc.data();
+    // Guardar trabajo actual para envío de reporte
+    window.currentReportingJob = { id: doc.id, ...data };
 
     // Formatear fecha y hora
     const completionDateTime = data.reportDate.toDate();
