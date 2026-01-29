@@ -276,7 +276,7 @@
 
             <!-- JOBS FILTERS & CREATE BUTTON (MODERN ROW) -->
             <div class="row g-3 mb-5 align-items-center">
-              <div class="col-12 col-lg-3">
+              <div class="col-12 col-lg-2">
                 <select id="jobUrgencyFilter" class="modern-select w-100">
                   <option value="todas">Urgencia: Todas</option>
                   <option value="Normal">Normal</option>
@@ -284,14 +284,23 @@
                   <option value="Crítico">Crítico</option>
                 </select>
               </div>
-              <div class="col-12 col-lg-6">
+              <div class="col-12 col-lg-3">
+                <select id="jobBillingFilter" class="modern-select w-100">
+                  <option value="todos">Facturar: Todos</option>
+                  <option value="Si al conjunto">Sí al conjunto</option>
+                  <option value="No, a cargo de la empresa">
+                    No, a cargo de la empresa
+                  </option>
+                </select>
+              </div>
+              <div class="col-12 col-lg-4">
                 <div class="premium-search">
                   <i class="fa-solid fa-magnifying-glass search-icon-gold"></i>
                   <input
                     type="text"
                     id="jobSearchInput"
                     class="form-control search-input-glass w-100"
-                    placeholder="Buscar cliente por nombre..."
+                    placeholder="Buscar cliente..."
                     style="
                       height: 48px !important;
                       border-radius: 8px !important;
@@ -535,56 +544,68 @@
     </div>
 
     <!-- MODAL AGREGAR TRABAJO -->
-    <div class="modal fade" id="addJobModal" tabindex="-1" aria-hidden="true">
+    <div
+      class="modal fade"
+      id="addJobModal"
+      tabindex="-1"
+      aria-labelledby="addJobModalLabel"
+      aria-hidden="true"
+    >
       <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content bg-dark border-gold shadow-lg">
-          <div class="modal-header border-bottom border-secondary">
-            <h5 class="modal-title text-gold">
-              <i class="fa-solid fa-briefcase me-2"></i> AGREGAR TRABAJO
+        <div
+          class="modal-content bg-dark border-0 shadow-lg"
+          style="border-radius: 15px; overflow: hidden"
+        >
+          <div class="modal-header bg-gold py-3 shadow-sm border-0">
+            <h5
+              class="modal-title fw-bold text-dark text-uppercase d-flex align-items-center"
+            >
+              <i class="fa-solid fa-briefcase me-3 fs-3"></i> AGREGAR TRABAJO
             </h5>
             <button
               type="button"
-              class="btn-close btn-close-white"
+              class="btn-close btn-close-white shadow-none"
               data-bs-dismiss="modal"
+              aria-label="Close"
             ></button>
           </div>
-          <div class="modal-body p-4">
+          <div class="modal-body p-4 p-lg-5">
             <form id="addJobForm">
-              <div class="row g-3">
+              <div class="row g-4">
                 <!-- Columna Izquierda -->
-                <div class="col-md-6 mb-3">
+                <div class="col-md-6">
                   <label
-                    class="form-label text-gold fw-bold text-uppercase small"
+                    class="form-label text-gold fw-bold text-uppercase small mb-2"
                     >Cliente (Conjunto)</label
                   >
                   <input
                     type="text"
                     id="clientName"
-                    class="form-control force-uppercase bg-secondary text-white border-0"
+                    class="form-control force-uppercase premium-input"
                     placeholder="Ej: Urbanización Los Pinos"
                     required
                   />
                 </div>
-                <div class="col-md-6 mb-3">
+                <div class="col-md-6">
                   <label
-                    class="form-label text-gold fw-bold text-uppercase small"
+                    class="form-label text-gold fw-bold text-uppercase small mb-2"
                     >Fecha de Publicación</label
                   >
                   <input
                     type="date"
-                    class="form-control bg-secondary text-white border-0"
+                    class="form-control premium-input shadow-none"
                     id="jobDate"
                     required
                   />
                 </div>
 
-                <div class="col-md-6 mb-3">
+                <div class="col-md-6">
                   <label
-                    class="form-label text-gold fw-bold text-uppercase small"
+                    class="form-label text-gold fw-bold text-uppercase small mb-2"
                     >Urgencia</label
                   >
                   <select
-                    class="form-select bg-secondary text-white border-0"
+                    class="form-select premium-input shadow-none"
                     id="jobUrgency"
                     required
                   >
@@ -594,67 +615,89 @@
                   </select>
                 </div>
 
-                <div class="col-md-6 mb-3">
-                  <!-- Spacer or another field could go here, but for now we keep flow -->
+                <div class="col-md-6">
                   <label
-                    class="form-label text-gold fw-bold text-uppercase small"
+                    class="form-label text-gold fw-bold text-uppercase small mb-2"
                     >Nombre de Contacto</label
                   >
                   <input
                     type="text"
-                    class="form-control force-uppercase bg-secondary text-white border-0"
+                    class="form-control force-uppercase premium-input"
                     id="contactName"
                     required
                   />
                 </div>
 
-                <div class="col-md-6 mb-3">
+                <div class="col-md-6">
                   <label
-                    class="form-label text-gold fw-bold text-uppercase small"
+                    class="form-label text-gold fw-bold text-uppercase small mb-2"
                     >Teléfono de Contacto</label
                   >
                   <input
                     type="text"
-                    class="form-control bg-secondary text-white border-0"
+                    class="form-control premium-input"
                     id="contactPhone"
                     required
                   />
                 </div>
 
-                <div class="col-md-6 mb-3">
+                <div class="col-md-6">
                   <label
-                    class="form-label text-gold fw-bold text-uppercase small"
+                    class="form-label text-gold fw-bold text-uppercase small mb-2"
+                    >Facturar</label
+                  >
+                  <select
+                    class="form-select premium-input shadow-none"
+                    id="jobBilling"
+                    required
+                  >
+                    <option value="">Seleccionar...</option>
+                    <option value="Si al conjunto">Sí al conjunto</option>
+                    <option value="No, a cargo de la empresa">
+                      No, a cargo de la empresa
+                    </option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label
+                    class="form-label text-gold fw-bold text-uppercase small mb-2"
                     >Imagen del Problema</label
                   >
                   <input
-                    class="form-control bg-secondary text-white border-0"
+                    class="form-control premium-input"
                     type="file"
                     id="jobImage"
                     accept="image/*"
                   />
                 </div>
 
-                <div class="col-12 mb-3">
+                <div class="col-md-6">
                   <label
-                    class="form-label text-gold fw-bold text-uppercase small"
+                    class="form-label text-gold fw-bold text-uppercase small mb-2"
                     >Descripción del Problema</label
                   >
                   <textarea
-                    class="form-control bg-secondary text-white border-0"
+                    class="form-control premium-input"
                     id="jobDescription"
-                    rows="4"
+                    rows="3"
                     placeholder="Detalle el problema técnico aquí..."
                     required
                   ></textarea>
                 </div>
               </div>
 
-              <div class="d-grid mt-4">
+              <div class="mt-5">
                 <button
                   type="submit"
-                  class="btn btn-gold py-2 fw-bold shadow-sm"
+                  class="btn btn-gold w-100 py-3 fw-bold shadow-lg d-flex align-items-center justify-content-center text-uppercase hvr-float"
+                  style="
+                    border-radius: 10px;
+                    font-size: 1.1rem;
+                    letter-spacing: 1px;
+                  "
                 >
-                  <i class="fa-solid fa-save me-2"></i> GUARDAR TRABAJO
+                  <i class="fa-solid fa-save me-2 fs-5"></i> GUARDAR TRABAJO
                 </button>
               </div>
             </form>
@@ -722,6 +765,15 @@
                   id="editContactPhone"
                   required
                 />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Facturar</label>
+                <select class="form-select" id="editJobBilling" required>
+                  <option value="Si al conjunto">Sí al conjunto</option>
+                  <option value="No, a cargo de la empresa">
+                    No, a cargo de la empresa
+                  </option>
+                </select>
               </div>
               <div class="d-grid mt-4">
                 <button type="submit" class="btn btn-gold">
@@ -2495,13 +2547,16 @@
           console.log("Applying filters (Ops)...");
           const urgencyFilter = document.getElementById("jobUrgencyFilter");
           const nameFilter = document.getElementById("jobSearchInput");
+          const billingFilter = document.getElementById("jobBillingFilter");
 
           const urgencyValue = urgencyFilter ? urgencyFilter.value : "todas";
           const nameValue = nameFilter ? nameFilter.value.toLowerCase() : "";
+          const billingValue = billingFilter ? billingFilter.value : "todos";
 
           console.log("Filter values (Ops):", {
             urgencyValue,
             nameValue,
+            billingValue,
             status: window.currentJobStatusFilter,
           });
 
@@ -2511,6 +2566,8 @@
             const matchName = (job.clientName || "")
               .toLowerCase()
               .includes(nameValue);
+            const matchBilling =
+              billingValue === "todos" || job.jobBilling === billingValue;
 
             let matchStatus = true;
             if (window.currentJobStatusFilter === "Pendiente") {
@@ -2519,7 +2576,7 @@
               matchStatus = job.status === "Culminado";
             }
 
-            return matchUrgency && matchName && matchStatus;
+            return matchUrgency && matchName && matchBilling && matchStatus;
           });
 
           console.log("Found jobs (Ops):", filtered.length);
@@ -2592,20 +2649,31 @@
                   </div>
                   <div class="job-divider"></div>
                   <div class="mb-3 small">
-                    <p class="mb-1"><i class="fa-solid fa-calendar-day text-gold me-2"></i><strong>Fecha:</strong> ${
-                      job.jobDate
-                    }</p>
-                    <p class="mb-1"><i class="fa-solid fa-user-tag text-gold me-2"></i><strong>Contacto:</strong> ${
-                      job.contactName
-                    }</p>
-                    <p class="mb-1"><i class="fa-solid fa-phone text-gold me-2"></i><strong>Teléfono:</strong> ${
-                      job.contactPhone
-                    }</p>
-                    <p class="mb-0"><i class="fa-solid fa-circle-info text-gold me-2"></i><strong>Estado:</strong> <span class="fw-bold">${
-                      job.status || "Pendiente"
-                    }</span></p>
+                    <p class="mb-1">
+                      <i class="fa-solid fa-calendar-day text-gold me-2"></i
+                      ><strong>Fecha:</strong> ${job.jobDate}
+                    </p>
+                    <p class="mb-1">
+                      <i class="fa-solid fa-user-tag text-gold me-2"></i
+                      ><strong>Contacto:</strong> ${job.contactName}
+                    </p>
+                    <p class="mb-1">
+                      <i class="fa-solid fa-phone text-gold me-2"></i
+                      ><strong>Teléfono:</strong> ${job.contactPhone}
+                    </p>
+                    <p class="mb-1">
+                      <i class="fa-solid fa-file-invoice-dollar text-gold me-2"></i>
+                      <strong>Facturar:</strong>
+                      <span class="badge ${job.jobBilling === "Si al conjunto" ? "bg-success" : "bg-info"} p-1 px-2">${job.jobBilling || "Sin especificar"}</span>
+                    </p>
+                    <p class="mb-0">
+                      <i class="fa-solid fa-circle-info text-gold me-2"></i
+                      ><strong>Estado:</strong>
+                      <span class="fw-bold"
+                        >${job.status || "Pendiente"}</span
+                      >
+                    </p>
                   </div>
-
                   <div class="row g-2">
                     <div class="col-6">
                       <button class="btn-edit" onclick="abrirEditarTrabajo('${
@@ -2705,6 +2773,10 @@
               document.getElementById("jobDescription").value; // Capture Description
             const jobImageFile = document.getElementById("jobImage").files[0]; // Capture Image File
 
+            const jobBilling = document.getElementById("jobBilling").value;
+            const jobCompanyCharge =
+              document.getElementById("jobCompanyCharge").value;
+
             Swal.fire({
               title: "Guardando...",
               text: "Procesando información e imagen...",
@@ -2746,6 +2818,7 @@
                 jobUrgency,
                 contactName,
                 contactPhone,
+                jobBilling,
                 jobDescription,
                 jobImageUrl,
                 status: "Pendiente",
@@ -2817,6 +2890,8 @@
           document.getElementById("editJobUrgency").value = data.jobUrgency;
           document.getElementById("editContactName").value = data.contactName;
           document.getElementById("editContactPhone").value = data.contactPhone;
+          document.getElementById("editJobBilling").value =
+            data.jobBilling || "Si al conjunto";
           new bootstrap.Modal(document.getElementById("editJobModal")).show();
         };
 
@@ -2835,6 +2910,7 @@
                 .getElementById("editContactName")
                 .value.toUpperCase(),
               contactPhone: document.getElementById("editContactPhone").value,
+              jobBilling: document.getElementById("editJobBilling").value,
             };
 
             Swal.fire({
@@ -3021,6 +3097,10 @@
         // Filtros de trabajos
         document
           .getElementById("jobUrgencyFilter")
+          .addEventListener("change", window.applyFilters);
+
+        document
+          .getElementById("jobBillingFilter")
           .addEventListener("change", window.applyFilters);
 
         document

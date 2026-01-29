@@ -190,11 +190,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- Lógica de Filtrado Centralizada ---
     window.applyFilters = function() {
       console.log("Applying filters... Current View:", window.currentView);
-      let urgencyFilter, nameFilter;
+      let urgencyFilter, nameFilter, billingFilter;
 
       if (window.currentView === "finished") {
         urgencyFilter = document.getElementById("jobUrgencyFilter");
         nameFilter = document.getElementById("jobSearchInput");
+        billingFilter = document.getElementById("jobBillingFilter");
       } else {
         urgencyFilter = document.getElementById("urgencyFilter");
         nameFilter = document.getElementById("nameFilter");
@@ -202,25 +203,27 @@ document.addEventListener("DOMContentLoaded", () => {
       
       const urgencyValue = urgencyFilter ? urgencyFilter.value : "todas";
       const nameValue = nameFilter ? nameFilter.value.toLowerCase() : "";
+      const billingValue = billingFilter ? billingFilter.value : "todos";
       const currentView = window.currentView;
 
-      console.log("Filter values:", { urgencyValue, nameValue, status: window.currentJobStatusFilter });
+      console.log("Filter values:", { urgencyValue, nameValue, billingValue, status: window.currentJobStatusFilter });
 
       if (currentView === "finished" || currentView === "todos") {
         const filteredTrabajos = window.allTrabajos.filter(job => {
           const matchUrgency = urgencyValue === "todas" || job.jobUrgency === urgencyValue;
           const matchName = (job.clientName || "").toLowerCase().includes(nameValue);
+          const matchBilling = billingValue === "todos" || job.jobBilling === billingValue;
           
           let matchStatus = true;
           if (currentView === "finished") {
              if (window.currentJobStatusFilter === "Pendiente") {
-               matchStatus = job.status !== "Culminado";
+                matchStatus = job.status !== "Culminado";
              } else {
-               matchStatus = job.status === "Culminado";
+                matchStatus = job.status === "Culminado";
              }
           }
           
-          return matchUrgency && matchName && matchStatus;
+          return matchUrgency && matchName && matchBilling && matchStatus;
         });
         console.log("Found jobs:", filteredTrabajos.length);
         window.renderTrabajos(filteredTrabajos);
@@ -263,8 +266,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const jobUrgencyFilterAdmin = document.getElementById("jobUrgencyFilter");
     const jobSearchInputAdmin = document.getElementById("jobSearchInput");
+    const jobBillingFilterAdmin = document.getElementById("jobBillingFilter");
+
     if (jobUrgencyFilterAdmin) jobUrgencyFilterAdmin.addEventListener("change", window.applyFilters);
     if (jobSearchInputAdmin) jobSearchInputAdmin.addEventListener("input", window.applyFilters);
+    if (jobBillingFilterAdmin) jobBillingFilterAdmin.addEventListener("change", window.applyFilters);
 
     async function actualizarContadoresDashboard() {
       const db = firebase.firestore();
@@ -1276,6 +1282,8 @@ function configurarFormulario() {
     const jobDescription = document.getElementById("jobDescription").value; 
     const jobImageFile = document.getElementById("jobImage").files[0]; 
 
+    const jobBilling = document.getElementById("jobBilling").value;
+
     Swal.fire({
         title: 'Guardando...',
         text: 'Procesando datos e imagen...',
@@ -1313,6 +1321,7 @@ function configurarFormulario() {
         jobUrgency,
         contactName,
         contactPhone,
+        jobBilling,
         jobDescription,
         jobImageUrl,
         status: "Pendiente",
@@ -1439,6 +1448,7 @@ window.renderTrabajos = function (trabajosList) {
             <p class="mb-2"><i class="fa-solid fa-calendar-day text-gold me-2"></i><strong>Fecha:</strong> ${data.jobDate}</p>
             <p class="mb-2"><i class="fa-solid fa-user-tag text-gold me-2"></i><strong>Contacto:</strong> ${data.contactName}</p>
             <p class="mb-2"><i class="fa-solid fa-phone text-gold me-2"></i><strong>Teléfono:</strong> ${data.contactPhone}</p>
+            <p class="mb-2"><i class="fa-solid fa-file-invoice-dollar text-gold me-2"></i><strong>Facturar:</strong> <span class="badge ${data.jobBilling === 'Si al conjunto' ? 'bg-success' : 'bg-info'} p-1 px-2">${data.jobBilling || 'Sin especificar'}</span></p>
             <p class="mb-0"><i class="fa-solid fa-circle-info text-gold me-2"></i><strong>Estado:</strong> <span class="fw-bold">${data.status || "Pendiente"}</span></p>
           </div>
 
@@ -1619,9 +1629,8 @@ async function cargarTrabajoParaEditar(id) {
   document.getElementById("editJobUrgency").value = data.jobUrgency;
   document.getElementById("editContactName").value = data.contactName;
   document.getElementById("editContactPhone").value = data.contactPhone;
-
-  const modal = new bootstrap.Modal(document.getElementById("editJobModal"));
-  modal.show();
+  document.getElementById("editJobBilling").value = data.jobBilling || "Si al conjunto";
+  new bootstrap.Modal(document.getElementById("editJobModal")).show();
 }
 
 // ===========================
@@ -1642,6 +1651,7 @@ function activarEdicion() {
       jobUrgency: document.getElementById("editJobUrgency").value,
       contactName: document.getElementById("editContactName").value,
       contactPhone: document.getElementById("editContactPhone").value,
+      jobBilling: document.getElementById("editJobBilling").value,
     };
 
     try {

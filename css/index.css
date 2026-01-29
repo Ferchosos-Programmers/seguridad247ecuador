@@ -444,3 +444,52 @@ div:where(.swal2-container) .swal2-cancel {
   color: #fff !important;
   border-radius: 8px !important;
 }
+
+/* ==================================
+   ESTILOS PREMIUM PARA MODALES/FORM
+=====================================*/
+.premium-input {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #d4af37 !important;
+  border-radius: 8px !important;
+  padding: 12px 15px !important;
+  transition: all 0.3s ease !important;
+  font-weight: 500 !important;
+}
+
+.premium-input:focus {
+  border-color: #ffc107 !important;
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.3) !important;
+  background-color: #ffffff !important;
+  transform: translateY(-1px);
+}
+
+.premium-input::placeholder {
+  color: #adb5bd !important;
+  text-transform: none !important;
+}
+
+.bg-gold {
+  background-color: #d4af37 !important;
+}
+
+.text-gold {
+  color: #d4af37 !important;
+  text-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+}
+
+.hvr-float {
+  display: inline-block;
+  vertical-align: middle;
+  transform: perspective(1px) translateZ(0);
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0);
+  transition-duration: 0.3s;
+  transition-property: transform;
+}
+
+.hvr-float:hover,
+.hvr-float:focus,
+.hvr-float:active {
+  transform: translateY(-8px);
+}
