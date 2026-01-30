@@ -90,6 +90,27 @@
               <h1 class="text-gold mb-0">Gestión Comercial</h1>
             </div>
 
+            <!-- Profile Info Card -->
+            <div class="row mb-5">
+              <div class="col-12">
+                <div
+                  class="job-card"
+                  id="userProfileCard"
+                  style="display: none"
+                >
+                  <div class="d-flex align-items-center gap-4">
+                    <div class="profile-avatar">
+                      <i class="fa-solid fa-user-tie fa-2x"></i>
+                    </div>
+                    <div>
+                      <h4 id="userName" class="text-gold mb-0">Cargando...</h4>
+                      <p id="userEmail" class="text-white-50 mb-0"></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="row g-4 mb-5">
               <div class="col-xl-4 col-md-6">
                 <div class="stat-card">
@@ -149,8 +170,11 @@
 
           <!-- PRODUCTS SECTION -->
           <div id="productsSection" style="display: none">
+            <h2 class="text-gold mb-4 text-center section-title">
+              Inventario de Productos
+            </h2>
             <div class="d-flex justify-content-between align-items-center mb-4">
-              <h2 class="text-gold mb-0">Inventario de Productos</h2>
+              <div class="flex-grow-1"></div>
               <button
                 class="btn btn-gold"
                 data-bs-toggle="modal"
@@ -181,8 +205,11 @@
 
           <!-- PROFORMAS SECTION -->
           <div id="proformasSection" style="display: none">
+            <h2 class="text-gold mb-4 text-center section-title">
+              Gestión de Proformas
+            </h2>
             <div class="d-flex justify-content-between align-items-center mb-4">
-              <h2 class="text-gold mb-0">Gestión de Proformas</h2>
+              <div class="flex-grow-1"></div>
               <button class="btn btn-gold" onclick="openNewProforma()">
                 <i class="fa-solid fa-plus me-2"></i> Nueva Proforma
               </button>
@@ -294,42 +321,66 @@
       </div>
     </div>
 
-    <!-- MODAL NUEVA PROFORMA (NUEVO DISEÑO INTERACTIVO) -->
+    <!-- MODAL GENERAR PROFORMA -->
     <div class="modal fade" id="proformaModal" tabindex="-1" aria-hidden="true">
-      <div
-        class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable"
-      >
-        <div class="modal-content bg-dark border-gold">
-          <div class="modal-header bg-gold">
-            <h5 class="modal-title fw-bold text-dark">
-              <i class="fa-solid fa-file-invoice-dollar me-2"></i> GENERAR
-              PROFORMA
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div
+          class="modal-content bg-dark p-0 overflow-hidden"
+          style="border-radius: 20px; border: 1px solid rgba(212, 175, 55, 0.2)"
+        >
+          <div
+            class="modal-header bg-gold py-3 shadow-sm border-0"
+            style="
+              background: linear-gradient(
+                135deg,
+                #d4af37 0%,
+                #f4d03f 100%
+              ) !important;
+            "
+          >
+            <h5
+              class="modal-title fw-bold text-dark text-uppercase d-flex align-items-center"
+            >
+              <i class="fa-solid fa-file-circle-plus me-3 fs-4"></i> GENERAR
+              NUEVA PROFORMA
             </h5>
             <button
               type="button"
-              class="btn-close"
+              class="btn-close btn-close-dark shadow-none"
               data-bs-dismiss="modal"
               aria-label="Close"
             ></button>
           </div>
-          <div class="modal-body p-4">
+          <div class="modal-body p-4 p-md-5 modal-body-premium">
             <form id="proformaForm">
-              <div class="row g-3 mb-4">
-                <div class="col-md-6">
-                  <label class="form-label text-gold small fw-bold"
-                    >NOMBRE DEL CLIENTE</label
-                  >
+              <div class="row g-4 mb-5">
+                <div class="col-md-5">
+                  <label class="premium-label">NOMBRE DEL CLIENTE</label>
                   <input
                     type="text"
                     id="profClientName"
                     class="form-control premium-input text-uppercase"
+                    placeholder="CLIENTE DISTINGUIDO"
                     required
                   />
                 </div>
                 <div class="col-md-3">
-                  <label class="form-label text-gold small fw-bold"
-                    >FECHA</label
-                  >
+                  <label class="premium-label">TELÉFONO DE CONTACTO</label>
+                  <div class="position-relative">
+                    <span
+                      class="position-absolute translate-middle-y top-50 start-0 ps-3 text-gold opacity-50"
+                      ><i class="fa-brands fa-whatsapp"></i
+                    ></span>
+                    <input
+                      type="tel"
+                      id="profClientPhone"
+                      class="form-control premium-input ps-5"
+                      placeholder="0987654321"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <label class="premium-label">FECHA EMISIÓN</label>
                   <input
                     type="date"
                     id="profDate"
@@ -337,53 +388,68 @@
                     required
                   />
                 </div>
-                <div class="col-md-3">
-                  <label class="form-label text-gold small fw-bold"
-                    >VENCE EN (DÍAS)</label
-                  >
+                <div class="col-md-2">
+                  <label class="premium-label">VALIDEZ (DÍAS)</label>
                   <input
                     type="number"
                     id="profExpiry"
-                    class="form-control premium-input"
+                    class="form-control premium-input text-center"
                     value="15"
                   />
                 </div>
               </div>
 
-              <div class="item-list-container mb-4">
-                <h6 class="text-gold border-bottom border-gold pb-2 mb-3">
-                  LISTA DE PRODUCTOS / SERVICIOS
-                </h6>
+              <div class="item-list-container mb-5">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary overflow-hidden"
+                >
+                  <h6 class="premium-label mb-0" style="font-size: 0.85rem">
+                    PRODUCTOS Y SERVICIOS SELECCIONADOS
+                  </h6>
+                  <button
+                    type="button"
+                    class="btn btn-outline-gold btn-sm hvr-grow rounded-pill px-3"
+                    onclick="addItemRow()"
+                  >
+                    <i class="fa-solid fa-plus-circle me-1"></i> AGREGAR LÍNEA
+                  </button>
+                </div>
+
                 <div id="proformaItems">
                   <!-- Los items se agregan aquí -->
                 </div>
-                <button
-                  type="button"
-                  class="btn btn-outline-gold btn-sm mt-3"
-                  onclick="addItemRow()"
-                >
-                  <i class="fa-solid fa-plus me-1"></i> Agregar Item
-                </button>
               </div>
 
-              <div class="row justify-content-end">
+              <div class="row justify-content-end g-4">
                 <div class="col-md-4">
-                  <div class="totals-box p-3 rounded bg-black border-gold">
-                    <div class="d-flex justify-content-between mb-2">
-                      <span class="text-white-50">Subtotal:</span>
+                  <div class="totals-box p-4">
+                    <div class="d-flex justify-content-between mb-3">
+                      <span
+                        class="text-white-50 small text-uppercase fw-bold letter-spacing-1"
+                        >Subtotal Neto:</span
+                      >
                       <span id="profSubtotal" class="text-white fw-bold"
                         >$0.00</span
                       >
                     </div>
-                    <div class="d-flex justify-content-between mb-2">
-                      <span class="text-white-50">IVA (15%):</span>
+                    <div
+                      class="d-flex justify-content-between mb-3 pb-3 border-bottom border-secondary"
+                    >
+                      <span
+                        class="text-white-50 small text-uppercase fw-bold letter-spacing-1"
+                        >IVA (15%):</span
+                      >
                       <span id="profIva" class="text-white fw-bold">$0.00</span>
                     </div>
                     <div
-                      class="d-flex justify-content-between mt-3 pt-2 border-top border-secondary"
+                      class="d-flex justify-content-between align-items-center pt-2"
                     >
-                      <span class="text-gold fw-black">TOTAL:</span>
-                      <span id="profTotal" class="text-gold fw-black fs-4"
+                      <span
+                        class="text-gold fw-black text-uppercase"
+                        style="letter-spacing: 2px"
+                        >TOTAL FINAL:</span
+                      >
+                      <span id="profTotal" class="text-gold fw-black fs-2"
                         >$0.00</span
                       >
                     </div>
@@ -394,10 +460,11 @@
               <div class="mt-5 text-center">
                 <button
                   type="submit"
-                  class="btn btn-gold px-5 py-3 fw-bold hvr-grow"
+                  class="btn btn-gold px-5 py-3 fw-bold hvr-grow rounded-pill shadow-lg"
+                  style="min-width: 300px; font-size: 1.1rem"
                 >
-                  <i class="fa-solid fa-file-pdf me-2"></i> GENERAR Y GUARDAR
-                  PROFORMA
+                  <i class="fa-solid fa-file-invoice-dollar me-2 fs-5"></i>
+                  GENERAR Y GUARDAR PROFORMA
                 </button>
               </div>
             </form>
@@ -416,24 +483,77 @@
       <div class="modal-dialog modal-xl modal-dialog-centered">
         <div
           class="modal-content bg-white p-0 overflow-hidden"
-          style="border-radius: 0"
+          style="border-radius: 15px"
         >
-          <div class="modal-header bg-dark text-white border-0 py-2 no-print">
-            <h5 class="modal-title">Vista de Proforma</h5>
-            <div class="d-flex gap-2">
-              <button
-                class="btn btn-gold btn-sm"
-                onclick="downloadProformaPDF()"
-              >
-                <i class="fa-solid fa-download me-1"></i> Descargar PDF
-              </button>
-              <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
-                Cerrar
-              </button>
+          <!-- HEADER PREMIUM (no-print) -->
+          <div
+            class="modal-header bg-gold py-3 shadow-sm border-0 no-print position-relative"
+            style="
+              background: linear-gradient(
+                135deg,
+                #d4af37 0%,
+                #f4d03f 100%
+              ) !important;
+            "
+          >
+            <h5
+              class="modal-title fw-bold text-dark text-uppercase d-flex align-items-center"
+            >
+              <i class="fa-solid fa-file-invoice-dollar me-3 fs-4"></i> VISTA DE
+              PROFORMA
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-dark shadow-none position-absolute"
+              style="top: 20px; right: 20px"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+
+          <!-- CONTENEDOR VISTA PREVIA (Adaptable para pantalla) -->
+          <div
+            class="modal-body p-0"
+            style="max-height: 70vh; overflow-y: auto"
+          >
+            <div id="proformaPreview" class="proforma-document">
+              <!-- Aquí se renderiza la proforma para previsualización -->
             </div>
           </div>
-          <div id="proformaPrintArea" class="proforma-document">
-            <!-- Aquí se renderiza la proforma para el PDF -->
+
+          <!-- FOOTER PREMIUM (no-print) -->
+          <div
+            class="modal-footer py-3 no-print d-flex justify-content-center gap-3 border-0"
+            style="
+              background: linear-gradient(
+                135deg,
+                #d4af37 0%,
+                #f4d03f 100%
+              ) !important;
+              border-radius: 0 0 15px 15px;
+            "
+          >
+            <button
+              class="btn btn-dark fw-bold px-4 py-2 rounded-pill shadow-sm hvr-grow"
+              onclick="sendProformaWhatsApp()"
+            >
+              <i class="fa-brands fa-whatsapp me-2 fs-5 text-success"></i>
+              ENVIAR WHATSAPP
+            </button>
+            <button
+              class="btn btn-dark fw-bold px-4 py-2 rounded-pill shadow-sm hvr-grow"
+              onclick="downloadProformaPDF()"
+            >
+              <i class="fa-solid fa-file-pdf me-2 fs-5 text-danger"></i>
+              DESCARGAR PDF
+            </button>
+          </div>
+
+          <!-- CONTENEDOR OCULTO PARA PDF (Mantiene 100% el diseño original/elegante) -->
+          <div style="position: absolute; left: -9999px; top: 0">
+            <div id="proformaPrintArea" style="width: 800px; background: white">
+              <!-- Aquí se renderiza la proforma con diseño fijo para el PDF -->
+            </div>
           </div>
         </div>
       </div>
