@@ -136,7 +136,7 @@
         </div>
         <div class="row dashboard-row g-4 justify-content-center">
           <!-- 4. Gestión Admin with modal -->
-          <div class="col-lg-4 col-md-6 col-sm-12">
+          <div class="col-lg-6 col-md-6 col-sm-12">
             <div
               class="card-dashboard internal-card"
               data-bs-toggle="modal"
@@ -149,7 +149,7 @@
           </div>
 
           <!-- 5. Gestión Técnica with modal -->
-          <div class="col-lg-4 col-md-6 col-sm-12">
+          <div class="col-lg-6 col-md-6 col-sm-12">
             <div
               class="card-dashboard internal-card"
               data-bs-toggle="modal"
@@ -162,7 +162,7 @@
           </div>
 
           <!-- 6. Departamento de Operaciones with modal -->
-          <div class="col-lg-4 col-md-6 col-sm-12">
+          <div class="col-lg-6 col-md-6 col-sm-12">
             <div
               class="card-dashboard internal-card"
               data-bs-toggle="modal"
@@ -170,6 +170,19 @@
             >
               <i class="fa-solid fa-desktop"></i>
               <h5>Operaciones / Monitoreo</h5>
+              <span class="card-badge internal-badge">Seguridad 24/7 </span>
+            </div>
+          </div>
+
+          <!-- 7. Administración Comercial with modal -->
+          <div class="col-lg-6 col-md-6 col-sm-12">
+            <div
+              class="card-dashboard internal-card"
+              data-bs-toggle="modal"
+              data-bs-target="#loginModalComercial"
+            >
+              <i class="fa-solid fa-cart-shopping"></i>
+              <h5>Administración Comercial</h5>
               <span class="card-badge internal-badge">Seguridad 24/7 </span>
             </div>
           </div>
@@ -206,6 +219,7 @@
     <script src="js/login_admin.js"></script>
     <script src="js/login_clientes.js"></script>
     <script src="js/login_operaciones.js"></script>
+    <script src="js/login_comercial.js"></script>
     <script src="js/login_residentes.js"></script>
     <script src="js/sweetalert2.js"></script>
 
@@ -507,6 +521,65 @@
       </div>
     </div>
 
+    <!-- MODAL LOGIN COMERCIAL -->
+    <div
+      class="modal fade"
+      id="loginModalComercial"
+      tabindex="-1"
+      aria-labelledby="loginModalComercialLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="loginModalComercialLabel">
+              <i class="fa-solid fa-cart-shopping"></i> Login Comercial
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Cerrar"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="comercialLoginForm">
+              <div class="mb-3">
+                <label for="comercialUser" class="form-label">Email</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="comercialUser"
+                  placeholder="comercial@seguridad247.com"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="comercialPassword" class="form-label">Contraseña</label>
+                <div class="input-group">
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="comercialPassword"
+                    placeholder="Ingresa tu contraseña"
+                  />
+                  <button
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    id="toggleComercialPassword"
+                  >
+                    <i class="fa-solid fa-eye" id="comercialPasswordIcon"></i>
+                  </button>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-login w-100">
+                Ingresar
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script>
       // Password visibility toggle functionality
       document.addEventListener("DOMContentLoaded", function () {
@@ -598,6 +671,23 @@
             residentesPassword.setAttribute("type", type);
             residentesPasswordIcon.classList.toggle("fa-eye");
             residentesPasswordIcon.classList.toggle("fa-eye-slash");
+          });
+        }
+
+        // Comercial Login Password Toggle
+        const toggleComercialPassword = document.getElementById("toggleComercialPassword");
+        const comercialPassword = document.getElementById("comercialPassword");
+        const comercialPasswordIcon = document.getElementById("comercialPasswordIcon");
+
+        if (toggleComercialPassword) {
+          toggleComercialPassword.addEventListener("click", function () {
+            const type =
+              comercialPassword.getAttribute("type") === "password"
+                ? "text"
+                : "password";
+            comercialPassword.setAttribute("type", type);
+            comercialPasswordIcon.classList.toggle("fa-eye");
+            comercialPasswordIcon.classList.toggle("fa-eye-slash");
           });
         }
 

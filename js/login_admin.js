@@ -2899,21 +2899,24 @@ function renderUsuariosGrid(users) {
       'administrador': 'bg-gold',
       'ADMIN_CONJUNTO': 'bg-info',
       'tecnico': 'bg-secondary',
-      'monitoreo': 'bg-primary'
+      'monitoreo': 'bg-primary',
+      'comercial': 'bg-success'
     };
 
     const roleTextMap = {
       'administrador': 'Admin Gral.',
       'ADMIN_CONJUNTO': 'Admin Conjunto',
       'tecnico': 'Técnico',
-      'monitoreo': 'Monitoreo / Ops'
+      'monitoreo': 'Monitoreo / Ops',
+      'comercial': 'Vendedor / Comercial'
     };
 
     const roleIconMap = {
       'administrador': 'fa-crown',
       'ADMIN_CONJUNTO': 'fa-building-shield',
       'tecnico': 'fa-toolbox',
-      'monitoreo': 'fa-desktop'
+      'monitoreo': 'fa-desktop',
+      'comercial': 'fa-cart-shopping'
     };
 
     const roleBadge = roleBadgeMap[user.role] || 'bg-dark';
@@ -2932,7 +2935,8 @@ function renderUsuariosGrid(users) {
       'administrador': 'Administración Global / Sede Central',
       'ADMIN_CONJUNTO': user.complexName || 'Conjunto sin asignar',
       'tecnico': user.subRole || 'Técnico General',
-      'monitoreo': 'Centro de Operaciones 24/7'
+      'monitoreo': 'Centro de Operaciones 24/7',
+      'comercial': 'Gestión de Ventas y Proformas'
     };
 
     const extraInfo = roleExtraInfoMap[user.role] || 'Información no disponible';

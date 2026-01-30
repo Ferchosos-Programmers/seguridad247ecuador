@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Administración Comercial - 24/7</title>
+
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="css/gestion_admin.css" />
+    <link rel="stylesheet" href="css/gestion_comercial.css" />
+    <link rel="stylesheet" href="css/index.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+    />
+    <link rel="icon" href="assets/img/logo.ico" type="image/x-icon" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+      rel="stylesheet"
+    />
+    <script src="js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  </head>
+
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+      <div class="container">
+        <a class="navbar-brand" href="#"
+          >SEGURIDAD 24/7 <span class="d-none d-sm-inline">COMERCIAL</span></a
+        >
+
+        <button class="navbar-toggler" type="button" id="mobileSidebarToggle">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div
+          class="collapse navbar-collapse d-none d-lg-flex justify-content-end"
+          id="navbarNav"
+        >
+          <button class="btn-logout-nav" id="logoutBtn">
+            <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+          </button>
+        </div>
+      </div>
+    </nav>
+    <div class="admin-wrapper">
+      <!-- SIDEBAR -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+          <img src="assets/img/logo.png" alt="Logo" />
+          <span class="admin-label">COMERCIAL</span>
+        </div>
+
+        <ul class="sidebar-menu">
+          <li class="sidebar-item">
+            <a class="sidebar-link active" data-view="dashboard">
+              <i class="fa-solid fa-house"></i> Dashboard
+            </a>
+          </li>
+          <li class="sidebar-item">
+            <a class="sidebar-link" data-view="products">
+              <i class="fa-solid fa-boxes-stacked"></i> Productos
+            </a>
+          </li>
+          <li class="sidebar-item">
+            <a class="sidebar-link" data-view="proformas">
+              <i class="fa-solid fa-file-invoice-dollar"></i> Proformas
+            </a>
+          </li>
+          <!-- Logout for mobile -->
+          <li class="sidebar-item d-lg-none mt-4">
+            <button class="btn-logout-sidebar w-100" id="logoutBtnMobile">
+              <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+            </button>
+          </li>
+        </ul>
+      </aside>
+
+      <!-- MAIN CONTENT -->
+      <main class="main-content">
+        <div class="container-fluid">
+          <!-- DASHBOARD SECTION -->
+          <div id="dashboardSection">
+            <div class="d-flex justify-content-between align-items-center mb-5">
+              <h1 class="text-gold mb-0">Gestión Comercial</h1>
+            </div>
+
+            <div class="row g-4 mb-5">
+              <div class="col-xl-4 col-md-6">
+                <div class="stat-card">
+                  <div
+                    class="stat-card-icon"
+                    style="background: rgba(212, 175, 55, 0.1); color: #d4af37"
+                  >
+                    <i class="fa-solid fa-box"></i>
+                  </div>
+                  <div class="stat-card-info">
+                    <p class="stat-label">Total Productos</p>
+                    <h3 id="countProducts">0</h3>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-4 col-md-6">
+                <div class="stat-card">
+                  <div
+                    class="stat-card-icon"
+                    style="background: rgba(52, 152, 219, 0.1); color: #3498db"
+                  >
+                    <i class="fa-solid fa-file-invoice"></i>
+                  </div>
+                  <div class="stat-card-info">
+                    <p class="stat-label">Proformas Generadas</p>
+                    <h3 id="countProformas">0</h3>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-4 col-md-12">
+                <div class="stat-card">
+                  <div
+                    class="stat-card-icon"
+                    style="background: rgba(46, 204, 113, 0.1); color: #2ecc71"
+                  >
+                    <i class="fa-solid fa-money-bill-trend-up"></i>
+                  </div>
+                  <div class="stat-card-info">
+                    <p class="stat-label">Ventas Estimadas</p>
+                    <h3 id="totalSales">$0.00</h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-12">
+                <div class="job-card">
+                  <h5 class="text-gold mb-4">Actividad Mensual</h5>
+                  <div class="chart-wrapper">
+                    <canvas id="comercialChart"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PRODUCTS SECTION -->
+          <div id="productsSection" style="display: none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2 class="text-gold mb-0">Inventario de Productos</h2>
+              <button
+                class="btn btn-gold"
+                data-bs-toggle="modal"
+                data-bs-target="#addProductModal"
+              >
+                <i class="fa-solid fa-plus me-2"></i> Nuevo Producto
+              </button>
+            </div>
+
+            <div class="row mb-4">
+              <div class="col-md-6 mx-auto">
+                <div class="premium-search">
+                  <i class="fa-solid fa-magnifying-glass search-icon-gold"></i>
+                  <input
+                    type="text"
+                    id="productSearch"
+                    class="form-control search-input-glass"
+                    placeholder="Buscar por nombre o marca..."
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div id="productsGrid" class="row g-4">
+              <!-- Cargado dinámicamente -->
+            </div>
+          </div>
+
+          <!-- PROFORMAS SECTION -->
+          <div id="proformasSection" style="display: none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2 class="text-gold mb-0">Gestión de Proformas</h2>
+              <button class="btn btn-gold" onclick="openNewProforma()">
+                <i class="fa-solid fa-plus me-2"></i> Nueva Proforma
+              </button>
+            </div>
+
+            <!-- Buscador de Proformas -->
+            <div class="row mb-4">
+              <div class="col-md-6 mx-auto">
+                <div class="premium-search">
+                  <i class="fa-solid fa-magnifying-glass search-icon-gold"></i>
+                  <input
+                    type="text"
+                    id="proformaSearch"
+                    class="form-control search-input-glass"
+                    placeholder="Buscar por cliente o número..."
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div id="proformasGrid" class="row g-4">
+              <!-- Cargado dinámicamente -->
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- MODAL AGREGAR/EDITAR PRODUCTO -->
+    <div
+      class="modal fade"
+      id="addProductModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border-gold">
+          <div class="modal-header bg-gold">
+            <h5 class="modal-title fw-bold text-dark">
+              <i class="fa-solid fa-box me-2"></i> PRODUCTO
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body p-4">
+            <form id="productForm">
+              <input type="hidden" id="productId" />
+              <div class="mb-3">
+                <label class="form-label text-gold small fw-bold"
+                  >NOMBRE DEL PRODUCTO</label
+                >
+                <input
+                  type="text"
+                  id="pName"
+                  class="form-control premium-input text-uppercase"
+                  required
+                  placeholder="Ej: Cámara Domo 4K"
+                />
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label text-gold small fw-bold"
+                    >MARCA</label
+                  >
+                  <input
+                    type="text"
+                    id="pBrand"
+                    class="form-control premium-input text-uppercase"
+                    required
+                    placeholder="Ej: Hikvision"
+                  />
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label text-gold small fw-bold"
+                    >PRECIO ($)</label
+                  >
+                  <input
+                    type="number"
+                    id="pPrice"
+                    step="0.01"
+                    class="form-control premium-input"
+                    required
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label text-gold small fw-bold">IMAGEN</label>
+                <input
+                  type="file"
+                  id="pImage"
+                  class="form-control premium-input"
+                  accept="image/*"
+                />
+              </div>
+              <button
+                type="submit"
+                class="btn btn-gold w-100 py-3 mt-3 fw-bold"
+              >
+                <i class="fa-solid fa-save me-2"></i> GUARDAR PRODUCTO
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL NUEVA PROFORMA (NUEVO DISEÑO INTERACTIVO) -->
+    <div class="modal fade" id="proformaModal" tabindex="-1" aria-hidden="true">
+      <div
+        class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable"
+      >
+        <div class="modal-content bg-dark border-gold">
+          <div class="modal-header bg-gold">
+            <h5 class="modal-title fw-bold text-dark">
+              <i class="fa-solid fa-file-invoice-dollar me-2"></i> GENERAR
+              PROFORMA
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body p-4">
+            <form id="proformaForm">
+              <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                  <label class="form-label text-gold small fw-bold"
+                    >NOMBRE DEL CLIENTE</label
+                  >
+                  <input
+                    type="text"
+                    id="profClientName"
+                    class="form-control premium-input text-uppercase"
+                    required
+                  />
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label text-gold small fw-bold"
+                    >FECHA</label
+                  >
+                  <input
+                    type="date"
+                    id="profDate"
+                    class="form-control premium-input"
+                    required
+                  />
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label text-gold small fw-bold"
+                    >VENCE EN (DÍAS)</label
+                  >
+                  <input
+                    type="number"
+                    id="profExpiry"
+                    class="form-control premium-input"
+                    value="15"
+                  />
+                </div>
+              </div>
+
+              <div class="item-list-container mb-4">
+                <h6 class="text-gold border-bottom border-gold pb-2 mb-3">
+                  LISTA DE PRODUCTOS / SERVICIOS
+                </h6>
+                <div id="proformaItems">
+                  <!-- Los items se agregan aquí -->
+                </div>
+                <button
+                  type="button"
+                  class="btn btn-outline-gold btn-sm mt-3"
+                  onclick="addItemRow()"
+                >
+                  <i class="fa-solid fa-plus me-1"></i> Agregar Item
+                </button>
+              </div>
+
+              <div class="row justify-content-end">
+                <div class="col-md-4">
+                  <div class="totals-box p-3 rounded bg-black border-gold">
+                    <div class="d-flex justify-content-between mb-2">
+                      <span class="text-white-50">Subtotal:</span>
+                      <span id="profSubtotal" class="text-white fw-bold"
+                        >$0.00</span
+                      >
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                      <span class="text-white-50">IVA (15%):</span>
+                      <span id="profIva" class="text-white fw-bold">$0.00</span>
+                    </div>
+                    <div
+                      class="d-flex justify-content-between mt-3 pt-2 border-top border-secondary"
+                    >
+                      <span class="text-gold fw-black">TOTAL:</span>
+                      <span id="profTotal" class="text-gold fw-black fs-4"
+                        >$0.00</span
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-5 text-center">
+                <button
+                  type="submit"
+                  class="btn btn-gold px-5 py-3 fw-bold hvr-grow"
+                >
+                  <i class="fa-solid fa-file-pdf me-2"></i> GENERAR Y GUARDAR
+                  PROFORMA
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL VISTA PREVIA PROFORMA -->
+    <div
+      class="modal fade"
+      id="viewProformaModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div
+          class="modal-content bg-white p-0 overflow-hidden"
+          style="border-radius: 0"
+        >
+          <div class="modal-header bg-dark text-white border-0 py-2 no-print">
+            <h5 class="modal-title">Vista de Proforma</h5>
+            <div class="d-flex gap-2">
+              <button
+                class="btn btn-gold btn-sm"
+                onclick="downloadProformaPDF()"
+              >
+                <i class="fa-solid fa-download me-1"></i> Descargar PDF
+              </button>
+              <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                Cerrar
+              </button>
+            </div>
+          </div>
+          <div id="proformaPrintArea" class="proforma-document">
+            <!-- Aquí se renderiza la proforma para el PDF -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <!-- Scripts -->
+    <script src="js/firebase.js"></script>
+    <script src="js/sweetalert2.js"></script>
+    <script src="js/gestion_comercial.js"></script>
+  </body>
+</html>
