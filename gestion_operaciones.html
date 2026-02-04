@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/gestion_operaciones.css" />
     <link rel="stylesheet" href="css/index.css" />
+    <link rel="stylesheet" href="css/modal_report_premium.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
@@ -786,807 +787,363 @@
       </div>
     </div>
 
-    <!-- MODAL VER REPORTE -->
+    <!-- MODAL VER REPORTE PREMIUM -->
     <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
       <div
         class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable"
       >
-        <div
-          class="modal-content"
-          style="
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-            border: 2px solid #d4af37;
-            border-radius: 20px;
-            overflow: hidden;
-          "
-        >
-          <!-- HEADER PREMIUM -->
-          <div
-            style="
-              background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
-              padding: 20px 25px;
-              position: relative;
-              overflow: hidden;
-            "
-          >
-            <div
-              style="
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: repeating-linear-gradient(
-                  45deg,
-                  transparent,
-                  transparent 10px,
-                  rgba(255, 255, 255, 0.05) 10px,
-                  rgba(255, 255, 255, 0.05) 20px
-                );
-                opacity: 0.3;
-              "
-            ></div>
-
-            <div
-              class="d-flex align-items-center justify-content-between position-relative"
-            >
-              <div class="d-flex align-items-center">
-                <div
-                  style="
-                    width: 50px;
-                    height: 50px;
-                    background: rgba(0, 0, 0, 0.2);
-                    border-radius: 12px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    margin-right: 15px;
-                  "
-                >
-                  <i
-                    class="fa-solid fa-file-lines"
-                    style="color: #000; font-size: 1.5rem"
-                  ></i>
-                </div>
-                <div>
-                  <h5
-                    class="mb-0 fw-bold"
-                    style="
-                      color: #000;
-                      font-size: 1.3rem;
-                      letter-spacing: 0.5px;
-                    "
-                  >
-                    INFORME TÉCNICO
-                  </h5>
-                  <small style="color: rgba(0, 0, 0, 0.7); font-weight: 600"
-                    >Reporte de Trabajo Completado</small
-                  >
-                </div>
+        <div class="modal-content modal-content-premium">
+          <!-- HEADER -->
+          <div class="modal-header modal-header-premium">
+            <div class="d-flex align-items-center">
+              <div class="header-icon-box">
+                <i class="fa-solid fa-file-invoice"></i>
               </div>
-              <button
-                type="button"
-                class="btn-close btn-close-white"
-                data-bs-dismiss="modal"
-                style="
-                  background-color: transparent;
-                  border-radius: 8px;
-                  padding: 10px;
-                  opacity: 1;
-                "
-              ></button>
+              <div class="ms-3">
+                <h5 class="modal-title modal-title-premium">INFORME TÉCNICO</h5>
+                <p class="modal-subtitle-premium">
+                  Reporte de Trabajo Completado
+                </p>
+              </div>
             </div>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
           </div>
 
-          <!-- BODY CON LAYOUT 2 COLUMNAS -->
-          <div
-            class="modal-body"
-            style="padding: 20px; max-height: 70vh; overflow-y: auto"
-          >
-            <!-- INFO CARDS COMPACTAS -->
-            <div class="row g-2 mb-3">
-              <div class="col-6 col-md-3">
-                <div
-                  style="
-                    background: rgba(212, 175, 55, 0.08);
-                    border: 1px solid rgba(212, 175, 55, 0.2);
-                    border-radius: 12px;
-                    padding: 12px;
-                    height: 100%;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                  "
-                >
-                  <div class="d-flex align-items-center mb-2">
-                    <div
-                      style="
-                        width: 32px;
-                        height: 32px;
-                        background: linear-gradient(135deg, #d4af37, #f4d03f);
-                        border-radius: 8px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        margin-right: 8px;
-                      "
-                    >
-                      <i
-                        class="fa-solid fa-user"
-                        style="color: #000; font-size: 0.9rem"
-                      ></i>
+          <!-- BODY -->
+          <div class="modal-body modal-body-premium">
+            <!-- MODERN HEADER 100% WIDTH -->
+            <div class="service-details-modern">
+              <div class="row align-items-center">
+                <div class="col-md-6 mb-2 mb-md-0">
+                  <div class="d-flex align-items-center">
+                    <div class="header-icon-box me-3">
+                      <i class="fa-solid fa-clipboard-check"></i>
                     </div>
-                    <span
-                      style="
-                        color: #d4af37;
-                        font-size: 0.7rem;
-                        font-weight: 700;
-                        text-transform: uppercase;
-                        letter-spacing: 0.5px;
-                      "
-                      >Cliente</span
-                    >
-                  </div>
-                  <span
-                    id="reportClientName"
-                    style="
-                      color: #fff;
-                      font-weight: 600;
-                      font-size: 0.85rem;
-                      display: block;
-                      line-height: 1.2;
-                    "
-                  ></span>
-                </div>
-              </div>
-
-              <div class="col-6 col-md-3">
-                <div
-                  style="
-                    background: rgba(212, 175, 55, 0.08);
-                    border: 1px solid rgba(212, 175, 55, 0.2);
-                    border-radius: 12px;
-                    padding: 12px;
-                    height: 100%;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                  "
-                >
-                  <div class="d-flex align-items-center mb-2">
-                    <div
-                      style="
-                        width: 32px;
-                        height: 32px;
-                        background: linear-gradient(135deg, #28a745, #20c997);
-                        border-radius: 8px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        margin-right: 8px;
-                      "
-                    >
-                      <i
-                        class="fa-solid fa-check-circle"
-                        style="color: #fff; font-size: 0.9rem"
-                      ></i>
+                    <div>
+                      <label class="d-block text-white-50 x-small mb-1"
+                        >CLIENTE</label
+                      >
+                      <h5
+                        id="reportClientName"
+                        class="text-white fw-bold mb-0 text-truncate"
+                      >
+                        Cargando...
+                      </h5>
                     </div>
-                    <span
-                      style="
-                        color: #d4af37;
-                        font-size: 0.7rem;
-                        font-weight: 700;
-                        text-transform: uppercase;
-                        letter-spacing: 0.5px;
-                      "
-                      >Estado</span
-                    >
                   </div>
-                  <span
-                    id="reportStatus"
-                    style="font-weight: 700; font-size: 0.85rem; display: block"
-                  ></span>
+                </div>
+                <div class="col-md-3 col-6 text-md-end">
+                  <label class="d-block text-white-50 x-small mb-1"
+                    >ESTADO</label
+                  >
+                  <span id="reportStatus" class="badge-status-premium"
+                    >Cargando...</span
+                  >
+                </div>
+                <div class="col-md-3 col-6 text-end">
+                  <label class="d-block text-white-50 x-small mb-1"
+                    >ASIGNADO / FIN</label
+                  >
+                  <small class="text-white d-block" id="reportJobDate"
+                    >--/--/----</small
+                  >
+                  <small class="text-muted" id="reportDate">--/--/----</small>
+                  <span id="reportTime" class="d-none"></span>
                 </div>
               </div>
 
-              <div class="col-6 col-md-3">
-                <div
-                  style="
-                    background: rgba(212, 175, 55, 0.08);
-                    border: 1px solid rgba(212, 175, 55, 0.2);
-                    border-radius: 12px;
-                    padding: 12px;
-                    height: 100%;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                  "
-                >
-                  <span
-                    style="
-                      color: #888;
-                      font-size: 0.7rem;
-                      text-transform: uppercase;
-                      letter-spacing: 0.5px;
-                      display: block;
-                      margin-bottom: 4px;
-                    "
-                    >Asignación</span
-                  >
-                  <span
-                    id="reportJobDate"
-                    style="
-                      color: #fff;
-                      font-weight: 600;
-                      display: block;
-                      font-size: 0.85rem;
-                    "
-                  ></span>
-                </div>
-              </div>
-
-              <div class="col-6 col-md-3">
-                <div
-                  style="
-                    background: rgba(212, 175, 55, 0.08);
-                    border: 1px solid rgba(212, 175, 55, 0.2);
-                    border-radius: 12px;
-                    padding: 12px;
-                    height: 100%;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                  "
-                >
-                  <span
-                    style="
-                      color: #888;
-                      font-size: 0.7rem;
-                      text-transform: uppercase;
-                      letter-spacing: 0.5px;
-                      display: block;
-                      margin-bottom: 4px;
-                    "
-                    >Finalización</span
-                  >
-                  <span
-                    style="
-                      color: #fff;
-                      font-weight: 600;
-                      display: block;
-                      font-size: 0.85rem;
-                    "
-                  >
-                    <span id="reportDate"></span> <span id="reportTime"></span>
-                  </span>
-                </div>
-              </div>
+              <!-- Hidden Fields for logic/PDF -->
+              <input type="hidden" id="reportInitial" />
+              <input type="hidden" id="reportFinal" />
+              <textarea
+                id="reportJobDescription"
+                style="display: none"
+              ></textarea>
+              <img id="imgInitial1" style="display: none" />
+              <img id="imgInitial2" style="display: none" />
+              <img id="imgFinal1" style="display: none" />
+              <img id="imgFinal2" style="display: none" />
             </div>
 
-            <!-- LAYOUT 2 COLUMNAS: PROBLEMA | TRABAJO -->
-            <div class="row g-3 mb-3">
-              <!-- COLUMNA IZQUIERDA: PROBLEMA REPORTADO -->
-              <div class="col-lg-6">
-                <div
-                  id="initialProblemSection"
-                  style="display: none; height: 100%"
-                >
-                  <div
-                    style="
-                      background: linear-gradient(
-                        135deg,
-                        rgba(255, 193, 7, 0.12),
-                        rgba(255, 152, 0, 0.08)
-                      );
-                      border: 2px solid rgba(255, 193, 7, 0.3);
-                      border-radius: 15px;
-                      padding: 20px;
-                      height: 100%;
-                      display: flex;
-                      flex-direction: column;
-                    "
-                  >
-                    <div class="d-flex align-items-center mb-3">
-                      <div
-                        style="
-                          width: 40px;
-                          height: 40px;
-                          background: rgba(255, 193, 7, 0.2);
-                          border-radius: 10px;
-                          display: flex;
-                          align-items: center;
-                          justify-content: center;
-                          margin-right: 12px;
-                        "
-                      >
-                        <i
-                          class="fa-solid fa-exclamation-triangle"
-                          style="color: #ffc107; font-size: 1.2rem"
-                        ></i>
-                      </div>
-                      <h6
-                        class="mb-0 fw-bold"
-                        style="
-                          color: #ffc107;
-                          font-size: 1rem;
-                          letter-spacing: 0.5px;
-                        "
-                      >
-                        PROBLEMA REPORTADO
-                      </h6>
-                    </div>
-
-                    <div class="mb-3">
-                      <strong
-                        style="
-                          color: #ffc107;
-                          font-size: 0.85rem;
-                          display: block;
-                          margin-bottom: 8px;
-                        "
-                        >Descripción:</strong
-                      >
-                      <p
-                        id="reportProblemDescription"
-                        style="
-                          color: #e0e0e0;
-                          margin: 0;
-                          line-height: 1.6;
-                          font-size: 0.9rem;
-                        "
-                      ></p>
-                    </div>
-
-                    <div
-                      id="reportProblemImageContainer"
-                      class="mt-auto text-center"
-                    >
-                      <strong
-                        style="
-                          color: #ffc107;
-                          font-size: 0.85rem;
-                          display: block;
-                          margin-bottom: 10px;
-                        "
-                        >Imagen del Problema:</strong
-                      >
-                      <div
-                        style="
-                          border: 2px solid rgba(255, 193, 7, 0.4);
-                          border-radius: 12px;
-                          overflow: hidden;
-                          cursor: pointer;
-                          box-shadow: 0 4px 15px rgba(255, 193, 7, 0.2);
-                          max-width: 50%;
-                          margin: 0 auto;
-                        "
-                        onclick="
-                          openImageFullscreen(
-                            document.getElementById('reportProblemImage').src,
-                          )
-                        "
-                      >
-                        <img
-                          id="reportProblemImage"
-                          src=""
-                          alt="Problema"
-                          style="
-                            width: 100%;
-                            height: auto;
-                            display: block;
-                            transition: transform 0.3s;
-                          "
-                          onmouseover="this.style.transform = 'scale(1.05)'"
-                          onmouseout="this.style.transform = 'scale(1)'"
-                        />
-                      </div>
-                      <small
-                        style="
-                          color: #ffc107;
-                          display: block;
-                          margin-top: 8px;
-                          font-size: 0.75rem;
-                          text-align: center;
-                        "
-                      >
-                        <i class="fa-solid fa-expand"></i> Click para ampliar
-                      </small>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- COLUMNA DERECHA: TRABAJO + EVIDENCIAS -->
-              <div class="col-lg-6">
-                <div
-                  style="
-                    display: flex;
-                    flex-direction: column;
-                    gap: 15px;
-                    height: 100%;
-                  "
-                >
-                  <!-- TRABAJO REALIZADO -->
-                  <div
-                    style="
-                      background: linear-gradient(
-                        135deg,
-                        rgba(212, 175, 55, 0.08),
-                        rgba(212, 175, 55, 0.03)
-                      );
-                      border: 2px solid rgba(212, 175, 55, 0.25);
-                      border-radius: 15px;
-                      padding: 20px;
-                      flex: 1;
-                    "
-                  >
-                    <div class="d-flex align-items-center mb-3">
-                      <div
-                        style="
-                          width: 40px;
-                          height: 40px;
-                          background: rgba(212, 175, 55, 0.2);
-                          border-radius: 10px;
-                          display: flex;
-                          align-items: center;
-                          justify-content: center;
-                          margin-right: 12px;
-                        "
-                      >
-                        <i
-                          class="fa-solid fa-wrench"
-                          style="color: #d4af37; font-size: 1.2rem"
-                        ></i>
-                      </div>
-                      <h6
-                        class="mb-0 fw-bold"
-                        style="
-                          color: #d4af37;
-                          font-size: 1rem;
-                          letter-spacing: 0.5px;
-                        "
-                      >
-                        TRABAJO REALIZADO
-                      </h6>
-                    </div>
-                    <div
-                      id="reportText"
-                      style="
-                        color: #e0e0e0;
-                        line-height: 1.7;
-                        font-size: 0.9rem;
-                        white-space: pre-wrap;
-                      "
-                    ></div>
-                  </div>
-
-                  <!-- EVIDENCIAS FOTOGRÁFICAS -->
-                  <div
-                    style="
-                      background: linear-gradient(
-                        135deg,
-                        rgba(212, 175, 55, 0.08),
-                        rgba(212, 175, 55, 0.03)
-                      );
-                      border: 2px solid rgba(212, 175, 55, 0.25);
-                      border-radius: 15px;
-                      padding: 20px;
-                    "
-                  >
-                    <div class="d-flex align-items-center mb-3">
-                      <div
-                        style="
-                          width: 40px;
-                          height: 40px;
-                          background: rgba(212, 175, 55, 0.2);
-                          border-radius: 10px;
-                          display: flex;
-                          align-items: center;
-                          justify-content: center;
-                          margin-right: 12px;
-                        "
-                      >
-                        <i
-                          class="fa-solid fa-camera"
-                          style="color: #d4af37; font-size: 1.2rem"
-                        ></i>
-                      </div>
-                      <h6
-                        class="mb-0 fw-bold"
-                        style="
-                          color: #d4af37;
-                          font-size: 1rem;
-                          letter-spacing: 0.5px;
-                        "
-                      >
-                        EVIDENCIAS
-                      </h6>
-                    </div>
-                    <div class="row g-2">
-                      <div class="col-6">
-                        <div
-                          style="
-                            border: 2px solid rgba(212, 175, 55, 0.3);
-                            border-radius: 10px;
-                            overflow: hidden;
-                            aspect-ratio: 4/3;
-                            background: #000;
-                            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-                          "
-                        >
-                          <img
-                            id="reportImage1"
-                            src=""
-                            alt="Evidencia 1"
-                            style="width: 100%; height: 100%; object-fit: cover"
-                          />
-                        </div>
-                      </div>
-                      <div class="col-6">
-                        <div
-                          style="
-                            border: 2px solid rgba(212, 175, 55, 0.3);
-                            border-radius: 10px;
-                            overflow: hidden;
-                            aspect-ratio: 4/3;
-                            background: #000;
-                            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-                          "
-                        >
-                          <img
-                            id="reportImage2"
-                            src=""
-                            alt="Evidencia 2"
-                            style="width: 100%; height: 100%; object-fit: cover"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- FIRMAS (ANCHO COMPLETO) -->
-            <div id="reportSignaturesSection" style="display: none">
-              <div
-                style="
-                  background: linear-gradient(
-                    135deg,
-                    rgba(212, 175, 55, 0.08),
-                    rgba(212, 175, 55, 0.03)
-                  );
-                  border: 2px solid rgba(212, 175, 55, 0.25);
-                  border-radius: 15px;
-                  padding: 20px;
-                "
-              >
-                <div class="d-flex align-items-center mb-3">
-                  <div
-                    style="
-                      width: 40px;
-                      height: 40px;
-                      background: rgba(212, 175, 55, 0.2);
-                      border-radius: 10px;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                      margin-right: 12px;
-                    "
+            <!-- ACCORDION SECTIONS -->
+            <div class="accordion premium-accordion" id="reportAccordionOps">
+              <!-- ITEM 1: PROBLEMA REPORTADO -->
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="headingProblemOps">
+                  <button
+                    class="accordion-button"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#collapseProblemOps"
+                    aria-expanded="true"
+                    aria-controls="collapseProblemOps"
                   >
                     <i
-                      class="fa-solid fa-signature"
-                      style="color: #d4af37; font-size: 1.2rem"
+                      class="fa-solid fa-triangle-exclamation me-2 text-danger"
                     ></i>
-                  </div>
-                  <h6
-                    class="mb-0 fw-bold"
-                    style="
-                      color: #d4af37;
-                      font-size: 1rem;
-                      letter-spacing: 0.5px;
-                    "
-                  >
-                    FIRMAS DE CONFORMIDAD
-                  </h6>
-                </div>
-                <div class="row g-4 justify-content-center">
-                  <div class="col-md-6 d-flex justify-content-center">
-                    <div
-                      style="
-                        background: rgba(0, 0, 0, 0.2);
-                        border: 2px solid rgba(212, 175, 55, 0.3);
-                        border-radius: 16px;
-                        padding: 25px;
-                        width: 100%;
-                        max-width: 350px;
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        justify-content: space-between;
-                        box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
-                      "
-                    >
-                      <small
-                        class="d-block mb-3 fw-bold"
-                        style="
-                          color: #d4af37;
-                          font-size: 0.9rem;
-                          text-transform: uppercase;
-                          letter-spacing: 1.5px;
-                          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-                        "
-                        >Sello Técnico</small
-                      >
+                    PROBLEMA REPORTADO
+                  </button>
+                </h2>
+                <div
+                  id="collapseProblemOps"
+                  class="accordion-collapse collapse show"
+                  aria-labelledby="headingProblemOps"
+                  data-bs-parent="#reportAccordionOps"
+                >
+                  <div class="accordion-body">
+                    <!-- Description -->
+                    <div class="description-box mb-3">
+                      <p id="reportProblemDescription">Sin descripción.</p>
+                    </div>
+
+                    <!-- Job Image (Requirement) -->
+                    <div class="mb-3 requirement-img-wrapper">
                       <div
-                        style="
-                          background: rgba(255, 255, 255, 0.03);
-                          border-radius: 12px;
-                          padding: 15px;
-                          width: 100%;
-                          display: flex;
-                          align-items: center;
-                          justify-content: center;
-                          min-height: 160px;
-                          border: 1px dashed rgba(212, 175, 55, 0.3);
+                        class="requirement-img-container"
+                        onclick="
+                          if (document.getElementById('displayJobImage').src)
+                            openImageFullscreen(
+                              document.getElementById('displayJobImage').src,
+                            );
                         "
+                        style="cursor: pointer; display: none"
+                        id="jobImageContainer"
                       >
                         <img
-                          src="assets/img/sello.png"
-                          alt="Sello"
+                          id="displayJobImage"
+                          src=""
                           style="
-                            max-height: 120px;
-                            max-width: 100%;
-                            width: auto;
-                            object-fit: contain;
-                            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
-                            transition: transform 0.3s;
+                            width: 100%;
+                            height: 100%;
+                            object-fit: cover;
+                            border-radius: 6px;
                           "
-                          onmouseover="this.style.transform = 'scale(1.05)'"
-                          onmouseout="this.style.transform = 'scale(1)'"
                         />
+                        <div class="evidence-overlay">
+                          <i class="fa-solid fa-expand"></i>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Initial Evidence -->
+                    <div class="evidence-section">
+                      <label class="evidence-label text-gold"
+                        >EVIDENCIA TÉCNICA (INICIAL)</label
+                      >
+                      <div class="row g-2">
+                        <div class="col-6">
+                          <div
+                            class="evidence-container"
+                            onclick="
+                              openImageFullscreen(
+                                document.getElementById('displayInitial1').src,
+                              )
+                            "
+                          >
+                            <img
+                              id="displayInitial1"
+                              class="evidence-img"
+                              src=""
+                              style="display: none"
+                            />
+                            <div
+                              id="placeholderInitial1"
+                              class="evidence-placeholder"
+                            >
+                              <i class="fa-solid fa-camera-slash"></i>
+                            </div>
+                            <div class="evidence-overlay">
+                              <i class="fa-solid fa-magnifying-glass-plus"></i>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-6">
+                          <div
+                            class="evidence-container"
+                            onclick="
+                              openImageFullscreen(
+                                document.getElementById('displayInitial2').src,
+                              )
+                            "
+                          >
+                            <img
+                              id="displayInitial2"
+                              class="evidence-img"
+                              src=""
+                              style="display: none"
+                            />
+                            <div
+                              id="placeholderInitial2"
+                              class="evidence-placeholder"
+                            >
+                              <i class="fa-solid fa-camera-slash"></i>
+                            </div>
+                            <div class="evidence-overlay">
+                              <i class="fa-solid fa-magnifying-glass-plus"></i>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                  <div class="col-md-6 d-flex justify-content-center">
-                    <div
-                      style="
-                        background: rgba(0, 0, 0, 0.2);
-                        border: 2px solid rgba(212, 175, 55, 0.3);
-                        border-radius: 16px;
-                        padding: 25px;
-                        width: 100%;
-                        max-width: 350px;
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        justify-content: space-between;
-                        box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
-                      "
-                    >
-                      <small
-                        class="d-block mb-3 fw-bold"
-                        style="
-                          color: #d4af37;
-                          font-size: 0.9rem;
-                          text-transform: uppercase;
-                          letter-spacing: 1.5px;
-                          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-                        "
-                        >Firma del Cliente</small
+                </div>
+              </div>
+
+              <!-- ITEM 2: SOLUCIÓN IMPLEMENTADA -->
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="headingSolutionOps">
+                  <button
+                    class="accordion-button collapsed"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#collapseSolutionOps"
+                    aria-expanded="false"
+                    aria-controls="collapseSolutionOps"
+                  >
+                    <i class="fa-solid fa-check-circle me-2 text-success"></i>
+                    SOLUCIÓN IMPLEMENTADA
+                  </button>
+                </h2>
+                <div
+                  id="collapseSolutionOps"
+                  class="accordion-collapse collapse"
+                  aria-labelledby="headingSolutionOps"
+                  data-bs-parent="#reportAccordionOps"
+                >
+                  <div class="accordion-body">
+                    <div class="description-box mb-3">
+                      <p id="reportText">Sin solución registrada.</p>
+                    </div>
+
+                    <!-- Final Evidence -->
+                    <div class="evidence-section">
+                      <label class="evidence-label text-gold"
+                        >EVIDENCIA FINAL</label
                       >
-                      <div
-                        style="
-                          background: rgba(255, 255, 255, 0.03);
-                          border-radius: 12px;
-                          padding: 15px;
-                          width: 100%;
-                          display: flex;
-                          align-items: center;
-                          justify-content: center;
-                          min-height: 160px;
-                          border: 1px dashed rgba(212, 175, 55, 0.3);
-                        "
-                      >
-                        <img
-                          id="reportClientSignature"
-                          src=""
-                          alt="Firma"
-                          style="
-                            max-height: 120px;
-                            max-width: 100%;
-                            width: auto;
-                            object-fit: contain;
-                            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
-                            transition: transform 0.3s;
-                          "
-                          onmouseover="this.style.transform = 'scale(1.05)'"
-                          onmouseout="this.style.transform = 'scale(1)'"
-                        />
+                      <div class="row g-2">
+                        <div class="col-6">
+                          <div
+                            class="evidence-container"
+                            onclick="
+                              openImageFullscreen(
+                                document.getElementById('displayFinal1').src,
+                              )
+                            "
+                          >
+                            <img
+                              id="displayFinal1"
+                              class="evidence-img"
+                              src=""
+                              style="display: none"
+                            />
+                            <div
+                              id="placeholderFinal1"
+                              class="evidence-placeholder"
+                            >
+                              <i class="fa-solid fa-camera-slash"></i>
+                            </div>
+                            <div class="evidence-overlay">
+                              <i class="fa-solid fa-magnifying-glass-plus"></i>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-6">
+                          <div
+                            class="evidence-container"
+                            onclick="
+                              openImageFullscreen(
+                                document.getElementById('displayFinal2').src,
+                              )
+                            "
+                          >
+                            <img
+                              id="displayFinal2"
+                              class="evidence-img"
+                              src=""
+                              style="display: none"
+                            />
+                            <div
+                              id="placeholderFinal2"
+                              class="evidence-placeholder"
+                            >
+                              <i class="fa-solid fa-camera-slash"></i>
+                            </div>
+                            <div class="evidence-overlay">
+                              <i class="fa-solid fa-magnifying-glass-plus"></i>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- FOOTER CON BOTONES PDF Y ENVIAR -->
-          <div
-            style="
-              background: linear-gradient(180deg, #0a0a0a 0%, #000 100%);
-              border-top: 1px solid rgba(212, 175, 55, 0.3);
-              padding: 15px 20px;
-            "
-            class="d-flex gap-2"
-          >
-            <button
-              type="button"
-              id="generateJobPdfBtn"
-              style="
-                background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
-                border: none;
-                color: #000;
-                padding: 14px 15px;
-                border-radius: 12px;
-                font-weight: 700;
-                font-size: 0.9rem;
-                letter-spacing: 0.5px;
-                box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
-                transition: all 0.3s ease;
-                cursor: pointer;
-                flex: 1;
-                text-transform: uppercase;
-              "
-              onmouseover="
-                this.style.transform = 'translateY(-2px)';
-                this.style.boxShadow = '0 6px 20px rgba(212, 175, 55, 0.5)';
-              "
-              onmouseout="
-                this.style.transform = 'translateY(0)';
-                this.style.boxShadow = '0 4px 15px rgba(212, 175, 55, 0.3)';
-              "
+            <!-- SIGNATURES SECTION (Hidden by default) -->
+            <div
+              id="reportSignaturesSection"
+              style="display: none"
+              class="mt-4"
             >
-              <i class="fa-solid fa-file-pdf me-1"></i>
-              PDF
-            </button>
-            <button
-              type="button"
-              id="sendReportBtn"
-              style="
-                background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
-                border: none;
-                color: #fff;
-                padding: 14px 15px;
-                border-radius: 12px;
-                font-weight: 700;
-                font-size: 0.9rem;
-                letter-spacing: 0.5px;
-                box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
-                transition: all 0.3s ease;
-                cursor: pointer;
-                flex: 1;
-                text-transform: uppercase;
-              "
-              onmouseover="
-                this.style.transform = 'translateY(-2px)';
-                this.style.boxShadow = '0 6px 20px rgba(37, 211, 102, 0.5)';
-              "
-              onmouseout="
-                this.style.transform = 'translateY(0)';
-                this.style.boxShadow = '0 4px 15px rgba(37, 211, 102, 0.3)';
-              "
-            >
-              <i class="fa-brands fa-whatsapp me-1"></i>
-              ENVIAR
-            </button>
+              <div class="report-card" style="min-height: auto">
+                <div class="report-card-header signatures-header">
+                  <i class="fa-solid fa-file-signature"></i>
+                  <span>CONFORMIDAD</span>
+                </div>
+                <div class="report-card-body">
+                  <div class="d-flex justify-content-center">
+                    <div class="signature-box text-center">
+                      <label class="d-block text-gold mb-2 small fw-bold"
+                        >FIRMA DEL CLIENTE</label
+                      >
+                      <img
+                        id="reportClientSignature"
+                        src=""
+                        style="
+                          max-height: 80px;
+                          max-width: 200px;
+                          display: none;
+                        "
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Close modal-body-premium -->
+
+          <div class="modal-report-footer">
+            <div class="d-flex w-100 gap-3 justify-content-end">
+              <button
+                type="button"
+                class="btn-report-action btn-pdf"
+                id="generateJobPdfBtn"
+              >
+                <i class="fa-solid fa-file-pdf me-2"></i> DESCARGAR PDF
+              </button>
+              <button
+                type="button"
+                class="btn-report-action btn-whatsapp"
+                id="sendReportBtn"
+              >
+                <i class="fa-brands fa-whatsapp me-2"></i> ENVIAR REPORTE
+              </button>
+            </div>
           </div>
         </div>
+        <!-- Close modal-content-premium -->
       </div>
     </div>
     <!-- FOOTER -->
     <footer class="footer">
-      © 2025 Seguridad 24/7 Ecuador &
+      Â© 2025 Seguridad 24/7 Ecuador &
       <a
         href="https://mallitaxicodevision.netlify.app/"
         target="_blank"
@@ -1595,7 +1152,7 @@
       >
         MCV (Mallitaxi Code Vision)
       </a>
-      — Todos los derechos reservados
+      â€” Todos los derechos reservados
     </footer>
 
     <!-- SCRIPTS -->
@@ -1603,12 +1160,10 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
-    <script src="js/firebase.js"></script>
-    <script src="js/sweetalert2.js"></script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="js/pdf_generator_modern.js"></script>
+    <script src="js/firebase.js" charset="utf-8"></script>
+    <script src="js/login_operaciones.js" charset="utf-8"></script>
+    <script src="js/sweetalert2.js" charset="utf-8"></script>
+    <script src="js/pdf_generator_modern.js" charset="utf-8"></script>
 
     <script>
       document.addEventListener("DOMContentLoaded", () => {
@@ -2742,16 +2297,39 @@
           if (!job) return;
 
           const message =
-            `🔔 *NUEVA ASIGNACIÓN TÉCNICA*\n\n` +
-            `📋 *Cliente:* ${job.clientName}\n` +
-            `📅 *Fecha:* ${job.jobDate}\n` +
-            `🚨 *Urgencia:* ${job.jobUrgency}\n` +
-            `👤 *Contacto:* ${job.contactName}\n` +
-            `📞 *Teléfono:* ${job.contactPhone}\n\n` +
-            `👉 *Por favor, revisa el portal de técnicos para más detalles y gestionar la orden.*`;
+            `”” *NUEVA ASIGNACIÓN TÉCNICA*\n\n` +
+            `“‹ *Cliente:* ${job.clientName}\n` +
+            `“… *Fecha:* ${job.jobDate}\n` +
+            `š¨ *Urgencia:* ${job.jobUrgency}\n` +
+            `‘¤ *Contacto:* ${job.contactName}\n` +
+            `“ž *Teléfono:* ${job.contactPhone}\n\n` +
+            `‘‰ *Por favor, revisa el portal de técnicos para más detalles y gestionar la orden.*`;
 
           const encodedMessage = encodeURIComponent(message);
-          window.open(`https://wa.me/?text=${encodedMessage}`, "_blank");
+          const waUrl = `https://wa.me/?text=${encodedMessage}`;
+          const waWindow = window.open(waUrl, "_blank");
+
+          if (
+            !waWindow ||
+            waWindow.closed ||
+            typeof waWindow.closed === "undefined"
+          ) {
+            Swal.fire({
+              icon: "info",
+              title: "Notificación Lista",
+              html: `<b>El navegador bloqueó la ventana de WhatsApp.</b><br>Haz clic abajo para abrirlo manualmente:`,
+              showCancelButton: true,
+              confirmButtonText:
+                '<i class="fa-brands fa-whatsapp"></i> Abrir WhatsApp',
+              confirmButtonColor: "#25d366",
+              background: "#000",
+              color: "#d4af37",
+            }).then((result) => {
+              if (result.isConfirmed) {
+                window.open(waUrl, "_blank");
+              }
+            });
+          }
         };
 
         // CRUD Actions
@@ -2789,17 +2367,17 @@
 
               // Convert image to Base64 and save to Firestore Database
               if (jobImageFile) {
-                console.log("📸 Procesando imagen:", jobImageFile.name);
+                console.log("“¸ Procesando imagen:", jobImageFile.name);
                 try {
-                  console.log("🔄 Convirtiendo imagen a Base64...");
+                  console.log("”„ Convirtiendo imagen a Base64...");
                   jobImageUrl = await resizeImage(jobImageFile);
                   console.log(
-                    "✅ Imagen convertida a Base64 (tamaño:",
+                    "… Imagen convertida a Base64 (tamaño:",
                     jobImageUrl.length,
                     "caracteres)",
                   );
                 } catch (resizeError) {
-                  console.error("❌ Error al procesar imagen:", resizeError);
+                  console.error("âŒ Error al procesar imagen:", resizeError);
                   Swal.fire({
                     icon: "warning",
                     title: "Advertencia",
@@ -2811,7 +2389,7 @@
                 }
               }
 
-              console.log("💾 Guardando trabajo en Firestore Database...");
+              console.log("’¾ Guardando trabajo en Firestore Database...");
               const jobData = {
                 clientName,
                 jobDate,
@@ -2825,14 +2403,14 @@
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
               };
 
-              console.log("📋 Datos a guardar:", {
+              console.log("“‹ Datos a guardar:", {
                 ...jobData,
                 jobImageUrl: jobImageUrl
                   ? `[${jobImageUrl.substring(0, 50)}...]`
                   : "sin imagen",
               });
               await db.collection("trabajos").add(jobData);
-              console.log("✅ Trabajo guardado exitosamente en Firestore");
+              console.log("… Trabajo guardado exitosamente en Firestore");
 
               Swal.fire({
                 icon: "success",
@@ -2843,30 +2421,50 @@
               }).then(() => {
                 // Notificación Automática
                 let message =
-                  `🔔 *NUEVA ASIGNACIÓN TÉCNICA*\n\n` +
-                  `📋 *Cliente:* ${jobData.clientName}\n` +
-                  `📅 *Fecha:* ${jobData.jobDate}\n` +
-                  `🚨 *Urgencia:* ${jobData.jobUrgency}\n` +
-                  `👤 *Contacto:* ${jobData.contactName}\n` +
-                  `📞 *Teléfono:* ${jobData.contactPhone}\n` +
-                  `📝 *Problema:* ${jobDescription}\n`;
+                  `”” *NUEVA ASIGNACIÓN TÉCNICA*\n\n` +
+                  `“‹ *Cliente:* ${jobData.clientName}\n` +
+                  `“… *Fecha:* ${jobData.jobDate}\n` +
+                  `š¨ *Urgencia:* ${jobData.jobUrgency}\n` +
+                  `‘¤ *Contacto:* ${jobData.contactName}\n` +
+                  `“ž *Teléfono:* ${jobData.contactPhone}\n` +
+                  `“ *Problema:* ${jobDescription}\n`;
 
                 if (jobImageUrl) {
                   if (jobImageUrl.startsWith("http")) {
-                    message += `🖼️ *Foto del Problema:* ${jobImageUrl}\n\n`;
+                    message += `–¼ï¸ *Foto del Problema:* ${jobImageUrl}\n\n`;
                   } else {
-                    message += `🖼️ *Foto del Problema:* (Adjunta en el reporte del sistema)\n\n`;
+                    message += `–¼ï¸ *Foto del Problema:* (Adjunta en el reporte del sistema)\n\n`;
                   }
                 } else {
                   message += `\n`;
                 }
 
-                message += `👉 *Por favor, revisa el portal de técnicos para más detalles y gestionar la orden.*`;
+                message += `‘‰ *Por favor, revisa el portal de técnicos para más detalles y gestionar la orden.*`;
 
-                window.open(
-                  `https://wa.me/?text=${encodeURIComponent(message)}`,
-                  "_blank",
-                );
+                const waUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+                const waWindow = window.open(waUrl, "_blank");
+
+                if (
+                  !waWindow ||
+                  waWindow.closed ||
+                  typeof waWindow.closed === "undefined"
+                ) {
+                  Swal.fire({
+                    icon: "info",
+                    title: "¡Trabajo Guardado!",
+                    html: `La orden ha sido creada.<br><br><b>El navegador bloqueó la ventana de WhatsApp.</b><br>Haz clic abajo para abrirlo manualmente:`,
+                    showCancelButton: true,
+                    confirmButtonText:
+                      '<i class="fa-brands fa-whatsapp"></i> Abrir WhatsApp',
+                    confirmButtonColor: "#25d366",
+                    background: "#000",
+                    color: "#d4af37",
+                  }).then((result) => {
+                    if (result.isConfirmed) {
+                      window.open(waUrl, "_blank");
+                    }
+                  });
+                }
               });
 
               e.target.reset();
@@ -2967,47 +2565,88 @@
             document.getElementById("reportJobDate").innerText = data.jobDate;
             document.getElementById("reportStatus").innerText = data.status;
             document.getElementById("reportDate").innerText =
-              completionDateTime.toLocaleDateString();
+              completionDateTime.toLocaleDateString("es-ES");
             document.getElementById("reportTime").innerText =
-              completionDateTime.toLocaleTimeString();
-            document.getElementById("reportText").innerText = data.report;
-            document.getElementById("reportImage1").src =
-              data.evidenceBase64 && data.evidenceBase64[0]
-                ? data.evidenceBase64[0]
-                : "";
-            document.getElementById("reportImage2").src =
-              data.evidenceBase64 && data.evidenceBase64[1]
-                ? data.evidenceBase64[1]
-                : "";
+              completionDateTime.toLocaleTimeString("es-ES");
 
-            // Populate Initial Problem Section
-            const problemSection = document.getElementById(
-              "initialProblemSection",
-            );
-            const problemDesc = document.getElementById(
-              "reportProblemDescription",
-            );
-            const problemImg = document.getElementById("reportProblemImage");
+            // --- POPULATE HIDDEN FIELDS FOR PDF GENERATOR ---
+            document.getElementById("reportInitial").value =
+              data.reportInitial || "";
+            document.getElementById("reportFinal").value =
+              data.reportFinal || "";
+            document.getElementById("reportText").innerText =
+              data.reportFinal || data.report || "Sin resolución detallada.";
 
-            if (data.jobDescription || data.jobImageUrl) {
-              problemSection.style.display = "block";
-              problemDesc.innerText =
-                data.jobDescription || "Sin descripción detallada.";
+            // 1. Job Description (The initial request)
+            const jobDesc =
+              data.jobDescription || "Sin descripción de la asignación.";
+            document.getElementById("reportJobDescription").value = jobDesc;
 
-              if (data.jobImageUrl) {
-                document.getElementById(
-                  "reportProblemImageContainer",
-                ).style.display = "block";
-                problemImg.src = data.jobImageUrl;
-              } else {
-                document.getElementById(
-                  "reportProblemImageContainer",
-                ).style.display = "none";
-                problemImg.src = "";
-              }
-            } else {
-              problemSection.style.display = "none";
+            // --- POPULATE VISIBLE PROBLEM DESCRIPTION (Admin Modal View) ---
+            let visualProblemText = data.reportInitial
+              ? `[Técnico]: ${data.reportInitial}`
+              : "";
+            if (data.jobDescription) {
+              visualProblemText =
+                `[Asignación]: ${data.jobDescription}\n\n` + visualProblemText;
             }
+            document.getElementById("reportProblemDescription").innerText =
+              visualProblemText || "Sin información registrada.";
+
+            // --- POPULATE IMAGES ---
+            // Helper function
+            const setImg = (displayId, hiddenId, src) => {
+              const displayEl = document.getElementById(displayId);
+              const hiddenEl = document.getElementById(hiddenId);
+              const placeholder = document.getElementById(
+                displayId.replace("display", "placeholder"),
+              );
+
+              if (src) {
+                displayEl.src = src;
+                displayEl.style.display = "block";
+                if (placeholder) placeholder.style.display = "none";
+                if (hiddenEl) hiddenEl.src = src;
+              } else {
+                displayEl.src = "";
+                displayEl.style.display = "none";
+                if (placeholder) placeholder.style.display = "flex";
+                if (hiddenEl) hiddenEl.src = "";
+              }
+            };
+
+            // 0. Job Description Image (Previously merged)
+            const imgJobDesc = document.getElementById("imgJobDescription");
+            if (imgJobDesc && data.jobImageUrl) {
+              imgJobDesc.src = data.jobImageUrl;
+            } else if (imgJobDesc) {
+              imgJobDesc.removeAttribute("src");
+            }
+
+            // 1. Initial Images (Problem)
+            const initImgs = data.evidenceInitial || [];
+            // Legacy separation: no longer forcing jobImageUrl here
+
+            setImg("displayInitial1", "imgInitial1", initImgs[0] || null);
+            setImg("displayInitial2", "imgInitial2", initImgs[1] || null);
+
+            // Legacy problem image container fallback (hide it)
+            const oldProbContainer = document.getElementById(
+              "reportProblemImageContainer",
+            );
+            if (oldProbContainer) oldProbContainer.style.display = "none";
+
+            // 2. Final Images (Solution)
+            const finalImgs = data.evidenceFinal || [];
+            if (
+              finalImgs.length === 0 &&
+              data.evidenceBase64 &&
+              data.evidenceBase64.length > 0
+            ) {
+              finalImgs.push(...data.evidenceBase64);
+            }
+            setImg("displayFinal1", "imgFinal1", finalImgs[0] || null);
+            setImg("displayFinal2", "imgFinal2", finalImgs[1] || null);
 
             // Manejar Firmas
             const signaturesSection = document.getElementById(
@@ -3016,12 +2655,16 @@
             const signatureImg = document.getElementById(
               "reportClientSignature",
             );
-            if (data.clientSignature) {
+
+            // Allow section to show even if signature is missing (user preference for seal only)
+            // But we should check if data.clientSignature is truly missing vs empty string
+            if (!data.clientSignature) {
+              signaturesSection.style.display = "block";
+              signatureImg.style.display = "none";
+            } else {
               signatureImg.src = data.clientSignature;
               signaturesSection.style.display = "block";
-            } else {
-              signatureImg.src = "";
-              signaturesSection.style.display = "none";
+              signatureImg.style.display = "block";
             }
 
             Swal.close();

@@ -1126,23 +1126,23 @@ function configurarModalInforme() {
       }, 200);
     }
 
-    // Resetear inputs de imágenes y previews al abrir el modal
-    ["1", "2"].forEach((num) => {
-      const input = document.getElementById(`evidencePhoto${num}`);
-      const placeholder = document.getElementById(`placeholder${num}`);
-      const preview = document.getElementById(`preview${num}`);
-      const removeBtn = document.getElementById(`removePhoto${num}`);
+    // Resetear inputs de imágenes y previews al abrir el modal (Updated for 4 photos)
+    ["Initial1", "Initial2", "Final1", "Final2"].forEach((suffix) => {
+      const input = document.getElementById(`evidence${suffix}`);
+      const placeholder = document.getElementById(`placeholder${suffix}`);
+      const preview = document.getElementById(`preview${suffix}`);
+      const removeBtn = document.getElementById(`remove${suffix}`);
+      const box = document.getElementById(`box${suffix}`);
 
       if (input) {
         input.value = "";
-        const container = input.closest(".position-relative");
-        if (container) {
-          container.style.borderColor = "rgba(255, 255, 255, 0.3)";
-          container.style.background = "rgba(0, 0, 0, 0.2)";
-        }
+      }
+      if (box) {
+         box.style.borderColor = ""; 
+         box.style.background = "";
       }
       if (placeholder) {
-        placeholder.style.display = "block";
+        placeholder.style.display = "flex";
         placeholder.classList.remove("d-none");
       }
       if (preview) {
@@ -1226,19 +1226,17 @@ function configurarModalInforme() {
 
   saveReportBtn.addEventListener("click", async () => {
     const jobId = document.getElementById("jobId").value;
-    const reportText = document.getElementById("reportText").value;
+    const reportInitial = document.getElementById("reportInitial").value;
+    const reportFinal = document.getElementById("reportFinal").value;
     const jobStatus = document.getElementById("jobStatus").value;
 
-    const photo1 = document.getElementById("evidencePhoto1").files[0];
-    const photo2 = document.getElementById("evidencePhoto2").files[0];
+    const photoInitial1 = document.getElementById("evidenceInitial1").files[0];
+    const photoInitial2 = document.getElementById("evidenceInitial2").files[0];
+    const photoFinal1 = document.getElementById("evidenceFinal1").files[0];
+    const photoFinal2 = document.getElementById("evidenceFinal2").files[0];
 
-    if (!reportText || !jobStatus) {
-      Swal.fire("Error", "El informe y el estado son obligatorios.", "error");
-      return;
-    }
-
-    if (!canvas.hasSignature) {
-      Swal.fire("Error", "Por favor, capture la firma del cliente.", "error");
+    if (!reportInitial || !reportFinal || !jobStatus) {
+      Swal.fire("Error", "Los reportes (inicial y final) y el estado son obligatorios.", "error");
       return;
     }
 
@@ -1246,19 +1244,32 @@ function configurarModalInforme() {
     saveReportBtn.innerHTML = "Guardando...";
 
     try {
+      // Concatenar reporte para compatibilidad
+      const reportText = `**PROBLEMA ENCONTRADO:**\n${reportInitial}\n\n**SOLUCIÓN IMPLEMENTADA:**\n${reportFinal}`;
+
+      // Convertir y Redimensionar imágenes
+      const evidenceInitial = [];
+      if (photoInitial1) evidenceInitial.push(await resizeImage(photoInitial1));
+      if (photoInitial2) evidenceInitial.push(await resizeImage(photoInitial2));
+
+      const evidenceFinal = [];
+      if (photoFinal1) evidenceFinal.push(await resizeImage(photoFinal1));
+      if (photoFinal2) evidenceFinal.push(await resizeImage(photoFinal2));
+    
+      // Combinar para backward compatibility
+      const evidenceBase64 = [...evidenceInitial, ...evidenceFinal];
+
       const updateData = {
         report: reportText,
+        reportInitial: reportInitial,
+        reportFinal: reportFinal,
         status: jobStatus,
         reportDate: new Date(),
-        clientSignature: canvas.toDataURL("image/png"),
+        clientSignature: canvas.hasSignature ? canvas.toDataURL("image/png") : null,
+        evidenceInitial: evidenceInitial,
+        evidenceFinal: evidenceFinal,
+        evidenceBase64: evidenceBase64
       };
-
-      // Convertir y Redimensionar imágenes (para evitar límites de Firestore)
-      const evidenceImages = [];
-      if (photo1) evidenceImages.push(await resizeImage(photo1));
-      if (photo2) evidenceImages.push(await resizeImage(photo2));
-
-      if (evidenceImages.length > 0) updateData.evidenceBase64 = evidenceImages;
 
       await db.collection("trabajos").doc(jobId).update(updateData);
 
@@ -1281,10 +1292,25 @@ function configurarModalInforme() {
           `📝 *Detalle:* ${reportText}\n\n` +
           `👉 *Informe disponible en plataforma para revisión.*`;
 
-        window.open(
-          `https://wa.me/?text=${encodeURIComponent(message)}`,
-          "_blank",
-        );
+        const waUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+        const waWindow = window.open(waUrl, "_blank");
+
+        if (!waWindow || waWindow.closed || typeof waWindow.closed === "undefined") {
+          Swal.fire({
+            icon: "info",
+            title: "¡Informe Enviado!",
+            html: `Se procederá a notificar a administración y monitoreo.<br><br><b>El navegador bloqueó la ventana de WhatsApp.</b><br>Haz clic abajo para abrirlo manualmente:`,
+            showCancelButton: true,
+            confirmButtonText: '<i class="fa-brands fa-whatsapp"></i> Abrir WhatsApp',
+            confirmButtonColor: "#25d366",
+            background: "#000",
+            color: "#d4af37"
+          }).then((result) => {
+            if (result.isConfirmed) {
+              window.open(waUrl, "_blank");
+            }
+          });
+        }
       });
 
       const modal = bootstrap.Modal.getInstance(reportModal);
@@ -1300,8 +1326,7 @@ function configurarModalInforme() {
       saveReportBtn.disabled = false;
       saveReportBtn.innerHTML = "Guardar Informe";
     }
-  });
-}
+  });}
 
 // =======================================================
 // 📋 CARGAR CONTRATOS PARA TÉCNICOS
@@ -1548,7 +1573,7 @@ function configurarModalContrato() {
 
     if (!input || !placeholder || !preview || !removeBtn) return;
 
-    const container = input.closest(".position-relative");
+    const container = input.closest(".position-relative") || input.closest(".photo-upload-box");
 
     input.addEventListener("change", function (e) {
       const file = e.target.files[0];
@@ -1621,18 +1646,11 @@ function configurarModalContrato() {
   );
 
   // Inicializar previews para evidencias del reporte técnico
-  setupImagePreview(
-    "evidencePhoto1",
-    "placeholder1",
-    "preview1",
-    "removePhoto1",
-  );
-  setupImagePreview(
-    "evidencePhoto2",
-    "placeholder2",
-    "preview2",
-    "removePhoto2",
-  );
+  // Inicializar previews para evidencias del reporte técnico (4 Fotos)
+  setupImagePreview("evidenceInitial1", "placeholderInitial1", "previewInitial1", "removeInitial1");
+  setupImagePreview("evidenceInitial2", "placeholderInitial2", "previewInitial2", "removeInitial2");
+  setupImagePreview("evidenceFinal1", "placeholderFinal1", "previewFinal1", "removeFinal1");
+  setupImagePreview("evidenceFinal2", "placeholderFinal2", "previewFinal2", "removeFinal2");
 
   // Reinicializar canvas cuando se abre el modal
   fillContractModal.addEventListener("shown.bs.modal", () => {
@@ -1706,10 +1724,25 @@ function configurarModalContrato() {
             `✅ *Estado:* Firmado y con evidencia.\n` +
             `👉 *Favor validar en plataforma.*`;
 
-          window.open(
-            `https://wa.me/?text=${encodeURIComponent(message)}`,
-            "_blank",
-          );
+          const waUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+          const waWindow = window.open(waUrl, "_blank");
+
+          if (!waWindow || waWindow.closed || typeof waWindow.closed === "undefined") {
+            Swal.fire({
+              icon: "info",
+              title: "¡Contrato Finalizado!",
+              html: `La firma ha sido registrada.<br><br><b>El navegador bloqueó la ventana de WhatsApp.</b><br>Haz clic abajo para abrirlo manualmente:`,
+              showCancelButton: true,
+              confirmButtonText: '<i class="fa-brands fa-whatsapp"></i> Abrir WhatsApp',
+              confirmButtonColor: "#25d366",
+              background: "#000",
+              color: "#d4af37"
+            }).then((result) => {
+              if (result.isConfirmed) {
+                window.open(waUrl, "_blank");
+              }
+            });
+          }
         });
 
         const modal = bootstrap.Modal.getInstance(fillContractModal);

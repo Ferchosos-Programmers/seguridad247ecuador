@@ -1365,7 +1365,24 @@ function configurarFormulario() {
         message += `👉 *Por favor, revisar portal para gestión.*`;
 
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-        window.open(whatsappUrl, '_blank');
+        const waWindow = window.open(whatsappUrl, '_blank');
+        
+        if (!waWindow || waWindow.closed || typeof waWindow.closed === 'undefined') {
+          Swal.fire({
+            icon: "info",
+            title: "¡Trabajo Guardado!",
+            html: `La orden ha sido creada.<br><br><b>El navegador bloqueó la ventana de WhatsApp.</b><br>Haz clic abajo para abrirlo manualmente:`,
+            showCancelButton: true,
+            confirmButtonText: '<i class="fa-brands fa-whatsapp"></i> Abrir WhatsApp',
+            confirmButtonColor: "#25d366",
+            background: "#000",
+            color: "#d4af37"
+          }).then((result) => {
+            if (result.isConfirmed) {
+              window.open(whatsappUrl, '_blank');
+            }
+          });
+        }
       });
 
       form.reset();
@@ -1512,10 +1529,31 @@ window.renderTrabajos = function (trabajosList) {
     }
 
     if (message) {
-      window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+      const waUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+      const waWindow = window.open(waUrl, '_blank');
+      
+      if (!waWindow || waWindow.closed || typeof waWindow.closed === 'undefined') {
+        Swal.fire({
+          icon: "info",
+          title: "Notificación Lista",
+          html: `<b>El navegador bloqueó la ventana de WhatsApp.</b><br>Haz clic abajo para abrirlo manualmente:`,
+          showCancelButton: true,
+          confirmButtonText: '<i class="fa-brands fa-whatsapp"></i> Abrir WhatsApp',
+          confirmButtonColor: "#25d366",
+          background: "#000",
+          color: "#d4af37"
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.open(waUrl, '_blank');
+          }
+        });
+      }
     }
   };
 
+// ===========================
+// 👁️ VER REPORTE
+// ===========================
 // ===========================
 // 👁️ VER REPORTE
 // ===========================
@@ -1544,39 +1582,123 @@ async function verReporte(id) {
     document.getElementById("reportStatus").innerText = data.status;
     document.getElementById("reportDate").innerText = completionDate;
     document.getElementById("reportTime").innerText = completionTime;
-    document.getElementById("reportText").innerText = data.report;
-    document.getElementById("reportImage1").src = data.evidenceBase64[0];
-    document.getElementById("reportImage2").src = data.evidenceBase64[1];
 
-    // Populate Initial Problem Section
-    const problemSection = document.getElementById("initialProblemSection");
-    const problemDesc = document.getElementById("reportProblemDescription");
-    const problemImg = document.getElementById("reportProblemImage");
+    // --- POPULATE HIDDEN FIELDS FOR PDF GENERATOR ---
+    document.getElementById("reportInitial").value = data.reportInitial || "";
+    document.getElementById("reportFinal").value = data.reportFinal || "";
+    document.getElementById("reportText").innerText = data.reportFinal || data.report || "Sin resolución detallada.";
     
-    if (data.jobDescription || data.jobImageUrl) {
-        problemSection.style.display = "block";
-        problemDesc.innerText = data.jobDescription || "Sin descripción detallada.";
-        
-        if (data.jobImageUrl) {
-            document.getElementById("reportProblemImageContainer").style.display = "block";
-            problemImg.src = data.jobImageUrl;
-        } else {
-            document.getElementById("reportProblemImageContainer").style.display = "none";
-            problemImg.src = "";
-        }
-    } else {
-        problemSection.style.display = "none";
+    // 1. Job Description (The initial request)
+    const jobDesc = data.jobDescription || "Sin descripción de la asignación.";
+    document.getElementById("reportJobDescription").value = jobDesc;
+    
+    // --- POPULATE VISIBLE PROBLEM DESCRIPTION (Admin Modal View) ---
+    // The visual modal merges them for compactness, but we keep data separate for PDF
+    // If the user wants to see both in the modal, we might need to adjust HTML, 
+    // but the request focuses on the PDF. For now, we show the most relevant one in the 'Problem' box of the modal:
+    // If reportInitial exists, show that. If not, show jobDescription.
+    // Or concatenate them for viewing?
+    // Let's concatenate for the visual modal so the admin sees everything.
+    let visualProblemText = data.reportInitial ? `[Técnico]: ${data.reportInitial}` : "";
+    if (data.jobDescription) {
+        visualProblemText = `[Asignación]: ${data.jobDescription}\n\n` + visualProblemText;
     }
+    document.getElementById("reportProblemDescription").innerText = visualProblemText || "Sin información registrada.";
+    
+    // --- POPULATE IMAGES ---
+    
+    // Helper to safely set image src (for viewing) and hidden imgs (for PDF)
+    const setImg = (displayId, hiddenId, src) => {
+        const displayEl = document.getElementById(displayId);
+        const hiddenEl = document.getElementById(hiddenId); // For PDF generator
+        const placeholder = document.getElementById(displayId.replace("display", "placeholder"));
+        
+        if (src) {
+            displayEl.src = src;
+            displayEl.style.display = "block";
+            if (placeholder) placeholder.style.display = "none";
+            
+            if (hiddenEl) hiddenEl.src = src;
+        } else {
+            displayEl.src = "";
+            displayEl.style.display = "none";
+            if (placeholder) placeholder.style.display = "flex";
+            
+            if (hiddenEl) hiddenEl.src = "";
+        }
+    };
+
+    // 0. Job Image (Request)
+    // Separate hidden image for the Description Section
+    // 0. Job Image (Request)
+    // Updated for new Premium Modal Structure (moved to Problem Column)
+    const displayJobImage = document.getElementById("displayJobImage");
+    const jobImageContainer = document.getElementById("jobImageContainer");
+
+    if (data.jobImageUrl) {
+        if (displayJobImage) displayJobImage.src = data.jobImageUrl;
+        if (jobImageContainer) jobImageContainer.style.display = "block";
+    } else {
+        if (displayJobImage) displayJobImage.removeAttribute("src");
+        if (jobImageContainer) jobImageContainer.style.display = "none";
+    }
+
+    // 1. Initial Images (Technician Findings)
+    let initImgs = data.evidenceInitial || [];
+    
+    // FIX: Si no hay fotos de evidencia inicial (subidas por el técnico), mostrar la foto original del reporte (jobImageUrl)
+    // Esto asegura que "PROBLEMA ENCONTRADO" muestre la imagen del problema reportado por el cliente.
+    if (initImgs.length === 0 && data.jobImageUrl) {
+        initImgs = [data.jobImageUrl];
+    }
+    
+    setImg("displayInitial1", "imgInitial1", initImgs[0] || null);
+    setImg("displayInitial2", "imgInitial2", initImgs[1] || null);
+    
+    // Hide legacy container if still present
+    const oldProbContainer = document.getElementById("reportProblemImageContainer");
+    if(oldProbContainer) oldProbContainer.style.display = "none"; 
+
+
+    // 2. Final Images (Solution)
+    const finalImgs = data.evidenceFinal || [];
+    // Fallback: If no evidenceFinal, check evidenceBase64 (Legacy reports)
+    if (finalImgs.length === 0 && data.evidenceBase64 && data.evidenceBase64.length > 0) {
+        // Assume all legacy evidence is "Final/Solution" evidence
+        finalImgs.push(...data.evidenceBase64);
+    }
+    
+    setImg("displayFinal1", "imgFinal1", finalImgs[0] || null);
+    setImg("displayFinal2", "imgFinal2", finalImgs[1] || null);
+
 
     // Manejar Firmas
     const signaturesSection = document.getElementById("reportSignaturesSection");
     const signatureImg = document.getElementById("reportClientSignature");
+    
     if (data.clientSignature) {
       signatureImg.src = data.clientSignature;
       signaturesSection.style.display = "block";
     } else {
       signatureImg.src = "";
-      signaturesSection.style.display = "none";
+      signaturesSection.style.display = "none"; // Or keep it shown but empty if requested? User said "optional signature saved with seal".
+      // If saved without signature, clientSignature is null.
+      // Maybe show the section but with "No firmada" placeholder? 
+      // For PDF it handles it. For View, let's just hide the Client Signature part or show blank?
+      // User said "allow report to be saved with only technician seal".
+      // If we hide the section, we hide the seal too!
+      // better logic:
+      if (!data.clientSignature) {
+          // If no client sig, we still might want to show the seal if it's static
+          // But here signaturesSection wraps both.
+          // Let's force show it, but hide the image if null.
+           signaturesSection.style.display = "block";
+           signatureImg.style.display = "none"; // Hide just the image
+           // Optionally add a text "No registrada"
+      } else {
+           signaturesSection.style.display = "block";
+           signatureImg.style.display = "block";
+      }
     }
 
     const reportModal = new bootstrap.Modal(

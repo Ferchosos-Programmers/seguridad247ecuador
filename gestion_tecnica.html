@@ -733,7 +733,7 @@
       aria-hidden="true"
     >
       <div
-        class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+        class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"
       >
         <div
           class="modal-content"
@@ -781,7 +781,6 @@
               </p>
             </div>
 
-            <!-- Close button style correction -->
             <button
               type="button"
               class="btn-close"
@@ -790,7 +789,7 @@
               style="opacity: 1; filter: brightness(0)"
             ></button>
 
-            <!-- Decorative pattern overlay -->
+            <!-- Decorative pattern -->
             <div
               style="
                 position: absolute;
@@ -814,205 +813,203 @@
             <form id="reportForm">
               <input type="hidden" id="jobId" />
 
-              <div class="row g-0 flex-grow-1 report-modal-row">
-                <!-- COLUMNA IZQUIERDA: PROBLEMA REPORTADO -->
-                <div
-                  class="col-lg-6 d-flex flex-column p-3"
-                  style="border-right: 1px solid rgba(212, 175, 55, 0.2)"
-                >
-                  <!-- Job Details Container (Injected via JS) -->
-                  <div id="jobDetails" class="h-100 d-flex flex-column">
-                    <div class="text-center text-muted my-auto">
-                      <i class="fa-solid fa-spinner fa-spin me-2"></i> Cargando
-                      detalles...
+              <div class="row g-4">
+                <!-- COLUMNA IZQUIERDA: PROBLEMA REPORTADO (ADMIN) -->
+                <div class="col-lg-3">
+                  <div
+                    class="h-100 p-3 d-flex flex-column"
+                    style="
+                      background: rgba(255, 255, 255, 0.02);
+                      border: 1px solid rgba(255, 255, 255, 0.1);
+                      border-radius: 12px;
+                    "
+                  >
+                    <h6 class="text-gold mb-3 text-uppercase fw-bold">
+                      <i class="fa-solid fa-clipboard-list me-2"></i>Datos del
+                      Servicio
+                    </h6>
+                    <div id="jobDetails" class="d-flex flex-column flex-grow-1">
+                      <div class="text-center text-muted my-auto">
+                        <i class="fa-solid fa-spinner fa-spin me-2"></i>
+                        Cargando detalles...
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <!-- COLUMNA DERECHA: INFORME DE TRABAJO -->
-                <div class="col-lg-6 d-flex flex-column p-3">
-                  <!-- INFORME TEXT AREA (Crece para llenar espacio) -->
-                  <div class="mb-3 d-flex flex-column flex-grow-1">
-                    <label
-                      for="reportText"
-                      class="form-label"
-                      style="
-                        color: #d4af37;
-                        font-weight: 700;
-                        text-transform: uppercase;
-                        font-size: 0.8rem;
-                        letter-spacing: 0.5px;
-                        display: flex;
-                        align-items: center;
-                      "
-                    >
-                      <i class="fa-solid fa-file-pen me-2"></i>Informe Técnico
-                      detallado
-                    </label>
-                    <textarea
-                      class="form-control flex-grow-1"
-                      id="reportText"
-                      required
-                      placeholder="Describa detalladamente el trabajo realizado, repuestos utilizados y observaciones..."
-                      style="
-                        background: rgba(0, 0, 0, 0.4);
-                        border: 1px solid rgba(212, 175, 55, 0.2);
-                        color: white;
-                        border-radius: 8px;
-                        resize: none;
-                        font-size: 0.95rem;
-                      "
-                    ></textarea>
-                  </div>
+                <!-- COLUMNA CENTRAL: REPORTE INICIAL -->
+                <div class="col-lg-4">
+                  <div
+                    class="h-100 p-3 d-flex flex-column"
+                    style="
+                      background: rgba(255, 0, 0, 0.05);
+                      border: 1px solid rgba(255, 100, 100, 0.2);
+                      border-radius: 12px;
+                    "
+                  >
+                    <h6 class="text-danger mb-3 text-uppercase fw-bold">
+                      <i class="fa-solid fa-triangle-exclamation me-2"></i
+                      >Problema Encontrado
+                    </h6>
 
-                  <!-- EVIDENCIA Y ESTADO (Parte inferior fija) -->
-                  <div class="mt-auto">
-                    <label
-                      class="form-label mb-2"
-                      style="
-                        color: #d4af37;
-                        font-weight: 700;
-                        text-transform: uppercase;
-                        font-size: 0.8rem;
-                        letter-spacing: 0.5px;
-                      "
+                    <div class="mb-3 flex-grow-1 d-flex flex-column">
+                      <textarea
+                        class="form-control flex-grow-1"
+                        id="reportInitial"
+                        required
+                        placeholder="Describa cómo encontró el sistema o el problema detectado..."
+                        style="
+                          background: rgba(0, 0, 0, 0.4);
+                          border: 1px solid rgba(255, 100, 100, 0.2);
+                          color: white;
+                          border-radius: 8px;
+                          resize: none;
+                          font-size: 0.9rem;
+                          min-height: 120px;
+                        "
+                      ></textarea>
+                    </div>
+
+                    <label class="form-label text-white-50 small mb-2"
+                      >EVIDENCIA INICIAL (2 Fotos)</label
                     >
-                      <i class="fa-solid fa-camera me-2"></i>Evidencia
-                      Fotográfica
-                    </label>
-                    <div class="row g-2 mb-3">
-                      <!-- FOTO 1 -->
+                    <div class="row g-2">
+                      <!-- Initial Photo 1 -->
                       <div class="col-6">
-                        <div
-                          class="position-relative overflow-hidden"
-                          style="
-                            border: 1px dashed rgba(255, 255, 255, 0.3);
-                            border-radius: 8px;
-                            height: 60px;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            background: rgba(0, 0, 0, 0.2);
-                          "
-                        >
-                          <!-- Input File -->
+                        <div class="photo-upload-box" id="boxInitial1">
                           <input
                             type="file"
-                            id="evidencePhoto1"
+                            id="evidenceInitial1"
                             accept="image/*"
-                            class="w-100 h-100 position-absolute opacity-0"
-                            style="cursor: pointer; z-index: 2"
+                            class="photo-input"
                           />
-
-                          <!-- Placeholder -->
-                          <div
-                            id="placeholder1"
-                            class="text-center text-white-50"
-                            style="pointer-events: none"
-                          >
-                            <i class="fa-solid fa-upload mb-1"></i>
-                            <span style="font-size: 0.75rem; display: block"
-                              >Foto 1</span
-                            >
+                          <div id="placeholderInitial1" class="placeholder">
+                            <i class="fa-solid fa-camera mb-1"></i
+                            ><span>Foto 1</span>
                           </div>
-
-                          <!-- Vista Previa -->
                           <img
-                            id="preview1"
+                            id="previewInitial1"
                             src=""
-                            class="w-100 h-100 position-absolute"
-                            style="
-                              top: 0;
-                              left: 0;
-                              object-fit: cover;
-                              display: none;
-                              z-index: 1;
-                            "
+                            class="preview-img"
                           />
-
-                          <!-- Botón Eliminar -->
                           <button
                             type="button"
-                            id="removePhoto1"
-                            class="btn btn-danger position-absolute top-0 end-0 p-0 d-flex justify-content-center align-items-center"
-                            style="
-                              width: 18px;
-                              height: 18px;
-                              margin: 2px;
-                              z-index: 3;
-                              font-size: 10px;
-                              border-radius: 50%;
-                              display: none;
-                            "
+                            id="removeInitial1"
+                            class="remove-btn"
                           >
                             <i class="fa-solid fa-xmark"></i>
                           </button>
                         </div>
                       </div>
-
-                      <!-- FOTO 2 -->
+                      <!-- Initial Photo 2 -->
                       <div class="col-6">
-                        <div
-                          class="position-relative overflow-hidden"
-                          style="
-                            border: 1px dashed rgba(255, 255, 255, 0.3);
-                            border-radius: 8px;
-                            height: 60px;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            background: rgba(0, 0, 0, 0.2);
-                          "
-                        >
-                          <!-- Input File -->
+                        <div class="photo-upload-box" id="boxInitial2">
                           <input
                             type="file"
-                            id="evidencePhoto2"
+                            id="evidenceInitial2"
                             accept="image/*"
-                            class="w-100 h-100 position-absolute opacity-0"
-                            style="cursor: pointer; z-index: 2"
+                            class="photo-input"
                           />
-
-                          <!-- Placeholder -->
-                          <div
-                            id="placeholder2"
-                            class="text-center text-white-50"
-                            style="pointer-events: none"
-                          >
-                            <i class="fa-solid fa-upload mb-1"></i>
-                            <span style="font-size: 0.75rem; display: block"
-                              >Foto 2</span
-                            >
+                          <div id="placeholderInitial2" class="placeholder">
+                            <i class="fa-solid fa-camera mb-1"></i
+                            ><span>Foto 2</span>
                           </div>
-
-                          <!-- Vista Previa -->
                           <img
-                            id="preview2"
+                            id="previewInitial2"
                             src=""
-                            class="w-100 h-100 position-absolute"
-                            style="
-                              top: 0;
-                              left: 0;
-                              object-fit: cover;
-                              display: none;
-                              z-index: 1;
-                            "
+                            class="preview-img"
                           />
-
-                          <!-- Botón Eliminar -->
                           <button
                             type="button"
-                            id="removePhoto2"
-                            class="btn btn-danger position-absolute top-0 end-0 p-0 d-flex justify-content-center align-items-center"
-                            style="
-                              width: 18px;
-                              height: 18px;
-                              margin: 2px;
-                              z-index: 3;
-                              font-size: 10px;
-                              border-radius: 50%;
-                              display: none;
-                            "
+                            id="removeInitial2"
+                            class="remove-btn"
+                          >
+                            <i class="fa-solid fa-xmark"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- COLUMNA DERECHA: REPORTE FINAL -->
+                <div class="col-lg-5">
+                  <div
+                    class="h-100 p-3 d-flex flex-column"
+                    style="
+                      background: rgba(40, 167, 69, 0.05);
+                      border: 1px solid rgba(40, 167, 69, 0.2);
+                      border-radius: 12px;
+                    "
+                  >
+                    <h6 class="text-success mb-3 text-uppercase fw-bold">
+                      <i class="fa-solid fa-check-circle me-2"></i>Solución
+                      Implementada
+                    </h6>
+
+                    <div class="mb-3 flex-grow-1 d-flex flex-column">
+                      <textarea
+                        class="form-control flex-grow-1"
+                        id="reportFinal"
+                        required
+                        placeholder="Describa la solución aplicada y cómo quedó el sistema..."
+                        style="
+                          background: rgba(0, 0, 0, 0.4);
+                          border: 1px solid rgba(40, 167, 69, 0.2);
+                          color: white;
+                          border-radius: 8px;
+                          resize: none;
+                          font-size: 0.9rem;
+                          min-height: 120px;
+                        "
+                      ></textarea>
+                    </div>
+
+                    <label class="form-label text-white-50 small mb-2"
+                      >EVIDENCIA FINAL (2 Fotos)</label
+                    >
+                    <div class="row g-2 mb-3">
+                      <!-- Final Photo 1 -->
+                      <div class="col-6">
+                        <div class="photo-upload-box" id="boxFinal1">
+                          <input
+                            type="file"
+                            id="evidenceFinal1"
+                            accept="image/*"
+                            class="photo-input"
+                          />
+                          <div id="placeholderFinal1" class="placeholder">
+                            <i class="fa-solid fa-camera mb-1"></i
+                            ><span>Foto 1</span>
+                          </div>
+                          <img id="previewFinal1" src="" class="preview-img" />
+                          <button
+                            type="button"
+                            id="removeFinal1"
+                            class="remove-btn"
+                          >
+                            <i class="fa-solid fa-xmark"></i>
+                          </button>
+                        </div>
+                      </div>
+                      <!-- Final Photo 2 -->
+                      <div class="col-6">
+                        <div class="photo-upload-box" id="boxFinal2">
+                          <input
+                            type="file"
+                            id="evidenceFinal2"
+                            accept="image/*"
+                            class="photo-input"
+                          />
+                          <div id="placeholderFinal2" class="placeholder">
+                            <i class="fa-solid fa-camera mb-1"></i
+                            ><span>Foto 2</span>
+                          </div>
+                          <img id="previewFinal2" src="" class="preview-img" />
+                          <button
+                            type="button"
+                            id="removeFinal2"
+                            class="remove-btn"
                           >
                             <i class="fa-solid fa-xmark"></i>
                           </button>
@@ -1020,123 +1017,87 @@
                       </div>
                     </div>
 
+                    <!-- ESTADO FINAL -->
                     <div
-                      class="d-flex align-items-center justify-content-between p-2"
-                      style="
-                        background: rgba(212, 175, 55, 0.1);
-                        border-radius: 8px;
-                        border: 1px solid rgba(212, 175, 55, 0.3);
-                      "
+                      class="p-2"
+                      style="background: rgba(0, 0, 0, 0.3); border-radius: 8px"
                     >
-                      <label
-                        for="jobStatus"
-                        class="mb-0 text-gold fw-bold"
-                        style="font-size: 0.85rem"
-                        >ESTADO FINAL:</label
+                      <div
+                        class="d-flex align-items-center justify-content-between"
                       >
-                      <select
-                        class="form-select form-select-sm bg-dark text-white border-secondary"
-                        id="jobStatus"
-                        required
-                        style="width: auto; min-width: 150px"
-                      >
-                        <option value="" disabled selected>
-                          Seleccionar...
-                        </option>
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="Culminado">Culminado</option>
-                      </select>
+                        <label
+                          for="jobStatus"
+                          class="mb-0 text-gold fw-bold small"
+                          >ESTADO:</label
+                        >
+                        <select
+                          class="form-select form-select-sm bg-dark text-white border-secondary"
+                          id="jobStatus"
+                          required
+                          style="width: auto"
+                        >
+                          <option value="Pendiente">Pendiente</option>
+                          <option value="Culminado">Culminado</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <!-- SECCIÓN: FIRMAS (FULL WIDTH BOTTOM) -->
-              <div class="row g-4 mt-2">
-                <div class="col-12">
-                  <div
-                    style="
-                      height: 1px;
-                      background: linear-gradient(
-                        90deg,
-                        transparent,
-                        rgba(212, 175, 55, 0.3),
-                        transparent
-                      );
-                      margin-bottom: 20px;
-                    "
-                  ></div>
-                </div>
+              <!-- SECCIÓN: FIRMAS -->
+              <div class="row mt-4">
+                <div class="col-12"><hr class="border-gold opacity-25" /></div>
 
-                <!-- Firma Técnico -->
-                <div class="col-md-6">
+                <div class="col-md-6 mb-3 mb-md-0">
                   <div
-                    class="d-flex align-items-center p-3 h-100"
-                    style="
-                      background: rgba(0, 0, 0, 0.3);
-                      border-radius: 12px;
-                      border: 1px dashed rgba(255, 255, 255, 0.1);
-                    "
+                    class="d-flex align-items-center p-3 h-100 signature-box"
                   >
-                    <div class="me-3">
-                      <img
-                        src="assets/img/sello.png"
-                        alt="Sello"
-                        style="height: 60px; opacity: 0.8"
-                      />
-                    </div>
+                    <img
+                      src="assets/img/sello.png"
+                      alt="Sello"
+                      style="height: 50px; opacity: 0.8; margin-right: 15px"
+                    />
                     <div>
-                      <h6 class="text-gold mb-1" style="font-size: 0.9rem">
-                        Sello Técnico
-                      </h6>
-                      <small class="text-white-50" style="font-size: 0.75rem"
-                        >Validación automática del sistema</small
+                      <h6 class="text-gold mb-0 small">SELLO TÉCNICO</h6>
+                      <small class="text-muted" style="font-size: 10px"
+                        >Validación digital</small
                       >
                     </div>
                   </div>
                 </div>
 
-                <!-- Firma Cliente -->
                 <div class="col-md-6">
                   <div
-                    class="p-3 h-100 position-relative"
+                    class="p-2 h-100"
                     style="
-                      background: rgba(0, 0, 0, 0.3);
-                      border-radius: 12px;
-                      border: 1px solid rgba(212, 175, 55, 0.2);
+                      border: 1px solid rgba(212, 175, 55, 0.3);
+                      border-radius: 8px;
+                      background: rgba(0, 0, 0, 0.2);
                     "
                   >
-                    <div
-                      class="d-flex justify-content-between align-items-center mb-2"
-                    >
-                      <h6 class="text-gold mb-0" style="font-size: 0.9rem">
-                        <i class="fa-solid fa-signature me-2"></i>Firma Cliente
-                      </h6>
+                    <div class="d-flex justify-content-between mb-1">
+                      <small class="text-gold fw-bold">FIRMA CLIENTE</small>
                       <button
                         type="button"
-                        class="btn btn-sm text-danger p-0"
+                        class="btn btn-sm p-0 text-danger"
                         id="clearReportSignatureBtn"
-                        style="font-size: 0.75rem"
+                        style="font-size: 10px"
                       >
-                        <i class="fa-solid fa-rotate-left me-1"></i>Limpiar
+                        <i class="fa-solid fa-eraser"></i> Limpiar
                       </button>
                     </div>
                     <div
                       style="
                         background: #fff;
-                        border-radius: 6px;
-                        height: 120px;
+                        height: 100px;
+                        border-radius: 4px;
                         overflow: hidden;
                       "
                     >
                       <canvas
                         id="reportSignatureCanvas"
-                        style="
-                          width: 100%;
-                          height: 100%;
-                          cursor: crosshair;
-                          touch-action: none;
-                        "
+                        style="width: 100%; height: 100%"
                       ></canvas>
                     </div>
                   </div>
@@ -1170,16 +1131,8 @@
                 box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
                 transition: all 0.3s;
               "
-              onmouseover="
-                this.style.transform = 'translateY(-2px)';
-                this.style.boxShadow = '0 6px 20px rgba(212, 175, 55, 0.5)';
-              "
-              onmouseout="
-                this.style.transform = 'translateY(0)';
-                this.style.boxShadow = '0 4px 15px rgba(212, 175, 55, 0.4)';
-              "
             >
-              <i class="fa-solid fa-save me-2"></i>Guardar Informe
+              <i class="fa-solid fa-save me-2"></i>Guardar Informe Completo
             </button>
           </div>
         </div>
@@ -1411,8 +1364,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
 
     <!-- Scripts personalizados -->
-    <script src="js/firebase.js"></script>
-    <script src="js/login_tecnico.js"></script>
-    <script src="js/sweetalert2.js"></script>
+    <script src="js/firebase.js" charset="utf-8"></script>
+    <script src="js/login_tecnico.js" charset="utf-8"></script>
+    <script src="js/sweetalert2.js" charset="utf-8"></script>
   </body>
 </html>

@@ -1,0 +1,455 @@
+/* COMPACT PREMIUM MODAL STYLES */
+/* Designed for elegance, efficiency, and modern aesthetic */
+
+:root {
+  --gold-primary: #d4af37;
+  --gold-dim: rgba(212, 175, 55, 0.1);
+  --glass-bg: rgba(18, 18, 18, 0.98);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --card-bg: rgba(255, 255, 255, 0.03);
+  --text-muted: #888;
+}
+
+/* Modal Dialog Sizing */
+.modal-xl {
+  max-width: 1140px;
+}
+
+/* Modal Content Container */
+.modal-content-premium {
+  background: var(--glass-bg) !important;
+  border: 1px solid var(--gold-primary) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8) !important;
+  overflow: hidden;
+}
+
+/* Header - Slim & Dark */
+.modal-header-premium {
+  background: linear-gradient(90deg, #111 0%, #000 100%) !important;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2) !important;
+  padding: 12px 20px !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-icon-box {
+  width: 32px;
+  height: 32px;
+  background: var(--gold-dim);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold-primary);
+  font-size: 0.9rem;
+}
+
+.modal-title-premium {
+  font-family: "Inter", system-ui, sans-serif;
+  font-weight: 700;
+  color: #fff;
+  font-size: 1rem !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.modal-subtitle-premium {
+  color: var(--text-muted);
+  font-size: 0.75rem !important;
+  margin: 0;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+/* Body - Compact Padding */
+.modal-body-premium {
+  padding: 20px !important;
+  background: #050505;
+  color: #e0e0e0;
+}
+
+/* NEW: Service Details Header - Modern 100% width */
+.service-details-modern {
+  background: linear-gradient(
+    135deg,
+    rgba(25, 25, 25, 0.95) 0%,
+    rgba(5, 5, 5, 0.98) 100%
+  );
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-left: 4px solid var(--gold-primary);
+  border-radius: 12px;
+  padding: 22px 28px;
+  margin-bottom: 25px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+  position: relative;
+  overflow: hidden;
+}
+
+.service-details-modern::before {
+  content: "DETALLES DEL SERVICIO";
+  position: absolute;
+  top: 10px;
+  right: 25px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: rgba(212, 175, 55, 0.08);
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.x-small {
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+}
+
+/* NEW: Premium Accordion Styling */
+.premium-accordion .accordion-item {
+  background: transparent !important;
+  border: none !important;
+  margin-bottom: 15px;
+  border-radius: 10px !important;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.premium-accordion .accordion-button {
+  background: rgba(255, 255, 255, 0.03) !important;
+  color: #fff !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 12px !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  padding: 18px 25px;
+  box-shadow: none !important;
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  letter-spacing: 1px;
+}
+
+.premium-accordion .accordion-button:not(.collapsed) {
+  background: linear-gradient(
+    90deg,
+    rgba(212, 175, 55, 0.08),
+    rgba(212, 175, 55, 0.02)
+  ) !important;
+  color: var(--gold-primary) !important;
+  border-color: rgba(212, 175, 55, 0.4) !important;
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.premium-accordion .accordion-body {
+  background: rgba(5, 5, 5, 0.6) !important;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-top: none;
+  border-bottom-left-radius: 12px !important;
+  border-bottom-right-radius: 12px !important;
+  padding: 25px;
+  color: #e0e0e0;
+  backdrop-filter: blur(10px);
+}
+
+/* Cards - Subtle & Compact */
+.report-card {
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.report-card:hover {
+  border-color: rgba(212, 175, 55, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.report-card-header {
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.4);
+  border-bottom: 1px solid var(--glass-border);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Specific Header Colors */
+.service-header {
+  color: #d4af37;
+  border-left: 3px solid #d4af37;
+}
+.problem-header {
+  color: #ff5252;
+  border-left: 3px solid #ff5252;
+}
+.solution-header {
+  color: #2ecc71;
+  border-left: 3px solid #2ecc71;
+}
+.signatures-header {
+  color: #d4af37;
+  border-left: 3px solid #d4af37;
+}
+
+.report-card-body {
+  padding: 12px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+/* Information Pairs */
+.info-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-group label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+  letter-spacing: 0.5px;
+}
+
+.info-value {
+  color: #fff;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.badge-status-premium {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 30px;
+  background: rgba(212, 175, 55, 0.15);
+  color: var(--gold-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  letter-spacing: 0.5px;
+}
+
+/* Description Text Blocks */
+.description-box {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  padding: 15px;
+  font-size: 0.9rem;
+  color: #ddd;
+  line-height: 1.6;
+  flex-grow: 1;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+.description-box p {
+  margin: 0;
+}
+
+/* Requirement Section (New) */
+.requirement-section {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.requirement-box {
+  background: rgba(212, 175, 55, 0.05);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.requirement-text {
+  font-size: 0.85rem;
+  color: #f0e6d2;
+  font-style: italic;
+  margin-bottom: 8px;
+}
+
+.requirement-img-container {
+  width: 100%;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  max-height: 200px; /* Increased height for better view */
+  display: none; /* Hidden by default, toggled by JS/onload */
+  transition: all 0.2s;
+}
+
+.requirement-img-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Evidence Section */
+.evidence-section {
+  margin-top: 15px;
+}
+
+.evidence-label {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.evidence-container {
+  background: #000;
+  border-radius: 8px;
+  aspect-ratio: 16/9; /* Wider for better visibility */
+  position: relative;
+  border: 1px solid var(--glass-border);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.evidence-container:hover {
+  border-color: var(--gold-primary);
+}
+
+.evidence-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.evidence-container:hover .evidence-img {
+  transform: scale(1.05); /* Gentle zoom */
+}
+
+.evidence-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.1);
+  font-size: 1.2rem;
+}
+
+.evidence-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.evidence-container:hover .evidence-overlay {
+  opacity: 1;
+}
+
+/* Signatures */
+.signature-box {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px dashed var(--gold-primary);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100px;
+}
+
+/* Footer - Slim & Clean */
+.modal-report-footer {
+  background: #080808;
+  border-top: 1px solid var(--glass-border);
+  padding: 12px 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn-report-action {
+  font-size: 0.8rem !important;
+  padding: 10px 20px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.5px;
+}
+
+.btn-pdf {
+  background: linear-gradient(135deg, #d4af37 0%, #b89628 100%);
+  color: #000;
+  border: none;
+}
+.btn-pdf:hover {
+  background: #fff;
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+}
+
+.btn-whatsapp {
+  background: rgba(37, 211, 102, 0.1);
+  color: #25d366;
+  border: 1px solid #25d366;
+}
+.btn-whatsapp:hover {
+  background: #25d366;
+  color: #000;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 991px) {
+  .modal-body-premium .row {
+    row-gap: 15px;
+  }
+  .col-lg-4 {
+    margin-bottom: 20px;
+  }
+  .modal-dialog-centered.modal-xl {
+    margin: 10px;
+  }
+}
+
+@media (max-width: 576px) {
+  .modal-header-premium {
+    padding: 10px 15px !important;
+  }
+  .modal-body-premium {
+    padding: 10px !important;
+  }
+  .modal-report-footer {
+    flex-direction: column; /* Stack buttons on very small screens */
+  }
+  .btn-report-action {
+    width: 100%;
+  }
+  /* Ensure header stack on small screens */
+  .service-details-modern .row div {
+    text-align: left !important;
+    margin-bottom: 5px;
+  }
+}
