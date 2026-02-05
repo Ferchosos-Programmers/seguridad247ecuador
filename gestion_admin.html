@@ -19,6 +19,26 @@
     <script src="js/bootstrap.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <style>
+      #contractContentArea, #reportContentToFill {
+        background-color: #d1d1d1 !important;
+        padding: 40px 20px !important;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .contract-paper-viewer {
+        transform-origin: top center;
+      }
+      @media (max-width: 991px) {
+        .contract-paper-viewer {
+          width: 95% !important;
+          padding: 30px !important;
+          margin: 10px auto !important;
+          font-size: 14px !important;
+        }
+      }
+    </style>
   </head>
 
   <body>
