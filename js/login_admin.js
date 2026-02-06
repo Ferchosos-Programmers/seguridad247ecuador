@@ -1025,39 +1025,32 @@ function mostrarContrato(data) {
   const signDateText = formatDateES(signDate);
   const startDateText = formatDateES(startDate);
 
+  // Firma de la Empresa (Edwin Yubillo) - Automática
+  const companySigImg = `<img src="assets/img/firma.png" style="max-height: 80px; max-width: 150px;" alt="Firma Empresa">`;
+
+  // Firma del Cliente (Dinámica)
+  const clientSigImg = data.clientSignature
+    ? `<img src="${data.clientSignature}" crossorigin="anonymous" style="max-height: 80px; max-width: 180px;" alt="Firma Cliente">`
+    : `<div style="height: 80px;"></div>`;
+
   // Map signatures dynamically
-  const firmaHTML = data.clientSignature
-    ? `
+  const firmaHTML = `
     <div style="margin-top: 80px; display: flex; justify-content: space-between; page-break-inside: avoid;">
         <div style="text-align: center; width: 45%;">
             <div style="border-bottom: 2px solid #000; margin-bottom: 12px; height: 100px; display: flex; align-items: flex-end; justify-content: center;">
-                <!-- Company signature space -->
+                ${companySigImg}
             </div>
             <p style="font-weight: 800; text-transform: uppercase; margin: 0; font-size: 14px; color: #000;">${companyRep}</p>
             <p style="margin: 4px 0; font-size: 12px; color: #666; font-style: italic;">Representante Legal</p>
             <p style="margin: 0; font-size: 11px; font-weight: 700; color: #d4af37; letter-spacing: 1px;">COMPAÑÍA DE SEGURIDAD</p>
         </div>
         <div style="text-align: center; width: 45%;">
-             <div style="border-bottom: 2px solid #000; margin-bottom: 12px; min-height: 100px; display: flex; align-items: center; justify-content: center;">
-                <img src="${data.clientSignature}" crossorigin="anonymous" alt="Firma del cliente" style="max-height: 90px; max-width: 180px;">
+             <div style="border-bottom: 2px solid #000; margin-bottom: 12px; min-height: 100px; display: flex; align-items: flex-end; justify-content: center;">
+                ${clientSigImg}
              </div>
              <p style="font-weight: 800; text-transform: uppercase; margin: 0; font-size: 14px; color: #000;">${complexRep}</p>
              <p style="margin: 4px 0; font-size: 12px; color: #666; font-style: italic;">EL CLIENTE / CONTRATANTE</p>
              <p style="margin: 0; font-size: 11px; font-weight: 700; color: #000; text-transform: uppercase;">${complexName}</p>
-        </div>
-    </div>
-  `
-    : `
-    <div style="margin-top: 80px; display: flex; justify-content: space-between; page-break-inside: avoid;">
-        <div style="text-align: center; width: 45%;">
-            <div style="border-bottom: 2px solid #000; margin-bottom: 12px; height: 100px;"></div>
-            <p style="font-weight: 800; text-transform: uppercase; margin: 0; font-size: 14px; color: #000;">${companyRep}</p>
-            <p style="margin: 4px 0; font-size: 12px; color: #666; font-style: italic;">Representante Legal</p>
-        </div>
-        <div style="text-align: center; width: 45%;">
-             <div style="border-bottom: 2px solid #000; margin-bottom: 12px; height: 100px;"></div>
-             <p style="font-weight: 800; text-transform: uppercase; margin: 0; font-size: 14px; color: #000;">${complexRep}</p>
-             <p style="margin: 4px 0; font-size: 12px; color: #666; font-style: italic;">EL CLIENTE</p>
         </div>
     </div>
   `;
@@ -1183,11 +1176,17 @@ function mostrarContrato(data) {
             </div>
             <div style="display: flex; justify-content: space-between; font-family: 'Times New Roman', Times, serif;">
                 <div style="text-align: center; width: 45%;">
-                    <p style="font-size: 8pt; font-weight: 600; margin-bottom: 40px; color: #666; text-transform: uppercase;">ENTREGA EQUIPOS</p>
+                    <p style="font-size: 8pt; font-weight: 600; margin-bottom: 10px; color: #666; text-transform: uppercase;">ENTREGA EQUIPOS</p>
+                    <div style="margin-bottom: 5px; display: flex; justify-content: center; align-items: flex-end; height: 60px; margin-top: 40px;">
+                        ${companySigImg}
+                    </div>
                     <p style="border-top: 2px solid #000; padding-top: 5px; font-weight: 700; font-size: 9pt; margin: 0;">${companyRep}</p>
                 </div>
                 <div style="text-align: center; width: 45%;">
-                    <p style="font-size: 8pt; font-weight: 600; margin-bottom: 40px; color: #666; text-transform: uppercase;">RECIBE CONFORME</p>
+                    <p style="font-size: 8pt; font-weight: 600; margin-bottom: 10px; color: #666; text-transform: uppercase;">RECIBE CONFORME</p>
+                    <div style="margin-bottom: 5px; display: flex; justify-content: center; align-items: flex-end; height: 60px; margin-top: 40px;">
+                        ${clientSigImg}
+                    </div>
                     <p style="border-top: 2px solid #000; padding-top: 5px; font-weight: 700; font-size: 9pt; margin: 0;">${complexRep}</p>
                 </div>
             </div>

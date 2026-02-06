@@ -256,18 +256,24 @@ document.addEventListener("DOMContentLoaded", () => {
     switchView("dashboard");
 
     // Click listeners for dashboard cards
-    const cardTrabajosPendientes = document.getElementById("cardTrabajosPendientes");
-    const cardTrabajosTerminados = document.getElementById("cardTrabajosTerminados");
+    const cardTrabajosPendientes = document.getElementById(
+      "cardTrabajosPendientes",
+    );
+    const cardTrabajosTerminados = document.getElementById(
+      "cardTrabajosTerminados",
+    );
 
     if (cardTrabajosPendientes) {
       cardTrabajosPendientes.addEventListener("click", () => {
-        const jobsLink = document.querySelector(".sidebar-link[data-view='jobs']");
+        const jobsLink = document.querySelector(
+          ".sidebar-link[data-view='jobs']",
+        );
         if (jobsLink) {
           jobsLink.click();
           // Set filter to pending after a short delay to ensure jobs are loaded
           setTimeout(() => {
             if (window.setStatusFilter) {
-              window.setStatusFilter('Pendiente');
+              window.setStatusFilter("Pendiente");
             }
           }, 100);
         }
@@ -276,13 +282,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (cardTrabajosTerminados) {
       cardTrabajosTerminados.addEventListener("click", () => {
-        const jobsLink = document.querySelector(".sidebar-link[data-view='jobs']");
+        const jobsLink = document.querySelector(
+          ".sidebar-link[data-view='jobs']",
+        );
         if (jobsLink) {
           jobsLink.click();
           // Set filter to finished after a short delay to ensure jobs are loaded
           setTimeout(() => {
             if (window.setStatusFilter) {
-              window.setStatusFilter('Culminado');
+              window.setStatusFilter("Culminado");
             }
           }, 100);
         }
@@ -334,9 +342,13 @@ document.addEventListener("DOMContentLoaded", () => {
         else {
           renderTrabajosTecnicos(window.allTrabajos);
           // Set default filter to pending jobs
-          const filterPendingJobs = document.getElementById('filterPendingJobs');
-          if (filterPendingJobs && !filterPendingJobs.classList.contains('active')) {
-            window.setStatusFilter('Pendiente');
+          const filterPendingJobs =
+            document.getElementById("filterPendingJobs");
+          if (
+            filterPendingJobs &&
+            !filterPendingJobs.classList.contains("active")
+          ) {
+            window.setStatusFilter("Pendiente");
           }
         }
       } else if (view === "contracts") {
@@ -389,16 +401,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const statTotalTrabajos = document.getElementById("statTotalTrabajos");
         if (statTotalTrabajos) statTotalTrabajos.textContent = pendingTrabajos;
-        
-        const statTotalTerminados = document.getElementById("statTotalTerminados");
-        if (statTotalTerminados) statTotalTerminados.textContent = finishedTrabajos;
+
+        const statTotalTerminados = document.getElementById(
+          "statTotalTerminados",
+        );
+        if (statTotalTerminados)
+          statTotalTerminados.textContent = finishedTrabajos;
 
         const queryContratos = await db.collection("contracts").get();
         const pendingContratos = queryContratos.docs.filter(
           (doc) => !doc.data().clientSignature,
         ).length;
-        const statTotalContratos = document.getElementById("statTotalContratos");
-        if (statTotalContratos) statTotalContratos.textContent = pendingContratos;
+        const statTotalContratos =
+          document.getElementById("statTotalContratos");
+        if (statTotalContratos)
+          statTotalContratos.textContent = pendingContratos;
 
         cargarNotificacionesDashboard("all");
       } catch (error) {
@@ -600,77 +617,89 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Global function for status filter cards
-    window.setStatusFilter = function(status) {
-      const filterPendingJobs = document.getElementById('filterPendingJobs');
-      const filterFinishedJobs = document.getElementById('filterFinishedJobs');
-      const jobUrgencyFilter = document.getElementById('jobUrgencyFilter');
-      const jobSearchInput = document.getElementById('jobSearchInput');
-      
+    window.setStatusFilter = function (status) {
+      const filterPendingJobs = document.getElementById("filterPendingJobs");
+      const filterFinishedJobs = document.getElementById("filterFinishedJobs");
+      const jobUrgencyFilter = document.getElementById("jobUrgencyFilter");
+      const jobSearchInput = document.getElementById("jobSearchInput");
+
       // Update active state
-      if (filterPendingJobs) filterPendingJobs.classList.remove('active');
-      if (filterFinishedJobs) filterFinishedJobs.classList.remove('active');
-      
-      if (status === 'Pendiente' && filterPendingJobs) {
-        filterPendingJobs.classList.add('active');
-      } else if (status === 'Culminado' && filterFinishedJobs) {
-        filterFinishedJobs.classList.add('active');
+      if (filterPendingJobs) filterPendingJobs.classList.remove("active");
+      if (filterFinishedJobs) filterFinishedJobs.classList.remove("active");
+
+      if (status === "Pendiente" && filterPendingJobs) {
+        filterPendingJobs.classList.add("active");
+      } else if (status === "Culminado" && filterFinishedJobs) {
+        filterFinishedJobs.classList.add("active");
       }
-      
+
       // Filter jobs
-      const urgencyValue = jobUrgencyFilter?.value || 'todas';
-      const nameValue = jobSearchInput?.value.toLowerCase() || '';
-      
+      const urgencyValue = jobUrgencyFilter?.value || "todas";
+      const nameValue = jobSearchInput?.value.toLowerCase() || "";
+
       const filteredTrabajos = window.allTrabajos.filter((job) => {
-        const matchUrgency = urgencyValue === 'todas' || job.jobUrgency === urgencyValue;
-        
+        const matchUrgency =
+          urgencyValue === "todas" || job.jobUrgency === urgencyValue;
+
         let matchStatus = true;
-        if (status === 'Pendiente') {
-          matchStatus = job.status !== 'Culminado';
-        } else if (status === 'Culminado') {
-          matchStatus = job.status === 'Culminado';
+        if (status === "Pendiente") {
+          matchStatus = job.status !== "Culminado";
+        } else if (status === "Culminado") {
+          matchStatus = job.status === "Culminado";
         }
-        
-        const matchName = 
+
+        const matchName =
           job.clientName.toLowerCase().includes(nameValue) ||
           job.contactName.toLowerCase().includes(nameValue);
-        
+
         return matchUrgency && matchName && matchStatus;
       });
-      
+
       renderTrabajosTecnicos(filteredTrabajos);
     };
 
     // Function to update job counts
-    window.updateJobCounts = function() {
+    window.updateJobCounts = function () {
       if (!window.allTrabajos || window.allTrabajos.length === 0) return;
-      
-      const pendingCount = window.allTrabajos.filter(job => job.status !== 'Culminado').length;
-      const finishedCount = window.allTrabajos.filter(job => job.status === 'Culminado').length;
-      
-      const countPendingJobs = document.getElementById('countPendingJobs');
-      const countFinishedJobs = document.getElementById('countFinishedJobs');
-      
+
+      const pendingCount = window.allTrabajos.filter(
+        (job) => job.status !== "Culminado",
+      ).length;
+      const finishedCount = window.allTrabajos.filter(
+        (job) => job.status === "Culminado",
+      ).length;
+
+      const countPendingJobs = document.getElementById("countPendingJobs");
+      const countFinishedJobs = document.getElementById("countFinishedJobs");
+
       if (countPendingJobs) countPendingJobs.textContent = pendingCount;
       if (countFinishedJobs) countFinishedJobs.textContent = finishedCount;
     };
 
     // Add event listeners for new filter inputs
-    const jobUrgencyFilter = document.getElementById('jobUrgencyFilter');
-    const jobSearchInput = document.getElementById('jobSearchInput');
-    
+    const jobUrgencyFilter = document.getElementById("jobUrgencyFilter");
+    const jobSearchInput = document.getElementById("jobSearchInput");
+
     if (jobUrgencyFilter) {
-      jobUrgencyFilter.addEventListener('change', () => {
-        const filterPendingJobs = document.getElementById('filterPendingJobs');
-        const filterFinishedJobs = document.getElementById('filterFinishedJobs');
-        
+      jobUrgencyFilter.addEventListener("change", () => {
+        const filterPendingJobs = document.getElementById("filterPendingJobs");
+        const filterFinishedJobs =
+          document.getElementById("filterFinishedJobs");
+
         // Determine current status filter
         let currentStatus = null;
-        if (filterPendingJobs && filterPendingJobs.classList.contains('active')) {
-          currentStatus = 'Pendiente';
-        } else if (filterFinishedJobs && filterFinishedJobs.classList.contains('active')) {
-          currentStatus = 'Culminado';
+        if (
+          filterPendingJobs &&
+          filterPendingJobs.classList.contains("active")
+        ) {
+          currentStatus = "Pendiente";
+        } else if (
+          filterFinishedJobs &&
+          filterFinishedJobs.classList.contains("active")
+        ) {
+          currentStatus = "Culminado";
         }
-        
+
         if (currentStatus) {
           window.setStatusFilter(currentStatus);
         } else {
@@ -678,20 +707,27 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     }
-    
+
     if (jobSearchInput) {
-      jobSearchInput.addEventListener('input', () => {
-        const filterPendingJobs = document.getElementById('filterPendingJobs');
-        const filterFinishedJobs = document.getElementById('filterFinishedJobs');
-        
+      jobSearchInput.addEventListener("input", () => {
+        const filterPendingJobs = document.getElementById("filterPendingJobs");
+        const filterFinishedJobs =
+          document.getElementById("filterFinishedJobs");
+
         // Determine current status filter
         let currentStatus = null;
-        if (filterPendingJobs && filterPendingJobs.classList.contains('active')) {
-          currentStatus = 'Pendiente';
-        } else if (filterFinishedJobs && filterFinishedJobs.classList.contains('active')) {
-          currentStatus = 'Culminado';
+        if (
+          filterPendingJobs &&
+          filterPendingJobs.classList.contains("active")
+        ) {
+          currentStatus = "Pendiente";
+        } else if (
+          filterFinishedJobs &&
+          filterFinishedJobs.classList.contains("active")
+        ) {
+          currentStatus = "Culminado";
         }
-        
+
         if (currentStatus) {
           window.setStatusFilter(currentStatus);
         } else {
@@ -1008,7 +1044,7 @@ function renderTrabajosTecnicos(trabajosList) {
       </div>
     `;
   });
-  
+
   // Update job counts after rendering
   if (window.updateJobCounts) {
     window.updateJobCounts();
@@ -1070,30 +1106,38 @@ function configurarModalInforme() {
     canvas.addEventListener("mouseout", () => (isDrawing = false));
 
     // Touch events
-    canvas.addEventListener("touchstart", (e) => {
-      e.preventDefault();
-      isDrawing = true;
-      const rect = canvas.getBoundingClientRect();
-      const touch = e.touches[0];
-      lastX = touch.clientX - rect.left;
-      lastY = touch.clientY - rect.top;
-    }, { passive: false });
+    canvas.addEventListener(
+      "touchstart",
+      (e) => {
+        e.preventDefault();
+        isDrawing = true;
+        const rect = canvas.getBoundingClientRect();
+        const touch = e.touches[0];
+        lastX = touch.clientX - rect.left;
+        lastY = touch.clientY - rect.top;
+      },
+      { passive: false },
+    );
 
-    canvas.addEventListener("touchmove", (e) => {
-      e.preventDefault();
-      if (!isDrawing) return;
-      const rect = canvas.getBoundingClientRect();
-      const touch = e.touches[0];
-      const currentX = touch.clientX - rect.left;
-      const currentY = touch.clientY - rect.top;
-      ctx.beginPath();
-      ctx.moveTo(lastX, lastY);
-      ctx.lineTo(currentX, currentY);
-      ctx.stroke();
-      canvas.hasSignature = true;
-      lastX = currentX;
-      lastY = currentY;
-    }, { passive: false });
+    canvas.addEventListener(
+      "touchmove",
+      (e) => {
+        e.preventDefault();
+        if (!isDrawing) return;
+        const rect = canvas.getBoundingClientRect();
+        const touch = e.touches[0];
+        const currentX = touch.clientX - rect.left;
+        const currentY = touch.clientY - rect.top;
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(currentX, currentY);
+        ctx.stroke();
+        canvas.hasSignature = true;
+        lastX = currentX;
+        lastY = currentY;
+      },
+      { passive: false },
+    );
 
     canvas.addEventListener("touchend", () => (isDrawing = false));
 
@@ -1138,8 +1182,8 @@ function configurarModalInforme() {
         input.value = "";
       }
       if (box) {
-         box.style.borderColor = ""; 
-         box.style.background = "";
+        box.style.borderColor = "";
+        box.style.background = "";
       }
       if (placeholder) {
         placeholder.style.display = "flex";
@@ -1236,7 +1280,11 @@ function configurarModalInforme() {
     const photoFinal2 = document.getElementById("evidenceFinal2").files[0];
 
     if (!reportInitial || !reportFinal || !jobStatus) {
-      Swal.fire("Error", "Los reportes (inicial y final) y el estado son obligatorios.", "error");
+      Swal.fire(
+        "Error",
+        "Los reportes (inicial y final) y el estado son obligatorios.",
+        "error",
+      );
       return;
     }
 
@@ -1255,7 +1303,7 @@ function configurarModalInforme() {
       const evidenceFinal = [];
       if (photoFinal1) evidenceFinal.push(await resizeImage(photoFinal1));
       if (photoFinal2) evidenceFinal.push(await resizeImage(photoFinal2));
-    
+
       // Combinar para backward compatibility
       const evidenceBase64 = [...evidenceInitial, ...evidenceFinal];
 
@@ -1265,10 +1313,12 @@ function configurarModalInforme() {
         reportFinal: reportFinal,
         status: jobStatus,
         reportDate: new Date(),
-        clientSignature: canvas.hasSignature ? canvas.toDataURL("image/png") : null,
+        clientSignature: canvas.hasSignature
+          ? canvas.toDataURL("image/png")
+          : null,
         evidenceInitial: evidenceInitial,
         evidenceFinal: evidenceFinal,
-        evidenceBase64: evidenceBase64
+        evidenceBase64: evidenceBase64,
       };
 
       await db.collection("trabajos").doc(jobId).update(updateData);
@@ -1295,16 +1345,21 @@ function configurarModalInforme() {
         const waUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
         const waWindow = window.open(waUrl, "_blank");
 
-        if (!waWindow || waWindow.closed || typeof waWindow.closed === "undefined") {
+        if (
+          !waWindow ||
+          waWindow.closed ||
+          typeof waWindow.closed === "undefined"
+        ) {
           Swal.fire({
             icon: "info",
             title: "¡Informe Enviado!",
             html: `Se procederá a notificar a administración y monitoreo.<br><br><b>El navegador bloqueó la ventana de WhatsApp.</b><br>Haz clic abajo para abrirlo manualmente:`,
             showCancelButton: true,
-            confirmButtonText: '<i class="fa-brands fa-whatsapp"></i> Abrir WhatsApp',
+            confirmButtonText:
+              '<i class="fa-brands fa-whatsapp"></i> Abrir WhatsApp',
             confirmButtonColor: "#25d366",
             background: "#000",
-            color: "#d4af37"
+            color: "#d4af37",
           }).then((result) => {
             if (result.isConfirmed) {
               window.open(waUrl, "_blank");
@@ -1326,7 +1381,8 @@ function configurarModalInforme() {
       saveReportBtn.disabled = false;
       saveReportBtn.innerHTML = "Guardar Informe";
     }
-  });}
+  });
+}
 
 // =======================================================
 // 📋 CARGAR CONTRATOS PARA TÉCNICOS
@@ -1519,32 +1575,40 @@ function configurarModalContrato() {
   });
 
   // Eventos táctiles (para dispositivos móviles)
-  canvas.addEventListener("touchstart", (e) => {
-    e.preventDefault();
-    isDrawing = true;
-    const rect = canvas.getBoundingClientRect();
-    const touch = e.touches[0];
-    lastX = touch.clientX - rect.left;
-    lastY = touch.clientY - rect.top;
-  }, { passive: false });
+  canvas.addEventListener(
+    "touchstart",
+    (e) => {
+      e.preventDefault();
+      isDrawing = true;
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      lastX = touch.clientX - rect.left;
+      lastY = touch.clientY - rect.top;
+    },
+    { passive: false },
+  );
 
-  canvas.addEventListener("touchmove", (e) => {
-    e.preventDefault();
-    if (!isDrawing) return;
-    const rect = canvas.getBoundingClientRect();
-    const touch = e.touches[0];
-    const currentX = touch.clientX - rect.left;
-    const currentY = touch.clientY - rect.top;
+  canvas.addEventListener(
+    "touchmove",
+    (e) => {
+      e.preventDefault();
+      if (!isDrawing) return;
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      const currentX = touch.clientX - rect.left;
+      const currentY = touch.clientY - rect.top;
 
-    ctx.beginPath();
-    ctx.moveTo(lastX, lastY);
-    ctx.lineTo(currentX, currentY);
-    ctx.stroke();
-    canvas.hasSignature = true; // Se ha dibujado algo
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(currentX, currentY);
+      ctx.stroke();
+      canvas.hasSignature = true; // Se ha dibujado algo
 
-    lastX = currentX;
-    lastY = currentY;
-  }, { passive: false });
+      lastX = currentX;
+      lastY = currentY;
+    },
+    { passive: false },
+  );
 
   canvas.addEventListener("touchend", () => {
     isDrawing = false;
@@ -1573,7 +1637,8 @@ function configurarModalContrato() {
 
     if (!input || !placeholder || !preview || !removeBtn) return;
 
-    const container = input.closest(".position-relative") || input.closest(".photo-upload-box");
+    const container =
+      input.closest(".position-relative") || input.closest(".photo-upload-box");
 
     input.addEventListener("change", function (e) {
       const file = e.target.files[0];
@@ -1647,10 +1712,30 @@ function configurarModalContrato() {
 
   // Inicializar previews para evidencias del reporte técnico
   // Inicializar previews para evidencias del reporte técnico (4 Fotos)
-  setupImagePreview("evidenceInitial1", "placeholderInitial1", "previewInitial1", "removeInitial1");
-  setupImagePreview("evidenceInitial2", "placeholderInitial2", "previewInitial2", "removeInitial2");
-  setupImagePreview("evidenceFinal1", "placeholderFinal1", "previewFinal1", "removeFinal1");
-  setupImagePreview("evidenceFinal2", "placeholderFinal2", "previewFinal2", "removeFinal2");
+  setupImagePreview(
+    "evidenceInitial1",
+    "placeholderInitial1",
+    "previewInitial1",
+    "removeInitial1",
+  );
+  setupImagePreview(
+    "evidenceInitial2",
+    "placeholderInitial2",
+    "previewInitial2",
+    "removeInitial2",
+  );
+  setupImagePreview(
+    "evidenceFinal1",
+    "placeholderFinal1",
+    "previewFinal1",
+    "removeFinal1",
+  );
+  setupImagePreview(
+    "evidenceFinal2",
+    "placeholderFinal2",
+    "previewFinal2",
+    "removeFinal2",
+  );
 
   // Reinicializar canvas cuando se abre el modal
   fillContractModal.addEventListener("shown.bs.modal", () => {
@@ -1727,16 +1812,21 @@ function configurarModalContrato() {
           const waUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
           const waWindow = window.open(waUrl, "_blank");
 
-          if (!waWindow || waWindow.closed || typeof waWindow.closed === "undefined") {
+          if (
+            !waWindow ||
+            waWindow.closed ||
+            typeof waWindow.closed === "undefined"
+          ) {
             Swal.fire({
               icon: "info",
               title: "¡Contrato Finalizado!",
               html: `La firma ha sido registrada.<br><br><b>El navegador bloqueó la ventana de WhatsApp.</b><br>Haz clic abajo para abrirlo manualmente:`,
               showCancelButton: true,
-              confirmButtonText: '<i class="fa-brands fa-whatsapp"></i> Abrir WhatsApp',
+              confirmButtonText:
+                '<i class="fa-brands fa-whatsapp"></i> Abrir WhatsApp',
               confirmButtonColor: "#25d366",
               background: "#000",
-              color: "#d4af37"
+              color: "#d4af37",
             }).then((result) => {
               if (result.isConfirmed) {
                 window.open(waUrl, "_blank");
@@ -1906,11 +1996,17 @@ function mostrarContratoParaLlenar(data) {
   const companyRep = "EDWIN YUBILLO";
   const companyRuc = "1793205916001";
 
-  // Signatures HTML Section (Empty lines for filling)
+  // Pre-filled company signature image for "To Fill" view
+  const companySigImg = `<img src="assets/img/firma.png" style="max-height: 80px; max-width: 150px;" alt="Firma Empresa">`;
+  const clientSigImg = `<div style="height: 80px;"></div>`;
+
+  // Signatures HTML Section (Company Signed, Client To Sign)
   const firmaHTML = `
     <div style="margin-top: 80px; display: flex; justify-content: space-between; page-break-inside: avoid;">
         <div style="text-align: center; width: 45%;">
-            <div style="border-bottom: 2px solid #000; margin-bottom: 12px; height: 100px;"></div>
+            <div style="border-bottom: 2px solid #000; margin-bottom: 12px; height: 100px; display: flex; align-items: flex-end; justify-content: center;">
+                ${companySigImg}
+            </div>
             <p style="font-weight: 800; text-transform: uppercase; margin: 0; font-size: 14px; color: #000;">${companyRep}</p>
             <p style="margin: 4px 0; font-size: 12px; color: #666; font-style: italic;">Representante Legal</p>
             <p style="margin: 0; font-size: 11px; font-weight: 700; color: #d4af37; letter-spacing: 1px;">COMPAÑÍA DE SEGURIDAD</p>
@@ -1924,140 +2020,142 @@ function mostrarContratoParaLlenar(data) {
     </div>
   `;
 
-  // Full Contract Template for Filling with ALL 11 CLAUSES
+  // Main Contract Template with Verbatim 11 clauses
   const content = `
-    <div style="font-family: 'Times New Roman', serif; line-height: 1.6; color: #1a1a1a; padding: 80px 70px; background: #fff; width: 800px; margin: 0 auto; box-sizing: border-box;">
+    <div style="font-family: 'Times New Roman', Times, serif; font-size: 9pt; line-height: 1.6; color: #000; padding: 60px 40px; background: #fff; width: 800px; margin: 0 auto; box-sizing: border-box;">
       
       <!-- ELEGANT HEADER -->
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 50px; border-bottom: 3px solid #d4af37; padding-bottom: 25px;">
-        <div style="width: 180px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; border-bottom: 2px solid #d4af37; padding-bottom: 15px;">
+        <div style="width: 140px;">
           <img src="assets/img/logo.png" alt="Logo" style="max-width: 100%; height: auto;">
         </div>
-        <div style="text-align: right;">
-          <h2 style="margin: 0; color: #d4af37; font-size: 26px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase;">SEGURIDAD 24-7</h2>
-          <p style="margin: 5px 0 0; font-size: 11px; color: #555; font-family: 'Helvetica', sans-serif; text-transform: uppercase; letter-spacing: 3px; font-weight: 600;">Vigilancia Virtual de Alta Gama</p>
-          <p style="margin: 3px 0 0; font-size: 10px; color: #888; font-family: 'Helvetica', sans-serif;">RUC: ${companyRuc}</p>
+        <div style="text-align: right; font-family: 'Times New Roman', Times, serif;">
+          <h2 style="margin: 0; color: #d4af37; font-size: 18pt; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">SEGURIDAD 24-7</h2>
+          <p style="margin: 3px 0 0; font-size: 9pt; color: #333; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;">Vigilancia Virtual de Alta Gama</p>
+          <p style="margin: 2px 0 0; font-size: 8pt; color: #666;">RUC: ${companyRuc}</p>
         </div>
       </div>
 
-      <h3 style="text-align: center; font-weight: 900; margin-bottom: 45px; color: #000; text-transform: uppercase; font-size: 18px; letter-spacing: 1px; line-height: 1.4;">
+      <h3 style="text-align: center; font-family: 'Times New Roman', Times, serif; font-weight: 700; margin-bottom: 30px; color: #000; text-transform: uppercase; font-size: 11pt; letter-spacing: 0.5px; line-height: 1.4;">
         CONTRATO DE PRESTACIÓN DE SERVICIOS DE SEGURIDAD PRIVADA Y<br>VIGILANCIA CON GUARDIAS VIRTUALES
       </h3>
 
-      <div style="text-align: justify; font-size: 14.5px; color: #000;">
-        <p style="margin-bottom: 25px;">
+      <div style="text-align: justify; font-size: 9pt; color: #000;">
+        <p style="margin-bottom: 18px;">
           En la ciudad de San Francisco de Quito, a los <strong>${signDateText}</strong>, comparecen, a celebrar el presente contrato mercantil de prestación de servicios de seguridad privada, por una parte <strong>${complexRep}</strong> en calidad de representante legal de <strong>${complexName}</strong> con RUC <strong>${complexRuc}</strong> a quien para los efectos del presente contrato se lo denominará también <strong>El Cliente</strong>; y, por otra parte, comparecen a la suscripción de este contrato el señor <strong>${companyRep}</strong>, en calidad de representante legal de <strong>SEGURIDAD 24-7 DEL ECUADOR CIA. LTDA.</strong>, con RUC <strong>${companyRuc}</strong> a quien para los efectos del presente contrato se lo podrá denominar <strong>la Compañía de Seguridad</strong>.
         </p>
 
-        <p style="margin-bottom: 25px; font-style: italic; color: #333;">
+        <p style="margin-bottom: 18px; font-style: italic; color: #222; text-align: center; border: 1px solid #f1e6c9; background: #fdfaf0; padding: 10px;">
           Las partes libres y voluntariamente, por así convenir a sus mutuos intereses, acuerdan el contenido del presente contrato al tenor de las siguientes clausulas:
         </p>
 
         <!-- CLAUSE 1 -->
-        <div style="margin-bottom: 20px;">
+        <div style="margin-bottom: 18px;">
           <p style="margin-bottom: 5px;"><strong>PRIMERA.- ANTECEDENTES:</strong></p>
           <p>
             El Beneficiario requiere contratar los servicios de seguridad privada, resguardo y protección virtual, mediante el monitoreo al sistema de cámaras, perifoneo en tiempo real las 24 horas de lunes a domingo, desde el <strong>${startDateText}</strong> para custodiar <strong>${complexName}</strong> ubicado en la provincia de Pichincha, cantón <strong>${canton}</strong>, dirección: <strong>${address}</strong>, a fin de cuidarlo y protegerlo, conforme a las normas de seguridad privada y a las indicaciones proporcionadas por el Beneficiario, quien ha creído conveniente a sus intereses contratar este servicio.
           </p>
-          <p style="margin-top: 10px;">
+          <p style="margin-top: 8px;">
             El Beneficiario solicita personal capacitado y calificado tanto en los procedimientos de vigilancia y control, como el manejo de equipos de comunicación, equipos de emergencia y otros que la función lo requiera.
           </p>
-          <p style="margin-top: 10px;">
-            <strong>${companyName}</strong>, es una compañía legalmente constituida, cuyas oficinas se encuentran ubicadas en la calle Pedro Cando N59-116 y Antonio Macata (SECTOR LA KENNEDY) de la ciudad de San Francisco de Quito, dedicada de forma habitual y por cuenta propia, a prestar los servicios de prevención del delito, vigilancia y seguridad a favor de personas naturales y jurídicas, instalaciones y bienes, deposito, custodia y transporte de valores y otras conexas en el área de seguridad privada, disposiciones que las cumple con el personal calificado, que labora bajo su dependencia, cuenta además con la infraestructura necesaria para el efecto.
+          <p style="margin-top: 8px;">
+            <strong>${companyName}</strong>, es una compañía legalmente constituida, cuyas oficinas se encuentran ubicadas en la calle Pedro Cando N59-116 y Antonio Macata (SECTOR LA KENNEDY) de la ciudad de San Francisco de Quito, dedicada de forma habitual y por cuenta propia, a prestar los servicios de prevención del delito, vigilancia y seguridad a favor de personas naturales y jurídicas, instalaciones y bienes, deposito, custodia y transporte de valores y otras conexas en el área de seguridad privada.
           </p>
         </div>
 
         <!-- CLAUSE 2 -->
-        <div style="margin-bottom: 20px;">
+        <div style="margin-bottom: 18px;">
           <p style="margin-bottom: 5px;"><strong>SEGUNDA. - CONTRATACIÓN DEL SERVICIO DE SEGURIDAD:</strong></p>
           <p>
-            Teniendo como base los antecedentes enunciados, El Cliente contrata resguardo y protección privada virtual, mediante el monitoreo al sistema de cámaras, perifoneo las 24 horas de lunes a domingo, adicional la empresa en caso de emergencia como intentos de robo, asalto, hurto, etc., la compañía coordinará con ECU 911, auxilio inmediato, además que personal motorizado propio de la compañía acudirá en auxilio, en un tiempo promedio de 20 minutos, para socorrer ante el incidente presentado con el fin de proteger, custodiar y brindar máxima seguridad interna y externa al lugar indicado.
-          </p>
-          <p style="margin-top: 10px;">
-            La Compañía de Seguridad se compromete a colocar la infraestructura necesaria que garantice:
-            <br>Alerta de identificación de movimiento/detección de personas en horas de poco tránsito para que, La Compañía de Seguridad alerte de forma temprana e identifique posibles riesgos.
-            <br>Para corroborar el cumplimiento de este, se anexará (Anexo 1) a este contrato un informe de los componentes instalados, Adicional, El Cliente podrá solicitar un nuevo informe del cumplimiento de cobertura de los vídeos cuando lo considere necesario. Si estos equipos presentan fallas y deben ser reparados o reposicionados, este costo lo asumirá la Compañía de Seguridad.
-            <br>La Compañía de Seguridad brindará el servicio de rondas a través de un motorizado o camioneta que visitará el Domicilio una vez al día en un horario aleatorio. Este se encargará de analizar de forma visual el exterior de la institución revisando riesgos potenciales, equipos instalados visibles y otros datos que La Compañía de Seguridad considere importante.
+            Teniendo como base los antecedentes enunciados, El Cliente contrata resguardo y protección privada virtual, mediante el monitoreo al sistema de cámaras, perifoneo las 24 horas de lunes a domingo, adicional la empresa en caso de emergencia como intentos de robo, asalto, hurto, etc., la compañía coordinará con ECU 911, auxilio inmediato, además que personal motorizado propio de la compañía acudirá en auxilio, en un tiempo promedio de 20 minutos, para socorrer ante el incidente presentado con el fin de proteger, custodiar y brindar máxima seguridad interna y externa al lugar indicado. La Compañía de Seguridad se compromete a colocar la infraestructura necesaria que garantice: Alerta de identificación de movimiento/detección de personas en horas de poco tránsito para que, La Compañía de Seguridad alerte de forma temprana e identifique posibles riesgos. Para corroborar el cumplimiento de este, se anexará (Anexo 1) a este contrato un informe de los componentes instalados, Adicional, El Cliente podrá solicitar un nuevo informe del cumplimiento de cobertura de los vídeos cuando lo considere necesario. Si estos equipos presentan fallas y deben ser reparados o reposicionados, este costo lo asumirá la Compañía de Seguridad. La Compañía de Seguridad brindará el servicio de rondas a través de un motorizado o camioneta que visitará el Domicilio una vez al día en un horario aleatorio. Este se encargará de analizar de forma visual el exterior de la institución revisando riesgos potenciales, equipos instalados visibles y otros datos que La Compañía de Seguridad considere importante.
           </p>
         </div>
 
         <!-- CLAUSE 3 -->
-        <div style="margin-bottom: 20px; background: #fdfbf5; padding: 25px; border-left: 5px solid #d4af37;">
-          <p style="margin: 0;"><strong>TERCERA. - PRECIO:</strong> El valor por el servicio de seguridad es por la cantidad de <span style="font-size: 20px; font-weight: 900; color: #d4af37;">$${price} USD</span> (+ IVA), mismos que serán cancelados los 5 primeros días del mes. El retiro del valor mensual a pagar será efectuado por un delegado oficial del personal administrativo debidamente autorizado de SEGURIDAD 24/7.</p>
+        <div style="margin-bottom: 18px; background: #fdfbf5; padding: 20px; border-left: 5px solid #d4af37;">
+          <p style="margin: 0;"><strong>TERCERA. - PRECIO:</strong> El valor por el servicio de seguridad es por la cantidad de <span style="font-size: 18px; font-weight: 900; color: #d4af37;">$${price} USD</span> (+ IVA), mismos que serán cancelados los 5 primeros días del mes. El retiro del valor mensual a pagar será efectuado por un delegado oficial del personal administrativo debidamente autorizado de SEGURIDAD 24/7.</p>
         </div>
 
         <!-- CLAUSE 4 -->
-        <div style="margin-bottom: 20px;">
-          <p style="margin-bottom: 5px;"><strong>CUARTA. - PLAZO:</strong> El plazo de duración del presente contrato es por <strong>${duration} meses</strong>, renovable automáticamente si no existe aviso previo de 30 días.</p>
+        <div style="margin-bottom: 18px;">
+          <p style="margin-bottom: 5px;"><strong>CUARTA. - PLAZO:</strong> El plazo de duración del presente contrato es por  <strong>${duration} meses</strong>, tomando como fecha inicial la fecha de inicio de la prestación del servicio de guardia virtual, con treinta días de anticipación las partes se notificarán la continuidad o no del mismo, en caso de la no notificación de las partes se entenderá que el contrato se ha renovado de manera automática.</p>
         </div>
 
         <!-- CLAUSE 5 -->
-        <div style="margin-bottom: 20px;">
-          <p style="margin-bottom: 5px;"><strong>QUINTA. - CONDICIONES ESPECIALES:</strong></p>
-          <p>La empresa de seguridad., conjuntamente con el Supervisor de Seguridad controlarán coordinadamente la función de los Guardias Virtuales y corregirá cualquier anomalía notificada.</p>
+        <div style="margin-bottom: 18px;">
+          <p style="margin-bottom: 5px;"><strong>QUINTA. - CONDICIONES ESPECIALES:</strong> La empresa de seguridad., conjuntamente con el Supervisor de Seguridad controlarán coordinadamente la función de los Guardias Virtuales. En caso de cualquier anomalía El Cliente notificará de inmediato cualquier actividad fuera de lo normal, en forma verbal-telefónica o por escrito a la oficina de la compañía a fin de proceder a los correctivos efectivos y eficaces que el caso lo amerite.</p>
         </div>
 
         <!-- CLAUSE 6 -->
-        <div style="margin-bottom: 20px;">
-            <p style="margin-bottom: 5px;"><strong>SEXTA. - RESPONSABILIDAD DE LA EMPRESA DE SEGURIDAD:</strong></p>
-            <p>La Compañía se responsabiliza a disponer de una pantalla exclusiva para el monitoreo y dar recomendaciones preventivas contra el delito a fin de evitar actos ilícitos.</p>
+        <div style="margin-bottom: 18px;">
+            <p style="margin-bottom: 5px;"><strong>SEXTA. - RESPONSABILIDAD DE LA EMPRESA DE SEGURIDAD:</strong> La compañía de seguridad se responsabiliza a disponer de una pantalla exclusiva para el sistema de cámaras en su central de monitoreo y demás dispositivos de seguridad que el conjunto dispone, para que se monitoree en todo tiempo las actividades diarias que se presenten. La empresa de Seguridad, además, dará las recomendaciones de seguridad necesarias al beneficiario para que se tome las medidas preventivas contra el delito a fin de evitar actos ilícitos provenientes del exterior o interior del sitio protegido.</p>
         </div>
 
         <!-- CLAUSE 7 -->
-        <div style="margin-bottom: 20px;">
-            <p style="margin-bottom: 5px;"><strong>SEPTIMO. - SERVICIO ADICIONAL:</strong></p>
-            <p>SEGURIDAD 24/7., posee una póliza de responsabilidad civil de $100.000,00 USD contratada con la aseguradora Zúrich.</p>
+        <div style="margin-bottom: 18px;">
+            <p style="margin-bottom: 5px;"><strong>SEPTIMO. - SERVICIO ADICIONAL:</strong> SEGURIDAD 24/7., posee una póliza de responsabilidad civil de $100.000,00 USD (Cien mil dólares de los Estados Unidos de América) contratada con la aseguradora Zúrich, la cual podrá ser utilizada siguiendo los trámites pertinentes que exige la empresa Aseguradora expedidora de dicha póliza. Adicional la Compañía estará dispuesta a atender cualquier requerimiento, sea este de requerimiento de personal de guardia, o de medios que necesitare El Cliente en alguna circunstancia, debiéndose reconocer sus costos como adicionales al presente contrato.</p>
         </div>
 
         <!-- CLAUSE 8 -->
-        <div style="margin-bottom: 20px;">
-            <p style="margin-bottom: 5px;"><strong>OCTAVA. - PARTES DEL CONTRATO:</strong></p>
-            <p>Nombramientos, copias de cédulas, oferta y Anexo 1 forman parte de este contrato.</p>
+        <div style="margin-bottom: 18px;">
+          <p style="margin-bottom: 5px; font-size: 10pt;">
+            <strong>OCTAVA. - PARTES DEL CONTRATO:</strong>
+            Forman parte de este contrato, por su orden:
+          </p>
+          <ol style="margin-top: 5px; padding-left: 18px; font-size: 10pt;">
+            <li>Nombramientos de los Representantes Legales de las partes intervinientes en el contrato.</li>
+            <li>Copias de las cédulas y papeletas de votación.</li>
+            <li>La oferta y sus complementos.</li>
+            <li>Anexo 1, con detalles de los equipos colocados por la empresa de seguridad en calidad de préstamo.</li>
+          </ol>
         </div>
 
         <!-- CLAUSE 9 -->
-        <div style="margin-bottom: 20px;">
-            <p style="margin-bottom: 5px;"><strong>NOVENA. - FORMA DE PAGO:</strong></p>
-            <p>Pago dentro de los 5 primeros días. El incumplimiento por dos meses causará la suspensión del servicio de guardia virtual.</p>
+        <div style="margin-bottom: 18px;">
+            <p style="margin-bottom: 5px;"><strong>NOVENA. - FORMA DE PAGO:</strong> El pago se lo realizará dentro de los 5 primeros días de cada mes, si no está al día en sus haberes El Cliente pierde todos sus derechos, en caso de que el pago no se realice por dos meses consecutivos, se procederá a suspender el servicio de guardia virtual sin aviso previo y se procederá a las acciones legales pertinentes. </p>
         </div>
 
         <!-- CLAUSE 10 -->
-        <div style="margin-bottom: 20px;">
-            <p style="margin-bottom: 5px;"><strong>DECIMA. - TERMINACIÓN DEL CONTRATO:</strong></p>
-            <p>Terminación por violación de cláusulas o decisión unilateral con 30 días de anticipación.</p>
+        <div style="margin-bottom: 18px;">
+            <p style="margin-bottom: 5px;"><strong>DECIMA. - TERMINACIÓN DEL CONTRATO:</strong> Las partes contratantes tendrán derecho a dar por terminado el presente contrato, luego de haber cursado las comunicaciones escritas pertinentes, por la violación de cualquiera de las cláusulas de este convenio, o por decisión unilateral de alguna de ellas con por lo menos treinta días de anticipación. Por lo demás se obligan a todas y cada una de las cláusulas estipuladas en este contrato, las mismas que las aceptan y las declaran fielmente cumplir. En caso de terminar anticipadamente e intempestivamente el contrato sin justificación alguna dentro del primer año de contrato, se le pagará a la parte afectada la facturación mensual de dos meses en un tiempo no mayor de 15 días </p>
         </div>
 
         <!-- CLAUSE 11 -->
-        <div style="margin-bottom: 20px;">
-            <p style="margin-bottom: 5px;"><strong>DECIMA PRIMERA. - JURISDICCIÓN Y COMPETENCIA:</strong></p>
-            <p>Las partes se someten a mediación o a los jueces civiles del Distrito Metropolitano de Quito.</p>
+        <div style="margin-bottom: 18px;">
+            <p style="margin-bottom: 5px;"><strong>DECIMA PRIMERA. - JURISDICCIÓN Y COMPETENCIA:</strong> Si se suscitaren divergencias o controversias entre las partes, y no llegaren a un acuerdo amigable directo, utilizarán en primera instancia los métodos alternativos para la solución de conflictos en un centro de Mediación y Arbitraje. Y si no existiera acuerdo, las partes deciden someterse a los jueces civiles del Distrito Metropolitano de Quito. Libre y voluntariamente, las partes expresamente declararan su aceptación a todo lo convenido en el presente contrato y se someten a sus estipulaciones</p>
         </div>
 
-        <p style="margin-top: 50px; font-weight: 700; text-align: center; color: #1a1a1a;">
+        <p style="margin-top: 40px; font-weight: 700; text-align: center; color: #111; padding-top: 20px; border-top: 1px solid #eee;">
           Para constancia de lo estipulado, las partes firman el presente contrato digital.
         </p>
 
         ${firmaHTML}
 
         <!-- ANNEX PAGE -->
-        <div style="page-break-before: always; border-top: 2px dashed #d4af37; margin-top: 60px; padding-top: 60px;">
-          <h4 style="text-align: center; font-weight: 900; color: #d4af37; text-transform: uppercase; font-size: 18px; margin-bottom: 30px;">ANEXO 1: RESUMEN DE EQUIPAMIENTO</h4>
-          <div style="border: 2px solid #f1e6c9; padding: 35px; min-height: 300px; background: #fffcf5; border-radius: 12px; white-space: pre-line; font-family: 'Courier New', monospace; font-size: 13px; color: #222;">
+        <div style="page-break-before: always; page-break-inside: avoid; border-top: 2px dashed #d4af37; margin-top: 20px; padding-top: 30px;">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <h4 style="font-weight: 700; color: #d4af37; text-transform: uppercase; font-family: 'Times New Roman', Times, serif; font-size: 11pt; letter-spacing: 1px; margin: 0;">ANEXO 1: EQUIPAMIENTO INSTALADO</h4>
+          </div>
+          <div style="border: 2px solid #f1e6c9; padding: 25px; min-height: 150px; background: #fffcf5; border-radius: 10px; white-space: pre-line; font-family: 'Times New Roman', Times, serif; font-size: 9pt; color: #000; margin-bottom: 30px;">
             ${annexDetails}
           </div>
-
-          <div style="display: flex; justify-content: space-between; margin-top: 50px;">
-               <div style="text-align: center; width: 45%;">
-                   <p style="font-size: 12px; font-weight: 600; margin-bottom: 40px; color: #888;">ENTREGA EQUIPOS</p>
-                   <p style="border-top: 2px solid #000; padding-top: 8px; font-weight: 900; font-size: 14px;">${companyRep}</p>
-               </div>
-               <div style="text-align: center; width: 45%;">
-                   <p style="font-size: 12px; font-weight: 600; margin-bottom: 40px; color: #888;">RECIBE CONFORME</p>
-                   <p style="border-top: 2px solid #000; padding-top: 8px; font-weight: 900; font-size: 14px;">${complexRep}</p>
-               </div>
+          <div style="display: flex; justify-content: space-between; font-family: 'Times New Roman', Times, serif;">
+              <div style="text-align: center; width: 45%;">
+                  <p style="font-size: 8pt; font-weight: 600; margin-bottom: 10px; color: #666; text-transform: uppercase;">ENTREGA EQUIPOS</p>
+                  <div style="margin-bottom: 5px; display: flex; justify-content: center; align-items: flex-end; height: 60px; margin-top: 40px;">
+                      ${companySigImg}
+                  </div>
+                  <p style="border-top: 2px solid #000; padding-top: 5px; font-weight: 700; font-size: 9pt; margin: 0;">${companyRep}</p>
+              </div>
+              <div style="text-align: center; width: 45%;">
+                  <p style="font-size: 8pt; font-weight: 600; margin-bottom: 10px; color: #666; text-transform: uppercase;">RECIBE CONFORME</p>
+                  <div style="margin-bottom: 5px; display: flex; justify-content: center; align-items: flex-end; height: 60px; margin-top: 40px;">
+                      ${clientSigImg}
+                  </div>
+                  <p style="border-top: 2px solid #000; padding-top: 5px; font-weight: 700; font-size: 9pt; margin: 0;">${complexRep}</p>
+              </div>
           </div>
         </div>
-
       </div>
     </div>
   `;
@@ -2140,14 +2238,15 @@ document.addEventListener("DOMContentLoaded", () => {
             doc.save(`Contrato_Firmado.pdf`);
             Swal.close();
           },
-          x: 40,
-          y: 30,
+          x: 30, // Left margin (30)
+          y: 20, // Top margin (Reduced to 20)
+          margin: [40, 0, 60, 0], // [Top, Right, Bottom, Left]
           html2canvas: {
-            scale: 0.72,
+            scale: 0.58, // Adjusted scale to fit 800px content into ~465pt available width
             useCORS: true,
             letterRendering: true,
           },
-          width: 515,
+          width: 465,
           windowWidth: 800,
           autoPaging: "text",
         });
@@ -2186,63 +2285,57 @@ function mostrarContratoCompleto(data) {
   const companyRep = "EDWIN YUBILLO";
   const companyRuc = "1793205916001";
 
+  // Firma de la Empresa (Edwin Yubillo) - Automática
+  const companySigImg = `<img src="assets/img/firma.png" style="max-height: 80px; max-width: 150px;" alt="Firma Empresa">`;
+
+  // Firma del Cliente (Dinámica)
+  const clientSigImg = data.clientSignature
+    ? `<img src="${data.clientSignature}" crossorigin="anonymous" style="max-height: 80px; max-width: 180px;" alt="Firma Cliente">`
+    : `<div style="height: 80px;"></div>`;
+
   // Map signatures dynamically
-  const firmaHTML = data.clientSignature
-    ? `
-    <div style="margin-top: 50px; display: flex; justify-content: space-between; page-break-inside: avoid;">
+  const firmaHTML = `
+    <div style="margin-top: 80px; display: flex; justify-content: space-between; page-break-inside: avoid;">
         <div style="text-align: center; width: 45%;">
             <div style="border-bottom: 2px solid #000; margin-bottom: 12px; height: 100px; display: flex; align-items: flex-end; justify-content: center;">
-                <!-- Company signature space -->
+                ${companySigImg}
             </div>
             <p style="font-weight: 800; text-transform: uppercase; margin: 0; font-size: 14px; color: #000;">${companyRep}</p>
             <p style="margin: 4px 0; font-size: 12px; color: #666; font-style: italic;">Representante Legal</p>
             <p style="margin: 0; font-size: 11px; font-weight: 700; color: #d4af37; letter-spacing: 1px;">COMPAÑÍA DE SEGURIDAD</p>
         </div>
         <div style="text-align: center; width: 45%;">
-             <div style="border-bottom: 2px solid #000; margin-bottom: 12px; min-height: 100px; display: flex; align-items: center; justify-content: center;">
-                <img src="${data.clientSignature}" crossorigin="anonymous" alt="Firma del cliente" style="max-height: 90px; max-width: 180px;">
+             <div style="border-bottom: 2px solid #000; margin-bottom: 12px; min-height: 100px; display: flex; align-items: flex-end; justify-content: center;">
+                ${clientSigImg}
              </div>
              <p style="font-weight: 800; text-transform: uppercase; margin: 0; font-size: 14px; color: #000;">${complexRep}</p>
              <p style="margin: 4px 0; font-size: 12px; color: #666; font-style: italic;">EL CLIENTE / CONTRATANTE</p>
              <p style="margin: 0; font-size: 11px; font-weight: 700; color: #000; text-transform: uppercase;">${complexName}</p>
         </div>
     </div>
-  `
-    : `
-    <div style="margin-top: 50px; display: flex; justify-content: space-between; page-break-inside: avoid;">
-        <div style="text-align: center; width: 45%;">
-            <div style="border-bottom: 2px solid #000; margin-bottom: 12px; height: 100px;"></div>
-            <p style="font-weight: 800; text-transform: uppercase; margin: 0; font-size: 14px; color: #000;">${companyRep}</p>
-            <p style="margin: 4px 0; font-size: 12px; color: #666; font-style: italic;">Representante Legal</p>
-        </div>
-        <div style="text-align: center; width: 45%;">
-             <div style="border-bottom: 2px solid #000; margin-bottom: 12px; height: 100px;"></div>
-             <p style="font-weight: 800; text-transform: uppercase; margin: 0; font-size: 14px; color: #000;">${complexRep}</p>
-             <p style="margin: 4px 0; font-size: 12px; color: #666; font-style: italic;">EL CLIENTE</p>
-        </div>
-    </div>
   `;
 
   // Full Contract Template for Viewing Completed (Full Legal Framework)
   const content = `
-    <div style="font-family: 'Times New Roman', serif; line-height: 1.5; color: #000; padding: 60px 50px; background: #fff; width: 800px; margin: 0 auto; box-sizing: border-box;">
+    <div style="font-family: 'Times New Roman', Times, serif; font-size: 9pt; line-height: 1.6; color: #000; padding: 60px 40px; background: #fff; width: 800px; margin: 0 auto; box-sizing: border-box;">
       
       <!-- ELEGANT HEADER -->
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 40px; border-bottom: 3px solid #d4af37; padding-bottom: 20px;">
-        <div style="width: 160px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; border-bottom: 2px solid #d4af37; padding-bottom: 15px;">
+        <div style="width: 140px;">
           <img src="assets/img/logo.png" alt="Logo" style="max-width: 100%; height: auto;">
         </div>
-        <div style="text-align: right;">
-          <h2 style="margin: 0; color: #d4af37; font-size: 24px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;">SEGURIDAD 24-7</h2>
-          <p style="margin: 4px 0 0; font-size: 10px; color: #444; font-family: 'Helvetica', sans-serif; text-transform: uppercase; letter-spacing: 2px; font-weight: 600;">Vigilancia Virtual de Alta Gama</p>
+        <div style="text-align: right; font-family: 'Times New Roman', Times, serif;">
+          <h2 style="margin: 0; color: #d4af37; font-size: 18pt; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">SEGURIDAD 24-7</h2>
+          <p style="margin: 3px 0 0; font-size: 9pt; color: #333; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;">Vigilancia Virtual de Alta Gama</p>
+          <p style="margin: 2px 0 0; font-size: 8pt; color: #666;">RUC: ${companyRuc}</p>
         </div>
       </div>
 
-      <h3 style="text-align: center; font-weight: 900; margin-bottom: 40px; color: #000; text-transform: uppercase; font-size: 17px; letter-spacing: 0.5px; line-height: 1.4;">
+      <h3 style="text-align: center; font-family: 'Times New Roman', Times, serif; font-weight: 700; margin-bottom: 30px; color: #000; text-transform: uppercase; font-size: 11pt; letter-spacing: 0.5px; line-height: 1.4;">
         CONTRATO DE PRESTACIÓN DE SERVICIOS DE SEGURIDAD PRIVADA Y<br>VIGILANCIA CON GUARDIAS VIRTUALES
       </h3>
 
-      <div style="text-align: justify; font-size: 14px; color: #000;">
+      <div style="text-align: justify; font-size: 9pt; color: #000;">
         <p style="margin-bottom: 18px;">
           En la ciudad de San Francisco de Quito, a los <strong>${signDateText}</strong>, comparecen, a celebrar el presente contrato mercantil de prestación de servicios de seguridad privada, por una parte <strong>${complexRep}</strong> en calidad de representante legal de <strong>${complexName}</strong> con RUC <strong>${complexRuc}</strong> a quien para los efectos del presente contrato se lo denominará también <strong>El Cliente</strong>; y, por otra parte, comparecen a la suscripción de este contrato el señor <strong>${companyRep}</strong>, en calidad de representante legal de <strong>SEGURIDAD 24-7 DEL ECUADOR CIA. LTDA.</strong>, con RUC <strong>${companyRuc}</strong> a quien para los efectos del presente contrato se lo podrá denominar <strong>la Compañía de Seguridad</strong>.
         </p>
@@ -2255,7 +2348,13 @@ function mostrarContratoCompleto(data) {
         <div style="margin-bottom: 18px;">
           <p style="margin-bottom: 5px;"><strong>PRIMERA.- ANTECEDENTES:</strong></p>
           <p>
-            El Beneficiario requiere contratar los servicios de seguridad privada, resguardo y protección virtual, mediante el monitoreo al sistema de cámaras, perifoneo en tiempo real las 24 horas de lunes a domingo, desde el <strong>${startDateText}</strong> para custodiar <strong>${complexName}</strong> ubicado en la provincia de Pichincha, cantón <strong>${canton}</strong>, dirección: <strong>${address}</strong>, a fin de cuidarlo y protegerlo.
+            El Beneficiario requiere contratar los servicios de seguridad privada, resguardo y protección virtual, mediante el monitoreo al sistema de cámaras, perifoneo en tiempo real las 24 horas de lunes a domingo, desde el <strong>${startDateText}</strong> para custodiar <strong>${complexName}</strong> ubicado en la provincia de Pichincha, cantón <strong>${canton}</strong>, dirección: <strong>${address}</strong>, a fin de cuidarlo y protegerlo, conforme a las normas de seguridad privada y a las indicaciones proporcionadas por el Beneficiario, quien ha creído conveniente a sus intereses contratar este servicio.
+          </p>
+          <p style="margin-top: 8px;">
+            El Beneficiario solicita personal capacitado y calificado tanto en los procedimientos de vigilancia y control, como el manejo de equipos de comunicación, equipos de emergencia y otros que la función lo requiera.
+          </p>
+          <p style="margin-top: 8px;">
+            <strong>${companyName}</strong>, es una compañía legalmente constituida, cuyas oficinas se encuentran ubicadas en la calle Pedro Cando N59-116 y Antonio Macata (SECTOR LA KENNEDY) de la ciudad de San Francisco de Quito, dedicada de forma habitual y por cuenta propia, a prestar los servicios de prevención del delito, vigilancia y seguridad a favor de personas naturales y jurídicas, instalaciones y bienes, deposito, custodia y transporte de valores y otras conexas en el área de seguridad privada.
           </p>
         </div>
 
@@ -2263,53 +2362,62 @@ function mostrarContratoCompleto(data) {
         <div style="margin-bottom: 18px;">
           <p style="margin-bottom: 5px;"><strong>SEGUNDA. - CONTRATACIÓN DEL SERVICIO DE SEGURIDAD:</strong></p>
           <p>
-            Teniendo como base los antecedentes enunciados, El Cliente contrata resguardo y protección privada virtual. En caso de emergencia, la compañía coordinará con ECU 911 y desplazará personal motorizado propio en un tiempo promedio de 20 minutos.
+            Teniendo como base los antecedentes enunciados, El Cliente contrata resguardo y protección privada virtual, mediante el monitoreo al sistema de cámaras, perifoneo las 24 horas de lunes a domingo, adicional la empresa en caso de emergencia como intentos de robo, asalto, hurto, etc., la compañía coordinará con ECU 911, auxilio inmediato, además que personal motorizado propio de la compañía acudirá en auxilio, en un tiempo promedio de 20 minutos, para socorrer ante el incidente presentado con el fin de proteger, custodiar y brindar máxima seguridad interna y externa al lugar indicado. La Compañía de Seguridad se compromete a colocar la infraestructura necesaria que garantice: Alerta de identificación de movimiento/detección de personas en horas de poco tránsito para que, La Compañía de Seguridad alerte de forma temprana e identifique posibles riesgos. Para corroborar el cumplimiento de este, se anexará (Anexo 1) a este contrato un informe de los componentes instalados, Adicional, El Cliente podrá solicitar un nuevo informe del cumplimiento de cobertura de los vídeos cuando lo considere necesario. Si estos equipos presentan fallas y deben ser reparados o reposicionados, este costo lo asumirá la Compañía de Seguridad. La Compañía de Seguridad brindará el servicio de rondas a través de un motorizado o camioneta que visitará el Domicilio una vez al día en un horario aleatorio. Este se encargará de analizar de forma visual el exterior de la institución revisando riesgos potenciales, equipos instalados visibles y otros datos que La Compañía de Seguridad considere importante.
           </p>
         </div>
 
         <!-- CLAUSE 3 -->
         <div style="margin-bottom: 18px; background: #fdfbf5; padding: 20px; border-left: 5px solid #d4af37;">
-          <p style="margin: 0;"><strong>TERCERA. - PRECIO:</strong> El valor por el servicio de seguridad es por la cantidad de <span style="font-size: 18px; font-weight: 900; color: #d4af37;">$${price} USD</span> (+ IVA), cancelados los primeros 5 días del mes.</p>
+          <p style="margin: 0;"><strong>TERCERA. - PRECIO:</strong> El valor por el servicio de seguridad es por la cantidad de <span style="font-size: 18px; font-weight: 900; color: #d4af37;">$${price} USD</span> (+ IVA), mismos que serán cancelados los 5 primeros días del mes. El retiro del valor mensual a pagar será efectuado por un delegado oficial del personal administrativo debidamente autorizado de SEGURIDAD 24/7.</p>
         </div>
 
         <!-- CLAUSE 4 -->
         <div style="margin-bottom: 18px;">
-          <p style="margin-bottom: 5px;"><strong>CUARTA. - PLAZO:</strong> El plazo de duración do el presente contrato es por <strong>${duration} meses</strong>, renovable automáticamente si no existe aviso previo de 30 días.</p>
+          <p style="margin-bottom: 5px;"><strong>CUARTA. - PLAZO:</strong> El plazo de duración del presente contrato es por  <strong>${duration} meses</strong>, tomando como fecha inicial la fecha de inicio de la prestación del servicio de guardia virtual, con treinta días de anticipación las partes se notificarán la continuidad o no del mismo, en caso de la no notificación de las partes se entenderá que el contrato se ha renovado de manera automática.</p>
         </div>
 
         <!-- CLAUSE 5 -->
         <div style="margin-bottom: 18px;">
-          <p style="margin-bottom: 5px;"><strong>QUINTA. - CONDICIONES ESPECIALES:</strong> La empresa de seguridad., conjuntamente con el Supervisor de Seguridad controlarán coordinadamente la función de los Guardias Virtuales.</p>
+          <p style="margin-bottom: 5px;"><strong>QUINTA. - CONDICIONES ESPECIALES:</strong> La empresa de seguridad., conjuntamente con el Supervisor de Seguridad controlarán coordinadamente la función de los Guardias Virtuales. En caso de cualquier anomalía El Cliente notificará de inmediato cualquier actividad fuera de lo normal, en forma verbal-telefónica o por escrito a la oficina de la compañía a fin de proceder a los correctivos efectivos y eficaces que el caso lo amerite.</p>
         </div>
 
         <!-- CLAUSE 6 -->
         <div style="margin-bottom: 18px;">
-            <p style="margin-bottom: 5px;"><strong>SEXTA. - RESPONSABILIDAD DE LA EMPRESA DE SEGURIDAD:</strong> La compañía se responsabiliza a disponer de una pantalla exclusiva para el monitoreo institucional y dar recomendaciones preventivas.</p>
+            <p style="margin-bottom: 5px;"><strong>SEXTA. - RESPONSABILIDAD DE LA EMPRESA DE SEGURIDAD:</strong> La compañía de seguridad se responsabiliza a disponer de una pantalla exclusiva para el sistema de cámaras en su central de monitoreo y demás dispositivos de seguridad que el conjunto dispone, para que se monitoree en todo tiempo las actividades diarias que se presenten. La empresa de Seguridad, además, dará las recomendaciones de seguridad necesarias al beneficiario para que se tome las medidas preventivas contra el delito a fin de evitar actos ilícitos provenientes del exterior o interior del sitio protegido.</p>
         </div>
 
         <!-- CLAUSE 7 -->
         <div style="margin-bottom: 18px;">
-            <p style="margin-bottom: 5px;"><strong>SEPTIMO. - SERVICIO ADICIONAL:</strong> SEGURIDAD 24/7 posee una póliza de responsabilidad civil de $100.000,00 USD contratada con la aseguradora Zúrich.</p>
+            <p style="margin-bottom: 5px;"><strong>SEPTIMO. - SERVICIO ADICIONAL:</strong> SEGURIDAD 24/7., posee una póliza de responsabilidad civil de $100.000,00 USD (Cien mil dólares de los Estados Unidos de América) contratada con la aseguradora Zúrich, la cual podrá ser utilizada siguiendo los trámites pertinentes que exige la empresa Aseguradora expedidora de dicha póliza. Adicional la Compañía estará dispuesta a atender cualquier requerimiento, sea este de requerimiento de personal de guardia, o de medios que necesitare El Cliente en alguna circunstancia, debiéndose reconocer sus costos como adicionales al presente contrato.</p>
         </div>
 
         <!-- CLAUSE 8 -->
         <div style="margin-bottom: 18px;">
-            <p style="margin-bottom: 5px;"><strong>OCTAVA. - PARTES DEL CONTRATO:</strong> Nombramientos, copias de cédulas, oferta y Anexo 1 forman parte este contrato.</p>
+          <p style="margin-bottom: 5px; font-size: 10pt;">
+            <strong>OCTAVA. - PARTES DEL CONTRATO:</strong>
+            Forman parte de este contrato, por su orden:
+          </p>
+          <ol style="margin-top: 5px; padding-left: 18px; font-size: 10pt;">
+            <li>Nombramientos de los Representantes Legales de las partes intervinientes en el contrato.</li>
+            <li>Copias de las cédulas y papeletas de votación.</li>
+            <li>La oferta y sus complementos.</li>
+            <li>Anexo 1, con detalles de los equipos colocados por la empresa de seguridad en calidad de préstamo.</li>
+          </ol>
         </div>
 
         <!-- CLAUSE 9 -->
         <div style="margin-bottom: 18px;">
-            <p style="margin-bottom: 5px;"><strong>NOVENA. - FORMA DE PAGO:</strong> Pago dentro de los 5 primeros días. El incumplimiento causará la suspensión del servicio.</p>
+            <p style="margin-bottom: 5px;"><strong>NOVENA. - FORMA DE PAGO:</strong> El pago se lo realizará dentro de los 5 primeros días de cada mes, si no está al día en sus haberes El Cliente pierde todos sus derechos, en caso de que el pago no se realice por dos meses consecutivos, se procederá a suspender el servicio de guardia virtual sin aviso previo y se procederá a las acciones legales pertinentes. </p>
         </div>
 
         <!-- CLAUSE 10 -->
         <div style="margin-bottom: 18px;">
-            <p style="margin-bottom: 5px;"><strong>DECIMA. - TERMINACIÓN DEL CONTRATO:</strong> Terminación por violación de cláusulas o decisión unilateral con 30 días de aviso previo.</p>
+            <p style="margin-bottom: 5px;"><strong>DECIMA. - TERMINACIÓN DEL CONTRATO:</strong> Las partes contratantes tendrán derecho a dar por terminado el presente contrato, luego de haber cursado las comunicaciones escritas pertinentes, por la violación de cualquiera de las cláusulas de este convenio, o por decisión unilateral de alguna de ellas con por lo menos treinta días de anticipación. Por lo demás se obligan a todas y cada una de las cláusulas estipuladas en este contrato, las mismas que las aceptan y las declaran fielmente cumplir. En caso de terminar anticipadamente e intempestivamente el contrato sin justificación alguna dentro del primer año de contrato, se le pagará a la parte afectada la facturación mensual de dos meses en un tiempo no mayor de 15 días </p>
         </div>
 
         <!-- CLAUSE 11 -->
         <div style="margin-bottom: 18px;">
-            <p style="margin-bottom: 5px;"><strong>DECIMA PRIMERA. - JURISDICCIÓN Y COMPETENCIA:</strong> Sometimiento a mediación o a los jueces civiles del Distrito Metropolitano de Quito.</p>
+            <p style="margin-bottom: 5px;"><strong>DECIMA PRIMERA. - JURISDICCIÓN Y COMPETENCIA:</strong> Si se suscitaren divergencias o controversias entre las partes, y no llegaren a un acuerdo amigable directo, utilizarán en primera instancia los métodos alternativos para la solución de conflictos en un centro de Mediación y Arbitraje. Y si no existiera acuerdo, las partes deciden someterse a los jueces civiles del Distrito Metropolitano de Quito. Libre y voluntariamente, las partes expresamente declararan su aceptación a todo lo convenido en el presente contrato y se someten a sus estipulaciones</p>
         </div>
 
         <p style="margin-top: 40px; font-weight: 700; text-align: center; color: #111; padding-top: 20px; border-top: 1px solid #eee;">
@@ -2319,34 +2427,40 @@ function mostrarContratoCompleto(data) {
         ${firmaHTML}
 
         <!-- ANNEX PAGE -->
-        <div style="page-break-before: always; border-top: 2px dashed #d4af37; margin-top: 50px; padding-top: 50px;">
-          <div style="text-align: center; margin-bottom: 30px;">
-            <h4 style="font-weight: 900; color: #d4af37; text-transform: uppercase; font-size: 16px; letter-spacing: 1px;">ANEXO 1: EQUIPAMIENTO INSTALADO</h4>
+        <div style="page-break-before: always; page-break-inside: avoid; border-top: 2px dashed #d4af37; margin-top: 20px; padding-top: 30px;">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <h4 style="font-weight: 700; color: #d4af37; text-transform: uppercase; font-family: 'Times New Roman', Times, serif; font-size: 11pt; letter-spacing: 1px; margin: 0;">ANEXO 1: EQUIPAMIENTO INSTALADO</h4>
           </div>
-          <div style="border: 2px solid #f1e6c9; padding: 30px; min-height: 250px; background: #fffcf5; border-radius: 10px; white-space: pre-line; font-family: 'Courier New', monospace; font-size: 13px; color: #222;">
+          <div style="border: 2px solid #f1e6c9; padding: 25px; min-height: 150px; background: #fffcf5; border-radius: 10px; white-space: pre-line; font-family: 'Times New Roman', Times, serif; font-size: 9pt; color: #000; margin-bottom: 30px;">
             ${annexDetails}
           </div>
-          <div style="display: flex; justify-content: space-between; margin-top: 40px;">
-               <div style="text-align: center; width: 45%;">
-                   <p style="font-size: 11px; font-weight: 600; margin-bottom: 30px; color: #888;">ENTREGA EQUIPOS</p>
-                   <p style="border-top: 2px solid #000; padding-top: 8px; font-weight: 900; font-size: 13px;">${companyRep}</p>
-               </div>
-               <div style="text-align: center; width: 45%;">
-                   <p style="font-size: 11px; font-weight: 600; margin-bottom: 30px; color: #888;">RECIBE CONFORME</p>
-                   <p style="border-top: 2px solid #000; padding-top: 8px; font-weight: 900; font-size: 13px;">${complexRep}</p>
-               </div>
+          <div style="display: flex; justify-content: space-between; font-family: 'Times New Roman', Times, serif;">
+              <div style="text-align: center; width: 45%;">
+                  <p style="font-size: 8pt; font-weight: 600; margin-bottom: 10px; color: #666; text-transform: uppercase;">ENTREGA EQUIPOS</p>
+                  <div style="margin-bottom: 5px; display: flex; justify-content: center; align-items: flex-end; height: 60px; margin-top: 40px;">
+                      ${companySigImg}
+                  </div>
+                  <p style="border-top: 2px solid #000; padding-top: 5px; font-weight: 700; font-size: 9pt; margin: 0;">${companyRep}</p>
+              </div>
+              <div style="text-align: center; width: 45%;">
+                  <p style="font-size: 8pt; font-weight: 600; margin-bottom: 10px; color: #666; text-transform: uppercase;">RECIBE CONFORME</p>
+                  <div style="margin-bottom: 5px; display: flex; justify-content: center; align-items: flex-end; height: 60px; margin-top: 40px;">
+                      ${clientSigImg}
+                  </div>
+                  <p style="border-top: 2px solid #000; padding-top: 5px; font-weight: 700; font-size: 9pt; margin: 0;">${complexRep}</p>
+              </div>
           </div>
         </div>
 
         ${
           data.clientIdPhoto
             ? `
-          <div style="margin-top: 50px; text-align: center; page-break-before: always;">
-            <div style="border-bottom: 3px solid #d4af37; padding-bottom: 10px; margin-bottom: 25px;">
-                <h4 style="font-weight: 900; color: #000; text-transform: uppercase; font-size: 16px;">EVIDENCIA: CÉDULA DE IDENTIDAD / RUC</h4>
+          <div style="margin-top: 40px; text-align: center; page-break-before: always; page-break-inside: avoid; font-family: 'Times New Roman', Times, serif;">
+            <div style="border-bottom: 2px solid #d4af37; padding-bottom: 10px; margin-bottom: 20px;">
+                <h4 style="font-weight: 700; color: #000; text-transform: uppercase; font-size: 11pt;">EVIDENCIA: CÉDULA DE IDENTIDAD / RUC</h4>
             </div>
-            <div style="display: inline-block; padding: 10px; border: 1px solid #eee; background: #fff; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
-                <img src="${data.clientIdPhoto}" crossorigin="anonymous" alt="Cédula" style="max-width: 500px; width: 100%; height: auto; border-radius: 5px;">
+            <div style="display: inline-block; padding: 10px; border: 1px solid #eee; background: #fff; border-radius: 4px;">
+                <img src="${data.clientIdPhoto}" crossorigin="anonymous" alt="Cédula" style="max-width: 400px; width: 100%; height: auto;">
             </div>
           </div>
           `
