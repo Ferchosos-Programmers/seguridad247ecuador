@@ -36,29 +36,32 @@ function initNavigation() {
     link.addEventListener("click", (e) => {
       e.preventDefault();
       const targetView = link.getAttribute("data-view");
-
-      // Update Active Link
-      sidebarLinks.forEach((l) => l.classList.remove("active"));
-      link.classList.add("active");
-
-      // Update View
-      Object.keys(views).forEach((v) => {
-        if (views[v])
-          views[v].style.display = v === targetView ? "block" : "none";
-      });
-
-      window.currentView = targetView;
-
-      // Trigger specific view updates
-      if (targetView === "dashboard") refreshDashboard();
-
-      // Close sidebar on mobile
-      const sidebar = document.getElementById("sidebar");
-      if (window.innerWidth <= 991 && sidebar.classList.contains("show")) {
-        sidebar.classList.remove("show");
-      }
+      switchView(targetView);
     });
   });
+
+  // Manejar el botón "Atrás"
+  window.addEventListener("popstate", (event) => {
+    if (event.state && event.state.view) {
+      switchView(event.state.view, true);
+    } else {
+      // BLOQUEO: Evitar que el usuario salga al presionar atrás en el dashboard
+      switchView("dashboard", true);
+      history.pushState({ view: "dashboard" }, "", "#dashboard");
+    }
+  });
+
+  // Vista inicial desde Hash
+  const initialHash = window.location.hash.replace("#", "");
+  if (initialHash && views[initialHash]) {
+    history.replaceState({ view: initialHash }, "", window.location.href);
+    history.pushState({ view: initialHash }, "", window.location.href);
+    setTimeout(() => switchView(initialHash, true), 100);
+  } else {
+    history.replaceState({ view: "dashboard" }, "", window.location.href);
+    history.pushState({ view: "dashboard" }, "", "#dashboard");
+    setTimeout(() => switchView("dashboard", true), 100);
+  }
 
   const mobileToggle = document.getElementById("mobileSidebarToggle");
   if (mobileToggle) {
@@ -79,6 +82,50 @@ function initNavigation() {
   document
     .getElementById("logoutBtnMobile")
     ?.addEventListener("click", logoutHandler);
+}
+
+function switchView(targetView, isPopState = false) {
+  const sidebarLinks = document.querySelectorAll(".sidebar-link[data-view]");
+  const views = {
+    dashboard: document.getElementById("dashboardSection"),
+    products: document.getElementById("productsSection"),
+    proformas: document.getElementById("proformasSection"),
+  };
+
+  if (!isPopState) {
+    const url = new URL(window.location.href);
+    url.hash = targetView;
+    history.pushState({ view: targetView }, "", url.href);
+  }
+
+  // Update Active Link
+  sidebarLinks.forEach((l) => {
+    if (l.getAttribute("data-view") === targetView) {
+      l.classList.add("active");
+    } else {
+      l.classList.remove("active");
+    }
+  });
+
+  // Update View
+  Object.keys(views).forEach((v) => {
+    if (views[v]) views[v].style.display = v === targetView ? "block" : "none";
+  });
+
+  window.currentView = targetView;
+
+  // Trigger specific view updates
+  if (targetView === "dashboard") refreshDashboard();
+
+  // Close sidebar on mobile
+  const sidebar = document.getElementById("sidebar");
+  if (
+    window.innerWidth <= 991 &&
+    sidebar &&
+    sidebar.classList.contains("show")
+  ) {
+    sidebar.classList.remove("show");
+  }
 }
 
 // =========================================
@@ -269,7 +316,7 @@ window.addItemRow = (data = null) => {
                         <label class="premium-label">PRODUCTO / SERVICIO</label>
                         <select class="form-select premium-input product-selector" id="select_${rowId}" required style="width: 100%">
                             <option value="">Seleccione...</option>
-                            ${window.allProducts.map((p) => `<option value="${p.id}" data-price="${p.price}" data-image="${p.imageUrl || ''}" ${data && data.productId === p.id ? "selected" : ""}>${p.name}</option>`).join("")}
+                            ${window.allProducts.map((p) => `<option value="${p.id}" data-price="${p.price}" data-image="${p.imageUrl || ""}" ${data && data.productId === p.id ? "selected" : ""}>${p.name}</option>`).join("")}
                             <option value="custom" ${data && !data.productId ? "selected" : ""}>-- OTRO / PERSONALIZADO --</option>
                         </select>
                         <input type="text" class="form-control premium-input mt-2 custom-name" style="display: ${data && !data.productId ? "block" : "none"}" placeholder="Nombre personalizado" value="${data ? data.name : ""}">
@@ -298,32 +345,35 @@ window.addItemRow = (data = null) => {
   // Función para renderizar el item con imagen
   function formatProduct(item) {
     if (!item.id || item.id === "custom") return item.text;
-    const imgUrl = $(item.element).data('image');
+    const imgUrl = $(item.element).data("image");
     if (!imgUrl) return item.text;
-    
+
     return $(
       `<span class="d-flex align-items-center">
         <img src="${imgUrl}" style="width: 32px; height: 32px; object-fit: contain; border-radius: 4px; margin-right: 12px; background: #fff; padding: 2px; border: 1px solid #d4af37;" />
         <span>${item.text}</span>
-      </span>`
+      </span>`,
     );
   }
 
   // Inicializar Select2 para esta nueva fila con ancho completo e imágenes
-  $(`#select_${rowId}`).select2({
-    placeholder: "Seleccione un producto...",
-    allowClear: true,
-    width: '100%',
-    dropdownParent: $("#proformaModal"),
-    templateResult: formatProduct,
-    templateSelection: formatProduct
-  }).on('select2:open', function() {
-    // Forzar que el desplegable no flote arriba en móviles
-    const $container = $('.select2-container--open');
-    $container.css('z-index', '9999');
-  }).on('change', function() {
-    onProductSelect(this);
-  });
+  $(`#select_${rowId}`)
+    .select2({
+      placeholder: "Seleccione un producto...",
+      allowClear: true,
+      width: "100%",
+      dropdownParent: $("#proformaModal"),
+      templateResult: formatProduct,
+      templateSelection: formatProduct,
+    })
+    .on("select2:open", function () {
+      // Forzar que el desplegable no flote arriba en móviles
+      const $container = $(".select2-container--open");
+      $container.css("z-index", "9999");
+    })
+    .on("change", function () {
+      onProductSelect(this);
+    });
 
   if (data) {
     onProductSelect($(`#select_${rowId}`)[0]);
@@ -342,31 +392,31 @@ window.onProductSelect = (select) => {
   const val = $select.val();
 
   if (!val) {
-    if(imgPreview) imgPreview.style.display = "none";
-    if(previewIcon) previewIcon.style.display = "block";
+    if (imgPreview) imgPreview.style.display = "none";
+    if (previewIcon) previewIcon.style.display = "block";
     return;
   }
 
   if (val === "custom") {
     customInput.style.display = "block";
     priceInput.value = "0.00";
-    if(imgPreview) imgPreview.style.display = "none";
-    if(previewIcon) previewIcon.style.display = "block";
+    if (imgPreview) imgPreview.style.display = "none";
+    if (previewIcon) previewIcon.style.display = "block";
   } else {
     customInput.style.display = "none";
-    const $option = $select.find('option:selected');
+    const $option = $select.find("option:selected");
     const price = $option.attr("data-price");
     const imgUrl = $option.attr("data-image");
 
     priceInput.value = price || "0.00";
-    
+
     if (imgUrl && imgPreview) {
-        imgPreview.src = imgUrl;
-        imgPreview.style.display = "block";
-        if(previewIcon) previewIcon.style.display = "none";
+      imgPreview.src = imgUrl;
+      imgPreview.style.display = "block";
+      if (previewIcon) previewIcon.style.display = "none";
     } else {
-        if(imgPreview) imgPreview.style.display = "none";
-        if(previewIcon) previewIcon.style.display = "block";
+      if (imgPreview) imgPreview.style.display = "none";
+      if (previewIcon) previewIcon.style.display = "block";
     }
   }
   updateProformaTotals();
@@ -414,15 +464,22 @@ document
         : row.querySelector(".custom-name").value.toUpperCase();
       const qty = parseFloat(row.querySelector(".item-qty").value);
       const price = parseFloat(row.querySelector(".item-price").value);
-      
+
       // Obtener imagen directamente de window.allProducts para mayor fiabilidad
       let imageUrl = "";
       if (productId) {
-        const prod = window.allProducts.find(p => p.id === productId);
+        const prod = window.allProducts.find((p) => p.id === productId);
         imageUrl = prod ? prod.imageUrl : "";
       }
 
-      items.push({ productId, name, qty, price, subtotal: qty * price, image: imageUrl });
+      items.push({
+        productId,
+        name,
+        qty,
+        price,
+        subtotal: qty * price,
+        image: imageUrl,
+      });
     });
 
     if (items.length === 0) {
@@ -645,7 +702,7 @@ window.viewProforma = (id) => {
                 <div class="prof-detail-box">
                     <h6 style="color: #b8922b; font-size: 0.6rem; text-transform: uppercase; font-weight: 800; letter-spacing: 1.2px; margin-bottom: 6px;">PREPARADO PARA:</h6>
                     <p style="font-size: 1.1rem; font-weight: 800; color: #000; margin-bottom: 2px;">${p.clientName}</p>
-                    <p style="font-size: 0.8rem; color: #777;">${p.clientPhone || 'Cliente Distinguido'}</p>
+                    <p style="font-size: 0.8rem; color: #777;">${p.clientPhone || "Cliente Distinguido"}</p>
                 </div>
                 <div class="prof-detail-box text-md-end">
                     <h6 style="color: #b8922b; font-size: 0.6rem; text-transform: uppercase; font-weight: 800; letter-spacing: 1.2px; margin-bottom: 6px;">INFORMACIÓN ADICIONAL:</h6>
@@ -672,7 +729,7 @@ window.viewProforma = (id) => {
                                 <td style="padding: 15px 12px; border-bottom: 1px solid #eee; font-weight: 700; color: #000;">${item.qty}</td>
                                 <td style="padding: 15px 12px; border-bottom: 1px solid #eee;">
                                     <div class="d-flex align-items-center">
-                                        ${item.image ? `<img src="${item.image}" crossorigin="anonymous" style="width: 45px; height: 45px; object-fit: contain; border: 1px solid #eee; border-radius: 6px; margin-right: 15px; background: #fff; padding: 3px;">` : ''}
+                                        ${item.image ? `<img src="${item.image}" crossorigin="anonymous" style="width: 45px; height: 45px; object-fit: contain; border: 1px solid #eee; border-radius: 6px; margin-right: 15px; background: #fff; padding: 3px;">` : ""}
                                         <div>
                                             <div style="font-weight: 700; color: #000; font-size: 1rem;">${item.name}</div>
                                             <div style="font-size: 0.75rem; color: #777;">Tecnología de Seguridad Premium 24/7</div>
@@ -742,155 +799,155 @@ window.viewProforma = (id) => {
 // DOWNLOAD PDF (FIXED LAYOUT)
 // =========================================
 window.downloadProformaPDF = async () => {
-    // Usar el área de impresión fija (no la de previsualización)
-    const element = document.getElementById("proformaPrintArea");
-    const p = window.currentViewingProforma;
+  // Usar el área de impresión fija (no la de previsualización)
+  const element = document.getElementById("proformaPrintArea");
+  const p = window.currentViewingProforma;
 
-    if (!p) return;
+  if (!p) return;
 
-    Swal.fire({
-        title: "Generando Documento...",
-        text: "Creando PDF de alta calidad",
-        timerProgressBar: true,
-        didOpen: () => Swal.showLoading()
+  Swal.fire({
+    title: "Generando Documento...",
+    text: "Creando PDF de alta calidad",
+    timerProgressBar: true,
+    didOpen: () => Swal.showLoading(),
+  });
+
+  try {
+    const { jsPDF } = window.jspdf;
+
+    // Optimizar captura con html2canvas
+    const canvas = await html2canvas(element, {
+      scale: 3, // Mayor escala para nitidez premium
+      useCORS: true,
+      logging: false,
+      backgroundColor: "#ffffff",
+      windowWidth: 800, // Forzar ancho de escritorio para la captura
     });
 
-    try {
-        const { jsPDF } = window.jspdf;
-        
-        // Optimizar captura con html2canvas
-        const canvas = await html2canvas(element, {
-            scale: 3, // Mayor escala para nitidez premium
-            useCORS: true,
-            logging: false,
-            backgroundColor: "#ffffff",
-            windowWidth: 800 // Forzar ancho de escritorio para la captura
-        });
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
 
-        const imgData = canvas.toDataURL("image/png");
-        const pdf = new jsPDF("p", "mm", "a4");
-        
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-        // Añadir imagen al PDF
-        pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
-        
-        // Guardar
-        pdf.save(`PROFORMA_${p.clientName.replace(/\s+/g, "_").toUpperCase()}_${p.id.substring(0, 6)}.pdf`);
+    // Añadir imagen al PDF
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight, undefined, "FAST");
 
-        Swal.fire({
-            icon: "success",
-            title: "¡Éxito!",
-            text: "La proforma se ha generado correctamente.",
-            confirmButtonColor: "#d4af37"
-        });
+    // Guardar
+    pdf.save(
+      `PROFORMA_${p.clientName.replace(/\s+/g, "_").toUpperCase()}_${p.id.substring(0, 6)}.pdf`,
+    );
 
-    } catch (error) {
-        console.error("PDF Export Error:", error);
-        Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "No se pudo generar el PDF. Reintente.",
-            confirmButtonColor: "#d4af37"
-        });
-    }
+    Swal.fire({
+      icon: "success",
+      title: "¡Éxito!",
+      text: "La proforma se ha generado correctamente.",
+      confirmButtonColor: "#d4af37",
+    });
+  } catch (error) {
+    console.error("PDF Export Error:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "No se pudo generar el PDF. Reintente.",
+      confirmButtonColor: "#d4af37",
+    });
+  }
 };
 
 // =========================================
 // ENVIAR POR WHATSAPP
 // =========================================
 window.sendProformaWhatsApp = async () => {
-    const p = window.currentViewingProforma;
-    if (!p) return;
+  const p = window.currentViewingProforma;
+  if (!p) return;
 
-    const phone = p.clientPhone;
-    if (!phone) {
-        Swal.fire({
-            icon: "warning",
-            title: "Atención",
-            text: "Esta proforma no tiene un número de teléfono asignado.",
-            confirmButtonColor: "#d4af37"
-        });
-        return;
-    }
-
+  const phone = p.clientPhone;
+  if (!phone) {
     Swal.fire({
-        title: "Preparando envío...",
-        text: "Generando PDF para WhatsApp",
-        didOpen: () => Swal.showLoading()
+      icon: "warning",
+      title: "Atención",
+      text: "Esta proforma no tiene un número de teléfono asignado.",
+      confirmButtonColor: "#d4af37",
+    });
+    return;
+  }
+
+  Swal.fire({
+    title: "Preparando envío...",
+    text: "Generando PDF para WhatsApp",
+    didOpen: () => Swal.showLoading(),
+  });
+
+  try {
+    const element = document.getElementById("proformaPrintArea");
+    const { jsPDF } = window.jspdf;
+
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: "#ffffff",
+      windowWidth: 800,
     });
 
-    try {
-        const element = document.getElementById("proformaPrintArea");
-        const { jsPDF } = window.jspdf;
-        
-        const canvas = await html2canvas(element, {
-            scale: 2,
-            useCORS: true,
-            logging: false,
-            backgroundColor: "#ffffff",
-            windowWidth: 800
-        });
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-        const imgData = canvas.toDataURL("image/png");
-        const pdf = new jsPDF("p", "mm", "a4");
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-        
-        pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
-        const pdfBlob = pdf.output("blob");
-        const fileName = `PROFORMA_${p.clientName.replace(/\s+/g, "_").toUpperCase()}.pdf`;
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight, undefined, "FAST");
+    const pdfBlob = pdf.output("blob");
+    const fileName = `PROFORMA_${p.clientName.replace(/\s+/g, "_").toUpperCase()}.pdf`;
 
-        // Limpiar teléfono
-        let cleanPhone = phone.replace(/\D/g, "");
-        if (cleanPhone.length === 9 || cleanPhone.length === 10) {
-            if (cleanPhone.startsWith("0")) cleanPhone = cleanPhone.substring(1);
-            if (!cleanPhone.startsWith("593")) cleanPhone = "593" + cleanPhone;
-        }
-
-        const messageText = `*SEGURIDAD 24/7 ECUADOR*\n\nEstimado *${p.clientName}*, adjuntamos su *Proforma Digital* de seguridad de alta gama.\n\n_Quedamos a su disposición._`;
-
-        // MÉTODO A: Web Share API (Móviles)
-        const file = new File([pdfBlob], fileName, { type: "application/pdf" });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            try {
-                await navigator.share({
-                    files: [file],
-                    title: "Proforma Digital",
-                    text: messageText
-                });
-                Swal.close();
-                return;
-            } catch (e) {
-                console.log("Share cancelado/fallido, usando fallback.");
-            }
-        }
-
-        // MÉTODO B: Descarga + WhatsApp (Desktop/Fallback)
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(pdfBlob);
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        setTimeout(() => {
-            const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(messageText)}`;
-            window.open(waUrl, "_blank");
-            
-            Swal.fire({
-                icon: "success",
-                title: "¡Listo para enviar!",
-                html: `La proforma se ha descargado.<br><br><b>Adjúntela manualmente</b> en el chat que se acaba de abrir.`,
-                confirmButtonColor: "#25D366"
-            });
-        }, 1000);
-
-    } catch (error) {
-        console.error("Error en WhatsApp:", error);
-        Swal.fire("Error", "No se pudo procesar el envío por WhatsApp.", "error");
+    // Limpiar teléfono
+    let cleanPhone = phone.replace(/\D/g, "");
+    if (cleanPhone.length === 9 || cleanPhone.length === 10) {
+      if (cleanPhone.startsWith("0")) cleanPhone = cleanPhone.substring(1);
+      if (!cleanPhone.startsWith("593")) cleanPhone = "593" + cleanPhone;
     }
+
+    const messageText = `*SEGURIDAD 24/7 ECUADOR*\n\nEstimado *${p.clientName}*, adjuntamos su *Proforma Digital* de seguridad de alta gama.\n\n_Quedamos a su disposición._`;
+
+    // MÉTODO A: Web Share API (Móviles)
+    const file = new File([pdfBlob], fileName, { type: "application/pdf" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          files: [file],
+          title: "Proforma Digital",
+          text: messageText,
+        });
+        Swal.close();
+        return;
+      } catch (e) {
+        console.log("Share cancelado/fallido, usando fallback.");
+      }
+    }
+
+    // MÉTODO B: Descarga + WhatsApp (Desktop/Fallback)
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(pdfBlob);
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    setTimeout(() => {
+      const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(messageText)}`;
+      window.open(waUrl, "_blank");
+
+      Swal.fire({
+        icon: "success",
+        title: "¡Listo para enviar!",
+        html: `La proforma se ha descargado.<br><br><b>Adjúntela manualmente</b> en el chat que se acaba de abrir.`,
+        confirmButtonColor: "#25D366",
+      });
+    }, 1000);
+  } catch (error) {
+    console.error("Error en WhatsApp:", error);
+    Swal.fire("Error", "No se pudo procesar el envío por WhatsApp.", "error");
+  }
 };
 function initEventListeners() {
   // Proformas search

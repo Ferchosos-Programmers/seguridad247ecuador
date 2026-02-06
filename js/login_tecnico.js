@@ -329,26 +329,45 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
         const view = link.getAttribute("data-view");
 
-        // Actualizar links activos
-        sidebarLinks.forEach((l) => l.classList.remove("active"));
-        link.classList.add("active");
-
-        // Cerrar sidebar en mobile tras click
-        if (sidebar && sidebar.classList.contains("show")) {
-          sidebar.classList.remove("show");
-        }
-
         switchView(view);
       });
     });
+
+    // Manejar el botón "Atrás" del navegador
+    window.addEventListener("popstate", (event) => {
+      if (event.state && event.state.view) {
+        switchView(event.state.view, true);
+      } else {
+        // BLOQUEO: Evitar que el usuario salga al presionar atrás en el dashboard
+        switchView("dashboard", true);
+        history.pushState({ view: "dashboard" }, "", "#dashboard");
+      }
+    });
+
+    // Detectar vista inicial desde el hash
+    const initialHash = window.location.hash.replace("#", "");
+    const validViews = [
+      "dashboard",
+      "jobs",
+      "contracts",
+      "guides",
+      "tutorials",
+      "passwords",
+    ];
+    if (initialHash && validViews.includes(initialHash)) {
+      history.replaceState({ view: initialHash }, "", window.location.href);
+      history.pushState({ view: initialHash }, "", window.location.href);
+      setTimeout(() => switchView(initialHash, true), 100);
+    } else {
+      history.replaceState({ view: "dashboard" }, "", window.location.href);
+      history.pushState({ view: "dashboard" }, "", "#dashboard");
+      setTimeout(() => switchView("dashboard", true), 100);
+    }
 
     // Contenedores
     const dashboardSection = document.getElementById("dashboardSection");
     const jobsSection = document.getElementById("jobsSection");
     const contractsSection = document.getElementById("contractsSection");
-
-    // Inicializar vista (Dashboard)
-    switchView("dashboard");
 
     // Click listeners for dashboard cards
     const cardTrabajosPendientes = document.getElementById(
@@ -402,31 +421,31 @@ document.addEventListener("DOMContentLoaded", () => {
     if (passwordSearchInput)
       passwordSearchInput.addEventListener("input", applyFilters);
 
-    function switchView(view) {
+    function switchView(view, isPopState = false) {
+      // Registrar en el historial si no es un popstate y no es la carga inicial
+      if (!isPopState) {
+        const url = new URL(window.location.href);
+        url.hash = view;
+        history.pushState({ view: view }, "", url.href);
+      }
+
+      // Actualizar links activos
+      const sidebarLinks = document.querySelectorAll(".sidebar-link");
+      sidebarLinks.forEach((l) => {
+        if (l.getAttribute("data-view") === view) {
+          l.classList.add("active");
+        } else {
+          l.classList.remove("active");
+        }
+      });
+
+      // Cerrar sidebar en mobile tras click
+      const sidebar = document.getElementById("sidebar");
+      if (sidebar && sidebar.classList.contains("show")) {
+        sidebar.classList.remove("show");
+      }
+
       // Ocultar todo
-      dashboardSection.style.display = "none";
-      const jobsSection = document.getElementById("jobsSection");
-      const contractsSection = document.getElementById("contractsSection");
-      const guidesSection = document.getElementById("guidesSection");
-      const tutorialsSection = document.getElementById("tutorialsSection");
-      const passwordsSection = document.getElementById("passwordsSection");
-
-      if (
-        !dashboardSection ||
-        !jobsSection ||
-        !contractsSection ||
-        !guidesSection ||
-        !tutorialsSection ||
-        !passwordsSection
-      )
-        return;
-
-      dashboardSection.style.display = "none";
-      jobsSection.style.display = "none";
-      contractsSection.style.display = "none";
-      guidesSection.style.display = "none";
-      tutorialsSection.style.display = "none";
-      passwordsSection.style.display = "none";
 
       if (view === "dashboard") {
         dashboardSection.style.display = "block";

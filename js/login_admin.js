@@ -83,8 +83,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const urgencyFilter = document.getElementById("urgencyFilter");
     const nameFilter = document.getElementById("nameFilter");
 
-    function updateView(viewValue) {
+    function updateView(viewValue, isPopState = false) {
       window.currentView = viewValue;
+
+      // Actualizar el historial del navegador si no es un evento de retroceso
+      if (!isPopState) {
+        const url = new URL(window.location.href);
+        url.hash = viewValue;
+        history.pushState({ view: viewValue }, "", url.href);
+      }
 
       // Actualizar estado activo en el sidebar
       sidebarLinks.forEach((link) => {
@@ -180,6 +187,42 @@ document.addEventListener("DOMContentLoaded", () => {
         const sidebar = document.getElementById("sidebar");
         sidebar.classList.toggle("show");
       });
+    }
+
+    // Manejar el botón "Atrás" del navegador
+    window.addEventListener("popstate", (event) => {
+      if (event.state && event.state.view) {
+        updateView(event.state.view, true);
+      } else {
+        // BLOQUEO: Si intentan retroceder más allá del inicio (Dashboard), los mantenemos aquí
+        updateView("todos", true);
+        history.pushState({ view: "todos" }, "", "#todos");
+      }
+    });
+
+    // Detectar vista inicial desde el hash de la URL
+    const initialHash = window.location.hash.replace("#", "");
+    const validViews = [
+      "todos",
+      "complexes",
+      "finished",
+      "contracts",
+      "payments",
+      "users-management",
+    ];
+
+    if (initialHash && validViews.includes(initialHash)) {
+      // Registrar estado inicial y añadir un buffer para bloquear el retroceso
+      const url = new URL(window.location.href);
+      url.hash = initialHash;
+      history.replaceState({ view: initialHash }, "", url.href);
+      history.pushState({ view: initialHash }, "", url.href);
+      updateView(initialHash, true);
+    } else {
+      // Registrar Dashboard por defecto con buffer
+      history.replaceState({ view: "todos" }, "", window.location.href);
+      history.pushState({ view: "todos" }, "", "#todos");
+      updateView("todos", true);
     }
 
     // Event listener para redimensionar gráficos

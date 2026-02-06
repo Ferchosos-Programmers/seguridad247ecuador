@@ -1192,6 +1192,69 @@
         });
 
         // Sidebar Navigation
+        function switchView(view, isPopState = false) {
+          if (!isPopState) {
+            const url = new URL(window.location.href);
+            url.hash = view;
+            history.pushState({ view: view }, "", url.href);
+          }
+
+          sidebarLinks.forEach((l) => {
+            if (l.getAttribute("data-view") === view) {
+              l.classList.add("active");
+            } else {
+              l.classList.remove("active");
+            }
+          });
+
+          // Hide all sections
+          sections.forEach((s) => {
+            const el = document.getElementById(s);
+            if (el) el.style.display = "none";
+          });
+
+          // Dynamic Title Logic
+          const dynamicTitle = document.getElementById("dynamicSectionTitle");
+          if (dynamicTitle) dynamicTitle.style.display = "none";
+
+          const target = document.getElementById(view + "Section");
+          if (target) target.style.display = "block";
+
+          // Cargas específicas por vista
+          if (view === "passwords") {
+            if (dynamicTitle) {
+              dynamicTitle.textContent = "Claves Técnicas";
+              dynamicTitle.style.display = "block";
+            }
+            if (!window.passwordsLoaded) cargarClavesTecnicas();
+            else renderClavesTecnicas(window.allPasswords);
+          }
+
+          if (view === "jobs") {
+            if (dynamicTitle) {
+              dynamicTitle.textContent = "Gestión de Trabajos";
+              dynamicTitle.style.display = "block";
+            }
+            window.currentJobStatusFilter = "Pendiente";
+            const pendingCard = document.getElementById("filterPendingJobs");
+            const finishedCard = document.getElementById("filterFinishedJobs");
+            if (pendingCard) pendingCard.classList.add("active");
+            if (finishedCard) finishedCard.classList.remove("active");
+            cargarTrabajos();
+          }
+
+          if (view === "complexes") {
+            if (dynamicTitle) {
+              dynamicTitle.textContent = "Listado de Conjuntos";
+              dynamicTitle.style.display = "block";
+            }
+          }
+
+          const sidebar = document.getElementById("sidebar");
+          if (window.innerWidth <= 991 && sidebar)
+            sidebar.classList.remove("show");
+        }
+
         const sidebarLinks = document.querySelectorAll(".sidebar-link");
         const sections = [
           "dashboardSection",
@@ -1203,60 +1266,32 @@
         sidebarLinks.forEach((link) => {
           link.addEventListener("click", (e) => {
             const view = link.getAttribute("data-view");
-            sidebarLinks.forEach((l) => l.classList.remove("active"));
-            link.classList.add("active");
-
-            // Hide all sections
-            sections.forEach((s) => {
-              const el = document.getElementById(s);
-              if (el) el.style.display = "none";
-            });
-
-            // Dynamic Title Logic
-            const dynamicTitle = document.getElementById("dynamicSectionTitle");
-            if (dynamicTitle) dynamicTitle.style.display = "none";
-
-            const target = document.getElementById(view + "Section");
-            if (target) target.style.display = "block";
-
-            // Si es la vista de claves, cargar datos
-            if (view === "passwords") {
-              if (dynamicTitle) {
-                dynamicTitle.textContent = "Claves Técnicas";
-                dynamicTitle.style.display = "block";
-              }
-              if (!window.passwordsLoaded) cargarClavesTecnicas();
-              else renderClavesTecnicas(window.allPasswords);
-            }
-
-            if (view === "jobs") {
-              if (dynamicTitle) {
-                dynamicTitle.textContent = "Gestión de Trabajos";
-                dynamicTitle.style.display = "block";
-              }
-
-              // Reset Status Filter UI
-              window.currentJobStatusFilter = "Pendiente";
-              const pendingCard = document.getElementById("filterPendingJobs");
-              const finishedCard =
-                document.getElementById("filterFinishedJobs");
-              if (pendingCard) pendingCard.classList.add("active");
-              if (finishedCard) finishedCard.classList.remove("active");
-
-              cargarTrabajos();
-            }
-
-            if (view === "complexes") {
-              if (dynamicTitle) {
-                dynamicTitle.textContent = "Listado de Conjuntos";
-                dynamicTitle.style.display = "block";
-              }
-            }
-
-            const sidebar = document.getElementById("sidebar");
-            if (window.innerWidth <= 991) sidebar.classList.remove("show");
+            switchView(view);
           });
         });
+
+        // Manejar el botón "Atrás"
+        window.addEventListener("popstate", (event) => {
+          if (event.state && event.state.view) {
+            switchView(event.state.view, true);
+          } else {
+            // BLOQUEO: Evitar que el usuario salga al presionar atrás en el dashboard
+            switchView("dashboard", true);
+            history.pushState({ view: "dashboard" }, "", "#dashboard");
+          }
+        });
+
+        // Vista inicial desde Hash
+        const initialHash = window.location.hash.replace("#", "");
+        if (initialHash && sections.includes(initialHash + "Section")) {
+          history.replaceState({ view: initialHash }, "", window.location.href);
+          history.pushState({ view: initialHash }, "", window.location.href);
+          setTimeout(() => switchView(initialHash, true), 100);
+        } else {
+          history.replaceState({ view: "dashboard" }, "", window.location.href);
+          history.pushState({ view: "dashboard" }, "", "#dashboard");
+          setTimeout(() => switchView("dashboard", true), 100);
+        }
 
         // --- SELECT2 Y CARGA DE ADMINISTRADORES ---
         function formatAdminResult(admin) {
