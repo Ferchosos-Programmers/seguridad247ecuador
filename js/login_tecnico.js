@@ -43,6 +43,101 @@ const resizeImage = (file, maxWidth = 800, quality = 0.7) => {
   });
 };
 
+// =========================================
+// UTILITIES FOR DATES AND IMAGES
+// =========================================
+function formatDateES(dateString) {
+  if (!dateString) return "______";
+  try {
+    // Manejar Timestamp de Firestore si aplica
+    if (dateString.toDate) dateString = dateString.toDate();
+
+    const date = new Date(dateString);
+    if (typeof dateString === "string" && dateString.includes("-")) {
+      const [y, m, d] = dateString.split("-");
+      const months = [
+        "enero",
+        "febrero",
+        "marzo",
+        "abril",
+        "mayo",
+        "junio",
+        "julio",
+        "agosto",
+        "septiembre",
+        "octubre",
+        "noviembre",
+        "diciembre",
+      ];
+      return `${d} de ${months[parseInt(m) - 1]} del ${y}`;
+    }
+
+    const options = { year: "numeric", month: "long", day: "numeric" };
+    return date.toLocaleDateString("es-ES", options);
+  } catch (e) {
+    return "______";
+  }
+}
+
+async function urlToBase64(url, maxWidth = 600) {
+  try {
+    const response = await fetch(url, { method: "GET", mode: "cors" });
+    const blob = await response.blob();
+
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          let width = img.width;
+          let height = img.height;
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedBase64 = canvas.toDataURL("image/jpeg", 0.7);
+          resolve(compressedBase64);
+        };
+        img.onerror = reject;
+        img.src = reader.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch (error) {
+    console.warn("Error converting image to base64:", error);
+    return null;
+  }
+}
+
+async function compressBase64Image(base64String, maxWidth = 600) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      let width = img.width;
+      let height = img.height;
+      if (width > maxWidth) {
+        height = (height * maxWidth) / width;
+        width = maxWidth;
+      }
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
+      const compressedBase64 = canvas.toDataURL("image/jpeg", 0.7);
+      resolve(compressedBase64);
+    };
+    img.onerror = reject;
+    img.src = base64String;
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("techLoginForm");
 
@@ -1846,10 +1941,26 @@ function configurarModalContrato() {
         ctx.lineWidth = 2;
         ctx.lineCap = "round";
         ctx.lineJoin = "round";
-        document.getElementById("clientIdPhoto").value = "";
+
+        const idPhotoInput = document.getElementById("clientIdPhoto");
+        if (idPhotoInput) idPhotoInput.value = "";
+
+        const idPhotoPreview = document.getElementById("idPhotoPreviewImg");
         if (idPhotoPreview) {
+          idPhotoPreview.src = "";
           idPhotoPreview.style.display = "none";
         }
+
+        const idPhotoPlaceholder =
+          document.getElementById("idPhotoPlaceholder");
+        if (idPhotoPlaceholder) {
+          idPhotoPlaceholder.style.display = "block";
+          idPhotoPlaceholder.classList.remove("d-none");
+        }
+
+        const removeIdPhotoBtn = document.getElementById("removeIdPhotoBtn");
+        if (removeIdPhotoBtn) removeIdPhotoBtn.style.display = "none";
+
         document.getElementById("contractIdToFill").value = "";
 
         cargarContratosTecnicos(); // Recargar contratos
@@ -1896,11 +2007,25 @@ async function llenarContrato(contractId) {
       // Resetear variable hasSignature cuando se abre el modal para llenar
       canvas.hasSignature = false;
     }
-    document.getElementById("clientIdPhoto").value = "";
-    const preview = document.getElementById("idPhotoPreview");
+
+    // Resetear input y preview de foto
+    const idPhotoInput = document.getElementById("clientIdPhoto");
+    if (idPhotoInput) idPhotoInput.value = "";
+
+    const preview = document.getElementById("idPhotoPreviewImg");
     if (preview) {
+      preview.src = "";
       preview.style.display = "none";
     }
+
+    const placeholder = document.getElementById("idPhotoPlaceholder");
+    if (placeholder) {
+      placeholder.style.display = "block";
+      placeholder.classList.remove("d-none");
+    }
+
+    const removeBtn = document.getElementById("removeIdPhotoBtn");
+    if (removeBtn) removeBtn.style.display = "none";
 
     // Mostrar sección de llenar contrato
     const fillSection = document.getElementById("fillContractSection");
@@ -1931,43 +2056,7 @@ async function llenarContrato(contractId) {
   }
 }
 
-const formatDateES = (dateString) => {
-  if (!dateString) return "______";
-  try {
-    // Handle Firestore Timestamp
-    if (dateString && typeof dateString.toDate === "function") {
-      dateString = dateString.toDate();
-    }
-
-    const date = new Date(dateString);
-    if (typeof dateString === "string" && dateString.includes("-")) {
-      const parts = dateString.split("T")[0].split("-");
-      if (parts.length === 3) {
-        const [y, m, d] = parts;
-        const months = [
-          "enero",
-          "febrero",
-          "marzo",
-          "abril",
-          "mayo",
-          "junio",
-          "julio",
-          "agosto",
-          "septiembre",
-          "octubre",
-          "noviembre",
-          "diciembre",
-        ];
-        return `${parseInt(d)} de ${months[parseInt(m) - 1]} del ${y}`;
-      }
-    }
-
-    const options = { year: "numeric", month: "long", day: "numeric" };
-    return date.toLocaleDateString("es-ES", options);
-  } catch (e) {
-    return "______";
-  }
-};
+// La función formatDateES ahora está definida al inicio del archivo
 
 // =======================================================
 // 📄 MOSTRAR CONTRATO PARA LLENAR
@@ -2166,6 +2255,9 @@ function mostrarContratoParaLlenar(data) {
 // =======================================================
 // 👁️ VER CONTRATO COMPLETO
 // =======================================================
+// Las utilidades urlToBase64 y compressBase64Image ahora están al inicio del archivo
+
+// Generar y mostrar el contrato con firma y cédula
 async function verContratoCompleto(contractId) {
   try {
     const doc = await db.collection("contracts").doc(contractId).get();
@@ -2175,6 +2267,35 @@ async function verContratoCompleto(contractId) {
     }
 
     const data = doc.data();
+
+    // Convert and compress Client ID Photo to ensure it renders in PDF
+    if (data.clientIdPhoto) {
+      if (data.clientIdPhoto.startsWith("http")) {
+        console.log(
+          "Converting ID photo from URL to Base64 and compressing...",
+        );
+        const base64 = await urlToBase64(data.clientIdPhoto);
+        if (base64) {
+          console.log(
+            "ID photo converted and compressed. Length:",
+            base64.length,
+          );
+          data.clientIdPhoto = base64;
+        }
+      } else if (data.clientIdPhoto.startsWith("data:image")) {
+        console.log(
+          "Compressing existing Base64 ID photo. Original length:",
+          data.clientIdPhoto.length,
+        );
+        try {
+          const compressed = await compressBase64Image(data.clientIdPhoto);
+          data.clientIdPhoto = compressed;
+          console.log("ID photo compressed. New length:", compressed.length);
+        } catch (error) {
+          console.error("Failed to compress Base64 image:", error);
+        }
+      }
+    }
 
     // Guardar ID del contrato (aunque no lo usaremos para editar)
     document.getElementById("contractIdToFill").value = contractId;
@@ -2229,22 +2350,90 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         const { jsPDF } = window.jspdf;
 
-        // Wait briefly for images/signatures to load
-        await new Promise((resolve) => setTimeout(resolve, 800));
+        // Process all images to ensure they render correctly in PDF
+        const images = content.querySelectorAll("img");
+        console.log(`Processing ${images.length} images for PDF generation...`);
 
+        images.forEach((img, index) => {
+          // Remove any crossorigin attributes that might cause issues
+          img.removeAttribute("crossorigin");
+
+          // Log image details for debugging
+          const isBase64 = img.src && img.src.startsWith("data:");
+          const isPdfImage = img.hasAttribute("data-pdf-image");
+          console.log(
+            `Image ${index + 1}: Base64=${isBase64}, PDF-Image=${isPdfImage}, Length=${img.src ? img.src.length : 0}`,
+          );
+
+          // For non-base64 images, try to set crossOrigin
+          if (img.src && !isBase64) {
+            img.crossOrigin = "anonymous";
+          }
+        });
+
+        // Preload all images to ensure they're ready
+        const imagePromises = Array.from(images).map((img, index) => {
+          return new Promise((resolve) => {
+            if (img.complete && img.naturalHeight !== 0) {
+              console.log(`Image ${index + 1} already loaded`);
+              resolve();
+            } else {
+              console.log(`Waiting for image ${index + 1} to load...`);
+              img.onload = () => {
+                console.log(`Image ${index + 1} loaded successfully`);
+                resolve();
+              };
+              img.onerror = (err) => {
+                console.error(`Image ${index + 1} failed to load:`, err);
+                resolve(); // Continue even if image fails
+              };
+
+              // Force reload if src is already set
+              if (img.src) {
+                const currentSrc = img.src;
+                img.src = "";
+                img.src = currentSrc;
+              }
+            }
+          });
+        });
+
+        await Promise.all(imagePromises);
+        console.log(
+          "All images processed, waiting additional time for rendering...",
+        );
+
+        // Additional wait to ensure rendering
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
+        console.log("Starting PDF generation...");
         const doc = new jsPDF("p", "pt", "a4");
         await doc.html(content, {
           callback: function (doc) {
+            console.log("PDF generated successfully!");
             doc.save(`Contrato_Firmado.pdf`);
             Swal.close();
           },
-          x: 30, // Left margin (30)
-          y: 20, // Top margin (Reduced to 20)
-          margin: [40, 0, 60, 0], // [Top, Right, Bottom, Left]
+          x: 30,
+          y: 20,
+          margin: [40, 0, 60, 0],
           html2canvas: {
-            scale: 0.58, // Adjusted scale to fit 800px content into ~465pt available width
+            scale: 0.58,
             useCORS: true,
+            allowTaint: false,
             letterRendering: true,
+            logging: true,
+            imageTimeout: 15000,
+            backgroundColor: "#ffffff",
+            onclone: function (clonedDoc) {
+              const clonedImages = clonedDoc.querySelectorAll("img");
+              clonedImages.forEach((img) => {
+                // Si es base64, no necesitamos crossorigin
+                if (img.src && img.src.startsWith("data:")) {
+                  img.removeAttribute("crossorigin");
+                }
+              });
+            },
           },
           width: 465,
           windowWidth: 800,
@@ -2317,7 +2506,7 @@ function mostrarContratoCompleto(data) {
 
   // Full Contract Template for Viewing Completed (Full Legal Framework)
   const content = `
-    <div style="font-family: 'Times New Roman', Times, serif; font-size: 9pt; line-height: 1.6; color: #000; padding: 60px 40px; background: #fff; width: 800px; margin: 0 auto; box-sizing: border-box;">
+    <div style="font-family: 'Times New Roman', Times, serif; font-size: 9pt; line-height: 1.6; color: #000; padding: 60px 40px 20px 40px; background: #fff; width: 800px; margin: 0 auto; box-sizing: border-box;">
       
       <!-- ELEGANT HEADER -->
       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; border-bottom: 2px solid #d4af37; padding-bottom: 15px;">
@@ -2425,9 +2614,12 @@ function mostrarContratoCompleto(data) {
         </p>
 
         ${firmaHTML}
+ 
+        <!-- PAGE BREAK FOR ANNEX -->
+        <div style="page-break-before: always; break-before: page; height: 1px; visibility: hidden;"></div>
 
         <!-- ANNEX PAGE -->
-        <div style="page-break-before: always; page-break-inside: avoid; border-top: 2px dashed #d4af37; margin-top: 20px; padding-top: 30px;">
+        <div style="clear: both; padding-top: 20px; border-top: 1px dashed #d4af37;">
           <div style="text-align: center; margin-bottom: 20px;">
             <h4 style="font-weight: 700; color: #d4af37; text-transform: uppercase; font-family: 'Times New Roman', Times, serif; font-size: 11pt; letter-spacing: 1px; margin: 0;">ANEXO 1: EQUIPAMIENTO INSTALADO</h4>
           </div>
@@ -2451,25 +2643,21 @@ function mostrarContratoCompleto(data) {
               </div>
           </div>
         </div>
+ 
+        <!-- PAGE BREAK FOR EVIDENCE -->
+        <div style="page-break-before: always; break-before: page; height: 1px; visibility: hidden;"></div>
 
-        ${
-          data.clientIdPhoto
-            ? `
-          <div style="margin-top: 40px; text-align: center; page-break-before: always; page-break-inside: avoid; font-family: 'Times New Roman', Times, serif;">
-            <div style="border-bottom: 2px solid #d4af37; padding-bottom: 10px; margin-bottom: 20px;">
-                <h4 style="font-weight: 700; color: #000; text-transform: uppercase; font-size: 11pt;">EVIDENCIA: CÉDULA DE IDENTIDAD / RUC</h4>
+        <!-- IDENTITY DOCUMENT EVIDENCE PAGE -->
+        <div style="clear: both; padding-top: 50px; text-align: center; font-family: 'Times New Roman', Times, serif;">
+            <div style="border-bottom: 2px solid #d4af37; padding-bottom: 15px; margin-bottom: 40px;">
+                <h4 style="font-weight: 700; color: #000; text-transform: uppercase; font-size: 12pt; letter-spacing: 1px;">EVIDENCIA: CÉDULA DE IDENTIDAD / RUC</h4>
             </div>
-            <div style="display: inline-block; padding: 10px; border: 1px solid #eee; background: #fff; border-radius: 4px;">
-                <img src="${data.clientIdPhoto}" crossorigin="anonymous" alt="Cédula" style="max-width: 400px; width: 100%; height: auto;">
+            <div style="display: block; margin: 0 auto; width: 410px; padding: 12px; border: 1px solid #eee; background: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                <img src="${data.clientIdPhoto}" alt="Cédula" crossorigin="anonymous" style="width: 380px; height: 210px; display: block; margin: 0 auto; object-fit: contain;" data-pdf-image="true">
             </div>
           </div>
-          `
-            : ""
-        }
-
       </div>
-    </div>
-  `;
+    </div>`;
 
   contractContentArea.innerHTML = content;
 }

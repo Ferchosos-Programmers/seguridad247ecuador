@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test PDF con Imagen</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background: #f0f0f0;
+      }
+      #content {
+        background: white;
+        padding: 40px;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      button {
+        background: #d4af37;
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 5px;
+        margin: 20px 0;
+      }
+      button:hover {
+        background: #b8941f;
+      }
+      .test-image {
+        max-width: 400px;
+        border: 2px solid #d4af37;
+        padding: 10px;
+        margin: 20px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Prueba de Generación de PDF con Imágenes</h1>
+
+    <button onclick="generatePDF()">Generar PDF</button>
+
+    <div id="content">
+      <h2>CONTRATO DE PRUEBA</h2>
+      <p>
+        Este es un documento de prueba para verificar que las imágenes se
+        renderizan correctamente en el PDF.
+      </p>
+
+      <h3>EVIDENCIA: CÉDULA DE IDENTIDAD</h3>
+      <div style="text-align: center">
+        <img id="testImage" class="test-image" alt="Imagen de prueba" />
+      </div>
+
+      <p>
+        Si la imagen aparece en el PDF generado, la solución funciona
+        correctamente.
+      </p>
+    </div>
+
+    <script>
+      // Crear una imagen Base64 de prueba (un cuadrado rojo simple)
+      function createTestImage() {
+        const canvas = document.createElement("canvas");
+        canvas.width = 400;
+        canvas.height = 300;
+        const ctx = canvas.getContext("2d");
+
+        // Fondo blanco
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, 400, 300);
+
+        // Rectángulo rojo
+        ctx.fillStyle = "#ff0000";
+        ctx.fillRect(50, 50, 300, 200);
+
+        // Texto
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 30px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText("IMAGEN DE PRUEBA", 200, 150);
+
+        return canvas.toDataURL("image/png");
+      }
+
+      // Cargar imagen de prueba al iniciar
+      document.getElementById("testImage").src = createTestImage();
+
+      async function generatePDF() {
+        const content = document.getElementById("content");
+        const { jsPDF } = window.jspdf;
+
+        console.log("Iniciando generación de PDF...");
+
+        // Obtener todas las imágenes
+        const images = content.querySelectorAll("img");
+        console.log(`Encontradas ${images.length} imágenes`);
+
+        // Remover crossorigin
+        images.forEach((img, index) => {
+          console.log(`Imagen ${index}:`, {
+            src: img.src.substring(0, 50) + "...",
+            complete: img.complete,
+            width: img.naturalWidth,
+            height: img.naturalHeight,
+          });
+          img.removeAttribute("crossorigin");
+        });
+
+        // Precargar imágenes
+        const imagePromises = Array.from(images).map((img, index) => {
+          return new Promise((resolve) => {
+            if (img.complete) {
+              console.log(`Imagen ${index} ya cargada`);
+              resolve();
+            } else {
+              console.log(`Esperando imagen ${index}...`);
+              img.onload = () => {
+                console.log(`Imagen ${index} cargada`);
+                resolve();
+              };
+              img.onerror = () => {
+                console.warn(`Imagen ${index} falló`);
+                resolve();
+              };
+            }
+          });
+        });
+
+        await Promise.all(imagePromises);
+        console.log("Todas las imágenes precargadas");
+
+        // Esperar un poco más
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        try {
+          const doc = new jsPDF("p", "pt", "a4");
+
+          await doc.html(content, {
+            callback: function (doc) {
+              doc.save("test_pdf_con_imagen.pdf");
+              console.log("PDF generado exitosamente");
+              alert("PDF generado! Verifica si la imagen aparece.");
+            },
+            x: 40,
+            y: 40,
+            html2canvas: {
+              scale: 0.7,
+              useCORS: true,
+              allowTaint: true,
+              letterRendering: true,
+              logging: true,
+              imageTimeout: 0,
+              backgroundColor: "#ffffff",
+            },
+            width: 515,
+            windowWidth: 800,
+          });
+        } catch (error) {
+          console.error("Error generando PDF:", error);
+          alert("Error: " + error.message);
+        }
+      }
+    </script>
+  </body>
+</html>
