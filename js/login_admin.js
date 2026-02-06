@@ -2290,8 +2290,8 @@ function renderContratos(contratosList) {
           <p><strong>Cédula/RUC:</strong> ${idNum}</p>
           <p><strong>Precio:</strong> $${priceVal} + IVA</p>
           <div class="d-flex gap-2 mt-3">
-            <button class="btn-view-report" onclick="verContrato('${data.id}')">
-              <i class="fa-solid fa-eye"></i> 
+            <button class="btn btn-success" onclick="compartirContratoWhatsApp('${data.id}')" style="background: #25d366; border: none; color: white;" title="Enviar por WhatsApp">
+              <i class="fa-brands fa-whatsapp"></i> 
             </button>
             ${
               isCompleted
@@ -2359,6 +2359,129 @@ function eliminarContrato(id) {
       cargarContratos();
     }
   });
+}
+
+// =========================================
+//  ENVIAR CONTRATO POR WHATSAPP
+// =========================================
+async function compartirContratoWhatsApp(id) {
+  try {
+    const docSnap = await db.collection("contracts").doc(id).get();
+    if (!docSnap.exists) {
+      Swal.fire("Error", "No se encontró el contrato.", "error");
+      return;
+    }
+    const data = docSnap.data();
+
+    Swal.fire({
+      title: "Preparando Contrato...",
+      text: "Generando PDF para enviar por WhatsApp...",
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading(),
+    });
+
+    // 1. Renderizar el contrato en el área de visualización (aunque esté oculto)
+    mostrarContrato(data);
+    const content = document.getElementById("contractContentArea");
+    if (!content) {
+      Swal.fire(
+        "Error",
+        "Error técnico: área de contenido no encontrada.",
+        "error",
+      );
+      return;
+    }
+
+    // 2. Procesar imágenes para asegurar que se incluyan en el PDF
+    const images = content.querySelectorAll("img");
+    const imagePromises = Array.from(images).map((img) => {
+      return new Promise((resolve) => {
+        if (img.complete && img.naturalHeight !== 0) {
+          resolve();
+        } else {
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
+          // Forzar recarga si es necesario
+          if (img.src) {
+            const currentSrc = img.src;
+            img.src = "";
+            img.src = currentSrc;
+          }
+        }
+      });
+    });
+
+    await Promise.all(imagePromises);
+    // Tiempo extra para que jsPDF/html2canvas procese el render
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    // 3. Generar el PDF
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF("p", "pt", "a4");
+
+    await doc.html(content, {
+      callback: async function (doc) {
+        const clientName = data.complexName || data.clientName || "Contrato";
+        const fileName = `Contrato_${clientName.replace(/\s+/g, "_")}.pdf`;
+
+        const pdfBlob = doc.output("blob");
+        const pdfFile = new File([pdfBlob], fileName, {
+          type: "application/pdf",
+        });
+
+        Swal.close();
+
+        // 4. Intentar compartir (Móvil) o descargar y abrir WhatsApp (Desktop)
+        if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+          try {
+            await navigator.share({
+              files: [pdfFile],
+              title: `Contrato ${clientName}`,
+              text: `Hola, adjunto el contrato de servicio de Seguridad 24/7 de ${clientName}.`,
+            });
+          } catch (shareErr) {
+            console.log("Compartido cancelado o fallido:", shareErr);
+            // Si falla el share o es cancelado, descargamos como respaldo
+            doc.save(fileName);
+          }
+        } else {
+          // Fallback para computadoras de escritorio
+          doc.save(fileName);
+          Swal.fire({
+            title: "PDF Generado con Éxito",
+            text: "El contrato se ha descargado. Puedes adjuntarlo manualmente en WhatsApp.",
+            icon: "success",
+            showCancelButton: true,
+            confirmButtonText:
+              '<i class="fa-brands fa-whatsapp"></i> Abrir WhatsApp',
+            cancelButtonText: "Cerrar",
+            confirmButtonColor: "#25D366",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              window.open("https://web.whatsapp.com/", "_blank");
+            }
+          });
+        }
+      },
+      x: 30,
+      y: 20,
+      margin: [40, 0, 20, 0],
+      html2canvas: {
+        scale: 0.58,
+        useCORS: true,
+        allowTaint: false,
+        letterRendering: true,
+        backgroundColor: "#ffffff",
+        imageTimeout: 15000,
+      },
+      width: 465,
+      windowWidth: 800,
+      autoPaging: "text",
+    });
+  } catch (error) {
+    console.error("Error al compartir contrato:", error);
+    Swal.fire("Error", "Ocurrió un error al procesar el contrato.", "error");
+  }
 }
 
 // =========================================
