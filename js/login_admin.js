@@ -991,7 +991,7 @@ function configurarFormularioContrato() {
           },
           x: 30,
           y: 20,
-          margin: [40, 0, 60, 0],
+          margin: [40, 0, 20, 0],
           html2canvas: {
             scale: 0.58,
             useCORS: true,
@@ -1349,48 +1349,48 @@ async function mostrarContrato(data) {
         </p>
 
         ${firmaHTML}
+      </div> <!-- Close Justified Text -->
  
-        <!-- PAGE BREAK FOR ANNEX -->
-        <div style="page-break-before: always; break-before: page; height: 1px; visibility: hidden;"></div>
+      <!-- SALTO PARA ANEXO -->
+      <div style="page-break-before: always; break-before: page; clear: both; height: 1px;"></div>
 
-        <!-- ANNEX PAGE -->
-        <div style="clear: both; padding-top: 10px; border-top: 1px dashed #d4af37;">
-            <div style="text-align: center; margin-bottom: 20px;">
-              <h4 style="font-weight: 700; color: #d4af37; text-transform: uppercase; font-family: 'Times New Roman', Times, serif; font-size: 11pt; letter-spacing: 1px; margin: 0;">ANEXO 1: EQUIPAMIENTO INSTALADO</h4>
-            </div>
-            <div style="border: 2px solid #f1e6c9; padding: 25px; min-height: 150px; background: #fffcf5; border-radius: 10px; white-space: pre-line; font-family: 'Times New Roman', Times, serif; font-size: 9pt; color: #000; margin-bottom: 30px;">
-              ${annexDetails}
-            </div>
-            <div style="display: flex; justify-content: space-between; font-family: 'Times New Roman', Times, serif;">
-                <div style="text-align: center; width: 45%;">
-                    <p style="font-size: 8pt; font-weight: 600; margin-bottom: 10px; color: #666; text-transform: uppercase;">ENTREGA EQUIPOS</p>
-                    <div style="margin-bottom: 5px; display: flex; justify-content: center; align-items: flex-end; height: 60px; margin-top: 40px;">
-                        ${companySigImg}
-                    </div>
-                    <p style="border-top: 2px solid #000; padding-top: 5px; font-weight: 700; font-size: 9pt; margin: 0;">${companyRep}</p>
-                </div>
-                <div style="text-align: center; width: 45%;">
-                    <p style="font-size: 8pt; font-weight: 600; margin-bottom: 10px; color: #666; text-transform: uppercase;">RECIBE CONFORME</p>
-                    <div style="margin-bottom: 5px; display: flex; justify-content: center; align-items: flex-end; height: 60px; margin-top: 40px;">
-                        ${clientSigImg}
-                    </div>
-                    <p style="border-top: 2px solid #000; padding-top: 5px; font-weight: 700; font-size: 9pt; margin: 0;">${complexRep}</p>
-                </div>
-            </div>
+      <!-- ANEXO PAGE -->
+      <div style="clear: both; padding-top: 10px; border-top: 1px dashed #d4af37;">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <h4 style="font-weight: 700; color: #d4af37; text-transform: uppercase; font-family: 'Times New Roman', Times, serif; font-size: 11pt; letter-spacing: 1px; margin: 0;">ANEXO 1: EQUIPAMIENTO INSTALADO</h4>
           </div>
-        </div>
+          <div style="border: 2px solid #f1e6c9; padding: 25px; min-height: 150px; background: #fffcf5; border-radius: 10px; white-space: pre-line; font-family: 'Times New Roman', Times, serif; font-size: 9pt; color: #000; margin-bottom: 30px;">
+            ${annexDetails}
+          </div>
+          <div style="display: flex; justify-content: space-between; font-family: 'Times New Roman', Times, serif;">
+              <div style="text-align: center; width: 45%;">
+                  <p style="font-size: 8pt; font-weight: 600; margin-bottom: 10px; color: #666; text-transform: uppercase;">ENTREGA EQUIPOS</p>
+                  <div style="margin-bottom: 5px; display: flex; justify-content: center; align-items: flex-end; height: 60px; margin-top: 40px;">
+                      ${companySigImg}
+                  </div>
+                  <p style="border-top: 2px solid #000; padding-top: 5px; font-weight: 700; font-size: 9pt; margin: 0;">${companyRep}</p>
+              </div>
+              <div style="text-align: center; width: 45%;">
+                  <p style="font-size: 8pt; font-weight: 600; margin-bottom: 10px; color: #666; text-transform: uppercase;">RECIBE CONFORME</p>
+                  <div style="margin-bottom: 5px; display: flex; justify-content: center; align-items: flex-end; height: 60px; margin-top: 40px;">
+                      ${clientSigImg}
+                  </div>
+                  <p style="border-top: 2px solid #000; padding-top: 5px; font-weight: 700; font-size: 9pt; margin: 0;">${complexRep}</p>
+              </div>
+          </div>
+      </div>
  
-        <!-- PAGE BREAK FOR EVIDENCE -->
-        <div style="page-break-before: always; break-before: page; height: 1px; visibility: hidden;"></div>
+      <!-- SALTO PARA CEDULA -->
+      <div style="page-break-before: always; break-before: page; clear: both; height: 1px;"></div>
 
-        <!-- IDENTITY DOCUMENT EVIDENCE PAGE -->
-        <div style="clear: both; padding-top: 30px; text-align: center; font-family: 'Times New Roman', Times, serif;">
-            <div style="border-bottom: 2px solid #d4af37; padding-bottom: 15px; margin-bottom: 40px;">
-                <h4 style="font-weight: 700; color: #000; text-transform: uppercase; font-size: 12pt; letter-spacing: 1px;">EVIDENCIA: CÉDULA DE IDENTIDAD / RUC</h4>
-            </div>
-            <div style="display: block; margin: 0 auto; width: 410px; padding: 12px; border: 1px solid #eee; background: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-                <img src="${data.clientIdPhoto}" alt="Cédula" crossorigin="anonymous" style="width: 380px; height: 210px; display: block; margin: 0 auto; object-fit: contain;" data-pdf-image="true">
-            </div>
+      <!-- IDENTITY DOCUMENT EVIDENCE PAGE -->
+      <div style="padding-top: 20px; text-align: center; font-family: 'Times New Roman', Times, serif;">
+          <div style="border-bottom: 2px solid #d4af37; padding-bottom: 15px; margin-bottom: 40px;">
+              <h4 style="font-weight: 700; color: #000; text-transform: uppercase; font-size: 12pt; letter-spacing: 1px;">EVIDENCIA: CÉDULA DE IDENTIDAD / RUC</h4>
+          </div>
+          <div style="display: block; margin: 0 auto; width: 410px; padding: 12px; border: 1px solid #eee; background: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+              <img src="${data.clientIdPhoto}" alt="Cédula" crossorigin="anonymous" style="width: 380px; height: 250px; display: block; margin: 0 auto; object-fit: contain;" data-pdf-image="true">
+          </div>
       </div>
     </div>`;
 
