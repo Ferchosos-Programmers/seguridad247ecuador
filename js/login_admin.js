@@ -1814,42 +1814,58 @@ function configurarFormulario() {
 // ===========================
 // 📌 CARGAR TRABAJOS
 // ===========================
+// Variable global para almacenar la suscripción
+window.trabajosUnsubscribe = null;
+
 async function cargarTrabajos() {
   const container = document.getElementById("jobsContainer");
-  container.innerHTML = `<p style="color:white">Cargando trabajos...</p>`;
+  // Si ya estamos suscritos y el contenedor tiene contenido, no mostrar "Cargando..."
+  // para evitar parpadeos, solo actualizar cuando llegue data.
+  if (!window.trabajosUnsubscribe) {
+    container.innerHTML = `<p style="color:white">Cargando trabajos...</p>`;
+  }
+
+  // Si ya existe una suscripción activa, no crear otra (evitar duplicados)
+  if (window.trabajosUnsubscribe) return;
 
   try {
-    const query = await db
-      .collection("trabajos")
-      .orderBy("createdAt", "desc")
-      .get();
+    const query = db.collection("trabajos").orderBy("createdAt", "desc");
 
-    // Guardar en variable global para filtrar sin recargar
-    window.allTrabajos = [];
-    query.forEach((doc) => {
-      const data = doc.data();
-      if (!data.isGuide) {
-        window.allTrabajos.push({ id: doc.id, ...data });
-      }
-    });
+    // Usar onSnapshot en lugar de get() para tiempo real
+    window.trabajosUnsubscribe = query.onSnapshot(
+      (snapshot) => {
+        window.allTrabajos = [];
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          if (!data.isGuide) {
+            window.allTrabajos.push({ id: doc.id, ...data });
+          }
+        });
 
-    // Actualizar contadores de las cards de filtro
-    const pendingCount = window.allTrabajos.filter(
-      (j) => j.status !== "Culminado",
-    ).length;
-    const finishedCount = window.allTrabajos.filter(
-      (j) => j.status === "Culminado",
-    ).length;
+        // Actualizar contadores de las cards de filtro
+        const pendingCount = window.allTrabajos.filter(
+          (j) => j.status !== "Culminado",
+        ).length;
+        const finishedCount = window.allTrabajos.filter(
+          (j) => j.status === "Culminado",
+        ).length;
 
-    const countPendingEl = document.getElementById("countPendingJobs");
-    const countFinishedEl = document.getElementById("countFinishedJobs");
-    if (countPendingEl) countPendingEl.textContent = pendingCount;
-    if (countFinishedEl) countFinishedEl.textContent = finishedCount;
+        const countPendingEl = document.getElementById("countPendingJobs");
+        const countFinishedEl = document.getElementById("countFinishedJobs");
+        if (countPendingEl) countPendingEl.textContent = pendingCount;
+        if (countFinishedEl) countFinishedEl.textContent = finishedCount;
 
-    window.applyFilters();
+        // Aplicar filtros a la nueva data
+        window.applyFilters();
+      },
+      (error) => {
+        console.error("Error escuchando trabajos:", error);
+        container.innerHTML = `<p style="color:red">Error de conexión al cargar trabajos</p>`;
+      },
+    );
   } catch (error) {
-    console.error("Error cargando trabajos:", error);
-    container.innerHTML = `<p style="color:red">Error al cargar trabajos</p>`;
+    console.error("Error configurando listener de trabajos:", error);
+    container.innerHTML = `<p style="color:red">Error al iniciar carga de trabajos</p>`;
   }
 }
 
@@ -2313,28 +2329,43 @@ function activarEdicion() {
 // =========================================
 //  CARGAR CONTRATOS
 // =========================================
+// Variable global para suscripción de contratos
+window.contratosUnsubscribe = null;
+
 async function cargarContratos() {
   const container = document.getElementById("contractsContainer");
   if (!container) return;
 
-  container.innerHTML = `<p style="color:white">Cargando contratos...</p>`;
+  // Si ya estamos suscritos y hay contenido, no poner loading
+  if (!window.contratosUnsubscribe) {
+    container.innerHTML = `<p style="color:white">Cargando contratos...</p>`;
+  }
+
+  // Evitar múltiples suscripciones
+  if (window.contratosUnsubscribe) return;
 
   try {
-    const query = await db
-      .collection("contracts")
-      .orderBy("createdAt", "desc")
-      .get();
+    const query = db.collection("contracts").orderBy("createdAt", "desc");
 
-    // Guardar en variable global para filtrar
-    window.allContratos = [];
-    query.forEach((doc) => {
-      window.allContratos.push({ id: doc.id, ...doc.data() });
-    });
+    window.contratosUnsubscribe = query.onSnapshot(
+      (snapshot) => {
+        window.allContratos = [];
+        snapshot.forEach((doc) => {
+          window.allContratos.push({ id: doc.id, ...doc.data() });
+        });
 
-    renderContratos(window.allContratos);
+        // Aplicar filtros o renderizar todo
+        window.applyFilters();
+        // Nota: applyFilters llama a renderContratos si currentView es contracts/todos
+      },
+      (error) => {
+        console.error("Error escuchando contratos: ", error);
+        container.innerHTML = `<p style="color:red">Error de conexión al cargar contratos.</p>`;
+      },
+    );
   } catch (error) {
-    console.error("Error al cargar contratos: ", error);
-    container.innerHTML = `<p style="color:red">Error al cargar los contratos.</p>`;
+    console.error("Error al configurar listener contratos: ", error);
+    container.innerHTML = `<p style="color:red">Error al iniciar carga de contratos.</p>`;
   }
 }
 

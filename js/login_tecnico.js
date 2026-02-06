@@ -1072,32 +1072,54 @@ document.addEventListener("DOMContentLoaded", () => {
 // =======================================================
 // 🛠️ CARGAR TRABAJOS PARA TÉCNICOS
 // =======================================================
+// Variable global para suscripción de trabajos en técnico
+window.trabajosTecnicosUnsubscribe = null;
+
 async function cargarTrabajosTecnicos() {
   const container = document.getElementById("jobsContainer");
   if (!container) return;
 
-  container.innerHTML = `<p style="color:white">Cargando trabajos...</p>`;
-  window.trabajosLoaded = true; // Marcar como cargando/cargado
+  // Si ya estamos suscritos, no mostrar loading (evita parpadeos)
+  if (!window.trabajosTecnicosUnsubscribe) {
+    container.innerHTML = `<p style="color:white">Cargando trabajos...</p>`;
+  }
+
+  window.trabajosLoaded = true; // Flag de carga
+
+  // Evitar múltiples listeners
+  if (window.trabajosTecnicosUnsubscribe) return;
 
   try {
-    const query = await db
-      .collection("trabajos")
-      .orderBy("createdAt", "desc")
-      .get();
+    const query = db.collection("trabajos").orderBy("createdAt", "desc");
 
-    window.allTrabajos = [];
-    query.forEach((doc) => {
-      const data = doc.data();
-      if (!data.isGuide && !data.isTutorial) {
-        window.allTrabajos.push({ id: doc.id, ...data });
-      }
-    });
+    window.trabajosTecnicosUnsubscribe = query.onSnapshot(
+      (snapshot) => {
+        window.allTrabajos = [];
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          if (!data.isGuide && !data.isTutorial) {
+            window.allTrabajos.push({ id: doc.id, ...data });
+          }
+        });
 
-    renderTrabajosTecnicos(window.allTrabajos);
+        // Renderizar con datos actualizados
+        renderTrabajosTecnicos(window.allTrabajos);
+
+        // Si hay un filtro activo, reaplicarlo
+        if (window.currentJobStatusFilter) {
+          window.setStatusFilter(window.currentJobStatusFilter);
+        }
+      },
+      (error) => {
+        console.error("Error escuchando trabajos técnicos: ", error);
+        container.innerHTML = `<p style="color:red">Error de conexión al cargar los trabajos.</p>`;
+        window.trabajosLoaded = false;
+      },
+    );
   } catch (error) {
-    console.error("Error al cargar trabajos: ", error);
-    container.innerHTML = `<p style="color:red">Error al cargar los trabajos.</p>`;
-    window.trabajosLoaded = false; // Revertir en caso de error para permitir reintento
+    console.error("Error validando listener trabajos técnicos: ", error);
+    container.innerHTML = `<p style="color:red">Error al iniciar carga de trabajos.</p>`;
+    window.trabajosLoaded = false;
   }
 }
 
