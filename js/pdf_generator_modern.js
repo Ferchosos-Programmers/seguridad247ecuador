@@ -26,16 +26,17 @@ function generateModernPDF(asBlob = false) {
     // Data Sources
     const reportInitial = document.getElementById("reportInitial")?.value || "";
     const reportFinal = document.getElementById("reportFinal")?.value || "";
-    const reportTextLegacy = document.getElementById("reportText")?.innerText || "";
-    
+    const reportTextLegacy =
+      document.getElementById("reportText")?.innerText || "";
+
     // Fallback if structured data is empty (legacy or admin view)
     let initialText = reportInitial;
     let finalText = reportFinal;
 
     // Only use legacy text if structured ones are empty (to handle admin view parsing if needed)
-    // Actually, reportInitial/reportFinal are hidden inputs or textareas in some views. 
+    // Actually, reportInitial/reportFinal are hidden inputs or textareas in some views.
     // In admin view, we might need to rely on parsed 'reportText' if fields aren't separated.
-    // BUT user asked for Admin view to show them too. 
+    // BUT user asked for Admin view to show them too.
     // For now, assume fields exist or are populated.
 
     // Images
@@ -55,7 +56,12 @@ function generateModernPDF(asBlob = false) {
     // Helper to add image to load queue
     const queueImage = (imgElement) => {
       // Check if src is valid (data URL or http URL)
-      if (imgElement && imgElement.src && (imgElement.src.startsWith("data:") || imgElement.src.startsWith("http"))) {
+      if (
+        imgElement &&
+        imgElement.src &&
+        (imgElement.src.startsWith("data:") ||
+          imgElement.src.startsWith("http"))
+      ) {
         totalImagesToLoad++;
         const img = new Image();
         img.crossOrigin = "Anonymous"; // Important for external URLs
@@ -82,15 +88,15 @@ function generateModernPDF(asBlob = false) {
     logo.onerror = checkImages;
     seal.onload = checkImages;
     seal.onerror = checkImages;
-    
+
     // If no images to load, triggering checkImages might be needed if total is 2
     if (totalImagesToLoad === 2 && logo.complete && seal.complete) {
-        buildPDF(resolve);
+      buildPDF(resolve);
     }
 
-    imagesToProcess.forEach(img => {
-        img.onload = checkImages;
-        img.onerror = checkImages;
+    imagesToProcess.forEach((img) => {
+      img.onload = checkImages;
+      img.onerror = checkImages;
     });
 
     function buildPDF(resolve) {
@@ -106,7 +112,14 @@ function generateModernPDF(asBlob = false) {
 
       try {
         const logoSize = 60;
-        doc.addImage(logo, "PNG", (pageWidth - logoSize) / 2, 50, logoSize, logoSize);
+        doc.addImage(
+          logo,
+          "PNG",
+          (pageWidth - logoSize) / 2,
+          50,
+          logoSize,
+          logoSize,
+        );
       } catch (e) {}
 
       doc.setFont("helvetica", "bold");
@@ -136,8 +149,10 @@ function generateModernPDF(asBlob = false) {
       doc.setFillColor("#2a2a2a");
       doc.roundedRect(margin + 10, 210, contentWidth - 20, 60, 5, 5, "F");
 
-      const clientName = document.getElementById("reportClientName")?.innerText || "Cliente Final";
-      
+      const clientName =
+        document.getElementById("reportClientName")?.innerText ||
+        "Cliente Final";
+
       doc.setFont("helvetica", "bold");
       doc.setFontSize(11);
       doc.setTextColor(gold);
@@ -151,103 +166,122 @@ function generateModernPDF(asBlob = false) {
       doc.text("FECHA:", margin + 20, 250);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(white);
-      const today = new Date().toLocaleDateString("es-ES", { year: "numeric", month: "long", day: "numeric" });
+      const today = new Date().toLocaleDateString("es-ES", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
       doc.text(today, margin + 20, 260);
 
       doc.setFont("helvetica", "italic");
       doc.setFontSize(9);
       doc.setTextColor("#888888");
-      doc.text("Documento generado automáticamente", pageWidth / 2, pageHeight - 20, { align: "center" });
+      doc.text(
+        "Documento generado automáticamente",
+        pageWidth / 2,
+        pageHeight - 20,
+        { align: "center" },
+      );
 
       // Helper for Sections
       let y = 55;
-      
+
       const checkPageBreak = (heightNeeded) => {
         if (y + heightNeeded > pageHeight - 40) {
-            doc.addPage();
-            addPageHeader(doc, "INFORME TÉCNICO (Cont.)");
-            y = 55;
+          doc.addPage();
+          addPageHeader(doc, "INFORME TÉCNICO (Cont.)");
+          y = 55;
         }
       };
 
       const addSectionTitle = (title, color = gold) => {
-          checkPageBreak(25);
-          doc.setFont("helvetica", "bold");
-          doc.setFontSize(12);
-          doc.setTextColor(color);
-          doc.text(title, margin, y);
-          doc.setDrawColor(color);
-          doc.setLineWidth(0.5);
-          doc.line(margin, y + 2, pageWidth - margin, y + 2);
-          y += 12;
+        checkPageBreak(25);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(12);
+        doc.setTextColor(color);
+        doc.text(title, margin, y);
+        doc.setDrawColor(color);
+        doc.setLineWidth(0.5);
+        doc.line(margin, y + 2, pageWidth - margin, y + 2);
+        y += 12;
       };
 
       const addParagraph = (text) => {
-          doc.setFont("helvetica", "normal");
-          doc.setFontSize(10);
-          doc.setTextColor(darkGray);
-          const lines = doc.splitTextToSize(text || "Sin información registrada.", contentWidth);
-          checkPageBreak(lines.length * 5 + 10);
-          doc.text(lines, margin, y);
-          y += lines.length * 5 + 10;
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(darkGray);
+        const lines = doc.splitTextToSize(
+          text || "Sin información registrada.",
+          contentWidth,
+        );
+        checkPageBreak(lines.length * 5 + 10);
+        doc.text(lines, margin, y);
+        y += lines.length * 5 + 10;
       };
-      
+
       const addImages = (imgA, imgB) => {
-          if (!imgA && !imgB) return;
-          
-          let imgH = 50; // Smaller size for better fit
-          let imgW = (contentWidth - 10) / 2;
-          
-          // No auto-page break here since we manage sections manually
-          // checkPageBreak(imgH + 10);
-          
-          if (imgA) {
-             try {
-                doc.addImage(imgA, "JPEG", margin, y, imgW, imgH);
-             } catch(e) { console.warn("Error adding imgA", e); }
-             doc.setDrawColor(gold);
-             doc.setLineWidth(0.1);
-             doc.rect(margin, y, imgW, imgH);
+        if (!imgA && !imgB) return;
+
+        let imgH = 50; // Smaller size for better fit
+        let imgW = (contentWidth - 10) / 2;
+
+        // No auto-page break here since we manage sections manually
+        // checkPageBreak(imgH + 10);
+
+        if (imgA) {
+          try {
+            doc.addImage(imgA, "JPEG", margin, y, imgW, imgH);
+          } catch (e) {
+            console.warn("Error adding imgA", e);
           }
-          if (imgB) {
-             const xPos = imgA ? margin + imgW + 10 : margin;
-             try {
-                 doc.addImage(imgB, "JPEG", xPos, y, imgW, imgH);
-             } catch(e) { console.warn("Error adding imgB", e); }
-             doc.setDrawColor(gold);
-             doc.setLineWidth(0.1);
-             doc.rect(xPos, y, imgW, imgH);
+          doc.setDrawColor(gold);
+          doc.setLineWidth(0.1);
+          doc.rect(margin, y, imgW, imgH);
+        }
+        if (imgB) {
+          const xPos = imgA ? margin + imgW + 10 : margin;
+          try {
+            doc.addImage(imgB, "JPEG", xPos, y, imgW, imgH);
+          } catch (e) {
+            console.warn("Error adding imgB", e);
           }
-          y += imgH + 15;
+          doc.setDrawColor(gold);
+          doc.setLineWidth(0.1);
+          doc.rect(xPos, y, imgW, imgH);
+        }
+        y += imgH + 15;
       };
 
       // New Robust Section Builder with Dynamic Spacing without Auto-Break
       // We manually control pages now as requested
       const addDynamicSection = (title, text, images, color = gold) => {
-          doc.setFont("helvetica", "bold");
-          doc.setFontSize(12);
-          doc.setTextColor(color);
-          doc.text(title, margin, y);
-          doc.setDrawColor(color);
-          doc.setLineWidth(0.5);
-          doc.line(margin, y + 2, pageWidth - margin, y + 2);
-          y += 12;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(12);
+        doc.setTextColor(color);
+        doc.text(title, margin, y);
+        doc.setDrawColor(color);
+        doc.setLineWidth(0.5);
+        doc.line(margin, y + 2, pageWidth - margin, y + 2);
+        y += 12;
 
-          doc.setFont("helvetica", "normal");
-          doc.setFontSize(10);
-          doc.setTextColor(darkGray);
-          const lines = doc.splitTextToSize(text || "Sin información registrada.", contentWidth);
-          doc.text(lines, margin, y);
-          y += lines.length * 5 + 10;
-          
-          // Filter valid images
-          const validImages = images.filter(img => img !== null);
-          
-          if (validImages.length > 0) {
-              addImages(validImages[0], validImages[1]);
-          } else {
-              y += 5;
-          }
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(darkGray);
+        const lines = doc.splitTextToSize(
+          text || "Sin información registrada.",
+          contentWidth,
+        );
+        doc.text(lines, margin, y);
+        y += lines.length * 5 + 10;
+
+        // Filter valid images
+        const validImages = images.filter((img) => img !== null);
+
+        if (validImages.length > 0) {
+          addImages(validImages[0], validImages[1]);
+        } else {
+          y += 5;
+        }
       };
 
       // ==========================================
@@ -258,13 +292,25 @@ function generateModernPDF(asBlob = false) {
       y = 55;
 
       // 1. DESCRIPCIÓN DEL REQUERIMIENTO
-      const jobDescText = document.getElementById("reportJobDescription")?.value || "Sin descripción inicial.";
-      addDynamicSection("1. DESCRIPCIÓN DEL REQUERIMIENTO", jobDescText, [jobImgObj], "#d4af37");
+      const jobDescText =
+        document.getElementById("reportJobDescription")?.value ||
+        "Sin descripción inicial.";
+      addDynamicSection(
+        "1. DESCRIPCIÓN DEL REQUERIMIENTO",
+        jobDescText,
+        [jobImgObj],
+        "#d4af37",
+      );
 
       y += 10; // Spacer
 
       // 2. PROBLEMA ENCONTRADO
-      addDynamicSection("2. PROBLEMA ENCONTRADO", initialText || "No se reportaron hallazgos adicionales.", [pImg1, pImg2], "#d63031");
+      addDynamicSection(
+        "2. PROBLEMA ENCONTRADO",
+        initialText || "No se reportaron hallazgos adicionales.",
+        [pImg1, pImg2],
+        "#d63031",
+      );
 
       // ==========================================
       // PAGE 3: SOLUTION + SIGNATURES
@@ -274,12 +320,17 @@ function generateModernPDF(asBlob = false) {
       y = 55;
 
       // 3. SOLUCIÓN IMPLEMENTADA
-      addDynamicSection("3. SOLUCIÓN IMPLEMENTADA", finalText || "Se completó el trabajo.", [sImg1, sImg2], "#28a745");
+      addDynamicSection(
+        "3. SOLUCIÓN IMPLEMENTADA",
+        finalText || "Se completó el trabajo.",
+        [sImg1, sImg2],
+        "#28a745",
+      );
 
       // 3. FIRMAS
       y += 20;
       checkPageBreak(60);
-      
+
       doc.setDrawColor(gold);
       doc.setLineWidth(0.5);
       doc.line(margin, y, pageWidth - margin, y);
@@ -290,21 +341,23 @@ function generateModernPDF(asBlob = false) {
       doc.text("FIRMAS DE CONFORMIDAD", margin, y);
       y += 20;
 
-      const sigW = 50; 
+      const sigW = 50;
       const sigH = 30;
 
       // Tech Seal
       try {
-          doc.addImage(seal, "PNG", margin + 10, y, sigW, sigH);
-          doc.text("SELLO TÉCNICO", margin + 15, y + sigH + 5);
-      } catch(e) {}
+        doc.addImage(seal, "PNG", margin + 10, y, sigW, sigH);
+        doc.text("SELLO TÉCNICO", margin + 15, y + sigH + 5);
+      } catch (e) {}
 
       // Client Sig
-      const clientSigSrc = document.getElementById("reportClientSignature")?.src;
+      const clientSigSrc = document.getElementById(
+        "reportClientSignature",
+      )?.src;
       if (clientSigSrc && clientSigSrc.startsWith("data:")) {
-          const cX = pageWidth - margin - sigW - 20;
-          doc.addImage(clientSigSrc, "PNG", cX, y, sigW, sigH);
-          doc.text("FIRMA CLIENTE", cX + 10, y + sigH + 5);
+        const cX = pageWidth - margin - sigW - 20;
+        doc.addImage(clientSigSrc, "PNG", cX, y, sigW, sigH);
+        doc.text("FIRMA CLIENTE", cX + 10, y + sigH + 5);
       }
 
       addPageFooter(doc, 2);
@@ -312,7 +365,7 @@ function generateModernPDF(asBlob = false) {
       if (asBlob) {
         resolve(doc.output("blob"));
       } else {
-        doc.save(`Informe_${clientName.replace(/\s+/g,"_")}.pdf`);
+        doc.save(`Informe_${clientName.replace(/\s+/g, "_")}.pdf`);
         resolve();
       }
     }
@@ -322,7 +375,9 @@ function generateModernPDF(asBlob = false) {
       doc.rect(0, 0, pageWidth, 35, "F");
       doc.setFillColor(gold);
       doc.rect(0, 0, pageWidth, 3, "F");
-      try { doc.addImage(logo, "PNG", margin, 7, 20, 20); } catch (e) {}
+      try {
+        doc.addImage(logo, "PNG", margin, 7, 20, 20);
+      } catch (e) {}
       doc.setFont("helvetica", "bold");
       doc.setFontSize(14);
       doc.setTextColor(white);
@@ -336,7 +391,12 @@ function generateModernPDF(asBlob = false) {
       doc.setFont("helvetica", "italic");
       doc.setFontSize(8);
       doc.setTextColor("#888888");
-      doc.text(`Seguridad 24/7 Ecuador - Informe Técnico`, pageWidth / 2, pageHeight - 10, { align: "center" });
+      doc.text(
+        `Seguridad 24/7 Ecuador - Informe Técnico`,
+        pageWidth / 2,
+        pageHeight - 10,
+        { align: "center" },
+      );
     }
   });
 }
@@ -345,7 +405,7 @@ function generateModernPDF(asBlob = false) {
  * Sends the current technical report via WhatsApp
  * Optimized to work without CORS issues by using native sharing or local delivery
  */
-async function sendModernPDF() {
+async function sendModernPDF(externalBtn = null) {
   const job = window.currentReportingJob;
   if (!job) {
     Swal.fire({
@@ -368,11 +428,13 @@ async function sendModernPDF() {
     return;
   }
 
-  const btn = document.getElementById("sendReportBtn");
-  const originalText = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML =
-    '<i class="fa-solid fa-spinner fa-spin me-2"></i> PREPARANDO...';
+  const btn = externalBtn || document.getElementById("sendReportBtn");
+  const originalText = btn ? btn.innerHTML : "";
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML =
+      '<i class="fa-solid fa-spinner fa-spin me-2"></i> PREPARANDO...';
+  }
 
   try {
     // 1. Generate PDF as Blob
@@ -427,15 +489,20 @@ async function sendModernPDF() {
     const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(messageText)}`;
 
     const waWindow = window.open(waUrl, "_blank");
-    
+
     // Check if pop-up was blocked
-    if (!waWindow || waWindow.closed || typeof waWindow.closed === 'undefined') {
+    if (
+      !waWindow ||
+      waWindow.closed ||
+      typeof waWindow.closed === "undefined"
+    ) {
       Swal.fire({
         icon: "info",
         title: "¡Reporte Listo!",
         html: `Se ha descargado el informe.<br><br><b>El navegador bloqueó la ventana de WhatsApp.</b><br>Haga clic abajo para abrirlo manualmente:`,
         showCancelButton: true,
-        confirmButtonText: '<i class="fa-brands fa-whatsapp"></i> Abrir WhatsApp',
+        confirmButtonText:
+          '<i class="fa-brands fa-whatsapp"></i> Abrir WhatsApp',
         confirmButtonColor: "#25d366",
         background: "#000",
         color: "#d4af37",
@@ -454,7 +521,6 @@ async function sendModernPDF() {
         color: "#d4af37",
       });
     }
-
   } catch (error) {
     console.error("Error sending PDF:", error);
     Swal.fire({
@@ -464,8 +530,10 @@ async function sendModernPDF() {
       confirmButtonColor: "#d4af37",
     });
   } finally {
-    btn.disabled = false;
-    btn.innerHTML = originalText;
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    }
   }
 }
 

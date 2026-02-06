@@ -393,23 +393,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     };
 
-    // Listener para enviar PDF por WhatsApp
-    const sendReportBtn = document.getElementById("sendReportBtn");
-    if (sendReportBtn) {
-      sendReportBtn.onclick = () => {
-        if (typeof window.sendModernPDF === "function") {
-          window.sendModernPDF();
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "El servicio de envío no está activo. Recargue la página.",
-            confirmButtonColor: "#d4af37",
-          });
-        }
-      };
-    }
-
     // Lógica para el formulario de conjunto
     window.formatAdminResult = function (admin) {
       if (!admin.id || !admin.element) return admin.text;
@@ -1878,9 +1861,12 @@ window.renderTrabajos = function (trabajosList) {
             ${
               data.status === "Culminado"
                 ? `
-            <div class="col-12 mt-2">
-              <button class="btn-view-report" onclick="verReporte('${data.id}')">
+            <div class="col-12 mt-2 d-flex gap-2">
+              <button class="btn-view-report flex-grow-1" onclick="verReporte('${data.id}')" style="font-size: 0.85rem; padding: 10px;">
                 <i class="fa-solid fa-file-lines me-1"></i> Ver Reporte
+              </button>
+              <button class="btn-view-report flex-grow-1" onclick="enviarReporteDirecto('${data.id}', this)" style="background: #25d366 !important; border-color: #25d366 !important; font-size: 0.85rem; padding: 10px;">
+                <i class="fa-brands fa-whatsapp me-1"></i> Enviar
               </button>
             </div>
             `
@@ -1891,6 +1877,72 @@ window.renderTrabajos = function (trabajosList) {
       </div>
       `;
   });
+};
+
+// =========================================
+//  ENVIAR REPORTE DIRECTO (WHATSAPP)
+// =========================================
+window.enviarReporteDirecto = async function (id, btn) {
+  try {
+    const doc = await db.collection("trabajos").doc(id).get();
+    if (!doc.exists) {
+      Swal.fire("Error", "No se encontró el trabajo", "error");
+      return;
+    }
+
+    const data = doc.data();
+    // 1. Guardar trabajo actual para envío de reporte
+    window.currentReportingJob = { id: doc.id, ...data };
+
+    // 2. Llenar los campos ocultos que usa el generador de PDF (generateModernPDF lee del DOM)
+    const fillField = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) {
+        if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") el.value = val;
+        else el.innerText = val;
+      }
+    };
+
+    fillField("reportInitial", data.reportInitial || "");
+    fillField("reportFinal", data.reportFinal || "");
+    fillField(
+      "reportText",
+      data.reportFinal || data.report || "Sin resolución detallada.",
+    );
+    fillField(
+      "reportJobDescription",
+      data.jobDescription || "Sin descripción de la asignación.",
+    );
+
+    // Llenar imágenes (importante para el PDF)
+    const setImg = (displayId, hiddenId, src) => {
+      const displayEl = document.getElementById(displayId);
+      const hiddenEl = document.getElementById(hiddenId);
+      if (src) {
+        if (displayEl) displayEl.src = src;
+        if (hiddenEl) hiddenEl.src = src;
+      } else {
+        if (displayEl) displayEl.src = "";
+        if (hiddenEl) hiddenEl.src = "";
+      }
+    };
+
+    setImg("displayJobImage", "imgJobDescription", data.jobImageUrl);
+    setImg("displayInitial1", "imgInitial1", data.reportInitialImg1);
+    setImg("displayInitial2", "imgInitial2", data.reportInitialImg2);
+    setImg("displayFinal1", "imgFinal1", data.reportFinalImg1);
+    setImg("displayFinal2", "imgFinal2", data.reportFinalImg2);
+
+    // 3. Llamar a sendModernPDF pasando el botón actual para el spinner
+    if (typeof window.sendModernPDF === "function") {
+      await window.sendModernPDF(btn);
+    } else {
+      throw new Error("Servicio de PDF no disponible");
+    }
+  } catch (error) {
+    console.error("Error al enviar reporte directo:", error);
+    Swal.fire("Error", "Hubo un problema al procesar el envío del reporte.");
+  }
 };
 
 // Helper Whatsapp Global
