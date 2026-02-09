@@ -107,11 +107,13 @@ document.addEventListener("DOMContentLoaded", () => {
       );
 
       if (dashboardSection) dashboardSection.style.display = "none";
-      jobsSection.style.display = "none";
-      contractsSection.style.display = "none";
+      if (jobsSection) jobsSection.style.display = "none";
+      if (contractsSection) contractsSection.style.display = "none";
       if (paymentsSection) paymentsSection.style.display = "none";
       if (usersManagementSection) usersManagementSection.style.display = "none";
       if (complexesSection) complexesSection.style.display = "none";
+      if (document.getElementById("passwordsSection"))
+        document.getElementById("passwordsSection").style.display = "none";
 
       createJobBtn.style.display = "none";
       createContractBtn.style.display = "none";

@@ -446,7 +446,19 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // Ocultar todo
-
+      const sections = [
+        "dashboardSection",
+        "jobsSection",
+        "contractsSection",
+        "guidesSection",
+        "tutorialsSection",
+        "passwordsSection",
+        "attendanceSection",
+      ];
+      sections.forEach((s) => {
+        const el = document.getElementById(s);
+        if (el) el.style.display = "none";
+      });
       if (view === "dashboard") {
         dashboardSection.style.display = "block";
         actualizarEstadisticas();

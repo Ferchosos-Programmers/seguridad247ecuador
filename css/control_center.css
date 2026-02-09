@@ -1,6 +1,6 @@
 /* ========== RESET Y BASE ========== */
 * {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: "Times New Roman", Times, serif;
 }
 
 html,
@@ -29,9 +29,17 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: 
-    radial-gradient(circle at 20% 30%, rgba(66, 135, 245, 0.03) 0%, transparent 50%),
-    radial-gradient(circle at 80% 70%, rgba(212, 175, 55, 0.03) 0%, transparent 50%);
+  background-image:
+    radial-gradient(
+      circle at 20% 30%,
+      rgba(66, 135, 245, 0.03) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 70%,
+      rgba(212, 175, 55, 0.03) 0%,
+      transparent 50%
+    );
   pointer-events: none;
   z-index: 0;
 }
@@ -69,7 +77,8 @@ h1 {
 }
 
 @keyframes titleGlow {
-  0%, 100% {
+  0%,
+  100% {
     filter: drop-shadow(0 4px 12px rgba(212, 175, 55, 0.3));
   }
   50% {
@@ -79,9 +88,11 @@ h1 {
 
 /* ========== TARJETAS DEL DASHBOARD ========== */
 .card-dashboard {
-  background: linear-gradient(145deg, 
-    rgba(15, 15, 15, 0.7) 0%, 
-    rgba(10, 10, 10, 0.6) 100%);
+  background: linear-gradient(
+    145deg,
+    rgba(15, 15, 15, 0.7) 0%,
+    rgba(10, 10, 10, 0.6) 100%
+  );
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1.5px solid rgba(212, 175, 55, 0.15);
@@ -97,7 +108,7 @@ h1 {
   height: 280px;
   position: relative;
   overflow: hidden;
-  box-shadow: 
+  box-shadow:
     0 10px 40px rgba(0, 0, 0, 0.5),
     inset 0 1px 1px rgba(255, 255, 255, 0.03),
     inset 0 -1px 1px rgba(0, 0, 0, 0.3);
@@ -111,10 +122,12 @@ h1 {
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    rgba(212, 175, 55, 0.6) 50%, 
-    transparent 100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(212, 175, 55, 0.6) 50%,
+    transparent 100%
+  );
   opacity: 0;
   transition: opacity 0.5s ease;
 }
@@ -170,9 +183,11 @@ h1 {
     inset 0 2px 2px rgba(255, 255, 255, 0.08),
     inset 0 -2px 2px rgba(0, 0, 0, 0.4);
   border-color: rgba(212, 175, 55, 0.7);
-  background: linear-gradient(145deg, 
-    rgba(20, 20, 20, 0.9) 0%, 
-    rgba(15, 15, 15, 0.8) 100%);
+  background: linear-gradient(
+    145deg,
+    rgba(20, 20, 20, 0.9) 0%,
+    rgba(15, 15, 15, 0.8) 100%
+  );
 }
 
 .card-dashboard:hover::before {
@@ -181,7 +196,8 @@ h1 {
 }
 
 @keyframes shimmer {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.6;
   }
   50% {
@@ -203,7 +219,8 @@ h1 {
 }
 
 @keyframes iconBounce {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1.2) translateY(-5px);
   }
   50% {
@@ -227,9 +244,15 @@ h1 {
   animation: fadeInUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards;
 }
 
-.dashboard-row .col-lg-4:nth-child(1) { animation-delay: 0.15s; }
-.dashboard-row .col-lg-4:nth-child(2) { animation-delay: 0.3s; }
-.dashboard-row .col-lg-4:nth-child(3) { animation-delay: 0.45s; }
+.dashboard-row .col-lg-4:nth-child(1) {
+  animation-delay: 0.15s;
+}
+.dashboard-row .col-lg-4:nth-child(2) {
+  animation-delay: 0.3s;
+}
+.dashboard-row .col-lg-4:nth-child(3) {
+  animation-delay: 0.45s;
+}
 
 @keyframes fadeInUp {
   from {
@@ -255,7 +278,7 @@ h1 {
   overflow: hidden;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  box-shadow: 
+  box-shadow:
     0 10px 40px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -263,7 +286,7 @@ h1 {
 
 .section-header:hover {
   transform: translateY(-4px);
-  box-shadow: 
+  box-shadow:
     0 16px 50px rgba(0, 0, 0, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
@@ -276,7 +299,7 @@ h1 {
   left: 0;
   right: 0;
   bottom: 0;
-  background: 
+  background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%),
     repeating-linear-gradient(
       45deg,
@@ -297,10 +320,12 @@ h1 {
   transform: translateX(-50%);
   width: 60%;
   height: 3px;
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    currentColor 50%, 
-    transparent 100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    currentColor 50%,
+    transparent 100%
+  );
   opacity: 0.4;
   z-index: 1;
 }
@@ -322,7 +347,8 @@ h1 {
 }
 
 @keyframes iconPulse {
-  0%, 100% {
+  0%,
+  100% {
     filter: drop-shadow(0 4px 20px currentColor);
   }
   50% {
@@ -359,11 +385,13 @@ h1 {
 
 /* ========== SECCIÓN PÚBLICA - AZUL ========== */
 .public-section {
-  background: linear-gradient(135deg, 
-    rgba(26, 42, 108, 0.4) 0%, 
-    rgba(15, 27, 61, 0.3) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(26, 42, 108, 0.4) 0%,
+    rgba(15, 27, 61, 0.3) 100%
+  );
   border: 2px solid rgba(66, 135, 245, 0.3);
-  box-shadow: 
+  box-shadow:
     0 8px 32px rgba(66, 135, 245, 0.15),
     inset 0 1px 0 rgba(66, 135, 245, 0.1);
 }
@@ -383,11 +411,13 @@ h1 {
 
 /* ========== SECCIÓN INTERNA - DORADO ========== */
 .internal-section {
-  background: linear-gradient(135deg, 
-    rgba(42, 31, 12, 0.4) 0%, 
-    rgba(26, 19, 8, 0.3) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(42, 31, 12, 0.4) 0%,
+    rgba(26, 19, 8, 0.3) 100%
+  );
   border: 2px solid rgba(212, 175, 55, 0.3);
-  box-shadow: 
+  box-shadow:
     0 8px 32px rgba(212, 175, 55, 0.15),
     inset 0 1px 0 rgba(212, 175, 55, 0.1);
 }
@@ -484,7 +514,7 @@ h1 {
   letter-spacing: 1.2px;
   text-transform: uppercase;
   z-index: 10;
-  box-shadow: 
+  box-shadow:
     0 4px 16px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -493,17 +523,21 @@ h1 {
 }
 
 .public-badge {
-  background: linear-gradient(135deg, 
-    rgba(66, 135, 245, 0.9) 0%, 
-    rgba(37, 99, 235, 0.9) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(66, 135, 245, 0.9) 0%,
+    rgba(37, 99, 235, 0.9) 100%
+  );
   color: #fff;
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .internal-badge {
-  background: linear-gradient(135deg, 
-    rgba(212, 175, 55, 0.95) 0%, 
-    rgba(184, 148, 31, 0.95) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(212, 175, 55, 0.95) 0%,
+    rgba(184, 148, 31, 0.95) 100%
+  );
   color: #000;
   border: 1px solid rgba(255, 255, 255, 0.4);
   font-weight: 800;
@@ -511,22 +545,24 @@ h1 {
 
 .card-dashboard:hover .card-badge {
   transform: scale(1.1) translateY(-2px);
-  box-shadow: 
+  box-shadow:
     0 8px 24px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 /* ========== MODALES ========== */
 .modal-content {
-  background: linear-gradient(145deg, 
-    rgba(17, 17, 17, 0.98) 0%, 
-    rgba(26, 26, 26, 0.98) 100%);
+  background: linear-gradient(
+    145deg,
+    rgba(17, 17, 17, 0.98) 0%,
+    rgba(26, 26, 26, 0.98) 100%
+  );
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   color: #fff;
   border-radius: 24px;
   border: 2px solid rgba(212, 175, 55, 0.3);
-  box-shadow: 
+  box-shadow:
     0 20px 60px rgba(0, 0, 0, 0.5),
     0 0 40px rgba(212, 175, 55, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
@@ -537,7 +573,7 @@ h1 {
 
 .modal-content:hover {
   transform: translateY(-4px);
-  box-shadow: 
+  box-shadow:
     0 24px 70px rgba(0, 0, 0, 0.6),
     0 0 50px rgba(212, 175, 55, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
@@ -547,9 +583,11 @@ h1 {
   border-bottom: 1px solid rgba(212, 175, 55, 0.3);
   justify-content: center;
   padding: 1.5rem;
-  background: linear-gradient(135deg, 
-    rgba(212, 175, 55, 0.05) 0%, 
-    transparent 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(212, 175, 55, 0.05) 0%,
+    transparent 100%
+  );
 }
 
 .modal-header h5 {
@@ -606,7 +644,7 @@ h1 {
 
 .form-control:focus {
   border-color: #d4af37;
-  box-shadow: 
+  box-shadow:
     0 0 0 3px rgba(212, 175, 55, 0.15),
     0 4px 12px rgba(212, 175, 55, 0.2);
   background: rgba(34, 34, 34, 0.95);
@@ -641,7 +679,7 @@ h1 {
   letter-spacing: 1px;
   text-transform: uppercase;
   font-size: 0.95rem;
-  box-shadow: 
+  box-shadow:
     0 4px 16px rgba(212, 175, 55, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
@@ -650,7 +688,7 @@ h1 {
   background: linear-gradient(135deg, #f4d47c 0%, #d4af37 100%);
   color: #000;
   transform: translateY(-3px);
-  box-shadow: 
+  box-shadow:
     0 8px 24px rgba(212, 175, 55, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
@@ -825,18 +863,20 @@ footer .footer-link:hover {
 
 /* ========== MODAL REGISTRO DE RESIDENTES (AZUL) ========== */
 #loginModalResidentes .modal-content {
-  background: linear-gradient(145deg, 
-    rgba(17, 17, 17, 0.98) 0%, 
-    rgba(26, 26, 26, 0.98) 100%);
+  background: linear-gradient(
+    145deg,
+    rgba(17, 17, 17, 0.98) 0%,
+    rgba(26, 26, 26, 0.98) 100%
+  );
   border: 2px solid rgba(66, 135, 245, 0.4);
-  box-shadow: 
+  box-shadow:
     0 20px 60px rgba(0, 0, 0, 0.5),
     0 0 40px rgba(66, 135, 245, 0.3),
     inset 0 1px 0 rgba(66, 135, 245, 0.1);
 }
 
 #loginModalResidentes .modal-content:hover {
-  box-shadow: 
+  box-shadow:
     0 24px 70px rgba(0, 0, 0, 0.6),
     0 0 50px rgba(66, 135, 245, 0.4),
     inset 0 1px 0 rgba(66, 135, 245, 0.15);
@@ -844,9 +884,11 @@ footer .footer-link:hover {
 
 #loginModalResidentes .modal-header {
   border-bottom: 1px solid rgba(66, 135, 245, 0.3);
-  background: linear-gradient(135deg, 
-    rgba(66, 135, 245, 0.08) 0%, 
-    transparent 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(66, 135, 245, 0.08) 0%,
+    transparent 100%
+  );
 }
 
 #loginModalResidentes .modal-header h5 {
@@ -864,7 +906,7 @@ footer .footer-link:hover {
 
 #loginModalResidentes .form-control:focus {
   border-color: #4287f5;
-  box-shadow: 
+  box-shadow:
     0 0 0 3px rgba(66, 135, 245, 0.15),
     0 4px 12px rgba(66, 135, 245, 0.25);
 }
@@ -881,7 +923,7 @@ footer .footer-link:hover {
 #loginModalResidentes .btn-login {
   background: linear-gradient(135deg, #4287f5 0%, #2563eb 100%);
   color: #fff;
-  box-shadow: 
+  box-shadow:
     0 4px 16px rgba(66, 135, 245, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
@@ -889,8 +931,7 @@ footer .footer-link:hover {
 #loginModalResidentes .btn-login:hover {
   background: linear-gradient(135deg, #5a9af7 0%, #4287f5 100%);
   color: #fff;
-  box-shadow: 
+  box-shadow:
     0 8px 24px rgba(66, 135, 245, 0.6),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
-
