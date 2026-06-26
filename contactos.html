@@ -57,81 +57,185 @@
       </div>
     </nav>
 
+    <!-- HERO DE CONTACTO -->
+    <section class="contacto-hero-section">
+      <div class="hero-overlay"></div>
+      <div class="container">
+        <div class="hero-content-wrapper text-center">
+          <span class="badge-premium">CANALES DE ATENCIÓN</span>
+          <h1 class="hero-title">Contacto</h1>
+          <p class="hero-subtitle">
+            Estamos a tu disposición. Completa el formulario o visítanos en
+            nuestras oficinas centrales.
+          </p>
+        </div>
+      </div>
+    </section>
+
     <!-- SECCIÓN CONTACTO -->
     <section class="contact-section">
-      <div class="container text-center">
-        <h2>Contáctanos</h2>
-        <p>
-          Estamos listos para ayudarte. Completa el formulario o visita nuestras
-          oficinas.
-        </p>
-        <div class="row mt-5 justify-content-center">
-          <!-- FORMULARIO -->
-          <div class="col-lg-6 mb-4">
-            <form class="contact-form" id="contactForm">
-              <input type="hidden" name="_captcha" value="false" />
-              <input
-                type="text"
-                id="nombre"
-                name="nombre"
-                placeholder="Nombre Completo"
-                required
-              />
-              <input
-                type="email"
-                id="email"
-                name="email"
-                placeholder="Correo Electrónico"
-                required
-              />
-              <input
-                type="text"
-                id="telefono"
-                name="telefono"
-                placeholder="Teléfono"
-                required
-              />
-              <textarea
-                id="mensaje"
-                name="mensaje"
-                rows="5"
-                placeholder="Mensaje"
-                required
-              ></textarea>
-              <button type="submit">
-                <i class="fa-solid fa-paper-plane"></i> Enviar Mensaje
-              </button>
-            </form>
-          </div>
-          <!-- INFORMACIÓN -->
-          <div class="col-lg-4 mb-4">
-            <div class="contact-info text-start">
-              <h5><i class="fa-solid fa-map-marker-alt"></i> Dirección</h5>
-              <p>Calle Pedro Cando, Autopista Gral. Rumiñahui N59-116, Quito</p>
-              <h5><i class="fa-solid fa-phone"></i> Teléfono</h5>
-              <p>+593 984 107 006</p>
-              <h5><i class="fa-solid fa-envelope"></i> Email</h5>
-              <p>guardiasvirtuales247@gmail.com</p>
-              <h5><i class="fa-solid fa-clock"></i> Horario de Atención</h5>
-              <p>Lunes a Viernes: 8:00 AM - 18:00 PM</p>
-              <p>Sábados: 9:00 AM - 16:00 PM</p>
-              <p>Domingos: Cerrado</p>
+      <div class="container">
+        <div class="contact-wrapper-card">
+          <div class="row g-0">
+            <!-- Columna Izquierda: Formulario -->
+            <div class="col-lg-7 p-4 p-md-5">
+              <span class="badge-contact-tag">Escríbenos</span>
+              <h2 class="form-main-title">¿Cómo podemos ayudarte hoy?</h2>
+              <p class="form-sub-title">
+                Envíanos un mensaje y uno de nuestros asesores se pondrá en
+                contacto contigo.
+              </p>
+
+              <form class="contact-form-modern" id="contactForm">
+                <input type="hidden" name="_captcha" value="false" />
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <input
+                      type="text"
+                      id="nombre"
+                      name="nombre"
+                      placeholder="Nombre Completo"
+                      required
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      placeholder="Correo Electrónico"
+                      required
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <input
+                      type="text"
+                      id="telefono"
+                      name="telefono"
+                      placeholder="Teléfono"
+                      required
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <select
+                      id="servicio_interes"
+                      name="servicio_interes"
+                      class="form-select-modern"
+                    >
+                      <option value="" disabled selected>
+                        Servicio de Interés
+                      </option>
+                      <option value="Seguridad Física">Seguridad Física</option>
+                      <option value="Seguridad Electrónica">
+                        Seguridad Electrónica
+                      </option>
+                      <option value="Monitoreo 24/7">Monitoreo 24/7</option>
+                      <option value="Patrullaje Móvil">Patrullaje Móvil</option>
+                      <option value="Control de Acceso">
+                        Control de Acceso
+                      </option>
+                      <option value="Automatizacion de Motores">
+                        Automatizacion de Motores
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-12">
+                    <textarea
+                      id="mensaje"
+                      name="mensaje"
+                      rows="5"
+                      placeholder="En qué podemos ayudarte?"
+                      required
+                    ></textarea>
+                  </div>
+                  <div class="col-12 text-start">
+                    <button type="submit" class="btn-submit-modern">
+                      <i class="fa-solid fa-paper-plane"></i> ENVIAR PROPUESTA
+                    </button>
+                  </div>
+                </div>
+              </form>
             </div>
-          </div>
-        </div>
-        <!-- MAPA -->
-        <div class="row justify-content-center mt-4">
-          <div class="col-lg-10">
-            <div class="map-responsive">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2372.354226620859!2d-78.48504961119072!3d-0.12822027077483264!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x91d585677cc9364b%3A0x50d454f01e0e49!2sSeguridad%2024%2F7!5e0!3m2!1ses-419!2sec!4v1764967517996!5m2!1ses-419!2sec"
-                width="600"
-                height="450"
-                style="border: 0"
-                allowfullscreen=""
-                loading="lazy"
-                referrerpolicy="no-referrer-when-downgrade"
-              ></iframe>
+
+            <!-- Columna Derecha: Mapa e Info Flotante -->
+            <div class="col-lg-5 position-relative map-col-container">
+              <div class="map-iframe-wrapper">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2372.354226620859!2d-78.48504961119072!3d-0.12822027077483264!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x91d585677cc9364b%3A0x50d454f01e0e49!2sSeguridad%2024%2F7!5e0!3m2!1ses-419!2sec!4v1764967517996!5m2!1ses-419!2sec"
+                  width="100%"
+                  height="100%"
+                  style="border: 0"
+                  allowfullscreen=""
+                  loading="lazy"
+                  referrerpolicy="no-referrer-when-downgrade"
+                ></iframe>
+              </div>
+
+              <div class="floating-info-card">
+                <div class="info-item-row d-flex align-items-start mb-3">
+                  <div class="info-icon-box">
+                    <i class="fa-solid fa-map-marker-alt"></i>
+                  </div>
+                  <div class="info-text-box">
+                    <h6>Nuestra Oficina</h6>
+                    <p>
+                      Calle Pedro Cando, Autopista Gral. Rumiñahui N59-116,
+                      Quito
+                    </p>
+                  </div>
+                </div>
+
+                <div class="info-item-row d-flex align-items-start mb-3">
+                  <div class="info-icon-box">
+                    <i class="fa-solid fa-phone"></i>
+                  </div>
+                  <div class="info-text-box">
+                    <h6>Contacto Directo</h6>
+                    <p>+593 984 107 006<br />guardiasvirtuales247@gmail.com</p>
+                  </div>
+                </div>
+
+                <div
+                  class="info-social-row d-flex gap-2 mt-4 justify-content-start"
+                >
+                  <a
+                    href="https://facebook.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="social-mini-link"
+                    title="Facebook"
+                  >
+                    <i class="fab fa-facebook-f"></i>
+                  </a>
+                  <a
+                    href="https://instagram.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="social-mini-link"
+                    title="Instagram"
+                  >
+                    <i class="fab fa-instagram"></i>
+                  </a>
+                  <a
+                    href="https://tiktok.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="social-mini-link"
+                    title="TikTok"
+                  >
+                    <i class="fab fa-tiktok"></i>
+                  </a>
+                  <a
+                    href="https://wa.me/593984107006"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="social-mini-link"
+                    title="WhatsApp"
+                  >
+                    <i class="fab fa-whatsapp"></i>
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </div>

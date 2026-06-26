@@ -9,17 +9,24 @@ body {
 
 /* NAVBAR */
 .navbar {
-  background-color: #000 !important;
-  border-bottom: 2px solid #d4af37;
+  background-color: rgba(0, 0, 0, 0.8) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
 }
 .navbar-brand {
   color: #d4af37 !important;
-  font-weight: bold;
+  font-family: "Times New Roman", Times, serif;
+  font-weight: 800;
   font-size: 1.5rem;
+  letter-spacing: 1px;
 }
 .nav-link {
   color: #fff !important;
   font-weight: 500;
+  transition: color 0.3s ease;
 }
 .nav-link:hover {
   color: #d4af37 !important;
@@ -44,7 +51,8 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.65);
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.85) 0%, rgba(13, 13, 13, 0.7) 100%);
+  z-index: 1;
 }
 .hero h1,
 .hero p,
@@ -53,39 +61,53 @@ body {
   z-index: 2;
 }
 .hero h1 {
-  font-size: 3rem;
-  color: #d4af37;
-  font-weight: bold;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 3.5rem;
+  font-weight: 800;
+  background: linear-gradient(180deg, #ffffff 40%, #d4af37 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-align: center;
 }
 .hero p {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   max-width: 700px;
   margin-top: 15px;
-  color: #ddd;
+  color: #ccc;
+  font-weight: 300;
+  text-align: center;
 }
 
 /* BOTÓN DORADO */
 .btn-gold {
-  background-color: #d4af37;
+  background: linear-gradient(135deg, #d4af37 0%, #b8922b 100%);
   color: #000;
+  border: none;
   border-radius: 30px;
-  padding: 10px 30px;
-  font-weight: bold;
-  transition: 0.3s;
+  padding: 12px 35px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+  transition: all 0.3s ease;
 }
 .btn-gold:hover {
-  background-color: #b8922b;
-  color: #fff;
+  background: linear-gradient(135deg, #fff 0%, #d4af37 100%);
+  color: #000;
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.6);
+  transform: translateY(-2px);
 }
 
 /* FOOTER */
 .footer {
   background-color: #000;
-  border-top: 2px solid #d4af37;
-  padding: 20px;
+  border-top: 1px solid rgba(212, 175, 55, 0.25);
+  padding: 25px;
   text-align: center;
   color: #fff;
   margin-top: 60px;
+  font-size: 0.95rem;
 }
 
 .footer-link {
@@ -101,7 +123,7 @@ body {
 
 /* ================================
    SECCIÓN BANNER SUPERIOR
-==================================*/
+   ==================================*/
 .banner-section {
   height: 55vh;
   background: url("img/banner.jpg") center/cover no-repeat;
@@ -119,11 +141,11 @@ body {
 
 /* ================================
    SECCIÓN DOTACIÓN
-==================================*/
+   ==================================*/
 .dotacion-section {
   position: relative;
-  /* background: url('img/fondo-oscuro.jpg') center/cover no-repeat fixed; */
   padding: 120px 0;
+  background-color: #070707;
 }
 .dotacion-section .overlay {
   position: absolute;
@@ -131,68 +153,85 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.65);
+  background: radial-gradient(circle at center, rgba(212, 175, 55, 0.03) 0%, transparent 70%);
 }
 
 /* Títulos */
 .section-title {
   position: relative;
-  font-size: 38px;
-  font-weight: 700;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 2.5rem;
+  font-weight: 800;
   color: #d4af37;
   letter-spacing: 1px;
   margin-bottom: 10px;
   z-index: 2;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, #ffffff 40%, #d4af37 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
 }
 .section-subtitle {
   position: relative;
   font-size: 16px;
-  color: #fff;
-  opacity: 0.9;
+  color: #ccc;
+  font-weight: 300;
   z-index: 2;
+  text-align: center;
 }
 
-/* Tarjetas */
+/* Tarjetas de dotacion */
 .dot-card {
   position: relative;
-  background: #111;
-  border-radius: 12px;
+  background: rgba(17, 17, 17, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 20px;
+  border: 1px solid rgba(212, 175, 55, 0.15);
   overflow: hidden;
-  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.5);
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
 .dot-card img {
   width: 100%;
   height: 280px;
   object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
-/* CUADRO DE TEXTO OCULTO */
+/* CUADRO DE TEXTO */
 .dot-card .dot-text {
   position: absolute;
-  bottom: -60px;
+  bottom: 0;
   left: 0;
   width: 100%;
-  padding: 12px;
-  background: rgba(0, 0, 0, 0.75);
-  color: #d4af37;
+  padding: 20px 15px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.4) 100%);
+  color: #fff;
   text-align: center;
   font-weight: bold;
-  transition: bottom 0.3s ease;
-  font-size: 1rem;
+  font-size: 1.05rem;
+  z-index: 3;
+  border-top: 1px solid rgba(212, 175, 55, 0.25);
+  transition: all 0.4s ease;
 }
 
 /* EFECTO AL PASAR EL CURSOR */
-.dot-card:hover .dot-text {
-  bottom: 0;
-}
-
 .dot-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5);
+  border-color: rgba(212, 175, 55, 0.4);
+  box-shadow: 0 15px 30px rgba(212, 175, 55, 0.25);
+}
+
+.dot-card:hover img {
+  transform: scale(1.1);
+}
+
+.dot-card:hover .dot-text {
+  color: #d4af37;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.98) 0%, rgba(0, 0, 0, 0.6) 100%);
 }
 
 /* Cuadro moderno para el Control Center */
