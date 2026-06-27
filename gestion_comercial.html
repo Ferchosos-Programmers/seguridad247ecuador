@@ -77,6 +77,11 @@
               <i class="fa-solid fa-file-invoice-dollar"></i> Proformas
             </a>
           </li>
+          <li class="sidebar-item">
+            <a class="sidebar-link" data-view="cotizaciones_recibidas">
+              <i class="fa-solid fa-file-waveform me-2"></i> Solic. Cotizaciones
+            </a>
+          </li>
           <!-- Logout for mobile -->
           <li class="sidebar-item d-lg-none mt-4">
             <button class="btn-logout-sidebar w-100" id="logoutBtnMobile">
@@ -236,6 +241,30 @@
             </div>
 
             <div id="proformasGrid" class="row g-4">
+              <!-- Cargado dinámicamente -->
+            </div>
+          </div>
+
+          <!-- COTIZACIONES RECIBIDAS SECTION -->
+          <div id="cotizacionesRecibidasSection" style="display: none">
+            <h2 class="text-gold mb-4 text-center section-title">
+              Solicitudes de Cotizaciones Recibidas
+            </h2>
+            <div class="row mb-4">
+              <div class="col-md-6 mx-auto">
+                <div class="premium-search">
+                  <i class="fa-solid fa-magnifying-glass search-icon-gold"></i>
+                  <input
+                    type="text"
+                    id="cotizacionSearch"
+                    class="form-control search-input-glass"
+                    placeholder="Buscar por conjunto o cliente..."
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div id="cotizacionesRecibidasGrid" class="row g-4">
               <!-- Cargado dinámicamente -->
             </div>
           </div>

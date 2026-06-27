@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   window.currentView = "dashboard";
   window.allProducts = [];
   window.allProformas = [];
+  window.allQuoteRequests = [];
 
   // 2. Navigation
   initNavigation();
@@ -14,6 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // 3. Load Data
   loadProducts();
   loadProformas();
+  loadQuoteRequests();
   initDashboard();
   cargarInfoUsuario();
 
@@ -30,6 +32,7 @@ function initNavigation() {
     dashboard: document.getElementById("dashboardSection"),
     products: document.getElementById("productsSection"),
     proformas: document.getElementById("proformasSection"),
+    cotizaciones_recibidas: document.getElementById("cotizacionesRecibidasSection"),
   };
 
   sidebarLinks.forEach((link) => {
@@ -90,6 +93,7 @@ function switchView(targetView, isPopState = false) {
     dashboard: document.getElementById("dashboardSection"),
     products: document.getElementById("productsSection"),
     proformas: document.getElementById("proformasSection"),
+    cotizaciones_recibidas: document.getElementById("cotizacionesRecibidasSection"),
   };
 
   if (!isPopState) {
@@ -515,7 +519,41 @@ document
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       };
 
+      if (window.pendingQuoteUserId) {
+        proformaData.userId = window.pendingQuoteUserId;
+      }
+
       const docRef = await db.collection("proformas").add(proformaData);
+
+      // Si responde a una solicitud pendiente, actualizar estados
+      if (window.pendingQuoteReqId && window.pendingQuoteUserId) {
+        const reqId = window.pendingQuoteReqId;
+        const uId = window.pendingQuoteUserId;
+
+        // Actualizar el array dentro del documento del usuario
+        const userDocRef = db.collection("users").doc(uId);
+        await db.runTransaction(async (transaction) => {
+          const sfDoc = await transaction.get(userDocRef);
+          if (!sfDoc.exists) return;
+          const reqs = sfDoc.data().quoteRequests || [];
+          const updatedReqs = reqs.map(r => {
+            if (r.id === reqId) {
+              return { ...r, status: "Cotizado", reply: docRef.id };
+            }
+            return r;
+          });
+          transaction.update(userDocRef, { quoteRequests: updatedReqs });
+        });
+
+        // Limpiar variables temporales
+        window.pendingQuoteReqId = null;
+        window.pendingQuoteUserId = null;
+        window.pendingQuoteComplexName = null;
+
+        // Recargar solicitudes
+        loadQuoteRequests();
+      }
+
       Swal.fire("¡Éxito!", "Proforma generada correctamente.", "success");
       bootstrap.Modal.getInstance(
         document.getElementById("proformaModal"),
@@ -960,7 +998,108 @@ function initEventListeners() {
     );
     renderProformas(filtered);
   });
+
+  // Quote requests search
+  document.getElementById("cotizacionSearch")?.addEventListener("input", (e) => {
+    const query = e.target.value.toLowerCase();
+    const filtered = window.allQuoteRequests.filter(
+      (r) =>
+        r.complexName.toLowerCase().includes(query) ||
+        r.clientName.toLowerCase().includes(query) ||
+        r.description.toLowerCase().includes(query)
+    );
+    renderQuoteRequests(filtered);
+  });
 }
+
+// =========================================
+// GESTIÓN DE SOLICITUDES DE COTIZACIÓN
+// =========================================
+async function loadQuoteRequests() {
+  try {
+    const snapshot = await db.collection("users").get();
+    const requests = [];
+    snapshot.forEach((doc) => {
+      const userData = doc.data();
+      const quoteReqs = userData.quoteRequests || [];
+      quoteReqs.forEach((r) => {
+        requests.push({
+          ...r,
+          userId: doc.id,
+          clientName: userData.adminName || userData.name || "Cliente",
+          complexName: userData.complexName || "Conjunto no especificado"
+        });
+      });
+    });
+
+    // Ordenar localmente por fecha descendente
+    requests.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    window.allQuoteRequests = requests;
+    renderQuoteRequests(window.allQuoteRequests);
+  } catch (error) {
+    console.error("Error loading quote requests:", error);
+  }
+}
+
+function renderQuoteRequests(requests) {
+  const grid = document.getElementById("cotizacionesRecibidasGrid");
+  if (!grid) return;
+
+  if (requests.length === 0) {
+    grid.innerHTML =
+      '<div class="col-12 text-center py-5 text-white-50">No hay solicitudes de cotización registradas.</div>';
+    return;
+  }
+
+  grid.innerHTML = requests
+    .map((r) => {
+      const dateStr = r.createdAt ? new Date(r.createdAt).toLocaleString("es-ES") : "---";
+      const statusBadge = r.status === "Cotizado" || r.status === "Respondido" ? "bg-success" : "bg-warning text-dark";
+      
+      return `
+        <div class="col-xl-4 col-md-6">
+          <div class="stat-card" style="display: block; height: auto;">
+            <div class="d-flex justify-content-between mb-3 align-items-center">
+              <span class="badge ${statusBadge}">${r.status || "Pendiente"}</span>
+              <span class="text-white-50 small">${dateStr}</span>
+            </div>
+            <h5 class="text-gold fw-bold mb-1 text-truncate">${r.complexName}</h5>
+            <p class="text-white small mb-1"><strong>Admin:</strong> ${r.clientName}</p>
+            <p class="text-white-50 small mb-3 text-truncate" style="max-height: 50px;" title="${r.description}">${r.description}</p>
+            <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary">
+              <a href="tel:${r.phone}" class="btn btn-sm btn-outline-info"><i class="fa-solid fa-phone"></i> ${r.phone}</a>
+              ${r.status !== "Cotizado" && r.status !== "Respondido" ? `
+                <button class="btn btn-sm btn-gold" onclick="responderCotizacion('${r.id}', '${r.clientName.replace(/'/g, "\\'")}', '${r.phone}', '${r.userId}', '${r.complexName.replace(/'/g, "\\'")}')">
+                  <i class="fa-solid fa-file-invoice-dollar me-1"></i> Cotizar
+                </button>
+              ` : `
+                <span class="text-success small fw-bold"><i class="fa-solid fa-circle-check"></i> Atendido</span>
+              `}
+            </div>
+          </div>
+        </div>
+      `;
+    })
+    .join("");
+}
+
+window.responderCotizacion = (reqId, clientName, phone, userId, complexName) => {
+  // Almacenar el ID temporalmente para vincular la proforma a esta solicitud
+  window.pendingQuoteReqId = reqId;
+  window.pendingQuoteUserId = userId;
+
+  // Abrir modal de nueva proforma
+  openNewProforma();
+  
+  // Rellenar datos
+  const clientNameInput = document.getElementById("profClientName");
+  const clientPhoneInput = document.getElementById("profClientPhone");
+  const dateInput = document.getElementById("profDate");
+
+  if (clientNameInput) clientNameInput.value = complexName.toUpperCase();
+  if (clientPhoneInput) clientPhoneInput.value = phone;
+  if (dateInput) dateInput.value = new Date().toISOString().split("T")[0];
+};
 
 // =========================================
 //  USER PROFILE & AUTH PROTECTION

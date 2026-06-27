@@ -81,6 +81,16 @@
               <i class="fa-solid fa-user-plus"></i> Crear Usuarios
             </a>
           </li>
+          <li class="sidebar-item">
+            <a class="sidebar-link" data-view="cotizaciones_admin">
+              <i class="fa-solid fa-file-waveform"></i> Cotizaciones
+            </a>
+          </li>
+          <li class="sidebar-item">
+            <a class="sidebar-link" data-view="quejas_admin">
+              <i class="fa-solid fa-envelope-open-text"></i> Quejas y Mensajes
+            </a>
+          </li>
           <!-- Logout for mobile -->
           <li class="sidebar-item d-lg-none mt-4">
             <button class="btn-logout-sidebar w-100" id="logoutBtnMobile">
@@ -458,6 +468,48 @@
 
             <div id="usersGrid" class="row g-4">
               <!-- Las tarjetas de usuarios se cargarán aquí -->
+            </div>
+          </div>
+
+          <!-- Sección para Cotizaciones en Admin -->
+          <div id="cotizacionesAdminSection" style="display: none">
+            <h2 class="text-gold mb-4">Solicitudes de Cotizaciones</h2>
+            <div class="row mb-4">
+              <div class="col-md-6 mx-auto">
+                <div class="premium-search">
+                  <i class="fa-solid fa-magnifying-glass search-icon-gold"></i>
+                  <input
+                    type="text"
+                    id="cotizacionAdminSearch"
+                    class="form-control search-input-glass"
+                    placeholder="Buscar por conjunto, cliente o descripción..."
+                  />
+                </div>
+              </div>
+            </div>
+            <div id="cotizacionesAdminContainer" class="row g-4" style="margin-bottom: 20px;">
+              <!-- Cargado dinámicamente -->
+            </div>
+          </div>
+
+          <!-- Sección para Quejas y Mensajes en Admin -->
+          <div id="quejasAdminSection" style="display: none">
+            <h2 class="text-gold mb-4">Bandeja de Quejas y Mensajería</h2>
+            <div class="row mb-4">
+              <div class="col-md-6 mx-auto">
+                <div class="premium-search">
+                  <i class="fa-solid fa-magnifying-glass search-icon-gold"></i>
+                  <input
+                    type="text"
+                    id="quejasAdminSearch"
+                    class="form-control search-input-glass"
+                    placeholder="Buscar por tipo, asunto o conjunto..."
+                  />
+                </div>
+              </div>
+            </div>
+            <div id="quejasAdminContainer" class="row g-4" style="margin-bottom: 20px;">
+              <!-- Cargado dinámicamente -->
             </div>
           </div>
         </div>
@@ -1077,6 +1129,36 @@
     </div>
     </div> <!-- Fin del container-fluid de contenido -->
     </main>
+    <!-- Modal: Responder Comunicación Admin -->
+    <div class="modal fade" id="replyCommModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border-gold shadow-lg" style="border: 1px solid #d4af37;">
+          <div class="modal-header border-bottom border-secondary">
+            <h5 class="modal-title text-gold"><i class="fa-solid fa-reply me-2"></i> Responder Comunicación</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body p-4">
+            <input type="hidden" id="replyCommId" />
+            <input type="hidden" id="replyCommUserId" />
+            <div class="mb-3">
+              <label class="form-label text-gold small fw-bold">DE</label>
+              <div id="replyCommSender" class="text-white fw-bold"></div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label text-gold small fw-bold">MENSAJE RECIBIDO</label>
+              <p id="replyCommText" class="p-3 bg-dark-soft rounded text-white-50 small" style="white-space: pre-wrap; border: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.3);"></p>
+            </div>
+            <div class="mb-3">
+              <label class="form-label text-gold small fw-bold">TU RESPUESTA</label>
+              <textarea class="form-control bg-transparent border-secondary text-white" id="replyCommAnswer" rows="5" placeholder="Escribe tu respuesta aquí..." required></textarea>
+            </div>
+            <button type="button" class="btn btn-gold w-100 py-3 fw-bold rounded-pill" onclick="enviarRespuestaComunicacion()">
+              <i class="fa-solid fa-paper-plane me-2"></i> ENVIAR RESPUESTA
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div> <!-- Fin del admin-wrapper -->
 
 <footer class="footer">

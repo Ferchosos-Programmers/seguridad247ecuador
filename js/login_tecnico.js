@@ -302,6 +302,8 @@ document.addEventListener("DOMContentLoaded", () => {
     window.tutorialsLoaded = false;
     window.allPasswords = [];
     window.passwordsLoaded = false;
+    window.allTechnicalQuejas = [];
+    window.quejasLoaded = false;
 
     // Cargar Info Usuario
     cargarInfoUsuario();
@@ -420,6 +422,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const passwordSearchInput = document.getElementById("passwordSearchInput");
     if (passwordSearchInput)
       passwordSearchInput.addEventListener("input", applyFilters);
+    const quejasSearchInput = document.getElementById("quejasTecnicasSearch");
+    if (quejasSearchInput)
+      quejasSearchInput.addEventListener("input", applyFilters);
 
     function switchView(view, isPopState = false) {
       // Registrar en el historial si no es un popstate y no es la carga inicial
@@ -454,6 +459,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "tutorialsSection",
         "passwordsSection",
         "attendanceSection",
+        "quejasTecnicasSection",
       ];
       sections.forEach((s) => {
         const el = document.getElementById(s);
@@ -503,6 +509,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!window.passwordsLoaded) cargarClavesTecnicas();
         else renderClavesTecnicas(window.allPasswords);
+      } else if (view === "quejas_tecnicas") {
+        quejasTecnicasSection.style.display = "block";
+        if (!window.quejasLoaded) cargarQuejasTecnicas();
+        else renderQuejasTecnicas(window.allTechnicalQuejas);
       }
     }
 
@@ -739,6 +749,20 @@ document.addEventListener("DOMContentLoaded", () => {
           );
         });
         renderClavesTecnicas(filteredPasswords);
+      }
+
+      if (currentView === "quejas_tecnicas") {
+        const quejasSearchInput = document.getElementById("quejasTecnicasSearch");
+        const quejasSearchValue = quejasSearchInput?.value.toLowerCase() || "";
+        const filteredQuejas = window.allTechnicalQuejas.filter((q) => {
+          return (
+            q.complexName.toLowerCase().includes(quejasSearchValue) ||
+            q.clientName.toLowerCase().includes(quejasSearchValue) ||
+            q.subject.toLowerCase().includes(quejasSearchValue) ||
+            q.message.toLowerCase().includes(quejasSearchValue)
+          );
+        });
+        renderQuejasTecnicas(filteredQuejas);
       }
     }
 
@@ -3663,5 +3687,139 @@ window.eliminarClave = async function (id, label) {
       console.error("Error al eliminar registro:", error);
       Swal.fire("Error", "No se pudo eliminar el registro.", "error");
     }
+  }
+};
+
+// =========================================
+// BANDEJA DE QUEJAS PARA GESTIÓN TÉCNICA
+// =========================================
+async function cargarQuejasTecnicas() {
+  try {
+    const snapshot = await db.collection("users").get();
+    const quejas = [];
+    snapshot.forEach((doc) => {
+      const userData = doc.data();
+      const comms = userData.comunicaciones || [];
+      comms.forEach((c) => {
+        // En gestión técnica mostramos principalmente quejas o reportes de fallas
+        quejas.push({
+          ...c,
+          userId: doc.id,
+          clientName: userData.adminName || userData.name || "Cliente",
+          complexName: userData.complexName || "Conjunto no especificado",
+        });
+      });
+    });
+
+    // Ordenar localmente por fecha descendente
+    quejas.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    window.allTechnicalQuejas = quejas;
+    window.quejasLoaded = true;
+    renderQuejasTecnicas(window.allTechnicalQuejas);
+  } catch (error) {
+    console.error("Error al cargar quejas técnicas:", error);
+  }
+}
+
+function renderQuejasTecnicas(quejas) {
+  const container = document.getElementById("quejasTecnicasContainer");
+  if (!container) return;
+
+  if (quejas.length === 0) {
+    container.innerHTML = '<div class="col-12 text-center py-5 text-white-50">No hay quejas o reportes técnicos registrados.</div>';
+    return;
+  }
+
+  container.innerHTML = quejas.map(q => {
+    const dateStr = q.createdAt ? new Date(q.createdAt).toLocaleString("es-ES") : "---";
+    const statusBadge = q.status === "Respondido" ? "bg-success" : "bg-warning text-dark";
+    const typeLabel = q.type === "queja" ? "Queja / Falla" : q.type === "sugerencia" ? "Sugerencia" : "Mensaje";
+    const typeBadge = q.type === "queja" ? "bg-danger" : q.type === "sugerencia" ? "bg-info" : "bg-secondary";
+
+    return `
+      <div class="col-xl-4 col-md-6">
+        <div class="job-card" style="min-height: auto;">
+          <div class="d-flex justify-content-between mb-3 align-items-center">
+            <div>
+              <span class="badge ${typeBadge} me-2">${typeLabel}</span>
+              <span class="badge ${statusBadge}">${q.status || "Pendiente"}</span>
+            </div>
+            <small class="text-white-50">${dateStr}</small>
+          </div>
+          <h5 class="text-gold fw-bold mb-1">${q.complexName}</h5>
+          <p class="text-white small mb-1"><strong>Asunto:</strong> ${q.subject}</p>
+          <p class="text-white-50 small mb-3" style="min-height: 45px; white-space: pre-wrap;">${q.message}</p>
+          
+          ${q.reply ? `
+            <div class="mt-2 p-2 rounded bg-dark bg-opacity-50 border-start border-gold mb-3">
+              <small class="text-gold d-block fw-bold"><i class="fa-solid fa-reply"></i> Respuesta:</small>
+              <p class="text-white-50 small mb-0">${q.reply}</p>
+            </div>
+          ` : ""}
+
+          <div class="d-flex justify-content-end align-items-center pt-2 border-top border-secondary">
+            ${q.status !== "Respondido" ? `
+              <button class="btn btn-sm btn-gold" onclick="abrirResponderQuejaModal('${q.id}', '${q.userId}', '${q.clientName.replace(/'/g, "\\'")}', '${q.message.replace(/'/g, "\\'").replace(/\n/g, "\\n")}')">
+                <i class="fa-solid fa-reply me-1"></i> Responder
+              </button>
+            ` : `
+              <span class="text-success small fw-bold"><i class="fa-solid fa-circle-check"></i> Respondido</span>
+            `}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+window.abrirResponderQuejaModal = (id, userId, sender, text) => {
+  document.getElementById("replyCommId").value = id;
+  document.getElementById("replyCommUserId").value = userId;
+  document.getElementById("replyCommSender").textContent = sender;
+  document.getElementById("replyCommText").textContent = text;
+  document.getElementById("replyCommAnswer").value = "";
+
+  const modal = new bootstrap.Modal(document.getElementById("replyCommModal"));
+  modal.show();
+};
+
+window.enviarRespuestaComunicacion = async () => {
+  const id = document.getElementById("replyCommId").value;
+  const userId = document.getElementById("replyCommUserId").value;
+  const answer = document.getElementById("replyCommAnswer").value;
+
+  if (!answer.trim()) {
+    Swal.fire("Error", "Por favor ingresa una respuesta.", "error");
+    return;
+  }
+
+  Swal.fire({
+    title: "Enviando respuesta...",
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading(),
+  });
+
+  try {
+    // Actualizar el array dentro del documento del usuario
+    const userDocRef = db.collection("users").doc(userId);
+    await db.runTransaction(async (transaction) => {
+      const sfDoc = await transaction.get(userDocRef);
+      if (!sfDoc.exists) return;
+      const comms = sfDoc.data().comunicaciones || [];
+      const updatedComms = comms.map(c => {
+        if (c.id === id) {
+          return { ...c, status: "Respondido", reply: answer };
+        }
+        return c;
+      });
+      transaction.update(userDocRef, { comunicaciones: updatedComms });
+    });
+
+    Swal.fire("¡Éxito!", "Respuesta enviada correctamente.", "success");
+    bootstrap.Modal.getInstance(document.getElementById("replyCommModal")).hide();
+    cargarQuejasTecnicas();
+  } catch (error) {
+    console.error("Error al responder queja:", error);
+    Swal.fire("Error", "No se pudo enviar la respuesta.", "error");
   }
 };

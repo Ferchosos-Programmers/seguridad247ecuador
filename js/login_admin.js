@@ -106,12 +106,17 @@ document.addEventListener("DOMContentLoaded", () => {
         "usersManagementSection",
       );
 
+      const cotizacionesAdminSection = document.getElementById("cotizacionesAdminSection");
+      const quejasAdminSection = document.getElementById("quejasAdminSection");
+
       if (dashboardSection) dashboardSection.style.display = "none";
       if (jobsSection) jobsSection.style.display = "none";
       if (contractsSection) contractsSection.style.display = "none";
       if (paymentsSection) paymentsSection.style.display = "none";
       if (usersManagementSection) usersManagementSection.style.display = "none";
       if (complexesSection) complexesSection.style.display = "none";
+      if (cotizacionesAdminSection) cotizacionesAdminSection.style.display = "none";
+      if (quejasAdminSection) quejasAdminSection.style.display = "none";
       if (document.getElementById("passwordsSection"))
         document.getElementById("passwordsSection").style.display = "none";
 
@@ -153,6 +158,12 @@ document.addEventListener("DOMContentLoaded", () => {
         if (addComplexBtn) addComplexBtn.style.display = "flex";
         cargarConjuntos();
         cargarOpcionesSelect2();
+      } else if (viewValue === "cotizaciones_admin") {
+        if (cotizacionesAdminSection) cotizacionesAdminSection.style.display = "block";
+        cargarCotizacionesAdmin();
+      } else if (viewValue === "quejas_admin") {
+        if (quejasAdminSection) quejasAdminSection.style.display = "block";
+        cargarQuejasAdmin();
       } else if (viewValue === "todos") {
         if (dashboardSection) dashboardSection.style.display = "block";
         actualizarContadoresDashboard();
@@ -2953,9 +2964,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// =========================================
-//  CARGAR OPCIONES DE CONTRATO (PARA REGISTRO)
-// =========================================
 async function cargarOpcionesContrato() {
   const selects = [
     document.getElementById("newUserContract"),
@@ -2977,7 +2985,9 @@ async function cargarOpcionesContrato() {
         '<option value="no-dispone">❌ No dispone de contrato</option>';
       snapshot.forEach((doc) => {
         const data = doc.data();
-        optionsHTML += `<option value="${doc.id}">${data.clientName} - ${data.date || ""}</option>`;
+        const displayName = data.clientName || data.complexName || "Sin Nombre";
+        const displayDate = data.date || data.signDate || "";
+        optionsHTML += `<option value="${doc.id}">${displayName} - ${displayDate}</option>`;
       });
       select.innerHTML = optionsHTML;
       if (currentValue) select.value = currentValue;
@@ -3016,8 +3026,9 @@ async function cargarOpcionesComplejos() {
         '<option value="" selected disabled>Seleccione un conjunto...</option>';
       snapshot.forEach((doc) => {
         const data = doc.data();
-        // Mostrar campo 'admin' como texto principal
-        optionsHTML += `<option value="${data.name}">${data.admin || data.name}</option>`;
+        // Mostrar el nombre del conjunto como texto principal, opcionalmente con el admin
+        const label = data.admin ? `${data.name} (${data.admin})` : data.name;
+        optionsHTML += `<option value="${data.name}">${label}</option>`;
       });
       select.innerHTML = optionsHTML;
       if (currentValue) select.value = currentValue;
@@ -4159,4 +4170,224 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+  // Eventos de búsqueda para Cotizaciones y Quejas en el Admin
+  document.getElementById("cotizacionAdminSearch")?.addEventListener("input", (e) => {
+    const query = e.target.value.toLowerCase();
+    const filtered = (window.allAdminQuoteRequests || []).filter(r => 
+      r.complexName.toLowerCase().includes(query) ||
+      r.clientName.toLowerCase().includes(query) ||
+      r.description.toLowerCase().includes(query)
+    );
+    renderCotizacionesAdmin(filtered);
+  });
+
+  document.getElementById("quejasAdminSearch")?.addEventListener("input", (e) => {
+    const query = e.target.value.toLowerCase();
+    const filtered = (window.allAdminQuejas || []).filter(q => 
+      q.complexName.toLowerCase().includes(query) ||
+      q.clientName.toLowerCase().includes(query) ||
+      q.subject.toLowerCase().includes(query) ||
+      q.message.toLowerCase().includes(query) ||
+      q.type.toLowerCase().includes(query)
+    );
+    renderQuejasAdmin(filtered);
+  });
 });
+
+// =========================================
+// LOGIC FOR ADMIN COTIZACIONES & QUEJAS
+// =========================================
+async function cargarCotizacionesAdmin() {
+  const db = firebase.firestore();
+  try {
+    const snapshot = await db.collection("users").get();
+    const requests = [];
+    snapshot.forEach((doc) => {
+      const userData = doc.data();
+      const quoteReqs = userData.quoteRequests || [];
+      quoteReqs.forEach((r) => {
+        requests.push({
+          ...r,
+          userId: doc.id,
+          clientName: userData.adminName || userData.name || "Cliente",
+          complexName: userData.complexName || "Conjunto no especificado",
+        });
+      });
+    });
+
+    // Ordenar localmente por fecha descendente
+    requests.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    window.allAdminQuoteRequests = requests;
+    renderCotizacionesAdmin(window.allAdminQuoteRequests);
+  } catch (error) {
+    console.error("Error al cargar cotizaciones en admin:", error);
+  }
+}
+
+function renderCotizacionesAdmin(requests) {
+  const container = document.getElementById("cotizacionesAdminContainer");
+  if (!container) return;
+
+  if (requests.length === 0) {
+    container.innerHTML = '<div class="col-12 text-center py-5 text-white-50">No hay solicitudes de cotizaciones.</div>';
+    return;
+  }
+
+  container.innerHTML = requests.map(r => {
+    const dateStr = r.createdAt ? new Date(r.createdAt).toLocaleString("es-ES") : "---";
+    const statusBadge = r.status === "Cotizado" || r.status === "Respondido" ? "bg-success" : "bg-warning text-dark";
+    return `
+      <div class="col-xl-4 col-md-6">
+        <div class="job-card" style="min-height: auto;">
+          <div class="d-flex justify-content-between mb-3 align-items-center">
+            <span class="badge ${statusBadge}">${r.status || "Pendiente"}</span>
+            <small class="text-white-50">${dateStr}</small>
+          </div>
+          <h5 class="text-gold fw-bold mb-1">${r.complexName}</h5>
+          <p class="text-white small mb-1"><strong>Contacto:</strong> ${r.clientName}</p>
+          <p class="text-white-50 small mb-3" style="min-height: 45px;">${r.description}</p>
+          <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary">
+            <a href="tel:${r.phone}" class="btn btn-sm btn-outline-info"><i class="fa-solid fa-phone"></i> ${r.phone}</a>
+            ${r.status === "Cotizado" ? `
+              <span class="text-success small fw-bold"><i class="fa-solid fa-circle-check"></i> Cotizado</span>
+            ` : `
+              <span class="text-warning small fw-bold"><i class="fa-solid fa-clock"></i> Pendiente</span>
+            `}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+async function cargarQuejasAdmin() {
+  const db = firebase.firestore();
+  try {
+    const snapshot = await db.collection("users").get();
+    const quejas = [];
+    snapshot.forEach((doc) => {
+      const userData = doc.data();
+      const comms = userData.comunicaciones || [];
+      comms.forEach((c) => {
+        quejas.push({
+          ...c,
+          userId: doc.id,
+          clientName: userData.adminName || userData.name || "Cliente",
+          complexName: userData.complexName || "Conjunto no especificado",
+        });
+      });
+    });
+
+    // Ordenar localmente por fecha descendente
+    quejas.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    window.allAdminQuejas = quejas;
+    renderQuejasAdmin(window.allAdminQuejas);
+  } catch (error) {
+    console.error("Error al cargar quejas en admin:", error);
+  }
+}
+
+function renderQuejasAdmin(quejas) {
+  const container = document.getElementById("quejasAdminContainer");
+  if (!container) return;
+
+  if (quejas.length === 0) {
+    container.innerHTML = '<div class="col-12 text-center py-5 text-white-50">No hay quejas o mensajes registrados.</div>';
+    return;
+  }
+
+  container.innerHTML = quejas.map(q => {
+    const dateStr = q.createdAt ? new Date(q.createdAt).toLocaleString("es-ES") : "---";
+    const statusBadge = q.status === "Respondido" ? "bg-success" : "bg-warning text-dark";
+    const typeLabel = q.type === "queja" ? "Queja" : q.type === "sugerencia" ? "Sugerencia" : "Mensaje";
+    const typeBadge = q.type === "queja" ? "bg-danger" : q.type === "sugerencia" ? "bg-info" : "bg-secondary";
+
+    return `
+      <div class="col-xl-4 col-md-6">
+        <div class="job-card" style="min-height: auto;">
+          <div class="d-flex justify-content-between mb-3 align-items-center">
+            <div>
+              <span class="badge ${typeBadge} me-2">${typeLabel}</span>
+              <span class="badge ${statusBadge}">${q.status || "Pendiente"}</span>
+            </div>
+            <small class="text-white-50">${dateStr}</small>
+          </div>
+          <h5 class="text-gold fw-bold mb-1">${q.complexName}</h5>
+          <p class="text-white small mb-1"><strong>Asunto:</strong> ${q.subject}</p>
+          <p class="text-white-50 small mb-3" style="min-height: 45px; white-space: pre-wrap;">${q.message}</p>
+          
+          ${q.reply ? `
+            <div class="mt-2 p-2 rounded bg-dark bg-opacity-50 border-start border-gold mb-3">
+              <small class="text-gold d-block fw-bold"><i class="fa-solid fa-reply"></i> Respuesta:</small>
+              <p class="text-white-50 small mb-0">${q.reply}</p>
+            </div>
+          ` : ""}
+
+          <div class="d-flex justify-content-end align-items-center pt-2 border-top border-secondary">
+            ${q.status !== "Respondido" ? `
+              <button class="btn btn-sm btn-gold" onclick="abrirResponderQuejaModal('${q.id}', '${q.userId}', '${q.clientName.replace(/'/g, "\\'")}', '${q.message.replace(/'/g, "\\'").replace(/\n/g, "\\n")}')">
+                <i class="fa-solid fa-reply me-1"></i> Responder
+              </button>
+            ` : `
+              <span class="text-success small fw-bold"><i class="fa-solid fa-circle-check"></i> Respondido</span>
+            `}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+window.abrirResponderQuejaModal = (id, userId, sender, text) => {
+  document.getElementById("replyCommId").value = id;
+  document.getElementById("replyCommUserId").value = userId;
+  document.getElementById("replyCommSender").textContent = sender;
+  document.getElementById("replyCommText").textContent = text;
+  document.getElementById("replyCommAnswer").value = "";
+
+  const modal = new bootstrap.Modal(document.getElementById("replyCommModal"));
+  modal.show();
+};
+
+window.enviarRespuestaComunicacion = async () => {
+  const db = firebase.firestore();
+  const id = document.getElementById("replyCommId").value;
+  const userId = document.getElementById("replyCommUserId").value;
+  const answer = document.getElementById("replyCommAnswer").value;
+
+  if (!answer.trim()) {
+    Swal.fire("Error", "Por favor ingresa una respuesta.", "error");
+    return;
+  }
+
+  Swal.fire({
+    title: "Enviando respuesta...",
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading(),
+  });
+
+  try {
+    // Actualizar el array dentro del documento del usuario
+    const userDocRef = db.collection("users").doc(userId);
+    await db.runTransaction(async (transaction) => {
+      const sfDoc = await transaction.get(userDocRef);
+      if (!sfDoc.exists) return;
+      const comms = sfDoc.data().comunicaciones || [];
+      const updatedComms = comms.map(c => {
+        if (c.id === id) {
+          return { ...c, status: "Respondido", reply: answer };
+        }
+        return c;
+      });
+      transaction.update(userDocRef, { comunicaciones: updatedComms });
+    });
+
+    Swal.fire("¡Éxito!", "Respuesta enviada correctamente.", "success");
+    bootstrap.Modal.getInstance(document.getElementById("replyCommModal")).hide();
+    cargarQuejasAdmin();
+  } catch (error) {
+    console.error("Error al responder queja:", error);
+    Swal.fire("Error", "No se pudo enviar la respuesta.", "error");
+  }
+};

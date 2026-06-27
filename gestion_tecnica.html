@@ -77,6 +77,11 @@
               <i class="fa-solid fa-book-open"></i> Tutoriales
             </a>
           </li>
+          <li class="sidebar-item">
+            <a class="sidebar-link" data-view="quejas_tecnicas">
+              <i class="fa-solid fa-envelope-open-text"></i> Quejas y Reportes
+            </a>
+          </li>
           <!-- Logout for mobile -->
           <li class="sidebar-item d-lg-none mt-4">
             <button class="btn-logout-sidebar w-100" id="logoutBtnMobile">
@@ -429,6 +434,32 @@
               style="margin-top: 20px"
             >
               <p class="text-center text-muted w-100">Cargando claves...</p>
+            </div>
+          </div>
+
+            </div>
+          </div>
+
+          <!-- Sección para Quejas y Reportes en Gestión Técnica -->
+          <div id="quejasTecnicasSection" style="display: none">
+            <h2 class="text-gold mb-4 text-center section-title">
+              Bandeja de Quejas y Reportes Técnicos
+            </h2>
+            <div class="row mb-4">
+              <div class="col-md-6 mx-auto">
+                <div class="premium-search">
+                  <i class="fa-solid fa-magnifying-glass search-icon-gold"></i>
+                  <input
+                    type="text"
+                    id="quejasTecnicasSearch"
+                    class="form-control search-input-glass"
+                    placeholder="Buscar por conjunto, asunto o mensaje..."
+                  />
+                </div>
+              </div>
+            </div>
+            <div id="quejasTecnicasContainer" class="row g-4" style="margin-bottom: 20px;">
+              <!-- Cargado dinámicamente -->
             </div>
           </div>
 
@@ -1416,6 +1447,37 @@
             </button>
             <button type="button" class="btn btn-gold" id="saveGuideBtn">
               Guardar Guía
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Responder Comunicación Técnico -->
+    <div class="modal fade" id="replyCommModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border-gold shadow-lg" style="border: 1px solid #d4af37; border-radius: 12px; overflow: hidden;">
+          <div class="modal-header border-bottom border-secondary" style="background: rgba(212,175,55,0.1);">
+            <h5 class="modal-title text-gold"><i class="fa-solid fa-reply me-2"></i> Responder Comunicación</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body p-4">
+            <input type="hidden" id="replyCommId" />
+            <input type="hidden" id="replyCommUserId" />
+            <div class="mb-3">
+              <label class="form-label text-gold small fw-bold">DE</label>
+              <div id="replyCommSender" class="text-white fw-bold"></div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label text-gold small fw-bold">MENSAJE RECIBIDO</label>
+              <p id="replyCommText" class="p-3 rounded text-white-50 small" style="white-space: pre-wrap; border: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.3);"></p>
+            </div>
+            <div class="mb-3">
+              <label class="form-label text-gold small fw-bold">TU RESPUESTA</label>
+              <textarea class="form-control bg-transparent border-secondary text-white" id="replyCommAnswer" rows="5" placeholder="Escribe tu respuesta aquí..." required></textarea>
+            </div>
+            <button type="button" class="btn btn-gold w-100 py-3 fw-bold rounded-pill" onclick="enviarRespuestaComunicacion()">
+              <i class="fa-solid fa-paper-plane me-2"></i> ENVIAR RESPUESTA
             </button>
           </div>
         </div>
