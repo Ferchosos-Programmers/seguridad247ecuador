@@ -12,6 +12,9 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
     />
     <link rel="icon" href="assets/img/logo.png" type="image/png" />
+    <!-- PayPhone Cajita de Pagos v2.0 -->
+    <link rel="stylesheet" href="https://cdn.payphonetodoesposible.com/box/v2.0/payphone-payment-box.css" />
+    <script type="module" src="https://cdn.payphonetodoesposible.com/box/v2.0/payphone-payment-box.js"></script>
     <style>
       /* ELEGANT CUSTOM STYLES FOR PAYMENT SCHEDULE */
       .table-custom {
@@ -296,21 +299,13 @@
 
                       <!-- Botón de PayPhone -->
                       <div id="payphone-container" class="mt-3">
-                        <a
-                          id="payphone-link"
-                          href="https://ppls.me/cJ7cKPav8PMrb69qZHzUQ"
-                          target="_blank"
-                          class="btn btn-primary w-100 py-3 fw-bold rounded-pill"
-                          style="background-color: #ff6600; border-color: #ff6600"
-                        >
-                          <i class="fa-solid fa-mobile-screen-button me-2"></i>
-                          PAGAR CON PAYPHONE
-                        </a>
+                        <button id="btnOpenPayphoneModal" class="btn btn-gold w-100 py-3 fw-bold rounded-pill shadow-gold-glow">
+                          <i class="fa-solid fa-credit-card me-2"></i> CONTINUAR AL PAGO
+                        </button>
                       </div>
 
                       <p class="text-white-50 small mt-3 mb-0">
-                        <i class="fa-solid fa-lock me-1"></i> Serás redirigido al
-                        portal seguro de PayPhone.
+                        <i class="fa-solid fa-lock me-1"></i> Transacción segura protegida por PayPhone.
                       </p>
                     </div>
 
@@ -585,11 +580,24 @@
           color: #000000 !important;
           box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
         }
+        .shadow-gold-glow {
+          box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+          transition: all 0.3s ease;
+        }
+        .shadow-gold-glow:hover {
+          box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
+          transform: translateY(-2px);
+        }
+        .bg-dark-glass {
+          background: rgba(20, 20, 20, 0.85) !important;
+          backdrop-filter: blur(15px);
+          -webkit-backdrop-filter: blur(15px);
+          border: 1px solid rgba(212, 175, 55, 0.4) !important;
+        }
+        .border-gold {
+          border-color: #d4af37 !important;
+        }
         .comm-bubble {
-          background: rgba(255, 255, 255, 0.05);
-          border-left: 4px solid #d4af37;
-          border-radius: 8px;
-          padding: 15px;
           transition: all 0.3s ease;
         }
         .comm-bubble:hover {
@@ -617,6 +625,28 @@
               <button type="button" class="btn btn-gold" id="downloadProformaPdfBtnPortal">
                 <i class="fa-solid fa-download me-2"></i> Descargar PDF
               </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- MODAL DE PAGO PAYPHONE -->
+      <div class="modal fade" id="payphoneModal" tabindex="-1" aria-labelledby="payphoneModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content bg-dark-glass text-white border-gold shadow-lg" style="border-radius: 20px; overflow: hidden;">
+            <div class="modal-header border-bottom border-secondary p-4">
+              <h5 class="modal-title text-white" id="payphoneModalLabel">
+                <i class="fa-solid fa-shield-halved me-2"></i> Pago Seguro con PayPhone
+              </h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4" style="background: rgba(30, 30, 30, 0.5);">
+              <div id="payphone-modal-info" class="mb-4 text-center">
+                <p class="text-white-50 small mb-1">Concepto:</p>
+                <h6 id="payphone-modal-service" class="fw-bold text-white mb-2">---</h6>
+                <p class="text-white-50 small mb-1">Total a Pagar (+IVA):</p>
+                <h4 id="payphone-modal-amount" class="text-gold fw-bold">$0.00</h4>
+              </div>
+              <div id="pp-button"></div>
             </div>
           </div>
         </div>

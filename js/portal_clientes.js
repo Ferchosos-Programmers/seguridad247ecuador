@@ -7,6 +7,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const userNameDisplay = document.getElementById("userNameDisplay");
   const paymentsTableBody = document.getElementById("paymentsTableBody");
 
+  // CHECK FOR PAYPHONE CALLBACK PARAMETERS IN URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const payphoneId = urlParams.get("id");
+  const clientTransactionId = urlParams.get("clientTransactionId");
+
+  if (payphoneId && clientTransactionId) {
+    verifyPayphonePayment(payphoneId, clientTransactionId);
+  }
+
   // 1. CHECK AUTH AND INITIALIZE VIEW
   console.log("Iniciando protección de ruta clientes...");
 
@@ -297,6 +306,7 @@ document.addEventListener("DOMContentLoaded", () => {
       status: extraData.status || "Pendiente",
       proofFile: extraData.fileName || null,
       proofUrl: extraData.proofUrl || null,
+      transactionId: extraData.transactionId || null,
       date: new Date(),
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       isGuestMode: !user,
@@ -327,7 +337,7 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("commonService").value = "";
       document.getElementById("commonAmount").value = "";
 
-      loadPayments(user.uid);
+      loadPayments(userId);
       return true;
     } catch (error) {
       console.error("Error al registrar pago:", error);
@@ -341,50 +351,183 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // 5. PAYPHONE REDIRECT
+  // 5. PAYPHONE CHECKOUT BOX INTEGRATION
   function initPayPhone(amount, serviceName) {
-    const payphoneLink = document.getElementById("payphone-link");
-    if (!payphoneLink) return;
+    const btnOpenModal = document.getElementById("btnOpenPayphoneModal");
+    if (!btnOpenModal) return;
 
-    // Clonar para limpiar handlers previos
-    const newLink = payphoneLink.cloneNode(true);
-    payphoneLink.parentNode.replaceChild(newLink, payphoneLink);
+    // Remover listeners anteriores reemplazando el botón
+    const newBtn = btnOpenModal.cloneNode(true);
+    btnOpenModal.parentNode.replaceChild(newBtn, btnOpenModal);
 
-    newLink.addEventListener("click", async (e) => {
-      e.preventDefault();
+    newBtn.addEventListener("click", () => {
+      const totalAmount = parseFloat(amount);
+      if (isNaN(totalAmount) || totalAmount <= 0) return;
 
-      Swal.fire({
-        title: "Registrando intención de pago...",
-        text: "Serás redirigido a PayPhone en un momento.",
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
+      // Actualizar información en el modal
+      const modalService = document.getElementById("payphone-modal-service");
+      const modalAmount = document.getElementById("payphone-modal-amount");
+      if (modalService) modalService.textContent = serviceName;
+      if (modalAmount) modalAmount.textContent = `$${totalAmount.toFixed(2)}`;
 
-      // Registrar el pago como pendiente antes de ir al link
-      const success = await processPayment(
-        "Tarjeta",
-        `PayPhone Link - ${serviceName}`,
-        {
-          status: "Pendiente",
-        },
-        true,
-      ); // silent = true
+      // Recrear el contenedor del botón de pago para evitar duplicaciones
+      const modalBody = document.querySelector("#payphoneModal .modal-body");
+      let ppButton = document.getElementById("pp-button");
+      if (!ppButton) {
+        ppButton = document.createElement("div");
+        ppButton.id = "pp-button";
+        modalBody.appendChild(ppButton);
+      }
+      ppButton.innerHTML = "";
 
-      if (success) {
-        window.open(newLink.href, "_blank");
-        Swal.close();
+      // Convertir a centavos e IVA
+      const totalCents = Math.round(totalAmount * 100);
+      const baseCents = Math.round((totalAmount / 1.15) * 100);
+      const taxCents = totalCents - baseCents;
 
-        // Opcional: mostrar un mensaje de que debe reportar el pago si PayPhone no notifica
-        Swal.fire({
-          title: "Redirigido",
-          text: "Se ha abierto PayPhone en una nueva pestaña. Recuerda que una vez realizado el pago, el administrador lo validará para marcarlo como Pagado.",
-          icon: "info",
-          confirmButtonColor: "#d4af37",
-        });
+      const clientTxId = "TX_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+      const user = auth.currentUser;
+      const userId = user ? user.uid : (window.currentGuestUserId || "GUEST");
+      const userEmail = user ? user.email : (window.currentGuestEmail || "GUEST_EMAIL");
+
+      // Guardar datos temporales en localStorage
+      localStorage.setItem("pending_payphone_" + clientTxId, JSON.stringify({
+        userId: userId,
+        userEmail: userEmail,
+        serviceName: serviceName,
+        amount: totalAmount
+      }));
+
+      // Abrir modal
+      const payphoneModalEl = document.getElementById('payphoneModal');
+      const modal = new bootstrap.Modal(payphoneModalEl);
+      modal.show();
+
+      try {
+        if (typeof PPaymentButtonBox !== "undefined") {
+          const ppb = new PPaymentButtonBox({
+            token: "JwU5Yax6fZ_6q7EpOtz56Cs4Ul9vMJwK8QFvokUEtsfwcJw1cCgmSAndFKKeBB0WAAc5flQHNJI-yyGXRb8Ln1hyANDG44B8sGfAUQMRRxZ-xblrrqNAPWWHo33VG7uHmqHA9VvRH2dR7URG7lD934yFKXumnhKpDVjtUxRDTgHtmQ5IZi8mHz0NkIDePaveBQQshe77K2_KNnu8a-eL0Tiu9ZpyXlaoQvW4U5OizGdT_rgBILmLY4L3NXPTYunIMsyy7E3xGZiazqSWhWze3Xu8M70rsncdBFhhiCAbMINGrHqcT5pOZugBh-_HJguV3Un5vJMlvRgI8zCXzcCFCt5Mpak",
+            clientTransactionId: clientTxId,
+            amount: totalCents,
+            amountWithoutTax: 0,
+            amountWithTax: baseCents,
+            tax: taxCents,
+            currency: "USD",
+            reference: serviceName,
+            lang: "es",
+            defaultMethod: "card"
+          });
+          ppb.render('pp-button');
+        } else {
+          console.error("PPaymentButtonBox no está definido");
+        }
+      } catch (error) {
+        console.error("Error al inicializar el botón PayPhone:", error);
       }
     });
+  }
+
+  async function verifyPayphonePayment(payphoneId, clientTxId) {
+    Swal.fire({
+      title: "Verificando pago...",
+      text: "Por favor espera mientras confirmamos tu transacción con PayPhone.",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    try {
+      const confirmUrl = "https://paymentbox.payphonetodoesposible.com/api/confirm";
+      
+      const response = await fetch(confirmUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer JwU5Yax6fZ_6q7EpOtz56Cs4Ul9vMJwK8QFvokUEtsfwcJw1cCgmSAndFKKeBB0WAAc5flQHNJI-yyGXRb8Ln1hyANDG44B8sGfAUQMRRxZ-xblrrqNAPWWHo33VG7uHmqHA9VvRH2dR7URG7lD934yFKXumnhKpDVjtUxRDTgHtmQ5IZi8mHz0NkIDePaveBQQshe77K2_KNnu8a-eL0Tiu9ZpyXlaoQvW4U5OizGdT_rgBILmLY4L3NXPTYunIMsyy7E3xGZiazqSWhWze3Xu8M70rsncdBFhhiCAbMINGrHqcT5pOZugBh-_HJguV3Un5vJMlvRgI8zCXzcCFCt5Mpak"
+        },
+        body: JSON.stringify({
+          id: parseInt(payphoneId),
+          clientTxId: clientTxId
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error("HTTP error " + response.status);
+      }
+
+      const result = await response.json();
+      console.log("Payphone Confirm Result:", result);
+
+      if (result.transactionStatus === "Approved" || result.statusCode === 3) {
+        // Cerrar modal si estuviera abierto
+        try {
+          const payphoneModalEl = document.getElementById('payphoneModal');
+          const modalInstance = bootstrap.Modal.getInstance(payphoneModalEl);
+          if (modalInstance) modalInstance.hide();
+        } catch (me) {
+          console.error("Error al cerrar modal:", me);
+        }
+
+        let pendingData = null;
+        try {
+          const stored = localStorage.getItem("pending_payphone_" + clientTxId);
+          if (stored) {
+            pendingData = JSON.parse(stored);
+          }
+        } catch (e) {
+          console.error("Error leyendo localStorage:", e);
+        }
+
+        const userId = pendingData ? pendingData.userId : "GUEST";
+        const userEmail = pendingData ? pendingData.userEmail : "GUEST_EMAIL";
+        const serviceName = pendingData ? pendingData.serviceName : ("Pago PayPhone " + payphoneId);
+        const amount = pendingData ? parseFloat(pendingData.amount) : (parseFloat(result.amount) / 100);
+
+        const paymentData = {
+          userId: userId,
+          userEmail: userEmail,
+          service: serviceName,
+          amount: amount,
+          method: "Tarjeta",
+          notes: `Pago aprobado vía Cajita de Pagos PayPhone. Transacción: ${payphoneId} - Ref: ${clientTxId}`,
+          status: "Aprobado",
+          transactionId: payphoneId,
+          date: new Date(),
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          isGuestMode: userId === "GUEST"
+        };
+
+        await db.collection("payments").add(paymentData);
+
+        localStorage.removeItem("pending_payphone_" + clientTxId);
+
+        Swal.fire({
+          title: "¡Pago Exitoso!",
+          text: "El pago de tu alícuota se ha procesado y registrado correctamente.",
+          icon: "success",
+          confirmButtonColor: "#d4af37"
+        }).then(() => {
+          const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+          window.history.replaceState({}, document.title, cleanUrl);
+          if (userId !== "GUEST") {
+            loadPayments(userId);
+          }
+        });
+      } else {
+        throw new Error(result.message || "Pago no aprobado");
+      }
+    } catch (error) {
+      console.error("Error al confirmar transacción PayPhone:", error);
+      Swal.fire({
+        title: "Error al Confirmar",
+        text: "No pudimos confirmar la transacción. Si el dinero fue debitado de tu cuenta, por favor contáctanos con tu ID de transacción: " + payphoneId,
+        icon: "error"
+      }).then(() => {
+        const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+      });
+    }
   }
 
   const formTransfer = document.getElementById("formTransfer");
