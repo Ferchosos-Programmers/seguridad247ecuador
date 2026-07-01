@@ -5,276 +5,296 @@
 /* FUENTES EXCLUSIVAS PARA LA SECCIÓN */
 .servicios-hero-section,
 .servicios-section {
-    font-family: "Times New Roman", Times, serif !important;
+  font-family: "Times New Roman", Times, serif !important;
 }
 
 /* HERO DE SERVICIOS (BANNER SUPERIOR) */
 .servicios-hero-section {
-    position: relative;
-    height: 45vh;
-    min-height: 350px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: url('../assets/img/banner.jpg') center/cover no-repeat;
-    margin-top: 56px; /* Para no quedar oculto bajo la navbar fixed */
-    overflow: hidden;
+  position: relative;
+  height: 45vh;
+  min-height: 350px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: url("../assets/img/centarl.jfif") center/cover no-repeat;
+  margin-top: 56px; /* Para no quedar oculto bajo la navbar fixed */
+  overflow: hidden;
 }
 
 .servicios-hero-section .hero-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(13, 13, 13, 0.75) 100%);
-    z-index: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.9) 0%,
+    rgba(13, 13, 13, 0.75) 100%
+  );
+  z-index: 1;
 }
 
 .servicios-hero-section .container {
-    position: relative;
-    z-index: 2;
+  position: relative;
+  z-index: 2;
 }
 
 .hero-content-wrapper {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 0 15px;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 15px;
 }
 
 .badge-premium {
-    background: linear-gradient(90deg, #d4af37, #f3e7c7);
-    color: #000;
-    font-size: 0.8rem;
-    font-weight: 700;
-    padding: 6px 16px;
-    border-radius: 50px;
-    letter-spacing: 2px;
-    display: inline-block;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+  background: linear-gradient(90deg, #d4af37, #f3e7c7);
+  color: #000;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: 50px;
+  letter-spacing: 2px;
+  display: inline-block;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
 }
 
 .hero-title {
-    font-family: "Times New Roman", Times, serif;
-    font-size: 3rem;
-    font-weight: 800;
-    color: #fff;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 15px;
-    background: linear-gradient(180deg, #ffffff 30%, #d4af37 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 3rem;
+  font-weight: 800;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 15px;
+  background: linear-gradient(180deg, #ffffff 30%, #d4af37 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .hero-subtitle {
-    font-size: 1.15rem;
-    color: #ccc;
-    font-weight: 300;
-    line-height: 1.6;
+  font-size: 1.15rem;
+  color: #ccc;
+  font-weight: 300;
+  line-height: 1.6;
 }
 
 /* SECCIÓN CONTENEDORA DE TARJETAS */
 .servicios-section {
-    padding: 80px 0;
-    background-color: #070707;
-    background-image: 
-        radial-gradient(circle at 10% 20%, rgba(212, 175, 55, 0.05) 0%, transparent 40%),
-        radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.05) 0%, transparent 40%);
-    position: relative;
+  padding: 80px 0;
+  background-color: #070707;
+  background-image:
+    radial-gradient(
+      circle at 10% 20%,
+      rgba(212, 175, 55, 0.05) 0%,
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 90% 80%,
+      rgba(212, 175, 55, 0.05) 0%,
+      transparent 40%
+    );
+  position: relative;
 }
 
 /* TARJETAS DE SERVICIOS */
 .servicio-card {
-    background: rgba(17, 17, 17, 0.7);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-radius: 20px;
-    border: 1px solid rgba(212, 175, 55, 0.15);
-    overflow: hidden;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    position: relative;
-    text-align: center;
+  background: rgba(17, 17, 17, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 20px;
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  position: relative;
+  text-align: center;
 }
 
 .servicio-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 20px;
-    background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, transparent 100%);
-    opacity: 0;
-    transition: opacity 0.4s ease;
-    pointer-events: none;
-    z-index: 1;
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  background: linear-gradient(
+    135deg,
+    rgba(212, 175, 55, 0.15) 0%,
+    transparent 100%
+  );
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* CONTENEDOR DE IMAGEN */
 .card-img-container {
-    position: relative;
-    height: 220px;
-    overflow: hidden;
+  position: relative;
+  height: 220px;
+  overflow: hidden;
 }
 
 .servicio-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
 .servicio-img-top {
-    object-position: top center;
+  object-position: top center;
 }
 
 .card-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0%, rgba(7, 7, 7, 0.95) 100%);
-    z-index: 2;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.1) 0%,
+    rgba(7, 7, 7, 0.95) 100%
+  );
+  z-index: 2;
 }
 
 /* BADGE DE ICONO */
 .servicio-icon-badge {
-    position: absolute;
-    bottom: -20px;
-    right: calc(50% - 30px);
-    width: 60px;
-    height: 60px;
-    border-radius: 15px;
-    background: #d4af37;
-    background: linear-gradient(135deg, #d4af37 0%, #b8922b 100%);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 10;
-    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    transition: all 0.4s ease;
+  position: absolute;
+  bottom: -20px;
+  right: calc(50% - 30px);
+  width: 60px;
+  height: 60px;
+  border-radius: 15px;
+  background: #d4af37;
+  background: linear-gradient(135deg, #d4af37 0%, #b8922b 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.4s ease;
 }
 
 .servicio-icon-badge i {
-    font-size: 1.6rem;
-    color: #000;
-    transition: transform 0.4s ease;
+  font-size: 1.6rem;
+  color: #000;
+  transition: transform 0.4s ease;
 }
 
 /* CUERPO DE LA TARJETA */
 .card-content-body {
-    padding: 35px 25px 30px;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    z-index: 3;
-    align-items: center;
-    text-align: center;
+  padding: 35px 25px 30px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 3;
+  align-items: center;
+  text-align: center;
 }
 
 .servicio-card h3 {
-    font-family: "Times New Roman", Times, serif;
-    color: #fff;
-    font-size: 1.4rem;
-    font-weight: 700;
-    margin-bottom: 12px;
-    transition: color 0.3s ease;
+  font-family: "Times New Roman", Times, serif;
+  color: #fff;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  transition: color 0.3s ease;
 }
 
 .servicio-card p {
-    color: #b3b3b3;
-    font-size: 0.95rem;
-    line-height: 1.6;
-    margin-bottom: 0;
-    font-weight: 300;
-    flex-grow: 1;
+  color: #b3b3b3;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 0;
+  font-weight: 300;
+  flex-grow: 1;
 }
 
 /* LÍNEA DE DETALLE EN HOVER */
 .card-accent-line {
-    width: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #d4af37, transparent);
-    margin-top: 20px;
-    border-radius: 2px;
-    transition: width 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  width: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #d4af37, transparent);
+  margin-top: 20px;
+  border-radius: 2px;
+  transition: width 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
 /* EFECTOS DE CURSOR (HOVER) */
 .servicio-card:hover {
-    transform: translateY(-10px);
-    border-color: rgba(212, 175, 55, 0.4);
-    box-shadow: 0 15px 35px rgba(212, 175, 55, 0.15);
+  transform: translateY(-10px);
+  border-color: rgba(212, 175, 55, 0.4);
+  box-shadow: 0 15px 35px rgba(212, 175, 55, 0.15);
 }
 
 .servicio-card:hover::before {
-    opacity: 1;
+  opacity: 1;
 }
 
 .servicio-card:hover .servicio-img {
-    transform: scale(1.1);
+  transform: scale(1.1);
 }
 
 .servicio-card:hover h3 {
-    color: #d4af37;
+  color: #d4af37;
 }
 
 .servicio-card:hover .servicio-icon-badge {
-    transform: translateY(-5px) rotate(-5deg);
-    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.6);
-    background: linear-gradient(135deg, #fff 0%, #d4af37 100%);
+  transform: translateY(-5px) rotate(-5deg);
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.6);
+  background: linear-gradient(135deg, #fff 0%, #d4af37 100%);
 }
 
 .servicio-card:hover .servicio-icon-badge i {
-    transform: scale(1.1);
+  transform: scale(1.1);
 }
 
 .servicio-card:hover .card-accent-line {
-    width: 60px;
+  width: 60px;
 }
 
 /* RESPONSIVE DESIGN */
 @media (max-width: 991px) {
-    .servicios-hero-section {
-        height: 35vh;
-        min-height: 280px;
-        margin-top: 66px;
-    }
-    
-    .hero-title {
-        font-size: 2.2rem;
-    }
-    
-    .hero-subtitle {
-        font-size: 1rem;
-    }
-    
-    .servicios-section {
-        padding: 50px 0;
-    }
-    
-    .card-img-container {
-        height: 180px;
-    }
+  .servicios-hero-section {
+    height: 35vh;
+    min-height: 280px;
+    margin-top: 66px;
+  }
+
+  .hero-title {
+    font-size: 2.2rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+
+  .servicios-section {
+    padding: 50px 0;
+  }
+
+  .card-img-container {
+    height: 180px;
+  }
 }
 
 @media (max-width: 576px) {
-    .servicios-hero-section {
-        height: 30vh;
-        min-height: 240px;
-    }
-    
-    .hero-title {
-        font-size: 1.8rem;
-    }
+  .servicios-hero-section {
+    height: 30vh;
+    min-height: 240px;
+  }
+
+  .hero-title {
+    font-size: 1.8rem;
+  }
 }
