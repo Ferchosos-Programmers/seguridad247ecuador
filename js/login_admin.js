@@ -4422,13 +4422,93 @@ async function cargarPlanesAdmin() {
     tbody.innerHTML = "";
 
     if (snapshot.empty) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="5" class="text-center py-4 text-muted">
-            No hay planes registrados en la base de datos.
-          </td>
-        </tr>
-      `;
+      // Auto-inicializar planes por defecto en la base de datos para que aparezcan de inmediato
+      const defaultPlanes = [
+        {
+          id: "electronica_basico",
+          name: "Plan Básico",
+          type: "electronica",
+          price: "$29.99/mes",
+          features: [
+            "Monitoreo residencial de alarma básica",
+            "1 sensor de movimiento infrarrojo",
+            "1 contacto magnético de puerta principal",
+            "Reporte de eventos en app móvil"
+          ]
+        },
+        {
+          id: "electronica_medio",
+          name: "Plan Profesional",
+          type: "electronica",
+          price: "$49.99/mes",
+          features: [
+            "Monitoreo residencial o comercial 24/7",
+            "3 sensores de movimiento avanzados",
+            "2 contactos magnéticos de puertas/ventanas",
+            "App inteligente con notificaciones push",
+            "1 cámara IP con videoverificación"
+          ]
+        },
+        {
+          id: "electronica_premium",
+          name: "Plan Premium",
+          type: "electronica",
+          price: "$89.99/mes",
+          features: [
+            "Monitoreo avanzado de prioridad crítica 24/7",
+            "Alarma inteligente completa (5 sensores)",
+            "Circuito cerrado (CCTV) con 4 cámaras Full HD",
+            "Automatización de accesos/cerraduras",
+            "Soporte técnico prioritario y respuesta móvil inmediata"
+          ]
+        },
+        {
+          id: "fisica_basico",
+          name: "Plan Básico Físico",
+          type: "fisica",
+          price: "$999/mes",
+          features: [
+            "1 Guardia físico capacitado por 8 horas",
+            "Control de accesos y registros de entrada/salida",
+            "Rondas básicas preventivas diurnas",
+            "Comunicación directa con central de monitoreo"
+          ]
+        },
+        {
+          id: "fisica_medio",
+          name: "Plan Profesional Físico",
+          type: "fisica",
+          price: "$1499/mes",
+          features: [
+            "1 Guardia físico capacitado por 12 horas",
+            "Control de accesos vehicular y peatonal",
+            "Rondas perimetrales continuas con marcación",
+            "Comunicación radial encriptada y equipo de disuasión"
+          ]
+        },
+        {
+          id: "fisica_premium",
+          name: "Plan Premium Físico 24/7",
+          type: "fisica",
+          price: "$2499/mes",
+          features: [
+            "Custodia física armada 24/7 (turnos rotativos)",
+            "Supervisión constante por central de operaciones",
+            "Rondas electrónicas QR de control",
+            "Botón de pánico táctico con respuesta móvil armada"
+          ]
+        }
+      ];
+
+      const batch = db.batch();
+      defaultPlanes.forEach(plan => {
+        const docRef = db.collection("planes").doc(plan.id);
+        batch.set(docRef, plan);
+      });
+      await batch.commit();
+
+      // Recargar de inmediato tras poblar
+      setTimeout(cargarPlanesAdmin, 300);
       return;
     }
 
