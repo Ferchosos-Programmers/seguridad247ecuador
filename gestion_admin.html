@@ -91,6 +91,11 @@
               <i class="fa-solid fa-envelope-open-text"></i> Quejas y Mensajes
             </a>
           </li>
+          <li class="sidebar-item">
+            <a class="sidebar-link" data-view="planes_admin">
+              <i class="fa-solid fa-tags"></i> Planes y Precios
+            </a>
+          </li>
           <!-- Logout for mobile -->
           <li class="sidebar-item d-lg-none mt-4">
             <button class="btn-logout-sidebar w-100" id="logoutBtnMobile">
@@ -510,6 +515,29 @@
             </div>
             <div id="quejasAdminContainer" class="row g-4" style="margin-bottom: 20px;">
               <!-- Cargado dinámicamente -->
+            </div>
+          </div>
+
+          <!-- Sección para Gestión de Planes y Precios -->
+          <div id="planesAdminSection" style="display: none">
+            <h2 class="text-gold mb-4">Gestión de Planes y Precios</h2>
+            <div class="card bg-dark border-0 p-4" style="border-radius: 15px; border: 1px solid rgba(212, 175, 55, 0.15) !important; margin-bottom: 30px;">
+              <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle">
+                  <thead>
+                    <tr>
+                      <th class="text-gold">Nombre del Plan</th>
+                      <th class="text-gold">Categoría</th>
+                      <th class="text-gold">Precio</th>
+                      <th class="text-gold">Características</th>
+                      <th class="text-gold text-end">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="planesAdminTableBody">
+                    <!-- Se carga dinámicamente -->
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -1450,6 +1478,55 @@
               <div class="d-grid mt-4">
                 <button type="submit" class="btn btn-gold">
                   <i class="fa-solid fa-save me-2"></i> ACTUALIZAR REGISTRO
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================= -->
+    <!--  MODAL PARA EDITAR PLAN -->
+    <!-- ========================================= -->
+    <div
+      class="modal fade"
+      id="editPlanModal"
+      tabindex="-1"
+      aria-labelledby="editPlanModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-dark border-0 shadow-lg" style="border-radius: 15px; overflow: hidden; border: 1px solid rgba(212, 175, 55, 0.2) !important;">
+          <div class="modal-header bg-gold py-3 border-0">
+            <h5 class="modal-title fw-bold text-dark text-uppercase">
+               <i class="fa-solid fa-tags me-3"></i> Editar Plan
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body p-4 text-white">
+            <form id="editPlanForm">
+              <input type="hidden" id="editPlanId" />
+              <div class="mb-3">
+                <label class="form-label text-gold fw-bold small">Nombre del Plan</label>
+                <input type="text" id="editPlanName" class="form-control premium-input" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label text-gold fw-bold small">Precio</label>
+                <input type="text" id="editPlanPrice" class="form-control premium-input" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label text-gold fw-bold small">Características (Una por línea)</label>
+                <textarea id="editPlanFeatures" class="form-control premium-input" rows="6" required></textarea>
+              </div>
+              <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-gold">
+                  <i class="fa-solid fa-save me-2"></i> GUARDAR CAMBIOS
                 </button>
               </div>
             </form>

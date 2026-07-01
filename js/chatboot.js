@@ -5,10 +5,11 @@ const chatInput = document.getElementById("chatInput");
 const chatBody = document.getElementById("chatBody");
 
 // Tu número de WhatsApp
-const whatsappNumber = "593984107006"; 
+const whatsappNumber = "593984107006";
 
 btn.onclick = () => {
-  chatWindow.style.display = chatWindow.style.display === "flex" ? "none" : "flex";
+  chatWindow.style.display =
+    chatWindow.style.display === "flex" ? "none" : "flex";
 };
 
 function addMessage(text, sender) {
@@ -44,11 +45,12 @@ function selectService(type) {
     // Botón de WhatsApp con mensaje personalizado
     const wBtn = document.createElement("button");
     wBtn.classList.add("whatsapp-btn");
-    wBtn.innerHTML = '<i class="fa-brands fa-whatsapp me-2"></i> Contactar por WhatsApp';
+    wBtn.innerHTML =
+      '<i class="fa-brands fa-whatsapp me-2"></i> Contactar por WhatsApp';
     wBtn.onclick = () => {
       window.open(
         `https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hola, deseo más información sobre el servicio de Seguridad Física.")}`,
-        "_blank"
+        "_blank",
       );
     };
 
@@ -56,7 +58,8 @@ function selectService(type) {
     const phoneBtn = document.createElement("button");
     phoneBtn.classList.add("option-btn");
     phoneBtn.style.marginTop = "8px";
-    phoneBtn.innerHTML = '<i class="fa-solid fa-phone me-2"></i> Llamar al 0984107006';
+    phoneBtn.innerHTML =
+      '<i class="fa-solid fa-phone me-2"></i> Llamar al 0984107006';
     phoneBtn.onclick = () => {
       window.open("tel:+593984107006", "_self");
     };
@@ -65,40 +68,111 @@ function selectService(type) {
     chatBody.appendChild(phoneBtn);
     chatBody.scrollTop = chatBody.scrollHeight;
   }
-  
+
   if (type === "electronica") {
     const div = document.createElement("div");
     div.classList.add("msg", "bot");
-
-    div.innerHTML = `
-      Contamos con los siguientes planes de Seguridad Electrónica. Selecciona uno para ver el detalle:
-      <br><br>
-      <button class="option-btn" onclick="selectPlan('basico')">📦 Plan Básico</button>
-      <button class="option-btn" onclick="selectPlan('medio')">💼 Plan Medio</button>
-      <button class="option-btn" onclick="selectPlan('premium')">⭐ Plan Premium</button>
-    `;
-
+    div.innerHTML = `Cargando planes de Seguridad Electrónica...`;
     chatBody.appendChild(div);
     chatBody.scrollTop = chatBody.scrollHeight;
+
+    getChatbotPlanes().then(planes => {
+      const elecPlanes = planes.filter(p => p.type === "electronica");
+      
+      // Ordenar para que aparezca Básico -> Medio -> Premium
+      const sorted = [...elecPlanes].sort((a, b) => {
+        if (a.id.includes("premium")) return 1;
+        if (b.id.includes("premium")) return -1;
+        if (a.id.includes("basico")) return -1;
+        if (b.id.includes("basico")) return 1;
+        return 0;
+      });
+
+      div.innerHTML = `
+        Contamos con los siguientes planes de Seguridad Electrónica. Selecciona uno para ver el detalle:
+        <br><br>
+        ${sorted.map(p => `<button class="option-btn" onclick="selectPlanById('${p.id}')">📦 ${p.name} (${p.price})</button>`).join("")}
+      `;
+      chatBody.scrollTop = chatBody.scrollHeight;
+    });
   }
 }
 
-// Procesar selección de plan
-function selectPlan(plan) {
-  let planName = "";
-  let planDetails = "";
+let chatbotPlanes = [];
 
-  if (plan === "basico") {
-    planName = "Plan Básico";
-    planDetails = "El <b>Plan Básico</b> incluye:<br>• Monitoreo residencial de alarma básica<br>• 1 sensor de movimiento infrarrojo<br>• 1 contacto magnético de puerta principal<br>• Reporte de eventos en app móvil.";
-  } else if (plan === "medio") {
-    planName = "Plan Medio";
-    planDetails = "El <b>Plan Medio</b> incluye:<br>• Monitoreo residencial o comercial 24/7<br>• 3 sensores de movimiento avanzados<br>• 2 contactos magnéticos de puertas/ventanas<br>• App inteligente con notificaciones push<br>• 1 cámara IP con videoverificación.";
-  } else if (plan === "premium") {
-    planName = "Plan Premium";
-    planDetails = "El <b>Plan Premium</b> incluye:<br>• Monitoreo avanzado de prioridad crítica 24/7<br>• Alarma inteligente completa (5 sensores)<br>• Circuito cerrado (CCTV) con 4 cámaras Full HD<br>• Automatización de accesos/cerraduras<br>• Soporte técnico prioritario y respuesta móvil inmediata.";
+async function getChatbotPlanes() {
+  if (chatbotPlanes.length > 0) return chatbotPlanes;
+  try {
+    const db = firebase.firestore();
+    const snapshot = await db.collection("planes").get();
+    if (!snapshot.empty) {
+      chatbotPlanes = [];
+      snapshot.forEach(doc => {
+        chatbotPlanes.push({ id: doc.id, ...doc.data() });
+      });
+      return chatbotPlanes;
+    }
+  } catch (e) {
+    console.error("Error al obtener planes para el chatbot:", e);
+  }
+  
+  // Fallback si Firestore no responde o está vacío
+  chatbotPlanes = [
+    {
+      id: "electronica_basico",
+      name: "Plan Básico",
+      type: "electronica",
+      price: "$29.99/mes",
+      features: [
+        "Monitoreo residencial de alarma básica",
+        "1 sensor de movimiento infrarrojo",
+        "1 contacto magnético de puerta principal",
+        "Reporte de eventos en app móvil"
+      ]
+    },
+    {
+      id: "electronica_medio",
+      name: "Plan Profesional",
+      type: "electronica",
+      price: "$49.99/mes",
+      features: [
+        "Monitoreo residencial o comercial 24/7",
+        "3 sensores de movimiento avanzados",
+        "2 contactos magnéticos de puertas/ventanas",
+        "App inteligente con notificaciones push",
+        "1 cámara IP con videoverificación"
+      ]
+    },
+    {
+      id: "electronica_premium",
+      name: "Plan Premium",
+      type: "electronica",
+      price: "$89.99/mes",
+      features: [
+        "Monitoreo avanzado de prioridad crítica 24/7",
+        "Alarma inteligente completa (5 sensores)",
+        "Circuito cerrado (CCTV) con 4 cámaras Full HD",
+        "Automatización de accesos/cerraduras",
+        "Soporte técnico prioritario y respuesta móvil inmediata"
+      ]
+    }
+  ];
+  return chatbotPlanes;
+}
+
+// Procesar selección de plan dinámico
+function selectPlanById(planId) {
+  const plan = chatbotPlanes.find(p => p.id === planId);
+  if (!plan) return;
+
+  let featuresText = "";
+  if (Array.isArray(plan.features)) {
+    featuresText = plan.features.join("<br>• ");
+  } else {
+    featuresText = plan.features;
   }
 
+  const planDetails = `El <b>${plan.name}</b> (${plan.price}) incluye:<br>• ${featuresText}`;
   addMessage(planDetails, "bot");
 
   // Botón para más información que redirecciona
@@ -108,7 +182,7 @@ function selectPlan(plan) {
   contactBtn.innerHTML = '<i class="fa-brands fa-whatsapp me-2"></i> Para más información comunícate a este número';
   contactBtn.onclick = () => {
     window.open(
-      `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hola, quiero más información sobre el ${planName}`)}`,
+      `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hola, quiero más información sobre el ${plan.name}`)}`,
       "_blank"
     );
   };
@@ -142,6 +216,6 @@ sendBtn.onclick = () => {
   }, 400);
 };
 
-chatInput.addEventListener("keypress", e => {
+chatInput.addEventListener("keypress", (e) => {
   if (e.key === "Enter") sendBtn.onclick();
 });

@@ -108,6 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const cotizacionesAdminSection = document.getElementById("cotizacionesAdminSection");
       const quejasAdminSection = document.getElementById("quejasAdminSection");
+      const planesAdminSection = document.getElementById("planesAdminSection");
 
       if (dashboardSection) dashboardSection.style.display = "none";
       if (jobsSection) jobsSection.style.display = "none";
@@ -117,6 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (complexesSection) complexesSection.style.display = "none";
       if (cotizacionesAdminSection) cotizacionesAdminSection.style.display = "none";
       if (quejasAdminSection) quejasAdminSection.style.display = "none";
+      if (planesAdminSection) planesAdminSection.style.display = "none";
       if (document.getElementById("passwordsSection"))
         document.getElementById("passwordsSection").style.display = "none";
 
@@ -164,6 +166,9 @@ document.addEventListener("DOMContentLoaded", () => {
       } else if (viewValue === "quejas_admin") {
         if (quejasAdminSection) quejasAdminSection.style.display = "block";
         cargarQuejasAdmin();
+      } else if (viewValue === "planes_admin") {
+        if (planesAdminSection) planesAdminSection.style.display = "block";
+        cargarPlanesAdmin();
       } else if (viewValue === "todos") {
         if (dashboardSection) dashboardSection.style.display = "block";
         actualizarContadoresDashboard();
@@ -4391,3 +4396,145 @@ window.enviarRespuestaComunicacion = async () => {
     Swal.fire("Error", "No se pudo enviar la respuesta.", "error");
   }
 };
+
+// =========================================
+// GESTIÓN DE PLANES Y PRECIOS (ADMIN)
+// =========================================
+window.cargarPlanesAdmin = async () => {
+  const db = firebase.firestore();
+  const tbody = document.getElementById("planesAdminTableBody");
+  if (!tbody) return;
+
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="5" class="text-center py-4">
+        <div class="spinner-border text-gold" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </td>
+    </tr>
+  `;
+
+  try {
+    const snapshot = await db.collection("planes").get();
+    tbody.innerHTML = "";
+
+    if (snapshot.empty) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="5" class="text-center py-4 text-muted">
+            No hay planes registrados en la base de datos.
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    snapshot.forEach(doc => {
+      const plan = doc.data();
+      const featuresText = Array.isArray(plan.features) ? plan.features.join("<br>• ") : plan.features;
+      const categoryLabel = plan.type === "electronica" ? '<span class="badge bg-primary">Electrónica</span>' : '<span class="badge bg-success">Física</span>';
+      
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="fw-bold">${plan.name}</td>
+        <td>${categoryLabel}</td>
+        <td class="text-gold fw-bold">${plan.price}</td>
+        <td class="small text-white-50">• ${featuresText}</td>
+        <td class="text-end">
+          <button class="btn btn-sm btn-outline-gold" onclick="editarPlanAdmin('${doc.id}')">
+            <i class="fa-solid fa-pen-to-square me-1"></i> Editar
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (error) {
+    console.error("Error al cargar planes admin:", error);
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" class="text-center py-4 text-danger">
+          Error al cargar los planes.
+        </td>
+      </tr>
+    `;
+  }
+};
+
+window.editarPlanAdmin = async (planId) => {
+  const db = firebase.firestore();
+  Swal.fire({
+    title: "Cargando datos del plan...",
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading()
+  });
+
+  try {
+    const doc = await db.collection("planes").doc(planId).get();
+    Swal.close();
+
+    if (!doc.exists) {
+      Swal.fire("Error", "El plan no existe.", "error");
+      return;
+    }
+
+    const plan = doc.data();
+    document.getElementById("editPlanId").value = planId;
+    document.getElementById("editPlanName").value = plan.name || "";
+    document.getElementById("editPlanPrice").value = plan.price || "";
+    
+    const featuresList = Array.isArray(plan.features) ? plan.features.join("\n") : plan.features || "";
+    document.getElementById("editPlanFeatures").value = featuresList;
+
+    const modal = new bootstrap.Modal(document.getElementById("editPlanModal"));
+    modal.show();
+  } catch (error) {
+    console.error("Error al obtener plan para edición:", error);
+    Swal.fire("Error", "No se pudo cargar la información del plan.", "error");
+  }
+};
+
+// Manejador para el formulario de edición de plan
+document.addEventListener("DOMContentLoaded", () => {
+  const editPlanForm = document.getElementById("editPlanForm");
+  if (editPlanForm) {
+    editPlanForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const db = firebase.firestore();
+      
+      const planId = document.getElementById("editPlanId").value;
+      const name = document.getElementById("editPlanName").value.trim();
+      const price = document.getElementById("editPlanPrice").value.trim();
+      const featuresRaw = document.getElementById("editPlanFeatures").value;
+      
+      // Convertir características a un array, eliminando líneas vacías
+      const features = featuresRaw.split("\n")
+                                  .map(line => line.trim())
+                                  .filter(line => line.length > 0);
+
+      Swal.fire({
+        title: "Guardando cambios...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      try {
+        await db.collection("planes").doc(planId).update({
+          name: name,
+          price: price,
+          features: features
+        });
+
+        Swal.fire("¡Éxito!", "Plan actualizado correctamente.", "success");
+        bootstrap.Modal.getInstance(document.getElementById("editPlanModal")).hide();
+        
+        // Recargar la tabla
+        cargarPlanesAdmin();
+      } catch (error) {
+        console.error("Error al actualizar plan en Firestore:", error);
+        Swal.fire("Error", "No se pudieron guardar los cambios del plan.", "error");
+      }
+    });
+  }
+});
+
