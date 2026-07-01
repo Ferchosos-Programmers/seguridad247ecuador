@@ -520,7 +520,12 @@
 
           <!-- Sección para Gestión de Planes y Precios -->
           <div id="planesAdminSection" style="display: none">
-            <h2 class="text-gold mb-4">Gestión de Planes y Precios</h2>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2 class="text-gold m-0">Gestión de Planes y Precios</h2>
+              <button class="btn btn-gold" onclick="crearNuevoPlan()">
+                <i class="fa-solid fa-plus me-2"></i> Crear Nuevo Plan
+              </button>
+            </div>
             <div class="card bg-dark border-0 p-4" style="border-radius: 15px; border: 1px solid rgba(212, 175, 55, 0.15) !important; margin-bottom: 30px;">
               <div class="table-responsive">
                 <table class="table table-dark table-hover align-middle">
@@ -1527,6 +1532,61 @@
               <div class="d-grid mt-4">
                 <button type="submit" class="btn btn-gold">
                   <i class="fa-solid fa-save me-2"></i> GUARDAR CAMBIOS
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================= -->
+    <!--  MODAL PARA AGREGAR PLAN NUEVO -->
+    <!-- ========================================= -->
+    <div
+      class="modal fade"
+      id="addPlanModal"
+      tabindex="-1"
+      aria-labelledby="addPlanModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-dark border-0 shadow-lg" style="border-radius: 15px; overflow: hidden; border: 1px solid rgba(212, 175, 55, 0.2) !important;">
+          <div class="modal-header bg-gold py-3 border-0">
+            <h5 class="modal-title fw-bold text-dark text-uppercase">
+               <i class="fa-solid fa-plus me-3"></i> Crear Nuevo Plan
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body p-4 text-white">
+            <form id="addPlanForm">
+              <div class="mb-3">
+                <label class="form-label text-gold fw-bold small">Nombre del Plan</label>
+                <input type="text" id="addPlanName" class="form-control premium-input" placeholder="Ej: Plan Profesional" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label text-gold fw-bold small">Categoría</label>
+                <select id="addPlanType" class="form-select premium-input" style="background-color: white; color: black;" required>
+                  <option value="electronica">Seguridad Electrónica</option>
+                  <option value="fisica">Seguridad Física</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label text-gold fw-bold small">Precio (Tarifa mensual)</label>
+                <input type="text" id="addPlanPrice" class="form-control premium-input" placeholder="Ej: $49.99/mes o Tarifa personalizada" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label text-gold fw-bold small">Características (Una por línea)</label>
+                <textarea id="addPlanFeatures" class="form-control premium-input" rows="6" placeholder="Característica 1&#10;Característica 2&#10;Característica 3" required></textarea>
+              </div>
+              <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-gold">
+                  <i class="fa-solid fa-save me-2"></i> CREAR PLAN
                 </button>
               </div>
             </form>

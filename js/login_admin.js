@@ -4400,7 +4400,9 @@ window.enviarRespuestaComunicacion = async () => {
 // =========================================
 // GESTIÓN DE PLANES Y PRECIOS (ADMIN)
 // =========================================
-window.cargarPlanesAdmin = async () => {
+
+// Cargar todos los planes en la tabla
+async function cargarPlanesAdmin() {
   const db = firebase.firestore();
   const tbody = document.getElementById("planesAdminTableBody");
   if (!tbody) return;
@@ -4432,7 +4434,7 @@ window.cargarPlanesAdmin = async () => {
 
     snapshot.forEach(doc => {
       const plan = doc.data();
-      const featuresText = Array.isArray(plan.features) ? plan.features.join("<br>• ") : plan.features;
+      const featuresText = Array.isArray(plan.features) ? plan.features.join("<br>• ") : plan.features || "";
       const categoryLabel = plan.type === "electronica" ? '<span class="badge bg-primary">Electrónica</span>' : '<span class="badge bg-success">Física</span>';
       
       const tr = document.createElement("tr");
@@ -4442,9 +4444,14 @@ window.cargarPlanesAdmin = async () => {
         <td class="text-gold fw-bold">${plan.price}</td>
         <td class="small text-white-50">• ${featuresText}</td>
         <td class="text-end">
-          <button class="btn btn-sm btn-outline-gold" onclick="editarPlanAdmin('${doc.id}')">
-            <i class="fa-solid fa-pen-to-square me-1"></i> Editar
-          </button>
+          <div class="d-flex gap-2 justify-content-end">
+            <button class="btn btn-sm btn-outline-gold" onclick="editarPlanAdmin('${doc.id}')">
+              <i class="fa-solid fa-pen-to-square"></i> Editar
+            </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="eliminarPlanAdmin('${doc.id}')">
+              <i class="fa-solid fa-trash"></i> Eliminar
+            </button>
+          </div>
         </td>
       `;
       tbody.appendChild(tr);
@@ -4459,9 +4466,18 @@ window.cargarPlanesAdmin = async () => {
       </tr>
     `;
   }
-};
+}
 
-window.editarPlanAdmin = async (planId) => {
+// Abrir modal de creación de plan nuevo
+function crearNuevoPlan() {
+  const form = document.getElementById("addPlanForm");
+  if (form) form.reset();
+  const modal = new bootstrap.Modal(document.getElementById("addPlanModal"));
+  modal.show();
+}
+
+// Abrir modal de edición con los datos del plan
+async function editarPlanAdmin(planId) {
   const db = firebase.firestore();
   Swal.fire({
     title: "Cargando datos del plan...",
@@ -4492,10 +4508,50 @@ window.editarPlanAdmin = async (planId) => {
     console.error("Error al obtener plan para edición:", error);
     Swal.fire("Error", "No se pudo cargar la información del plan.", "error");
   }
-};
+}
 
-// Manejador para el formulario de edición de plan
+// Eliminar un plan de la base de datos
+async function eliminarPlanAdmin(planId) {
+  const db = firebase.firestore();
+  
+  const result = await Swal.fire({
+    title: "¿Estás seguro de eliminar este plan?",
+    text: "Esta acción no se puede deshacer y el plan desaparecerá de la web y del chatbot.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d4af37",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Sí, eliminar",
+    cancelButtonText: "Cancelar"
+  });
+
+  if (result.isConfirmed) {
+    Swal.fire({
+      title: "Eliminando plan...",
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading()
+    });
+
+    try {
+      await db.collection("planes").doc(planId).delete();
+      Swal.fire("¡Eliminado!", "El plan ha sido eliminado correctamente.", "success");
+      cargarPlanesAdmin();
+    } catch (error) {
+      console.error("Error al eliminar plan:", error);
+      Swal.fire("Error", "No se pudo eliminar el plan de la base de datos.", "error");
+    }
+  }
+}
+
+// Asignar funciones globales para acceso HTML inline onclick
+window.cargarPlanesAdmin = cargarPlanesAdmin;
+window.crearNuevoPlan = crearNuevoPlan;
+window.editarPlanAdmin = editarPlanAdmin;
+window.eliminarPlanAdmin = eliminarPlanAdmin;
+
+// Manejadores para los formularios (Ejecución al cargar DOM)
 document.addEventListener("DOMContentLoaded", () => {
+  // Manejador del Formulario de Edición
   const editPlanForm = document.getElementById("editPlanForm");
   if (editPlanForm) {
     editPlanForm.addEventListener("submit", async (e) => {
@@ -4507,7 +4563,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const price = document.getElementById("editPlanPrice").value.trim();
       const featuresRaw = document.getElementById("editPlanFeatures").value;
       
-      // Convertir características a un array, eliminando líneas vacías
       const features = featuresRaw.split("\n")
                                   .map(line => line.trim())
                                   .filter(line => line.length > 0);
@@ -4527,12 +4582,55 @@ document.addEventListener("DOMContentLoaded", () => {
 
         Swal.fire("¡Éxito!", "Plan actualizado correctamente.", "success");
         bootstrap.Modal.getInstance(document.getElementById("editPlanModal")).hide();
-        
-        // Recargar la tabla
         cargarPlanesAdmin();
       } catch (error) {
         console.error("Error al actualizar plan en Firestore:", error);
         Swal.fire("Error", "No se pudieron guardar los cambios del plan.", "error");
+      }
+    });
+  }
+
+  // Manejador del Formulario de Creación
+  const addPlanForm = document.getElementById("addPlanForm");
+  if (addPlanForm) {
+    addPlanForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const db = firebase.firestore();
+      
+      const name = document.getElementById("addPlanName").value.trim();
+      const type = document.getElementById("addPlanType").value;
+      const price = document.getElementById("addPlanPrice").value.trim();
+      const featuresRaw = document.getElementById("addPlanFeatures").value;
+      
+      const features = featuresRaw.split("\n")
+                                  .map(line => line.trim())
+                                  .filter(line => line.length > 0);
+
+      // Generar un ID limpio de Firebase o usar uno personalizado basado en tipo y timestamp
+      const planId = type + "_" + Date.now();
+
+      Swal.fire({
+        title: "Creando plan...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      try {
+        await db.collection("planes").doc(planId).set({
+          id: planId,
+          name: name,
+          type: type,
+          price: price,
+          features: features
+        });
+
+        Swal.fire("¡Éxito!", "Plan creado correctamente.", "success");
+        bootstrap.Modal.getInstance(document.getElementById("addPlanModal")).hide();
+        addPlanForm.reset();
+        cargarPlanesAdmin();
+      } catch (error) {
+        console.error("Error al crear plan en Firestore:", error);
+        Swal.fire("Error", "No se pudo crear el plan.", "error");
       }
     });
   }
