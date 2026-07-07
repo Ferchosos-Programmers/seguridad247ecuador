@@ -155,6 +155,29 @@ function renderPlanes() {
       });
     }
 
+    const giftHtml = plan.gift ? `
+      <div class="plan-gift-badge">
+        <i class="fa-solid fa-gift"></i> ${plan.gift}
+      </div>
+    ` : '';
+
+    const deviceIcons = plan.deviceIcons || [];
+    let iconsHtml = "";
+    if (deviceIcons.length > 0) {
+      iconsHtml = `
+        <div class="included-devices-wrapper">
+          <span class="devices-label">Equipos Incluidos:</span>
+          <div class="devices-list-icons">
+      `;
+      deviceIcons.forEach(url => {
+        iconsHtml += `<img src="${url}" class="device-icon-item" title="Dispositivo incluido" />`;
+      });
+      iconsHtml += `
+          </div>
+        </div>
+      `;
+    }
+
     const col = document.createElement("div");
     col.className = "col-lg-4 col-md-6 col-sm-12";
     col.innerHTML = `
@@ -164,6 +187,8 @@ function renderPlanes() {
         <div class="plan-price-box">
           <span class="plan-price">${plan.price}</span>
         </div>
+        ${giftHtml}
+        ${iconsHtml}
         <div class="plan-divider"></div>
         <ul class="features-list">
           ${featuresHtml}

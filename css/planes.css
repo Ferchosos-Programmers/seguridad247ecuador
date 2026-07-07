@@ -249,3 +249,73 @@
   font-size: 0.95rem;
   line-height: 1.6;
 }
+
+/* Regalo / Promoción Especial */
+.plan-gift-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 193, 7, 0.12);
+  border: 1px dashed #ffc107;
+  color: #ffc107;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 8px;
+  margin-top: -10px;
+  margin-bottom: 20px;
+  width: fit-content;
+  align-self: center;
+  animation: pulse-gift 2.5s infinite;
+}
+
+@keyframes pulse-gift {
+  0% { opacity: 0.9; box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.15); }
+  70% { opacity: 1; box-shadow: 0 0 0 6px rgba(255, 193, 7, 0); }
+  100% { opacity: 0.9; box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
+}
+
+/* Iconos de Dispositivos Incluidos */
+.included-devices-wrapper {
+  margin-top: 5px;
+  margin-bottom: 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.devices-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #888;
+  letter-spacing: 1px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.devices-list-icons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.device-icon-item {
+  width: 38px;
+  height: 38px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  background: rgba(20, 20, 20, 0.8);
+  padding: 3px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.device-icon-item:hover {
+  transform: scale(1.25) rotate(5deg);
+  border-color: #d4af37;
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.7);
+  cursor: pointer;
+}

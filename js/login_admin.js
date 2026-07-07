@@ -4516,10 +4516,21 @@ async function cargarPlanesAdmin() {
       const plan = doc.data();
       const featuresText = Array.isArray(plan.features) ? plan.features.join("<br>• ") : plan.features || "";
       const categoryLabel = plan.type === "electronica" ? '<span class="badge bg-primary">Electrónica</span>' : '<span class="badge bg-success">Física</span>';
+      const giftBadge = plan.gift ? `<br><span class="badge bg-warning text-dark mt-1"><i class="fa-solid fa-gift me-1"></i>${plan.gift}</span>` : "";
       
+      const deviceIcons = plan.deviceIcons || [];
+      let iconsHtml = "";
+      if (deviceIcons.length > 0) {
+        iconsHtml = `<div class="d-flex flex-wrap gap-1 mt-1">`;
+        deviceIcons.forEach(url => {
+          iconsHtml += `<img src="${url}" class="rounded border border-secondary" style="width: 30px; height: 30px; object-fit: cover;" title="Dispositivo incluido" />`;
+        });
+        iconsHtml += `</div>`;
+      }
+
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td class="fw-bold">${plan.name}</td>
+        <td class="fw-bold">${plan.name}${giftBadge}${iconsHtml}</td>
         <td>${categoryLabel}</td>
         <td class="text-gold fw-bold">${plan.price}</td>
         <td class="small text-white-50">• ${featuresText}</td>
@@ -4578,7 +4589,33 @@ async function editarPlanAdmin(planId) {
     document.getElementById("editPlanId").value = planId;
     document.getElementById("editPlanName").value = plan.name || "";
     document.getElementById("editPlanPrice").value = plan.price || "";
+    document.getElementById("editPlanGift").value = plan.gift || "";
     
+    // Clear new file input
+    document.getElementById("editPlanDeviceIcons").value = "";
+    
+    // Populate current icons preview
+    window.currentEditingPlanIcons = plan.deviceIcons || [];
+    const currentIconsContainer = document.getElementById("editPlanCurrentIcons");
+    currentIconsContainer.innerHTML = "";
+    if (window.currentEditingPlanIcons.length === 0) {
+      currentIconsContainer.innerHTML = `<span class="text-white-50 small">No hay iconos subidos</span>`;
+    } else {
+      window.currentEditingPlanIcons.forEach((url, index) => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "position-relative m-1";
+        wrapper.style.width = "40px";
+        wrapper.style.height = "40px";
+        wrapper.innerHTML = `
+          <img src="${url}" class="rounded border border-warning" style="width: 40px; height: 40px; object-fit: cover;" />
+          <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 p-0 rounded-circle d-flex align-items-center justify-content-center" 
+                  style="width: 16px; height: 16px; font-size: 10px; transform: translate(30%, -30%);" 
+                  onclick="removeEditingPlanIcon(${index})">×</button>
+        `;
+        currentIconsContainer.appendChild(wrapper);
+      });
+    }
+
     const featuresList = Array.isArray(plan.features) ? plan.features.join("\n") : plan.features || "";
     document.getElementById("editPlanFeatures").value = featuresList;
 
@@ -4623,11 +4660,85 @@ async function eliminarPlanAdmin(planId) {
   }
 }
 
+// Helper para redimensionar imágenes y convertirlas a Base64 localmente (evitando CORS y sobrecarga en DB)
+function resizeAndConvertToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = new Image();
+      img.onload = function() {
+        const canvas = document.createElement("canvas");
+        const max_size = 120; // 120px es perfecto para iconos nítidos
+        let width = img.width;
+        let height = img.height;
+        if (width > height) {
+          if (width > max_size) {
+            height *= max_size / width;
+            width = max_size;
+          }
+        } else {
+          if (height > max_size) {
+            width *= max_size / height;
+            height = max_size;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/png"));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function uploadDeviceIcons(files) {
+  const base64Urls = [];
+  for (let i = 0; i < files.length; i++) {
+    try {
+      const b64 = await resizeAndConvertToBase64(files[i]);
+      base64Urls.push(b64);
+    } catch (err) {
+      console.error("Error al procesar imagen para icono:", err);
+    }
+  }
+  return base64Urls;
+}
+
+// Remover icono actual en edición
+function removeEditingPlanIcon(index) {
+  window.currentEditingPlanIcons.splice(index, 1);
+  const currentIconsContainer = document.getElementById("editPlanCurrentIcons");
+  currentIconsContainer.innerHTML = "";
+  if (window.currentEditingPlanIcons.length === 0) {
+    currentIconsContainer.innerHTML = `<span class="text-white-50 small">No hay iconos subidos</span>`;
+  } else {
+    window.currentEditingPlanIcons.forEach((url, idx) => {
+      const wrapper = document.createElement("div");
+      wrapper.className = "position-relative m-1";
+      wrapper.style.width = "40px";
+      wrapper.style.height = "40px";
+      wrapper.innerHTML = `
+        <img src="${url}" class="rounded border border-warning" style="width: 40px; height: 40px; object-fit: cover;" />
+        <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 p-0 rounded-circle d-flex align-items-center justify-content-center" 
+                style="width: 16px; height: 16px; font-size: 10px; transform: translate(30%, -30%);" 
+                onclick="removeEditingPlanIcon(${idx})">×</button>
+      `;
+      currentIconsContainer.appendChild(wrapper);
+    });
+  }
+}
+
 // Asignar funciones globales para acceso HTML inline onclick
 window.cargarPlanesAdmin = cargarPlanesAdmin;
 window.crearNuevoPlan = crearNuevoPlan;
 window.editarPlanAdmin = editarPlanAdmin;
 window.eliminarPlanAdmin = eliminarPlanAdmin;
+window.removeEditingPlanIcon = removeEditingPlanIcon;
 
 // Manejadores para los formularios (Ejecución al cargar DOM)
 document.addEventListener("DOMContentLoaded", () => {
@@ -4641,6 +4752,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const planId = document.getElementById("editPlanId").value;
       const name = document.getElementById("editPlanName").value.trim();
       const price = document.getElementById("editPlanPrice").value.trim();
+      const gift = document.getElementById("editPlanGift").value.trim();
       const featuresRaw = document.getElementById("editPlanFeatures").value;
       
       const features = featuresRaw.split("\n")
@@ -4654,9 +4766,19 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       try {
+        // Subir nuevos iconos si existen
+        const newFiles = document.getElementById("editPlanDeviceIcons").files;
+        let newUrls = [];
+        if (newFiles.length > 0) {
+          newUrls = await uploadDeviceIcons(newFiles);
+        }
+        const deviceIcons = [...(window.currentEditingPlanIcons || []), ...newUrls];
+
         await db.collection("planes").doc(planId).update({
           name: name,
           price: price,
+          gift: gift,
+          deviceIcons: deviceIcons,
           features: features
         });
 
@@ -4680,6 +4802,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const name = document.getElementById("addPlanName").value.trim();
       const type = document.getElementById("addPlanType").value;
       const price = document.getElementById("addPlanPrice").value.trim();
+      const gift = document.getElementById("addPlanGift").value.trim();
       const featuresRaw = document.getElementById("addPlanFeatures").value;
       
       const features = featuresRaw.split("\n")
@@ -4696,11 +4819,20 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       try {
+        // Subir iconos
+        const files = document.getElementById("addPlanDeviceIcons").files;
+        let deviceIcons = [];
+        if (files.length > 0) {
+          deviceIcons = await uploadDeviceIcons(files);
+        }
+
         await db.collection("planes").doc(planId).set({
           id: planId,
           name: name,
           type: type,
           price: price,
+          gift: gift,
+          deviceIcons: deviceIcons,
           features: features
         });
 

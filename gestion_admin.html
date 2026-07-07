@@ -1526,6 +1526,17 @@
                 <input type="text" id="editPlanPrice" class="form-control premium-input" required />
               </div>
               <div class="mb-3">
+                <label class="form-label text-gold fw-bold small">Regalo / Promoción Especial (Opcional)</label>
+                <input type="text" id="editPlanGift" class="form-control premium-input" placeholder="Ej: ¡Instalación gratis! o ¡1 Mes de Regalo!" />
+              </div>
+              <div class="mb-3">
+                <label class="form-label text-gold fw-bold small">Iconos de Dispositivos Incluidos (Vista Previa)</label>
+                <div id="editPlanIconsPreview" class="d-flex flex-wrap gap-2 mb-2 p-2 border border-secondary rounded bg-dark-50" style="min-height: 50px;"></div>
+                <label class="form-label text-gold fw-bold small">Seleccionar / Agregar Más Iconos</label>
+                <input type="file" id="editPlanDeviceIcons" class="form-control premium-input" multiple accept="image/*" />
+                <div class="form-text text-white-50 small">Selecciona imágenes para añadir. Puedes seleccionar varias al mismo tiempo.</div>
+              </div>
+              <div class="mb-3">
                 <label class="form-label text-gold fw-bold small">Características (Una por línea)</label>
                 <textarea id="editPlanFeatures" class="form-control premium-input" rows="6" required></textarea>
               </div>
@@ -1579,6 +1590,17 @@
               <div class="mb-3">
                 <label class="form-label text-gold fw-bold small">Precio (Tarifa mensual)</label>
                 <input type="text" id="addPlanPrice" class="form-control premium-input" placeholder="Ej: $49.99/mes o Tarifa personalizada" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label text-gold fw-bold small">Regalo / Promoción Especial (Opcional)</label>
+                <input type="text" id="addPlanGift" class="form-control premium-input" placeholder="Ej: ¡Instalación gratis! o ¡1 Mes de Regalo!" />
+              </div>
+              <div class="mb-3">
+                <label class="form-label text-gold fw-bold small">Iconos de Dispositivos Incluidos (Vista Previa)</label>
+                <div id="addPlanIconsPreview" class="d-flex flex-wrap gap-2 mb-2 p-2 border border-secondary rounded bg-dark-50" style="min-height: 50px;"></div>
+                <label class="form-label text-gold fw-bold small">Seleccionar Iconos (Imágenes)</label>
+                <input type="file" id="addPlanDeviceIcons" class="form-control premium-input" multiple accept="image/*" />
+                <div class="form-text text-white-50 small">Puedes seleccionar múltiples imágenes al mismo tiempo.</div>
               </div>
               <div class="mb-3">
                 <label class="form-label text-gold fw-bold small">Características (Una por línea)</label>
