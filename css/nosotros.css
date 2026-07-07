@@ -223,15 +223,17 @@
 }
 
 /* CLIENTES LOGOS */
-.nosotros-section img {
-  max-height: 70px;
+.client-logo {
+  height: 80px;
   width: auto;
-  filter: brightness(0.6) grayscale(100%);
+  max-width: 180px;
+  object-fit: contain;
+  filter: brightness(0.7) grayscale(100%);
   transition: all 0.4s ease;
 }
 
-.nosotros-section img:hover {
-  transform: scale(1.1) translateY(-3px);
+.client-logo:hover {
+  transform: scale(1.15) translateY(-3px);
   filter: brightness(1) grayscale(0%);
 }
 
