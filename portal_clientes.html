@@ -2,6 +2,46 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      // Parchear la creación de iframes para asegurar que tengan permisos de pago (PayPhone / pasarelas de pago)
+      (function() {
+        const allowString = "payment *; publickey-credentials-get *;";
+
+        // Intercepta createElement
+        const originalCreateElement = document.createElement;
+        document.createElement = function(tagName, options) {
+          const element = originalCreateElement.call(document, tagName, options);
+          if (tagName && tagName.toLowerCase() === 'iframe') {
+            element.setAttribute('allow', allowString);
+            element.setAttribute('allowpaymentrequest', 'true');
+          }
+          return element;
+        };
+
+        // Observa la inserción en el DOM para inyectar los permisos si son creados mediante innerHTML u otros métodos
+        const observer = new MutationObserver((mutations) => {
+          for (const mutation of mutations) {
+            for (const node of mutation.addedNodes) {
+              if (node.nodeName === 'IFRAME') {
+                if (node.getAttribute('allow') !== allowString) {
+                  node.setAttribute('allow', allowString);
+                  node.setAttribute('allowpaymentrequest', 'true');
+                }
+              } else if (node.querySelectorAll) {
+                const iframes = node.querySelectorAll('iframe');
+                for (const iframe of iframes) {
+                  if (iframe.getAttribute('allow') !== allowString) {
+                    iframe.setAttribute('allow', allowString);
+                    iframe.setAttribute('allowpaymentrequest', 'true');
+                  }
+                }
+              }
+            }
+          }
+        });
+        observer.observe(document.documentElement, { childList: true, subtree: true });
+      })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Portal Residentes 24/7</title>
     <link rel="stylesheet" href="css/bootstrap.min.css" />
@@ -609,52 +649,54 @@
         }
       </style>
 
-      <!-- Div para renderizado de proforma PDF si se requiere ver en detalle -->
-      <div class="modal fade" id="viewProformaModalPortal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-xl">
-          <div class="modal-content bg-dark text-white border-gold shadow-lg">
-            <div class="modal-header border-bottom border-secondary">
-              <h5 class="modal-title text-gold"><i class="fa-solid fa-file-invoice-dollar me-2"></i> Vista Previa de Cotización</h5>
-              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body p-0 bg-white" id="proformaPreviewPortal" style="color: #333;">
-              <!-- Se cargará aquí la proforma -->
-            </div>
-            <div class="modal-footer border-top border-secondary">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-              <button type="button" class="btn btn-gold" id="downloadProformaPdfBtnPortal">
-                <i class="fa-solid fa-download me-2"></i> Descargar PDF
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- MODAL DE PAGO PAYPHONE -->
-      <div class="modal fade" id="payphoneModal" tabindex="-1" aria-labelledby="payphoneModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content bg-dark-glass text-white border-gold shadow-lg" style="border-radius: 20px; overflow: hidden;">
-            <div class="modal-header border-bottom border-secondary p-4">
-              <h5 class="modal-title text-white" id="payphoneModalLabel">
-                <i class="fa-solid fa-shield-halved me-2"></i> Pago Seguro con PayPhone
-              </h5>
-              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4" style="background: rgba(30, 30, 30, 0.5);">
-              <div id="payphone-modal-info" class="mb-4 text-center">
-                <p class="text-white-50 small mb-1">Concepto:</p>
-                <h6 id="payphone-modal-service" class="fw-bold text-white mb-2">---</h6>
-                <p class="text-white-50 small mb-1">Total a Pagar (+IVA):</p>
-                <h4 id="payphone-modal-amount" class="text-gold fw-bold">$0.00</h4>
-              </div>
-              <div id="pp-button"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- Elemento oculto para renderizado de PDF -->
-      <div id="proformaPrintAreaPortal" style="position: absolute; left: -9999px; top: -9999px; width: 800px; background: #ffffff;"></div>
+       <!-- Elemento oculto para renderizado de PDF -->
+       <div id="proformaPrintAreaPortal" style="position: absolute; left: -9999px; top: -9999px; width: 800px; background: #ffffff;"></div>
       </div>
     </main>
+
+    <!-- Div para renderizado de proforma PDF si se requiere ver en detalle -->
+    <div class="modal fade" id="viewProformaModalPortal" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content bg-dark text-white border-gold shadow-lg">
+          <div class="modal-header border-bottom border-secondary">
+            <h5 class="modal-title text-gold"><i class="fa-solid fa-file-invoice-dollar me-2"></i> Vista Previa de Cotización</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body p-0 bg-white" id="proformaPreviewPortal" style="color: #333;">
+            <!-- Se cargará aquí la proforma -->
+          </div>
+          <div class="modal-footer border-top border-secondary">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-gold" id="downloadProformaPdfBtnPortal">
+              <i class="fa-solid fa-download me-2"></i> Descargar PDF
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL DE PAGO PAYPHONE -->
+    <div class="modal fade" id="payphoneModal" aria-labelledby="payphoneModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark-glass text-white border-gold shadow-lg" style="border-radius: 20px; overflow: hidden;">
+          <div class="modal-header border-bottom border-secondary p-4">
+            <h5 class="modal-title text-white" id="payphoneModalLabel">
+              <i class="fa-solid fa-shield-halved me-2"></i> Pago Seguro con PayPhone
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4" style="background: rgba(30, 30, 30, 0.5);">
+            <div id="payphone-modal-info" class="mb-4 text-center">
+              <p class="text-white-50 small mb-1">Concepto:</p>
+              <h6 id="payphone-modal-service" class="fw-bold text-white mb-2">---</h6>
+              <p class="text-white-50 small mb-1">Total a Pagar (+IVA):</p>
+              <h4 id="payphone-modal-amount" class="text-gold fw-bold">$0.00</h4>
+            </div>
+            <div id="pp-button"></div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- FOOTER -->
     <footer class="footer">

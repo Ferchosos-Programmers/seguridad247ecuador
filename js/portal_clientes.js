@@ -1,4 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // Desactivar el enforceFocus de Bootstrap para permitir entrada de texto en iframes (ej: PayPhone)
+  if (typeof bootstrap !== "undefined" && bootstrap.Modal && bootstrap.Modal.prototype) {
+    bootstrap.Modal.prototype._enforceFocus = function() {};
+  }
+
   const auth = firebase.auth();
   const db = firebase.firestore();
 
@@ -32,6 +37,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const tabsSection = document.getElementById("portalTabsSection");
     const tabContent = document.getElementById("portalTabContent");
     const navBtn = document.getElementById("navActionBtn");
+
+    function showPublicUI() {
+      console.log("Habilitando interfaz pública/búsqueda");
+      if (authInfo) authInfo.style.display = "none";
+      if (noAuthInfo) noAuthInfo.style.display = "block";
+      if (publicSearch) publicSearch.style.display = "flex";
+      if (mainContent) mainContent.style.display = "none";
+      if (profileSection) profileSection.style.display = "none";
+      if (tabsSection) tabsSection.style.display = "none";
+      if (tabContent) tabContent.style.display = "none";
+
+      if (navBtn) {
+        navBtn.innerHTML =
+          '<i class="fa-solid fa-users"></i> 24/7 Control Center';
+        navBtn.href = "control_center.html";
+        navBtn.onclick = null;
+      }
+
+      initPublicSearch();
+    }
 
     if (user) {
       console.log("Sesión activa detectada (Cliente):", user.email);
@@ -86,28 +111,17 @@ document.addEventListener("DOMContentLoaded", () => {
             cargarCotizacionesPortal();
             cargarComunicacionesPortal();
           });
+        } else {
+          console.warn("El documento del usuario no existe en la colección 'users'.");
+          showPublicUI();
         }
       } catch (error) {
         console.error("Error al cargar datos de usuario:", error);
+        showPublicUI();
       }
     } else {
       console.log("Modo público habilitado");
-      if (authInfo) authInfo.style.display = "none";
-      if (noAuthInfo) noAuthInfo.style.display = "block";
-      if (publicSearch) publicSearch.style.display = "flex";
-      if (mainContent) mainContent.style.display = "none";
-      if (profileSection) profileSection.style.display = "none";
-      if (tabsSection) tabsSection.style.display = "none";
-      if (tabContent) tabContent.style.display = "none";
-
-      if (navBtn) {
-        navBtn.innerHTML =
-          '<i class="fa-solid fa-users"></i> 24/7 Control Center';
-        navBtn.href = "control_center.html";
-        navBtn.onclick = null;
-      }
-
-      initPublicSearch();
+      showPublicUI();
     }
   });
   function initPublicSearch() {
