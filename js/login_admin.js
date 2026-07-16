@@ -4188,17 +4188,52 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.getElementById("quejasAdminSearch")?.addEventListener("input", (e) => {
-    const query = e.target.value.toLowerCase();
-    const filtered = (window.allAdminQuejas || []).filter(q => 
+    window.aplicarFiltrosQuejas();
+  });
+});
+
+// Filtros para la bandeja de Quejas y Mensajería (Admin)
+window.currentQuejaTypeFilter = "todos"; // "todos", "clientes", "prospectos"
+
+window.filterQuejasType = (type) => {
+  window.currentQuejaTypeFilter = type;
+  
+  // Actualizar clases activas en los botones de filtro
+  const buttons = document.querySelectorAll("#quejasFilterContainer .filter-btn");
+  buttons.forEach(btn => {
+    if (btn.getAttribute("onclick").includes(`'${type}'`)) {
+      btn.classList.add("active");
+    } else {
+      btn.classList.remove("active");
+    }
+  });
+
+  window.aplicarFiltrosQuejas();
+};
+
+window.aplicarFiltrosQuejas = () => {
+  const query = document.getElementById("quejasAdminSearch")?.value.toLowerCase() || "";
+  const typeFilter = window.currentQuejaTypeFilter || "todos";
+
+  const filtered = (window.allAdminQuejas || []).filter(q => {
+    const matchesSearch = 
       q.complexName.toLowerCase().includes(query) ||
       q.clientName.toLowerCase().includes(query) ||
       q.subject.toLowerCase().includes(query) ||
-      q.message.toLowerCase().includes(query) ||
-      q.type.toLowerCase().includes(query)
-    );
-    renderQuejasAdmin(filtered);
+      q.message.toLowerCase().includes(query);
+
+    let matchesType = true;
+    if (typeFilter === "clientes") {
+      matchesType = !q.isPublicContact;
+    } else if (typeFilter === "prospectos") {
+      matchesType = !!q.isPublicContact;
+    }
+
+    return matchesSearch && matchesType;
   });
-});
+
+  renderQuejasAdmin(filtered);
+};
 
 // =========================================
 // LOGIC FOR ADMIN COTIZACIONES & QUEJAS
@@ -4218,6 +4253,25 @@ async function cargarCotizacionesAdmin() {
           clientName: userData.adminName || userData.name || "Cliente",
           complexName: userData.complexName || "Conjunto no especificado",
         });
+      });
+    });
+
+    // Cargar también solicitudes públicas de contact_messages
+    const contactsSnapshot = await db.collection("contact_messages").get();
+    contactsSnapshot.forEach((doc) => {
+      const data = doc.data();
+      requests.push({
+        id: doc.id,
+        userId: "public",
+        clientName: data.name || "Cliente Web",
+        complexName: data.serviceOfInterest ? `${data.serviceOfInterest} (Web)` : "Contacto Web",
+        description: data.message || "",
+        phone: data.phone || "",
+        email: data.email || "",
+        createdAt: data.createdAt,
+        status: data.status || "Pendiente",
+        reply: data.reply || "",
+        isPublicContact: true
       });
     });
 
@@ -4242,19 +4296,30 @@ function renderCotizacionesAdmin(requests) {
   container.innerHTML = requests.map(r => {
     const dateStr = r.createdAt ? new Date(r.createdAt).toLocaleString("es-ES") : "---";
     const statusBadge = r.status === "Cotizado" || r.status === "Respondido" ? "bg-success" : "bg-warning text-dark";
+    const isPublic = !!r.isPublicContact;
+    const clientBadge = isPublic 
+      ? `<span class="badge bg-gold text-dark ms-2"><i class="fa-solid fa-star"></i> Posible Cliente</span>`
+      : `<span class="badge bg-dark border border-secondary text-white-50 ms-2">Cliente Registrado</span>`;
+
     return `
       <div class="col-xl-4 col-md-6">
-        <div class="job-card" style="min-height: auto;">
+        <div class="job-card" style="min-height: auto; border: 1px solid ${isPublic ? 'rgba(212,175,55,0.3)' : 'rgba(255,255,255,0.05)'}; background: ${isPublic ? 'linear-gradient(135deg, rgba(20,20,20,0.9) 0%, rgba(35,30,15,0.9) 100%)' : 'rgba(25,25,25,0.9)'};">
           <div class="d-flex justify-content-between mb-3 align-items-center">
             <span class="badge ${statusBadge}">${r.status || "Pendiente"}</span>
             <small class="text-white-50">${dateStr}</small>
           </div>
-          <h5 class="text-gold fw-bold mb-1">${r.complexName}</h5>
+          <h5 class="text-gold fw-bold mb-1">${r.complexName} ${clientBadge}</h5>
           <p class="text-white small mb-1"><strong>Contacto:</strong> ${r.clientName}</p>
+          ${isPublic && r.email ? `<p class="text-white small mb-1"><strong>Correo:</strong> ${r.email}</p>` : ""}
           <p class="text-white-50 small mb-3" style="min-height: 45px;">${r.description}</p>
-          <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary">
-            <a href="tel:${r.phone}" class="btn btn-sm btn-outline-info"><i class="fa-solid fa-phone"></i> ${r.phone}</a>
-            ${r.status === "Cotizado" ? `
+          <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary w-100">
+            <div class="d-flex gap-2 align-items-center">
+              <a href="tel:${r.phone}" class="btn btn-sm btn-outline-info"><i class="fa-solid fa-phone"></i> ${r.phone}</a>
+              <button class="btn btn-sm btn-outline-danger" onclick="eliminarCotizacionAdmin('${r.id}', '${r.userId}', ${isPublic})" title="Eliminar cotización">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+            ${r.status === "Cotizado" || r.status === "Respondido" ? `
               <span class="text-success small fw-bold"><i class="fa-solid fa-circle-check"></i> Cotizado</span>
             ` : `
               <span class="text-warning small fw-bold"><i class="fa-solid fa-clock"></i> Pendiente</span>
@@ -4265,6 +4330,202 @@ function renderCotizacionesAdmin(requests) {
     `;
   }).join("");
 }
+
+// FUNCIONES DE ELIMINACIÓN Y LIMPIEZA DE MENSAJES Y COTIZACIONES
+
+window.eliminarCotizacionAdmin = async (id, userId, isPublic) => {
+  const result = await Swal.fire({
+    title: "¿Eliminar cotización?",
+    text: "Esta acción no se puede deshacer.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Sí, eliminar",
+    cancelButtonText: "Cancelar"
+  });
+
+  if (!result.isConfirmed) return;
+
+  Swal.fire({
+    title: "Eliminando...",
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading()
+  });
+
+  try {
+    const db = firebase.firestore();
+    if (isPublic) {
+      await db.collection("contact_messages").doc(id).delete();
+    } else {
+      const userDocRef = db.collection("users").doc(userId);
+      await db.runTransaction(async (transaction) => {
+        const sfDoc = await transaction.get(userDocRef);
+        if (!sfDoc.exists) return;
+        const reqs = sfDoc.data().quoteRequests || [];
+        const updatedReqs = reqs.filter(r => r.id !== id);
+        transaction.update(userDocRef, { quoteRequests: updatedReqs });
+      });
+    }
+    Swal.fire("¡Eliminado!", "La cotización ha sido eliminada.", "success");
+    cargarCotizacionesAdmin();
+  } catch (error) {
+    console.error("Error al eliminar cotización:", error);
+    Swal.fire("Error", "No se pudo eliminar la cotización.", "error");
+  }
+};
+
+window.limpiarCotizacionesAntiguas = async () => {
+  const result = await Swal.fire({
+    title: "¿Limpiar cotizaciones atendidas?",
+    text: "Se eliminarán permanentemente todas las cotizaciones con estado 'Cotizado'.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Sí, limpiar",
+    cancelButtonText: "Cancelar"
+  });
+
+  if (!result.isConfirmed) return;
+
+  Swal.fire({
+    title: "Limpiando cotizaciones...",
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading()
+  });
+
+  try {
+    const db = firebase.firestore();
+    
+    // 1. Limpiar cotizaciones públicas (contact_messages)
+    const contactsSnapshot = await db.collection("contact_messages")
+      .where("status", "in", ["Cotizado", "Respondido"])
+      .get();
+    
+    const batch = db.batch();
+    contactsSnapshot.forEach(doc => {
+      batch.delete(doc.ref);
+    });
+    await batch.commit();
+
+    // 2. Limpiar de usuarios registrados
+    const usersSnapshot = await db.collection("users").get();
+    for (const doc of usersSnapshot.docs) {
+      const userData = doc.data();
+      const quoteReqs = userData.quoteRequests || [];
+      const hasAntiguas = quoteReqs.some(r => r.status === "Cotizado" || r.status === "Respondido");
+      
+      if (hasAntiguas) {
+        const updatedReqs = quoteReqs.filter(r => r.status !== "Cotizado" && r.status !== "Respondido");
+        await db.collection("users").doc(doc.id).update({ quoteRequests: updatedReqs });
+      }
+    }
+
+    Swal.fire("¡Limpio!", "Se han limpiado todas las cotizaciones atendidas.", "success");
+    cargarCotizacionesAdmin();
+  } catch (error) {
+    console.error("Error al limpiar cotizaciones:", error);
+    Swal.fire("Error", "No se pudo completar la limpieza.", "error");
+  }
+};
+
+window.eliminarQuejaAdmin = async (id, userId, isPublic) => {
+  const result = await Swal.fire({
+    title: "¿Eliminar mensaje?",
+    text: "Esta acción no se puede deshacer.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Sí, eliminar",
+    cancelButtonText: "Cancelar"
+  });
+
+  if (!result.isConfirmed) return;
+
+  Swal.fire({
+    title: "Eliminando...",
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading()
+  });
+
+  try {
+    const db = firebase.firestore();
+    if (isPublic) {
+      await db.collection("contact_messages").doc(id).delete();
+    } else {
+      const userDocRef = db.collection("users").doc(userId);
+      await db.runTransaction(async (transaction) => {
+        const sfDoc = await transaction.get(userDocRef);
+        if (!sfDoc.exists) return;
+        const comms = sfDoc.data().comunicaciones || [];
+        const updatedComms = comms.filter(c => c.id !== id);
+        transaction.update(userDocRef, { comunicaciones: updatedComms });
+      });
+    }
+    Swal.fire("¡Eliminado!", "El mensaje ha sido eliminado.", "success");
+    cargarQuejasAdmin();
+  } catch (error) {
+    console.error("Error al eliminar mensaje:", error);
+    Swal.fire("Error", "No se pudo eliminar el mensaje.", "error");
+  }
+};
+
+window.limpiarQuejasAntiguas = async () => {
+  const result = await Swal.fire({
+    title: "¿Limpiar mensajes atendidos?",
+    text: "Se eliminarán permanentemente todos los mensajes y quejas con estado 'Respondido'.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Sí, limpiar",
+    cancelButtonText: "Cancelar"
+  });
+
+  if (!result.isConfirmed) return;
+
+  Swal.fire({
+    title: "Limpiando mensajes...",
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading()
+  });
+
+  try {
+    const db = firebase.firestore();
+    
+    // 1. Limpiar mensajes públicos (contact_messages)
+    const contactsSnapshot = await db.collection("contact_messages")
+      .where("status", "==", "Respondido")
+      .get();
+    
+    const batch = db.batch();
+    contactsSnapshot.forEach(doc => {
+      batch.delete(doc.ref);
+    });
+    await batch.commit();
+
+    // 2. Limpiar de usuarios registrados
+    const usersSnapshot = await db.collection("users").get();
+    for (const doc of usersSnapshot.docs) {
+      const userData = doc.data();
+      const comms = userData.comunicaciones || [];
+      const hasAntiguas = comms.some(c => c.status === "Respondido");
+      
+      if (hasAntiguas) {
+        const updatedComms = comms.filter(c => c.status !== "Respondido");
+        await db.collection("users").doc(doc.id).update({ comunicaciones: updatedComms });
+      }
+    }
+
+    Swal.fire("¡Limpio!", "Se han limpiado todos los mensajes atendidos.", "success");
+    cargarQuejasAdmin();
+  } catch (error) {
+    console.error("Error al limpiar mensajes:", error);
+    Swal.fire("Error", "No se pudo completar la limpieza.", "error");
+  }
+};
 
 async function cargarQuejasAdmin() {
   const db = firebase.firestore();
@@ -4281,6 +4542,27 @@ async function cargarQuejasAdmin() {
           clientName: userData.adminName || userData.name || "Cliente",
           complexName: userData.complexName || "Conjunto no especificado",
         });
+      });
+    });
+
+    // Cargar también mensajes públicos del formulario de contactos
+    const contactsSnapshot = await db.collection("contact_messages").get();
+    contactsSnapshot.forEach((doc) => {
+      const data = doc.data();
+      quejas.push({
+        id: doc.id,
+        type: "mensaje",
+        status: data.status || "Pendiente",
+        createdAt: data.createdAt,
+        complexName: "Contacto Web",
+        subject: data.serviceOfInterest || "Consulta General",
+        message: data.message || "",
+        userId: "public",
+        clientName: data.name || "Cliente Web",
+        email: data.email || "",
+        phone: data.phone || "",
+        reply: data.reply || "",
+        isPublicContact: true
       });
     });
 
@@ -4305,12 +4587,21 @@ function renderQuejasAdmin(quejas) {
   container.innerHTML = quejas.map(q => {
     const dateStr = q.createdAt ? new Date(q.createdAt).toLocaleString("es-ES") : "---";
     const statusBadge = q.status === "Respondido" ? "bg-success" : "bg-warning text-dark";
-    const typeLabel = q.type === "queja" ? "Queja" : q.type === "sugerencia" ? "Sugerencia" : "Mensaje";
-    const typeBadge = q.type === "queja" ? "bg-danger" : q.type === "sugerencia" ? "bg-info" : "bg-secondary";
+    
+    // Detección de Cliente vs Prospecto
+    const isPublic = !!q.isPublicContact;
+    const typeLabel = isPublic ? "Prospecto (Web)" : (q.type === "queja" ? "Queja" : q.type === "sugerencia" ? "Sugerencia" : "Mensaje");
+    const typeBadge = isPublic ? "bg-info text-dark" : (q.type === "queja" ? "bg-danger" : q.type === "sugerencia" ? "bg-primary" : "bg-secondary");
+    const clientBadge = isPublic 
+      ? `<span class="badge bg-gold text-dark ms-2"><i class="fa-solid fa-star"></i> Posible Cliente</span>`
+      : `<span class="badge bg-dark border border-secondary text-white-50 ms-2">Cliente Registrado</span>`;
+    
+    // Estilo de tarjeta diferencial para prospectos
+    const cardBorderClass = isPublic ? "border-gold-soft shadow-gold-sm" : "";
 
     return `
       <div class="col-xl-4 col-md-6">
-        <div class="job-card" style="min-height: auto;">
+        <div class="job-card ${cardBorderClass}" style="min-height: auto; border: 1px solid ${isPublic ? 'rgba(212,175,55,0.3)' : 'rgba(255,255,255,0.05)'}; background: ${isPublic ? 'linear-gradient(135deg, rgba(20,20,20,0.9) 0%, rgba(35,30,15,0.9) 100%)' : 'rgba(25,25,25,0.9)'};">
           <div class="d-flex justify-content-between mb-3 align-items-center">
             <div>
               <span class="badge ${typeBadge} me-2">${typeLabel}</span>
@@ -4318,24 +4609,36 @@ function renderQuejasAdmin(quejas) {
             </div>
             <small class="text-white-50">${dateStr}</small>
           </div>
-          <h5 class="text-gold fw-bold mb-1">${q.complexName}</h5>
+          <h5 class="text-gold fw-bold mb-2">${q.complexName} ${clientBadge}</h5>
+          
+          <div class="mb-3 p-2 rounded bg-black bg-opacity-25" style="border: 1px solid rgba(255,255,255,0.02);">
+            <p class="text-white small mb-1"><strong>Nombre:</strong> ${q.clientName}</p>
+            ${isPublic ? `
+              <p class="text-white small mb-1"><strong>Correo:</strong> <a href="mailto:${q.email}" class="text-gold-hover text-decoration-none" style="color: #d4af37;"><i class="fa-solid fa-envelope me-1"></i> ${q.email}</a></p>
+              <p class="text-white small mb-0"><strong>Teléfono:</strong> <a href="tel:${q.phone}" class="text-gold-hover text-decoration-none" style="color: #d4af37;"><i class="fa-solid fa-phone me-1"></i> ${q.phone}</a></p>
+            ` : ""}
+          </div>
+          
           <p class="text-white small mb-1"><strong>Asunto:</strong> ${q.subject}</p>
           <p class="text-white-50 small mb-3" style="min-height: 45px; white-space: pre-wrap;">${q.message}</p>
           
           ${q.reply ? `
             <div class="mt-2 p-2 rounded bg-dark bg-opacity-50 border-start border-gold mb-3">
-              <small class="text-gold d-block fw-bold"><i class="fa-solid fa-reply"></i> Respuesta:</small>
+              <small class="text-gold d-block fw-bold"><i class="fa-solid fa-reply"></i> Respuesta / Seguimiento:</small>
               <p class="text-white-50 small mb-0">${q.reply}</p>
             </div>
           ` : ""}
 
-          <div class="d-flex justify-content-end align-items-center pt-2 border-top border-secondary">
+          <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary">
+            <button class="btn btn-sm btn-outline-danger" onclick="eliminarQuejaAdmin('${q.id}', '${q.userId}', ${isPublic})" title="Eliminar mensaje">
+              <i class="fa-solid fa-trash"></i>
+            </button>
             ${q.status !== "Respondido" ? `
-              <button class="btn btn-sm btn-gold" onclick="abrirResponderQuejaModal('${q.id}', '${q.userId}', '${q.clientName.replace(/'/g, "\\'")}', '${q.message.replace(/'/g, "\\'").replace(/\n/g, "\\n")}')">
-                <i class="fa-solid fa-reply me-1"></i> Responder
+              <button class="btn btn-sm btn-gold" onclick="abrirResponderQuejaModal('${q.id}', '${q.userId}', '${q.clientName.replace(/'/g, "\\'")}', '${q.message.replace(/'/g, "\\'").replace(/\n/g, "\\n")}', '${(q.phone || "").replace(/'/g, "\\'")}')">
+                <i class="fa-solid fa-reply me-1"></i> Responder / Seguimiento
               </button>
             ` : `
-              <span class="text-success small fw-bold"><i class="fa-solid fa-circle-check"></i> Respondido</span>
+              <span class="text-success small fw-bold"><i class="fa-solid fa-circle-check"></i> Atendido</span>
             `}
           </div>
         </div>
@@ -4344,9 +4647,10 @@ function renderQuejasAdmin(quejas) {
   }).join("");
 }
 
-window.abrirResponderQuejaModal = (id, userId, sender, text) => {
+window.abrirResponderQuejaModal = (id, userId, sender, text, phone = "") => {
   document.getElementById("replyCommId").value = id;
   document.getElementById("replyCommUserId").value = userId;
+  document.getElementById("replyCommPhone").value = phone;
   document.getElementById("replyCommSender").textContent = sender;
   document.getElementById("replyCommText").textContent = text;
   document.getElementById("replyCommAnswer").value = "";
@@ -4359,6 +4663,8 @@ window.enviarRespuestaComunicacion = async () => {
   const db = firebase.firestore();
   const id = document.getElementById("replyCommId").value;
   const userId = document.getElementById("replyCommUserId").value;
+  const phone = document.getElementById("replyCommPhone").value;
+  const senderName = document.getElementById("replyCommSender").textContent;
   const answer = document.getElementById("replyCommAnswer").value;
 
   if (!answer.trim()) {
@@ -4373,23 +4679,58 @@ window.enviarRespuestaComunicacion = async () => {
   });
 
   try {
-    // Actualizar el array dentro del documento del usuario
-    const userDocRef = db.collection("users").doc(userId);
-    await db.runTransaction(async (transaction) => {
-      const sfDoc = await transaction.get(userDocRef);
-      if (!sfDoc.exists) return;
-      const comms = sfDoc.data().comunicaciones || [];
-      const updatedComms = comms.map(c => {
-        if (c.id === id) {
-          return { ...c, status: "Respondido", reply: answer };
-        }
-        return c;
+    if (userId === "public") {
+      // Mensaje de contacto público
+      await db.collection("contact_messages").doc(id).update({
+        status: "Respondido",
+        reply: answer
       });
-      transaction.update(userDocRef, { comunicaciones: updatedComms });
-    });
+    } else {
+      // Actualizar el array dentro del documento del usuario registrado
+      const userDocRef = db.collection("users").doc(userId);
+      await db.runTransaction(async (transaction) => {
+        const sfDoc = await transaction.get(userDocRef);
+        if (!sfDoc.exists) return;
+        const comms = sfDoc.data().comunicaciones || [];
+        const updatedComms = comms.map(c => {
+          if (c.id === id) {
+            return { ...c, status: "Respondido", reply: answer };
+          }
+          return c;
+        });
+        transaction.update(userDocRef, { comunicaciones: updatedComms });
+      });
+    }
 
-    Swal.fire("¡Éxito!", "Respuesta enviada correctamente.", "success");
+    // Ocultar modal primero
     bootstrap.Modal.getInstance(document.getElementById("replyCommModal")).hide();
+
+    // Si hay un número de teléfono, redireccionar a WhatsApp
+    if (phone && phone.trim()) {
+      let cleanPhone = phone.replace(/\D/g, "");
+      if (cleanPhone.length === 9 || cleanPhone.length === 10) {
+        if (cleanPhone.startsWith("0")) cleanPhone = cleanPhone.substring(1);
+        if (!cleanPhone.startsWith("593")) cleanPhone = "593" + cleanPhone;
+      }
+
+      const textMessage = `*SEGURIDAD 24/7 ECUADOR*\n\nHola *${senderName}*,\n\nRespuesta a tu consulta:\n_${answer}_`;
+      const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(textMessage)}`;
+
+      // Alertar y redirigir
+      Swal.fire({
+        icon: "success",
+        title: "Respuesta registrada",
+        text: "Redirigiendo a WhatsApp para enviar el mensaje...",
+        timer: 2000,
+        showConfirmButton: false,
+        willClose: () => {
+          window.open(waUrl, "_blank");
+        }
+      });
+    } else {
+      Swal.fire("¡Éxito!", "Respuesta enviada correctamente.", "success");
+    }
+
     cargarQuejasAdmin();
   } catch (error) {
     console.error("Error al responder queja:", error);

@@ -530,20 +530,28 @@ document
         const reqId = window.pendingQuoteReqId;
         const uId = window.pendingQuoteUserId;
 
-        // Actualizar el array dentro del documento del usuario
-        const userDocRef = db.collection("users").doc(uId);
-        await db.runTransaction(async (transaction) => {
-          const sfDoc = await transaction.get(userDocRef);
-          if (!sfDoc.exists) return;
-          const reqs = sfDoc.data().quoteRequests || [];
-          const updatedReqs = reqs.map(r => {
-            if (r.id === reqId) {
-              return { ...r, status: "Cotizado", reply: docRef.id };
-            }
-            return r;
+        if (uId === "public") {
+          // Actualizar en contact_messages
+          await db.collection("contact_messages").doc(reqId).update({
+            status: "Cotizado",
+            reply: docRef.id
           });
-          transaction.update(userDocRef, { quoteRequests: updatedReqs });
-        });
+        } else {
+          // Actualizar el array dentro del documento del usuario registrado
+          const userDocRef = db.collection("users").doc(uId);
+          await db.runTransaction(async (transaction) => {
+            const sfDoc = await transaction.get(userDocRef);
+            if (!sfDoc.exists) return;
+            const reqs = sfDoc.data().quoteRequests || [];
+            const updatedReqs = reqs.map(r => {
+              if (r.id === reqId) {
+                return { ...r, status: "Cotizado", reply: docRef.id };
+              }
+              return r;
+            });
+            transaction.update(userDocRef, { quoteRequests: updatedReqs });
+          });
+        }
 
         // Limpiar variables temporales
         window.pendingQuoteReqId = null;
@@ -1029,6 +1037,25 @@ async function loadQuoteRequests() {
           clientName: userData.adminName || userData.name || "Cliente",
           complexName: userData.complexName || "Conjunto no especificado"
         });
+      });
+    });
+
+    // Cargar solicitudes públicas del formulario de contactos
+    const contactsSnapshot = await db.collection("contact_messages").get();
+    contactsSnapshot.forEach((doc) => {
+      const data = doc.data();
+      requests.push({
+        id: doc.id,
+        userId: "public",
+        clientName: data.name || "Cliente Web",
+        complexName: data.serviceOfInterest ? `${data.serviceOfInterest} (Web)` : "Contacto Web",
+        description: data.message || "",
+        phone: data.phone || "",
+        email: data.email || "",
+        createdAt: data.createdAt,
+        status: data.status || "Pendiente",
+        reply: data.reply || "",
+        isPublicContact: true
       });
     });
 

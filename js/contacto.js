@@ -30,6 +30,30 @@ document.addEventListener('DOMContentLoaded', function () {
         // En algunos casos (como la primera vez sin activar) la respuesta no es JSON válido
         // Por eso priorizamos verificar si el estado es 'OK' (200-299)
         if (response.ok) {
+          // Guardar también en Firebase Firestore para administración y administración comercial
+          try {
+            if (typeof db !== "undefined" && db) {
+              const nombre = document.getElementById('nombre').value;
+              const email = document.getElementById('email').value;
+              const telefono = document.getElementById('telefono').value;
+              const servicio_interes = document.getElementById('servicio_interes').value;
+              const mensaje = document.getElementById('mensaje').value;
+
+              await db.collection("contact_messages").add({
+                name: nombre,
+                email: email,
+                phone: telefono,
+                serviceOfInterest: servicio_interes,
+                message: mensaje,
+                createdAt: new Date().toISOString(),
+                status: "Pendiente",
+                reply: ""
+              });
+            }
+          } catch (firebaseError) {
+            console.error("Error al guardar en Firebase:", firebaseError);
+          }
+
           Swal.fire({
             icon: 'success',
             title: '¡Mensaje enviado!',

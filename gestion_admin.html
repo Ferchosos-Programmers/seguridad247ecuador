@@ -109,9 +109,9 @@
       <main class="main-content">
         <div class="container-fluid">
           <div class="d-flex justify-content-between align-items-center mb-5">
-            <h1 style="color: #d4af37; margin: 0;">
+            <!-- <h1 style="color: #d4af37; margin: 0;">
               Gestión de Administrador
-            </h1>
+            </h1> -->
 
             <!-- Filtros Secundarios Integrados (Solo para Contratos/Admins/Pagos) -->
             <div class="d-flex gap-3 align-items-center">
@@ -478,7 +478,12 @@
 
           <!-- Sección para Cotizaciones en Admin -->
           <div id="cotizacionesAdminSection" style="display: none">
-            <h2 class="text-gold mb-4">Solicitudes de Cotizaciones</h2>
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+              <h2 class="text-gold mb-0">Solicitudes de Cotizaciones</h2>
+              <button class="btn btn-outline-danger btn-sm rounded-pill px-3" onclick="limpiarCotizacionesAntiguas()">
+                <i class="fa-solid fa-broom me-1"></i> Limpiar Atendidos
+              </button>
+            </div>
             <div class="row mb-4">
               <div class="col-md-6 mx-auto">
                 <div class="premium-search">
@@ -499,7 +504,21 @@
 
           <!-- Sección para Quejas y Mensajes en Admin -->
           <div id="quejasAdminSection" style="display: none">
-            <h2 class="text-gold mb-4">Bandeja de Quejas y Mensajería</h2>
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+              <h2 class="text-gold mb-0">Bandeja de Quejas y Mensajería</h2>
+              <div class="d-flex gap-2 align-items-center" id="quejasFilterContainer">
+                <button class="filter-btn active" onclick="filterQuejasType('todos')">Todos</button>
+                <button class="filter-btn" onclick="filterQuejasType('clientes')">
+                  <i class="fa-solid fa-user-shield me-1"></i> Clientes Registrados
+                </button>
+                <button class="filter-btn" onclick="filterQuejasType('prospectos')">
+                  <i class="fa-solid fa-address-book me-1"></i> Prospectos (Web)
+                </button>
+                <button class="btn btn-outline-danger btn-sm rounded-pill px-3 ms-2" onclick="limpiarQuejasAntiguas()">
+                  <i class="fa-solid fa-broom me-1"></i> Limpiar Atendidos
+                </button>
+              </div>
+            </div>
             <div class="row mb-4">
               <div class="col-md-6 mx-auto">
                 <div class="premium-search">
@@ -1173,6 +1192,7 @@
           <div class="modal-body p-4">
             <input type="hidden" id="replyCommId" />
             <input type="hidden" id="replyCommUserId" />
+            <input type="hidden" id="replyCommPhone" />
             <div class="mb-3">
               <label class="form-label text-gold small fw-bold">DE</label>
               <div id="replyCommSender" class="text-white fw-bold"></div>

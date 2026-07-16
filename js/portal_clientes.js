@@ -693,6 +693,17 @@ document.addEventListener("DOMContentLoaded", () => {
       window.currentComplexRep =
         contractData.complexRep || userData.adminName || "";
 
+      // Guardar datos del contrato de forma global para descarga PDF
+      window.currentContractData = { id: contractId, ...contractData };
+      const btnDownloadContract = document.getElementById("btnDownloadContractPdf");
+      if (btnDownloadContract) {
+        btnDownloadContract.classList.remove("d-none");
+      }
+      const btnProfileDownloadContract = document.getElementById("btnProfileDownloadContractPdf");
+      if (btnProfileDownloadContract) {
+        btnProfileDownloadContract.classList.remove("d-none");
+      }
+
       const priceBase =
         parseFloat(contractData.price || contractData.servicePrice) || 0;
       const priceWithIva = priceBase * 1.15;
@@ -1496,5 +1507,409 @@ document.addEventListener("DOMContentLoaded", () => {
         Swal.fire("Error", "No se pudo enviar el mensaje.", "error");
       }
     });
+  }
+
+  // Listener para los botones de descargar contrato PDF
+  const btnDownloadContract = document.getElementById("btnDownloadContractPdf");
+  if (btnDownloadContract) {
+    btnDownloadContract.addEventListener("click", async () => {
+      if (!window.currentContractData) {
+        Swal.fire("Error", "No se han cargado los datos del contrato.", "error");
+        return;
+      }
+      descargarContratoPDF(window.currentContractData);
+    });
+  }
+
+  const btnProfileDownloadContract = document.getElementById("btnProfileDownloadContractPdf");
+  if (btnProfileDownloadContract) {
+    btnProfileDownloadContract.addEventListener("click", async () => {
+      if (!window.currentContractData) {
+        Swal.fire("Error", "No se han cargado los datos del contrato.", "error");
+        return;
+      }
+      descargarContratoPDF(window.currentContractData);
+    });
+  }
+
+  // 📋 DESCARGAR CONTRATO PDF (COMPLETO)
+  function formatFechaES(dateStr) {
+    if (!dateStr) return "_________________";
+    if (typeof dateStr === "string" && dateStr.includes(" de ")) return dateStr;
+    try {
+      const parts = dateStr.split("-");
+      if (parts.length === 3) {
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1;
+        const day = parseInt(parts[2], 10);
+        const meses = [
+          "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+          "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+        ];
+        return `${day} de ${meses[month]} del ${year}`;
+      }
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
+      const meses = [
+        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+      ];
+      return `${d.getDate()} de ${meses[d.getMonth()]} del ${d.getFullYear()}`;
+    } catch (e) {
+      return dateStr;
+    }
+  }
+
+  async function urlToBase64(url, maxWidth = 600) {
+    try {
+      const response = await fetch(url, { method: "GET", mode: "cors" });
+      const blob = await response.blob();
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            let width = img.width;
+            let height = img.height;
+            if (width > maxWidth) {
+              height = (height * maxWidth) / width;
+              width = maxWidth;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL("image/jpeg", 0.7));
+          };
+          img.onerror = reject;
+          img.src = reader.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.warn("Error converting image to base64:", error);
+      return null;
+    }
+  }
+
+  async function compressBase64Image(base64String, maxWidth = 600) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", 0.7));
+      };
+      img.onerror = reject;
+      img.src = base64String;
+    });
+  }
+
+  async function descargarContratoPDF(data) {
+    Swal.fire({
+      title: "Preparando Contrato...",
+      text: "Generando PDF de alta calidad...",
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading(),
+    });
+
+    try {
+      // Duplicar datos para no mutar el objeto original
+      const contractData = JSON.parse(JSON.stringify(data));
+
+      // Procesar firmas a Base64 para evitar errores CORS
+      if (contractData.clientSignature) {
+        if (contractData.clientSignature.startsWith("http")) {
+          const base64 = await urlToBase64(contractData.clientSignature);
+          if (base64) contractData.clientSignature = base64;
+        } else if (contractData.clientSignature.startsWith("data:image")) {
+          try {
+            contractData.clientSignature = await compressBase64Image(contractData.clientSignature);
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      }
+
+      // Procesar foto de cédula a Base64 para evitar errores CORS
+      if (contractData.clientIdPhoto) {
+        if (contractData.clientIdPhoto.startsWith("http")) {
+          const base64 = await urlToBase64(contractData.clientIdPhoto);
+          if (base64) contractData.clientIdPhoto = base64;
+        } else if (contractData.clientIdPhoto.startsWith("data:image")) {
+          try {
+            contractData.clientIdPhoto = await compressBase64Image(contractData.clientIdPhoto);
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      }
+
+      // Crear contenedor temporal para el HTML del contrato
+      const tempDiv = document.createElement("div");
+      tempDiv.style.position = "absolute";
+      tempDiv.style.left = "-9999px";
+      tempDiv.style.top = "-9999px";
+      tempDiv.style.width = "800px";
+      tempDiv.style.background = "#ffffff";
+      tempDiv.style.color = "#000000";
+
+      // Usar la plantilla exacta
+      const city = contractData.city || "San Francisco de Quito";
+      const signDateText = formatFechaES(contractData.signDate || contractData.date);
+      const startDateText = formatFechaES(contractData.startDate || contractData.date);
+
+      const complexName = contractData.complexName || contractData.clientName || "_________________";
+      const complexRuc = contractData.complexRuc || contractData.clientId || "_________________";
+      const complexRep = contractData.complexRep || contractData.clientName || "_________________";
+      const address = contractData.address || contractData.clientAddress || "_________________";
+      const canton = contractData.canton || "_________________";
+      const price = contractData.price || contractData.servicePrice || "0.00";
+      const duration = contractData.duration || "12";
+      const annexDetails = contractData.annexDetails || "No se han registrado equipos para este contrato.";
+
+      const companyName = "SEGURIDAD 24-7 DEL ECUADOR CIA. LTDA.";
+      const companyRep = "EDWIN YUBILLO";
+      const companyRuc = "1793205916001";
+
+      const companySigImg = `<img src="assets/img/firma.png" style="max-height: 80px; max-width: 150px;" alt="Firma Empresa">`;
+      const clientSigImg = contractData.clientSignature
+        ? `<img src="${contractData.clientSignature}" crossorigin="anonymous" style="max-height: 80px; max-width: 180px;" alt="Firma Cliente">`
+        : `<div style="height: 80px;"></div>`;
+
+      const idPhotoHTML = contractData.clientIdPhoto
+        ? `<div style="page-break-before: always; break-before: page; clear: both; height: 1px;"></div>
+           <div style="padding-top: 20px; text-align: center; font-family: 'Times New Roman', Times, serif;">
+               <div style="border-bottom: 2px solid #d4af37; padding-bottom: 15px; margin-bottom: 40px;">
+                   <h4 style="font-weight: 700; color: #000; text-transform: uppercase; font-size: 12pt; letter-spacing: 1px;">EVIDENCIA: CÉDULA DE IDENTIDAD / RUC</h4>
+               </div>
+               <div style="display: block; margin: 0 auto; width: 410px; padding: 12px; border: 1px solid #eee; background: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                   <img src="${contractData.clientIdPhoto}" alt="Cédula" crossorigin="anonymous" style="width: 380px; height: 250px; display: block; margin: 0 auto; object-fit: contain;" data-pdf-image="true">
+               </div>
+           </div>`
+        : '';
+
+      const firmaHTML = `
+        <div style="margin-top: 80px; display: flex; justify-content: space-between; page-break-inside: avoid;">
+            <div style="text-align: center; width: 45%;">
+                <div style="border-bottom: 2px solid #000; margin-bottom: 12px; height: 100px; display: flex; align-items: flex-end; justify-content: center;">
+                    ${companySigImg}
+                </div>
+                <p style="font-weight: 800; text-transform: uppercase; margin: 0; font-size: 14px; color: #000;">${companyRep}</p>
+                <p style="margin: 4px 0; font-size: 12px; color: #666; font-style: italic;">Representante Legal</p>
+                <p style="margin: 0; font-size: 11px; font-weight: 700; color: #d4af37; letter-spacing: 1px;">COMPAÑÍA DE SEGURIDAD</p>
+            </div>
+            <div style="text-align: center; width: 45%;">
+                 <div style="border-bottom: 2px solid #000; margin-bottom: 12px; min-height: 100px; display: flex; align-items: flex-end; justify-content: center;">
+                    ${clientSigImg}
+                 </div>
+                 <p style="font-weight: 800; text-transform: uppercase; margin: 0; font-size: 14px; color: #000;">${complexRep}</p>
+                 <p style="margin: 4px 0; font-size: 12px; color: #666; font-style: italic;">EL CLIENTE / CONTRATANTE</p>
+                 <p style="margin: 0; font-size: 11px; font-weight: 700; color: #000; text-transform: uppercase;">${complexName}</p>
+            </div>
+        </div>
+      `;
+
+      tempDiv.innerHTML = `
+        <div style="font-family: 'Times New Roman', Times, serif; font-size: 9pt; line-height: 1.6; color: #000; padding: 60px 40px 20px 40px; background: #fff; width: 800px; margin: 0 auto; box-sizing: border-box;">
+          
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; border-bottom: 2px solid #d4af37; padding-bottom: 15px;">
+            <div style="width: 140px;">
+              <img src="assets/img/logo.png" alt="Logo" style="max-width: 100%; height: auto;">
+            </div>
+            <div style="text-align: right; font-family: 'Times New Roman', Times, serif;">
+              <h2 style="margin: 0; color: #d4af37; font-size: 18pt; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">SEGURIDAD 24-7</h2>
+              <p style="margin: 3px 0 0; font-size: 9pt; color: #333; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;">Vigilancia Virtual de Alta Gama</p>
+              <p style="margin: 2px 0 0; font-size: 8pt; color: #666;">RUC: ${companyRuc}</p>
+            </div>
+          </div>
+
+          <h3 style="text-align: center; font-family: 'Times New Roman', Times, serif; font-weight: 700; margin-bottom: 30px; color: #000; text-transform: uppercase; font-size: 11pt; letter-spacing: 0.5px; line-height: 1.4;">
+            CONTRATO DE PRESTACIÓN DE SERVICIOS DE SEGURIDAD PRIVADA Y<br>VIGILANCIA CON GUARDIAS VIRTUALES
+          </h3>
+
+          <div style="text-align: justify; font-size: 9pt; color: #000;">
+            <p style="margin-bottom: 18px;">
+              En la ciudad de ${city}, a los <strong>${signDateText}</strong>, comparecen, a celebrar el presente contrato mercantil de prestación de servicios de seguridad privada, por una parte <strong>${complexRep}</strong> en calidad de representante legal de <strong>${complexName}</strong> con RUC <strong>${complexRuc}</strong> a quien para los efectos del presente contrato se lo denominará también <strong>El Cliente</strong>; y, por otra parte, comparecen a la suscripción de este contrato el señor <strong>${companyRep}</strong>, en calidad de representante legal de <strong>SEGURIDAD 24-7 DEL ECUADOR CIA. LTDA.</strong>, con RUC <strong>${companyRuc}</strong> a quien para los efectos del presente contrato se lo podrá denominar <strong>la Compañía de Seguridad</strong>.
+            </p>
+
+            <p style="margin-bottom: 18px; font-style: italic; color: #222; text-align: center; border: 1px solid #f1e6c9; background: #fdfaf0; padding: 10px;">
+              Las partes libres y voluntariamente, por así convenir a sus mutuos intereses, acuerdan el contenido del presente contrato al tenor de las siguientes clausulas:
+            </p>
+
+            <div style="margin-bottom: 18px;">
+              <p style="margin-bottom: 5px;"><strong>PRIMERA.- ANTECEDENTES:</strong></p>
+              <p>
+                El Beneficiario requiere contratar los servicios de seguridad privada, resguardo y protección virtual, mediante el monitoreo al sistema de cámaras, perifoneo en tiempo real las 24 horas de lunes a domingo, desde el <strong>${startDateText}</strong> para custodiar <strong>${complexName}</strong> ubicado en la dirección: <strong>${address}</strong>, cantón <strong>${canton}</strong>, a fin de cuidarlo y protegerlo, conforme a las normas de seguridad privada y a las indicaciones proporcionadas por el Beneficiario, quien ha creído conveniente a sus intereses contratar este servicio.
+              </p>
+              <p style="margin-top: 8px;">
+                El Beneficiario solicita personal capacitado y calificado tanto en los procedimientos de vigilancia y control, como el manejo de equipos de comunicación, equipos de emergencia y otros que la función lo requiera.
+              </p>
+              <p style="margin-top: 8px;">
+                <strong>${companyName}</strong>, es una compañía legalmente constituida, cuyas oficinas se encuentran ubicadas en la calle Pedro Cando N59-116 y Antonio Macata (SECTOR LA KENNEDY) de la ciudad de San Francisco de Quito, dedicada de forma habitual y por cuenta propia, a prestar los servicios de prevención del delito, vigilancia y seguridad a favor de personas naturales y jurídicas, instalaciones y bienes, deposito, custodia y transporte de valores y otras conexas en el área de seguridad privada.
+              </p>
+            </div>
+
+            <div style="margin-bottom: 18px;">
+              <p style="margin-bottom: 5px;"><strong>SEGUNDA. - CONTRATACIÓN DEL SERVICIO DE SEGURIDAD:</strong></p>
+              <p>
+                Teniendo como base los antecedentes enunciados, El Cliente contrata resguardo y protección privada virtual, mediante el monitoreo al sistema de cámaras, perifoneo las 24 horas de lunes a domingo, adicional la empresa en caso de emergencia como intentos de robo, asalto, hurto, etc., la compañía coordinará con ECU 911, auxilio inmediato, además que personal motorizado propio de la compañía acudirá en auxilio, en un tiempo promedio de 20 minutos, para socorrer ante el incidente presentado con el fin de proteger, custodiar y brindar máxima seguridad interna y externa al lugar indicado. La Compañía de Seguridad se compromete a colocar la infraestructura necesaria que garantice: Alerta de identificación de movimiento/detección de personas en horas de poco tránsito para que, La Compañía de Seguridad alerte de forma temprana e identifique posibles riesgos. Para corroborar el cumplimiento de este, se anexará (Anexo 1) a este contrato un informe de los componentes instalados, Adicional, El Cliente podrá solicitar un nuevo informe del cumplimiento de cobertura de los vídeos cuando lo consider necesario. Si estos equipos presentan fallas y deben ser reparados o reposicionados, este costo lo asumirá la Compañía de Seguridad. La Compañía de Seguridad brindará el servicio de rondas a través de un motorizado o camioneta que visitará el Domicilio una vez al día en un horario aleatorio. Este se encargará de analizar de forma visual el exterior de la institución revisando riesgos potenciales, equipos instalados visibles y otros datos que La Compañía de Seguridad considere importante.
+              </p>
+            </div>
+
+            <div style="margin-bottom: 18px; background: #fdfbf5; padding: 20px; border-left: 5px solid #d4af37;">
+              <p style="margin: 0;"><strong>TERCERA. - PRECIO:</strong> El valor por el servicio de seguridad es por la cantidad de <span style="font-size: 18px; font-weight: 900; color: #d4af37;">$${price} USD</span> (+ IVA), mismos que serán cancelados los 5 primeros días del mes. El retiro del valor mensual a pagar será efectuado por un delegado oficial del personal administrativo debidamente autorizado de SEGURIDAD 24/7.</p>
+            </div>
+
+            <div style="margin-bottom: 18px;">
+              <p style="margin-bottom: 5px;"><strong>CUARTA. - PLAZO:</strong> El plazo de duración del presente contrato es por  <strong>${duration} meses</strong>, tomando como fecha inicial la fecha de inicio de la prestación del servicio de guardia virtual, con treinta días de anticipación las partes se notificarán la continuidad o no del mismo, en caso de la no notificación de las partes se entenderá que el contrato se ha renovado de manera automática.</p>
+            </div>
+
+            <div style="margin-bottom: 18px;">
+              <p style="margin-bottom: 5px;"><strong>QUINTA. - CONDICIONES ESPECIALES:</strong> La empresa de seguridad., conjuntamente con el Supervisor de Seguridad controlarán coordinadamente la función de los Guardias Virtuales. En caso de cualquier anomalía El Cliente notificará de inmediato cualquier actividad fuera de lo normal, en forma verbal-telefónica o por escrito a la oficina de la compañía a fin de proceder a los correctivos efectivos y eficaces que el caso lo amerite.</p>
+            </div>
+
+            <div style="margin-bottom: 18px;">
+                <p style="margin-bottom: 5px;"><strong>SEXTA. - RESPONSABILIDAD DE LA EMPRESA DE SEGURIDAD:</strong> La compañía de seguridad se responsabiliza a disponer de una pantalla exclusiva para el sistema de cámaras en su central de monitoreo y demás dispositivos de seguridad que el conjunto dispone, para que se monitoree en todo tiempo las actividades diarias que se presenten. La empresa de Seguridad, además, dará las recomendaciones de seguridad necesarias al beneficiario para que se tome las medidas preventivas contra el delito a fin de evitar actos ilícitos provenientes del exterior o interior del sitio protegido.</p>
+            </div>
+
+            <div style="margin-bottom: 18px;">
+                <p style="margin-bottom: 5px;"><strong>SEPTIMO. - SERVICIO ADICIONAL:</strong> SEGURIDAD 24/7., posee una póliza de responsabilidad civil de $100.000,00 USD (Cien mil dólares de los Estados Unidos de América) contratada con la aseguradora Zúrich, la cual podrá ser utilizada siguiendo los trámites pertinentes que exige la empresa Aseguradora expedidora de dicha póliza. Adicional la Compañía estará dispuesta a atender cualquier requerimiento, sea este de requerimiento de personal de guardia, o de medios que necesitare El Cliente en alguna circunstancia, debiéndose reconocer sus costos como adicionales al presente contrato.</p>
+            </div>
+
+            <div style="margin-bottom: 18px;">
+              <p style="margin-bottom: 5px; font-size: 10pt;">
+                <strong>OCTAVA. - PARTES DEL CONTRATO:</strong>
+                Forman parte de este contrato, por su orden:
+              </p>
+              <ol style="margin-top: 5px; padding-left: 18px; font-size: 10pt;">
+                <li>Nombramientos de los Representantes Legales de las partes intervinientes en el contrato.</li>
+                <li>Copias de las cédulas y papeletas de votación.</li>
+                <li>La oferta y sus complementos.</li>
+                <li>Anexo 1, con detalles de los equipos colocados por la empresa de seguridad en calidad de préstamo.</li>
+              </ol>
+            </div>
+
+            <div style="margin-bottom: 18px;">
+                <p style="margin-bottom: 5px;"><strong>NOVENA. - FORMA DE PAGO:</strong> El pago se lo realizará dentro de los 5 primeros días de cada mes, si no está al día en sus haberes El Cliente pierde todos sus derechos, en caso de que el pago no se realice por dos meses consecutivos, se procederá a suspender el servicio de guardia virtual sin aviso previo y se procederá a las acciones legales pertinentes. </p>
+            </div>
+
+            <div style="margin-bottom: 18px;">
+                <p style="margin-bottom: 5px;"><strong>DECIMA. - TERMINACIÓN DEL CONTRATO:</strong> Las partes contratantes tendrán derecho a dar por terminado el presente contrato, luego de haber cursado las comunicaciones escritas pertinentes, por la violación de cualquiera de las cláusulas de este convenio, o por decisión unilateral de alguna de ellas con por lo menos treinta días de anticipación. Por lo demás se obligan a todas y cada una de las cláusulas estipuladas en este contrato, las mismas que las aceptan y las declaran fielmente cumplir. En caso de terminar anticipadamente e intempestivamente el contrato sin justificación alguna dentro del primer año de contrato, se le pagará a la parte afectada la facturación mensual de dos meses en un tiempo no mayor de 15 días </p>
+            </div>
+
+            <div style="margin-bottom: 18px;">
+                <p style="margin-bottom: 5px;"><strong>DECIMA PRIMERA. - JURISDICCIÓN Y COMPETENCIA:</strong> Si se suscitaren divergencias o controversias entre las partes, y no llegaren a un acuerdo amigable directo, utilizarán en primera instancia los métodos alternativos para la solución de conflictos en un centro de Mediación y Arbitraje. Y si no existiera acuerdo, las partes deciden someterse a los jueces civiles del Distrito Metropolitano de Quito. Libre y voluntariamente, las partes expresamente declararan su aceptación a todo lo convenido en el presente contrato y se someten a sus estipulaciones</p>
+            </div>
+
+            <p style="margin-top: 40px; font-weight: 700; text-align: center; color: #111; padding-top: 20px; border-top: 1px solid #eee;">
+              Para constancia de lo estipulado, las partes firman el presente contrato digital.
+            </p>
+
+            ${firmaHTML}
+          </div>
+
+          <div style="page-break-before: always; break-before: page; clear: both; height: 1px;"></div>
+
+          <div style="clear: both; padding-top: 10px; border-top: 1px dashed #d4af37;">
+              <div style="text-align: center; margin-bottom: 20px;">
+                <h4 style="font-weight: 700; color: #d4af37; text-transform: uppercase; font-family: 'Times New Roman', Times, serif; font-size: 11pt; letter-spacing: 1px; margin: 0;">ANEXO 1: EQUIPAMIENTO INSTALADO</h4>
+              </div>
+              <div style="border: 2px solid #f1e6c9; padding: 25px; min-height: 150px; background: #fffcf5; border-radius: 10px; white-space: pre-line; font-family: 'Times New Roman', Times, serif; font-size: 9pt; color: #000; margin-bottom: 30px;">
+                ${annexDetails}
+              </div>
+              <div style="display: flex; justify-content: space-between; font-family: 'Times New Roman', Times, serif;">
+                  <div style="text-align: center; width: 45%;">
+                      <p style="font-size: 8pt; font-weight: 600; margin-bottom: 10px; color: #666; text-transform: uppercase;">ENTREGA EQUIPOS</p>
+                      <div style="margin-bottom: 5px; display: flex; justify-content: center; align-items: flex-end; height: 60px; margin-top: 40px;">
+                          ${companySigImg}
+                      </div>
+                      <p style="border-top: 2px solid #000; padding-top: 5px; font-weight: 700; font-size: 9pt; margin: 0;">${companyRep}</p>
+                  </div>
+                  <div style="text-align: center; width: 45%;">
+                      <p style="font-size: 8pt; font-weight: 600; margin-bottom: 10px; color: #666; text-transform: uppercase;">RECIBE CONFORME</p>
+                      <div style="margin-bottom: 5px; display: flex; justify-content: center; align-items: flex-end; height: 60px; margin-top: 40px;">
+                          ${clientSigImg}
+                      </div>
+                      <p style="border-top: 2px solid #000; padding-top: 5px; font-weight: 700; font-size: 9pt; margin: 0;">${complexRep}</p>
+                  </div>
+              </div>
+          </div>
+
+          ${idPhotoHTML}
+        </div>
+      `;
+
+      document.body.appendChild(tempDiv);
+
+      // Asegurar que las firmas carguen antes del renderizado
+      const images = tempDiv.querySelectorAll("img");
+      const imagePromises = Array.from(images).map((img) => {
+        return new Promise((resolve) => {
+          if (img.complete && img.naturalHeight !== 0) {
+            resolve();
+          } else {
+            img.onload = () => resolve();
+            img.onerror = () => resolve();
+          }
+        });
+      });
+      await Promise.all(imagePromises);
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF("p", "pt", "a4");
+
+      await doc.html(tempDiv, {
+        callback: function (pdfDoc) {
+          const clientName = contractData.complexName || contractData.clientName || "Contrato";
+          pdfDoc.save(`Contrato_${clientName.replace(/\s+/g, "_")}.pdf`);
+          document.body.removeChild(tempDiv);
+          Swal.fire({
+            icon: "success",
+            title: "Contrato Descargado",
+            text: "El PDF del contrato completo se ha generado y descargado correctamente.",
+            confirmButtonColor: "#d4af37",
+          });
+        },
+        x: 30,
+        y: 20,
+        margin: [40, 0, 20, 0],
+        html2canvas: {
+          scale: 0.58,
+          useCORS: true,
+          allowTaint: false,
+          letterRendering: true,
+          backgroundColor: "#ffffff",
+          imageTimeout: 15000,
+          onclone: function (clonedDoc) {
+            const clonedImages = clonedDoc.querySelectorAll("img");
+            clonedImages.forEach((img) => {
+              if (img.src && img.src.startsWith("data:")) {
+                img.removeAttribute("crossorigin");
+              }
+            });
+          },
+        },
+        width: 465,
+        windowWidth: 800,
+        autoPaging: "text",
+      });
+
+    } catch (err) {
+      console.error("Error al generar PDF del contrato:", err);
+      Swal.fire("Error", "No se pudo generar el documento del contrato.", "error");
+    }
   }
 });
