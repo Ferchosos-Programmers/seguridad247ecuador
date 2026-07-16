@@ -122,17 +122,17 @@ document.addEventListener("DOMContentLoaded", () => {
       if (document.getElementById("passwordsSection"))
         document.getElementById("passwordsSection").style.display = "none";
 
-      createJobBtn.style.display = "none";
-      createContractBtn.style.display = "none";
+      if (createJobBtn) createJobBtn.style.display = "none";
+      if (createContractBtn) createContractBtn.style.display = "none";
       if (addComplexBtn) addComplexBtn.style.display = "none";
-      urgencyFilterContainer.style.display = "none";
-      nameFilterContainer.style.display = "none";
+      if (urgencyFilterContainer) urgencyFilterContainer.style.display = "none";
+      if (nameFilterContainer) nameFilterContainer.style.display = "none";
 
       if (viewValue === "finished") {
         jobsSection.style.display = "block";
-        createJobBtn.style.display = "none"; // Now inside the section
-        urgencyFilterContainer.style.display = "none";
-        nameFilterContainer.style.display = "none";
+        if (createJobBtn) createJobBtn.style.display = "none"; // Now inside the section
+        if (urgencyFilterContainer) urgencyFilterContainer.style.display = "none";
+        if (nameFilterContainer) nameFilterContainer.style.display = "none";
 
         // Reset Filter UI
         window.currentJobStatusFilter = "Pendiente";
@@ -144,12 +144,10 @@ document.addEventListener("DOMContentLoaded", () => {
         cargarTrabajos();
       } else if (viewValue === "contracts") {
         contractsSection.style.display = "block";
-        createContractBtn.style.display = "flex";
-        nameFilterContainer.style.display = "block";
+        if (createContractBtn) createContractBtn.style.display = "flex";
         cargarContratos();
       } else if (viewValue === "payments") {
         if (paymentsSection) paymentsSection.style.display = "block";
-        nameFilterContainer.style.display = "block";
         cargarPagosPendientes();
       } else if (viewValue === "users-management") {
         if (usersManagementSection)
@@ -179,8 +177,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // Resetear filtros
-      urgencyFilter.value = "todas";
-      nameFilter.value = "";
+      if (urgencyFilter) urgencyFilter.value = "todas";
+      if (nameFilter) nameFilter.value = "";
     }
 
     // Event listeners para el sidebar
@@ -261,6 +259,12 @@ document.addEventListener("DOMContentLoaded", () => {
         urgencyFilter = document.getElementById("jobUrgencyFilter");
         nameFilter = document.getElementById("jobSearchInput");
         billingFilter = document.getElementById("jobBillingFilter");
+      } else if (window.currentView === "contracts") {
+        nameFilter = document.getElementById("contractSearchInput");
+      } else if (window.currentView === "payments") {
+        nameFilter = document.getElementById("paymentSearchInput");
+      } else if (window.currentView === "complexes") {
+        nameFilter = document.getElementById("complexSearchInput");
       } else {
         urgencyFilter = document.getElementById("urgencyFilter");
         nameFilter = document.getElementById("nameFilter");
@@ -341,6 +345,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (urgencyFilter)
       urgencyFilter.addEventListener("change", window.applyFilters);
     if (nameFilter) nameFilter.addEventListener("input", window.applyFilters);
+
+    // Registrar escuchadores en inputs locales de búsqueda
+    ["jobSearchInput", "contractSearchInput", "paymentSearchInput", "complexSearchInput"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener("input", window.applyFilters);
+    });
 
     const jobUrgencyFilterAdmin = document.getElementById("jobUrgencyFilter");
     const jobSearchInputAdmin = document.getElementById("jobSearchInput");

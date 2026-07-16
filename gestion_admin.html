@@ -317,6 +317,56 @@
             </button>
 
           </div>
+          <!-- Botones de Acción (Ahora debajo del filtro) -->
+          <div class="action-buttons mb-4">
+            <!-- Botón para abrir modal de agregar -->
+            <button
+              id="createJobBtn"
+              type="button"
+              class="btn btn-gold"
+              data-bs-toggle="modal"
+              data-bs-target="#addJobModal"
+              style="display: none"
+            >
+              Crear Trabajo
+            </button>
+
+            <!-- Botón para Editar Trabajo (Solo visible en filtro 'trabajos') -->
+            <button
+              class="btn btn-gold"
+              data-bs-toggle="modal"
+              data-bs-target="#editJobModal"
+              id="btnEditJob"
+              style="display: none"
+            >
+              <i class="fa-solid fa-pen"></i> Editar Trabajo
+            </button>
+
+            <!-- Botón para Registrar Admin (Solo visible en filtro 'admins') -->
+            <button
+              id="btnAddAdmin"
+              type="button"
+              class="btn btn-gold"
+              data-bs-toggle="modal"
+              data-bs-target="#addAdminModal"
+              style="display: none"
+            >
+              Registrar Administrador
+            </button>
+
+            <!-- Botón para abrir modal de crear contrato -->
+            <button
+              id="createContractBtn"
+              type="button"
+              class="btn btn-info"
+              data-bs-toggle="modal"
+              data-bs-target="#createContractModal"
+              style="display: none"
+            >
+              Crear Contrato
+            </button>
+
+          </div>
 
           <!-- Contenedor con los trabajos cargados -->
           <div id="jobsSection" style="display: none">
@@ -373,8 +423,8 @@
                 </div>
               </div>
               <div class="col-12 col-lg-3 text-end">
-                <button class="btn btn-gold w-100 h-100 py-2 fw-bold shadow-gold" data-bs-toggle="modal" data-bs-target="#addJobModal" style="min-height: 48px; border-radius: 8px;">
-                  <i class="fa-solid fa-plus me-2"></i> Nuevo Trabajo
+                <button class="btn btn-gold px-4 py-2 shadow-gold fw-bold rounded-pill w-100" data-bs-toggle="modal" data-bs-target="#addJobModal">
+                  <i class="fa-solid fa-plus-circle me-2"></i> Nuevo Trabajo
                 </button>
               </div>
             </div>
@@ -384,17 +434,27 @@
 
           <!-- Contenedor para los conjuntos -->
           <div id="complexesSection" style="display: none">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-              <h2 class="text-gold mb-0">Listado de Conjuntos</h2>
-              <button
-                id="addComplexBtn"
-                type="button"
-                class="btn btn-gold"
-                data-bs-toggle="modal"
-                data-bs-target="#addComplexModal"
-              >
-                <i class="fa-solid fa-plus me-2"></i> Nuevo Conjunto
-              </button>
+            <h2 class="section-title mb-5">LISTADO DE CONJUNTOS</h2>
+            <!-- COMPLEXES FILTERS & CREATE BUTTON (MODERN ROW) -->
+            <div class="row g-3 mb-5 align-items-center">
+              <div class="col-12 col-md-8 col-lg-6 mx-auto">
+                <div class="premium-search">
+                  <i class="fa-solid fa-magnifying-glass search-icon-gold"></i>
+                  <input type="text" id="complexSearchInput" class="form-control search-input-glass w-100" placeholder="Buscar conjuntos..." style="height: 48px !important; border-radius: 8px !important; padding-left: 45px !important;">
+                </div>
+              </div>
+              <div class="col-12 col-md-4 col-lg-3 text-end ms-auto">
+                <button
+    id="addComplexBtn"
+    type="button"
+    class="btn btn-gold px-4 py-2 shadow-gold fw-bold rounded-pill w-100 d-flex justify-content-center align-items-center"
+    data-bs-toggle="modal"
+    data-bs-target="#addComplexModal"
+>
+    <i class="fa-solid fa-plus-circle me-2"></i>
+    <span>Nuevo Conjunto</span>
+</button>
+              </div>
             </div>
             <div class="row g-4" id="complexesGrid">
               <!-- Se cargará dinámicamente -->
@@ -406,58 +466,86 @@
 
           <!-- Contenedor para los contratos -->
           <div id="contractsSection" style="display: none">
-            <h2 style="color: #fff; margin-top: 40px">Contratos Creados</h2>
+            <h2 class="section-title mb-5">CONTRATOS CREADOS</h2>
+            <!-- CONTRACTS FILTERS & CREATE BUTTON (MODERN ROW) -->
+            <div class="row g-3 mb-5 align-items-center">
+              <div class="col-12 col-md-8 col-lg-6 mx-auto">
+                <div class="premium-search">
+                  <i class="fa-solid fa-magnifying-glass search-icon-gold"></i>
+                  <input type="text" id="contractSearchInput" class="form-control search-input-glass w-100" placeholder="Buscar por conjunto o cliente..." style="height: 48px !important; border-radius: 8px !important; padding-left: 45px !important;">
+                </div>
+              </div>
+              <div class="col-12 col-md-4 col-lg-3 text-end ms-auto">
+                <button
+                  id="createContractBtn"
+                  type="button"
+                  class="btn btn-gold px-4 py-2 shadow-gold fw-bold rounded-pill w-100"
+                  data-bs-toggle="modal"
+                  data-bs-target="#createContractModal"
+                >
+                  <i class="fa-solid fa-plus-circle me-2"></i> Crear Contrato
+                </button>
+              </div>
+            </div>
             <div id="contractsContainer" class="row g-4"></div>
           </div>
 
           <!-- Contenedor para Autorización de Pagos -->
           <div id="paymentsSection" style="display: none">
-            <h2 style="color: #fff; margin-top: 40px">Autorización de Pagos</h2>
+            <h2 class="section-title mb-5">AUTORIZACIÓN DE PAGOS</h2>
+            <!-- PAYMENTS FILTERS (MODERN ROW) -->
+            <div class="row g-3 mb-5 align-items-center">
+              <div class="col-12 col-md-8 col-lg-6 mx-auto">
+                <div class="premium-search">
+                  <i class="fa-solid fa-magnifying-glass search-icon-gold"></i>
+                  <input type="text" id="paymentSearchInput" class="form-control search-input-glass w-100" placeholder="Buscar pagos por conjunto o cliente..." style="height: 48px !important; border-radius: 8px !important; padding-left: 45px !important;">
+                </div>
+              </div>
+            </div>
             <div id="paymentsContainer" class="row g-4"></div>
           </div>
 
           <!-- Gestión de Usuarios (NUEVO - Estilo Grid) -->
           <div id="usersManagementSection" style="display: none;">
-            <div class="row g-4 mb-5">
-              <!-- Botón Superior -->
-              <div class="col-12 text-start">
-                <button class="btn btn-gold px-4 py-2 shadow-gold fw-bold rounded-pill" data-bs-toggle="modal" data-bs-target="#addUserManagementModal">
-                  <i class="fa-solid fa-plus-circle me-2"></i> Nuevo Usuario Registrado
-                </button>
-              </div>
-              
-              <!-- Título y Filtros -->
-              <div class="col-12 py-3 px-4 rounded-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(212,175,55,0.15); backdrop-filter: blur(10px);">
-                <div class="row align-items-center g-3">
-                  <div class="col-12 col-lg-5">
-                    <h2 class="text-gold mb-0 fs-3 d-flex align-items-center">
-                      <span class="p-2 bg-gold-gradient rounded-3 me-3 d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                        <i class="fa-solid fa-users-gear text-dark fs-5"></i>
+            <h2 class="section-title mb-5">GESTIÓN DE USUARIOS</h2>
+            <div class="row g-4 mb-5 align-items-center">
+              <!-- Título, Filtros y Botón Integrado -->
+              <div class="col-9 py-3 px-4 rounded-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(212,175,55,0.15); backdrop-filter: blur(10px);">
+                <div class="row align-items-center g-2">
+                  <div class="col-auto">
+                    <h2 class="text-gold mb-0 fs-5 d-flex align-items-center">
+                      <span class="p-2 bg-gold-gradient rounded-3 me-2 d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                        <i class="fa-solid fa-users-gear text-dark fs-6"></i>
                       </span>
-                      Gestión de Usuarios
+                      Roles
                     </h2>
                   </div>
-                  <div class="col-12 col-lg-7">
-                    <div class="d-flex flex-wrap gap-2 justify-content-lg-end" id="userRoleFilters">
+                  <div class="col">
+                    <div class="d-flex flex-wrap gap-2 justify-content-end" id="userRoleFilters">
                       <button class="filter-btn active" onclick="filtrarUsuariosPorRol('all')">Todos</button>
                       <button class="filter-btn" onclick="filtrarUsuariosPorRol('administrador')">
                         <i class="fa-solid fa-crown me-1 small"></i> Adm Gral.
                       </button>
-                      <button class="filter-btn" onclick="filtrarUsuariosPorRol('ADMIN_CONJUNTO')">
+                      <button class="filter-btn btn-sm" onclick="filtrarUsuariosPorRol('ADMIN_CONJUNTO')">
                         <i class="fa-solid fa-building-shield me-1 small"></i> Adm Conj.
                       </button>
-                      <button class="filter-btn" onclick="filtrarUsuariosPorRol('tecnico')">
+                      <button class="filter-btn btn-sm" onclick="filtrarUsuariosPorRol('tecnico')">
                         <i class="fa-solid fa-toolbox me-1 small"></i> Tec.
                       </button>
-                      <button class="filter-btn" onclick="filtrarUsuariosPorRol('monitoreo')">
+                      <button class="filter-btn btn-sm" onclick="filtrarUsuariosPorRol('monitoreo')">
                         <i class="fa-solid fa-desktop me-1 small"></i> Mon.
                       </button>
-                      <button class="filter-btn" onclick="filtrarUsuariosPorRol('comercial')">
+                      <button class="filter-btn btn-sm" onclick="filtrarUsuariosPorRol('comercial')">
                         <i class="fa-solid fa-cart-shopping me-1 small"></i> Com.
                       </button>
                     </div>
                   </div>
                 </div>
+              </div>
+              <div class="col-3 text-end">
+                <button class="btn btn-gold px-4 py-2 shadow-gold fw-bold rounded-pill w-100" data-bs-toggle="modal" data-bs-target="#addUserManagementModal" style="min-height: 48px;">
+                  <i class="fa-solid fa-plus-circle me-2"></i> Nuevo Usuario
+                </button>
               </div>
             </div>
 
@@ -478,8 +566,8 @@
 
           <!-- Sección para Cotizaciones en Admin -->
           <div id="cotizacionesAdminSection" style="display: none">
-            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-              <h2 class="text-gold mb-0">Solicitudes de Cotizaciones</h2>
+            <h2 class="section-title mb-5">SOLICITUDES DE COTIZACIONES</h2>
+            <div class="d-flex justify-content-end align-items-center mb-4">
               <button class="btn btn-outline-danger btn-sm rounded-pill px-3" onclick="limpiarCotizacionesAntiguas()">
                 <i class="fa-solid fa-broom me-1"></i> Limpiar Atendidos
               </button>
@@ -504,9 +592,9 @@
 
           <!-- Sección para Quejas y Mensajes en Admin -->
           <div id="quejasAdminSection" style="display: none">
-            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-              <h2 class="text-gold mb-0">Bandeja de Quejas y Mensajería</h2>
-              <div class="d-flex gap-2 align-items-center" id="quejasFilterContainer">
+            <h2 class="section-title mb-5">BANDEJA DE QUEJAS Y MENSAJERÍA</h2>
+            <div class="d-flex justify-content-center align-items-center mb-4">
+              <div class="d-flex gap-2 align-items-center flex-wrap justify-content-center" id="quejasFilterContainer">
                 <button class="filter-btn active" onclick="filterQuejasType('todos')">Todos</button>
                 <button class="filter-btn" onclick="filterQuejasType('clientes')">
                   <i class="fa-solid fa-user-shield me-1"></i> Clientes Registrados
@@ -539,10 +627,10 @@
 
           <!-- Sección para Gestión de Planes y Precios -->
           <div id="planesAdminSection" style="display: none">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-              <h2 class="text-gold m-0">Gestión de Planes y Precios</h2>
-              <button class="btn btn-gold" onclick="crearNuevoPlan()">
-                <i class="fa-solid fa-plus me-2"></i> Crear Nuevo Plan
+            <h2 class="section-title mb-5">GESTIÓN DE PLANES Y PRECIOS</h2>
+            <div class="d-flex justify-content-end align-items-center mb-4">
+              <button class="btn btn-gold px-4 py-2 shadow-gold fw-bold rounded-pill" onclick="crearNuevoPlan()">
+                <i class="fa-solid fa-plus-circle me-2"></i> Crear Nuevo Plan
               </button>
             </div>
             <div class="card bg-dark border-0 p-4" style="border-radius: 15px; border: 1px solid rgba(212, 175, 55, 0.15) !important; margin-bottom: 30px;">
