@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
@@ -180,36 +180,66 @@
 
           <!-- Complexes Section -->
           <div id="complexesSection" style="display: none">
-            <div class="d-flex justify-content-center mb-4">
-              <button
-                class="btn btn-gold"
-                data-bs-toggle="modal"
-                data-bs-target="#addComplexModal"
-              >
-                <i class="fa-solid fa-plus me-2"></i> Nuevo Conjunto
-              </button>
+            <!-- BUSCADOR Y BOTÓN -->
+            <div class="row g-3 mb-5 align-items-center">
+              <!-- Buscador -->
+              <div class="col-12 col-md-8 col-lg-6 mx-auto">
+                <div class="premium-search position-relative">
+                  <i class="fa-solid fa-magnifying-glass search-icon-gold"></i>
+                  <input
+                    type="text"
+                    id="complexSearchInput"
+                    class="form-control search-input-glass w-100"
+                    placeholder="Buscar conjuntos..."
+                    style="height: 48px; border-radius: 8px; margin-left: 3rem"
+                  />
+                </div>
+              </div>
+
+              <!-- Botón -->
+              <div class="col-12 col-md-4 col-lg-3 ms-auto">
+                <button
+                  id="addComplexBtn"
+                  type="button"
+                  class="btn btn-gold px-4 py-2 shadow-gold fw-bold rounded-pill w-100 d-flex justify-content-center align-items-center"
+                  data-bs-toggle="modal"
+                  data-bs-target="#addComplexModal"
+                >
+                  <i class="fa-solid fa-plus-circle me-2"></i>
+                  <span>Nuevo Conjunto</span>
+                </button>
+              </div>
             </div>
 
+            <!-- GRID -->
             <div class="row g-4" id="complexesGrid">
-              <!-- Se cargará dinámicamente -->
               <div class="col-12 text-center py-5 text-muted">
-                <i class="fa-solid fa-spinner fa-spin fa-2x mb-2"></i
-                ><br />Cargando conjuntos...
+                <i class="fa-solid fa-spinner fa-spin fa-2x mb-2"></i>
+                <br />
+                Cargando conjuntos...
               </div>
             </div>
           </div>
 
           <!-- Passwords Section (Read-Only) -->
           <div id="passwordsSection" style="display: none">
-            <!-- Título removido -->
-            <div class="mb-4 d-flex justify-content-center">
-              <input
-                type="text"
-                id="passwordSearchInput"
-                class="form-control"
-                placeholder="Buscar por conjunto o dispositivo..."
-                style="max-width: 600px; text-align: center"
-              />
+            <div class="row mb-5 justify-content-center">
+              <div class="col-12 col-md-8 col-lg-6">
+                <div class="premium-search">
+                  <i class="fa-solid fa-magnifying-glass search-icon-gold"></i>
+                  <input
+                    type="text"
+                    id="passwordSearchInput"
+                    class="form-control search-input-glass w-100"
+                    placeholder="BUSCAR POR CONJUNTO O DISPOSITIVO..."
+                    style="
+                      height: 48px !important;
+                      border-radius: 8px !important;
+                      padding-left: 45px !important;
+                    "
+                  />
+                </div>
+              </div>
             </div>
 
             <div
@@ -1245,7 +1275,7 @@
 
           if (view === "complexes") {
             if (dynamicTitle) {
-              dynamicTitle.textContent = "Listado de Conjuntos";
+              dynamicTitle.textContent = "LISTADO DE CONJUNTOS";
               dynamicTitle.style.display = "block";
             }
           }
@@ -1438,53 +1468,75 @@
         }
 
         async function cargarConjuntos() {
-          const container = document.getElementById("complexesGrid");
-          if (!container) return;
           try {
             const snapshot = await db
               .collection("complexes")
               .orderBy("createdAt", "desc")
               .get();
-            container.innerHTML = "";
-            if (snapshot.empty) {
-              container.innerHTML =
-                '<div class="col-12 text-center py-5 text-white-50">No hay conjuntos registrados aún.</div>';
-              return;
-            }
+            window.allComplexes = [];
             snapshot.forEach((doc) => {
-              const data = doc.data();
-              const card = `
-                        <div class="col-xl-3 col-lg-4 col-md-6">
-                            <div class="stat-card" style="display: block; height: auto; padding: 20px; border-radius: 15px;">
-                                <div class="text-center mb-3">
-                                    <div style="width: 50px; height: 50px; background: rgba(212,175,55,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; border: 1px solid rgba(212,175,55,0.3);">
-                                        <i class="fa-solid fa-building" style="font-size: 1.3rem; color: #d4af37;"></i>
-                                    </div>
-                                </div>
-                                <h5 class="text-gold mb-2 text-center text-truncate" style="font-size: 1rem; font-weight: 700;">${data.name}</h5>
-                                <div class="text-center mb-3" style="padding: 8px; background: rgba(255,255,255,0.02); border-radius: 8px;">
-                                    <i class="fa-solid fa-user-shield text-gold me-1" style="font-size: 0.75rem;"></i>
-                                    <span class="small text-white-50" style="font-size: 0.75rem;">${data.admin}</span>
-                                </div>
-                                <div class="d-flex gap-2">
-                                    <button class="btn btn-sm btn-gold w-100 py-2" onclick="verRegistros('${data.name}')" style="font-size: 0.75rem; border-radius: 8px;">
-                                        <i class="fa-solid fa-clipboard-list me-1"></i> Registros
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger" onclick="eliminarConjunto('${doc.id}')" title="Eliminar" style="width: 45px; border-radius: 8px;">
-                                        <i class="fa-solid fa-trash" style="font-size: 0.8rem;"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-              container.innerHTML += card;
+              window.allComplexes.push({ id: doc.id, ...doc.data() });
             });
+            window.applyComplexesFilter();
           } catch (error) {
             console.error("Error al cargar conjuntos:", error);
-            container.innerHTML =
-              '<div class="col-12 text-center py-5 text-danger">Error al cargar la lista.</div>';
+            const container = document.getElementById("complexesGrid");
+            if (container) {
+              container.innerHTML =
+                '<div class="col-12 text-center py-5 text-danger">Error al cargar la lista.</div>';
+            }
           }
         }
+
+        window.applyComplexesFilter = () => {
+          const container = document.getElementById("complexesGrid");
+          if (!container) return;
+          container.innerHTML = "";
+
+          const searchInput = document.getElementById("complexSearchInput");
+          const searchValue = searchInput ? searchInput.value.toLowerCase() : "";
+
+          const filtered = (window.allComplexes || []).filter((c) => {
+            return (
+              (c.name || "").toLowerCase().includes(searchValue) ||
+              (c.admin || "").toLowerCase().includes(searchValue)
+            );
+          });
+
+          if (filtered.length === 0) {
+            container.innerHTML =
+              '<div class="col-12 text-center py-5 text-white-50">No hay conjuntos registrados aún o no coinciden con la búsqueda.</div>';
+            return;
+          }
+
+          filtered.forEach((complex) => {
+            const card = `
+              <div class="col-xl-3 col-lg-4 col-md-6">
+                <div class="stat-card" style="display: block; height: auto; padding: 20px; border-radius: 15px;">
+                  <div class="text-center mb-3">
+                    <div style="width: 50px; height: 50px; background: rgba(212,175,55,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; border: 1px solid rgba(212,175,55,0.3);">
+                      <i class="fa-solid fa-building" style="font-size: 1.3rem; color: #d4af37;"></i>
+                    </div>
+                  </div>
+                  <h5 class="text-gold mb-2 text-center text-truncate" style="font-size: 1rem; font-weight: 700;">${complex.name}</h5>
+                  <div class="text-center mb-3" style="padding: 8px; background: rgba(255,255,255,0.02); border-radius: 8px;">
+                    <i class="fa-solid fa-user-shield text-gold me-1" style="font-size: 0.75rem;"></i>
+                    <span class="small text-white-50" style="font-size: 0.75rem;">${complex.admin}</span>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-gold w-100 py-2" onclick="verRegistros('${complex.name}')" style="font-size: 0.75rem; border-radius: 8px;">
+                      <i class="fa-solid fa-clipboard-list me-1"></i> Registros
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="eliminarConjunto('${complex.id}')" title="Eliminar" style="width: 45px; border-radius: 8px;">
+                      <i class="fa-solid fa-trash" style="font-size: 0.8rem;"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `;
+            container.innerHTML += card;
+          });
+        };
 
         // Nueva función para ver registros
         window.verRegistros = async (complexName) => {
@@ -2798,6 +2850,11 @@
             );
             renderClavesTecnicas(filtered);
           });
+        }
+
+        const complexSearchInput = document.getElementById("complexSearchInput");
+        if (complexSearchInput) {
+          complexSearchInput.addEventListener("input", window.applyComplexesFilter);
         }
 
         const handleLogout = () => {
