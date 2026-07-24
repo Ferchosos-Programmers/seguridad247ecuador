@@ -743,9 +743,20 @@ document.addEventListener("DOMContentLoaded", () => {
         const passwordSearchValue =
           passwordSearchInput?.value.toLowerCase() || "";
         const filteredPasswords = window.allPasswords.filter((pass) => {
+          const complexName = (pass.complexName || "").toLowerCase();
+          const citofono = (pass.citofono || "").toLowerCase();
+          const dvr = (pass.dvr || "").toLowerCase();
+          const wifiName = (pass.wifiName || "").toLowerCase();
+          const camBrand = (pass.camBrand || "").toLowerCase();
+          const notes = (pass.notes || "").toLowerCase();
+          
           return (
-            pass.complexName.toLowerCase().includes(passwordSearchValue) ||
-            pass.device.toLowerCase().includes(passwordSearchValue)
+            complexName.includes(passwordSearchValue) ||
+            citofono.includes(passwordSearchValue) ||
+            dvr.includes(passwordSearchValue) ||
+            wifiName.includes(passwordSearchValue) ||
+            camBrand.includes(passwordSearchValue) ||
+            notes.includes(passwordSearchValue)
           );
         });
         renderClavesTecnicas(filteredPasswords);

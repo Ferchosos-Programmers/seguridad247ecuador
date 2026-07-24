@@ -738,15 +738,23 @@
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label text-gold fw-bold text-uppercase small mb-2">Imagen del Problema</label>
-                  <div class="premium-file-area">
-                    <input class="form-control premium-input" type="file" id="jobImage" accept="image/*">
-                  </div>
+                  <label class="form-label text-gold fw-bold text-uppercase small mb-2">Remitente</label>
+                  <input type="text" class="form-control premium-input" id="jobSender" value="Departamento Técnico" required />
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label text-gold fw-bold text-uppercase small mb-2">Descripción del Problema</label>
-                  <textarea class="form-control premium-input" id="jobDescription" rows="3" placeholder="Detalle el problema técnico aquí..." required></textarea>
+                  <label class="form-label text-gold fw-bold text-uppercase small mb-2">Motivo / Asunto</label>
+                  <input type="text" class="form-control premium-input" id="jobReason" value="Falla de cerradura eléctrica" placeholder="Ej: Falla de cerradura eléctrica" required />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label text-gold fw-bold text-uppercase small mb-2">Técnico Asignado</label>
+                  <input type="text" class="form-control premium-input" id="jobTech" value="Servicio Técnico Especializado" required />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label text-gold fw-bold text-uppercase small mb-2">Descripción del Requerimiento / Antecedentes</label>
+                  <textarea class="form-control premium-input" id="jobDescription" rows="3" placeholder="Detalle la descripción del requerimiento aquí..." required></textarea>
                 </div>
               </div>
 
@@ -842,6 +850,21 @@
                   <option value="Si al conjunto">Sí al conjunto</option>
                   <option value="No, a cargo de la empresa">No, a cargo de la empresa</option>
                 </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Remitente</label>
+                <input type="text" class="form-control" id="editJobSender" required />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Motivo / Asunto</label>
+                <input type="text" class="form-control" id="editJobReason" required />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Técnico Asignado</label>
+                <input type="text" class="form-control" id="editJobTech" required />
               </div>
 
               <button type="submit" class="btn btn-gold w-100">

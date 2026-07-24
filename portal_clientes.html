@@ -656,6 +656,74 @@
         .bg-dark-soft {
           background: rgba(0, 0, 0, 0.3);
         }
+        
+        /* Contrato Preview Styles */
+        #contractPreviewContentPortal {
+          font-family: "Georgia", "Times New Roman", serif !important;
+          line-height: 1.8 !important;
+          color: #2c3e50 !important;
+          background: #ffffff !important;
+          padding: 40px !important;
+          border-radius: 12px !important;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        #contractPreviewContentPortal h4 {
+          font-size: 24px;
+          font-weight: 700;
+          color: #1a1a1a;
+          text-align: center;
+          margin-bottom: 30px;
+          padding-bottom: 20px;
+          border-bottom: 3px solid #d4af37;
+          letter-spacing: 1px;
+        }
+
+        #contractPreviewContentPortal h5 {
+          font-size: 18px;
+          font-weight: 700;
+          color: #d4af37;
+          margin-top: 30px;
+          margin-bottom: 15px;
+          padding-bottom: 8px;
+          border-bottom: 2px solid #e8e8e8;
+          letter-spacing: 0.5px;
+        }
+
+        #contractPreviewContentPortal h6 {
+          font-size: 16px;
+          font-weight: 700;
+          color: #1a1a1a;
+          margin-top: 25px;
+          margin-bottom: 12px;
+          padding-left: 15px;
+          border-left: 4px solid #d4af37;
+        }
+
+        #contractPreviewContentPortal p {
+          font-size: 14px;
+          line-height: 1.9;
+          margin-bottom: 15px;
+          color: #444444;
+          text-align: justify;
+        }
+
+        #contractPreviewContentPortal strong {
+          color: #1a1a1a;
+          font-weight: 600;
+        }
+
+        #contractPreviewContentPortal img {
+          display: block;
+          margin: 15px 0;
+          border-radius: 8px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+          transition: transform 0.3s ease;
+        }
+
+        #contractPreviewContentPortal img:hover {
+          transform: scale(1.02);
+        }
       </style>
 
        <!-- Elemento oculto para renderizado de PDF -->
@@ -678,6 +746,29 @@
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             <button type="button" class="btn btn-gold" id="downloadProformaPdfBtnPortal">
               <i class="fa-solid fa-download me-2"></i> Descargar PDF
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Div para renderizado de contrato PDF si se requiere ver en detalle -->
+    <div class="modal fade" id="viewContractModalPortal" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+        <div class="modal-content bg-dark text-white border-gold shadow-lg">
+          <div class="modal-header border-bottom border-secondary">
+            <h5 class="modal-title text-gold"><i class="fa-solid fa-file-contract me-2"></i> CONTRATO DE PRESTACIÓN DE SERVICIO</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body p-4 bg-white" style="color: #333; overflow-x: auto;">
+            <div id="contractPreviewContentPortal" class="mx-auto" style="width: 800px; max-width: 100%;">
+              <!-- Se cargará aquí el contrato -->
+            </div>
+          </div>
+          <div class="modal-footer border-top border-secondary">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-gold" id="downloadContractPdfBtnPortal">
+              <i class="fa-solid fa-file-pdf me-2"></i> IMPRIMIR / PDF
             </button>
           </div>
         </div>

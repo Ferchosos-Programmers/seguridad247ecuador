@@ -691,28 +691,27 @@
                 </div>
 
                 <div class="col-md-6">
-                  <label
-                    class="form-label text-gold fw-bold text-uppercase small mb-2"
-                    >Imagen del Problema</label
-                  >
-                  <input
-                    class="form-control premium-input"
-                    type="file"
-                    id="jobImage"
-                    accept="image/*"
-                  />
+                  <label class="form-label text-gold fw-bold text-uppercase small mb-2">Remitente</label>
+                  <input type="text" class="form-control premium-input" id="jobSender" value="Departamento Técnico" required />
                 </div>
 
                 <div class="col-md-6">
-                  <label
-                    class="form-label text-gold fw-bold text-uppercase small mb-2"
-                    >Descripción del Problema</label
-                  >
+                  <label class="form-label text-gold fw-bold text-uppercase small mb-2">Motivo / Asunto</label>
+                  <input type="text" class="form-control premium-input" id="jobReason" value="Falla de cerradura eléctrica" placeholder="Ej: Falla de cerradura eléctrica" required />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label text-gold fw-bold text-uppercase small mb-2">Técnico Asignado</label>
+                  <input type="text" class="form-control premium-input" id="jobTech" value="Servicio Técnico Especializado" required />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label text-gold fw-bold text-uppercase small mb-2">Descripción del Requerimiento / Antecedentes</label>
                   <textarea
                     class="form-control premium-input"
                     id="jobDescription"
                     rows="3"
-                    placeholder="Detalle el problema técnico aquí..."
+                    placeholder="Detalle la descripción del requerimiento aquí..."
                     required
                   ></textarea>
                 </div>
@@ -783,8 +782,8 @@
                 <label class="form-label">Nombre de Contacto</label>
                 <input
                   type="text"
-                  class="form-control force-uppercase"
                   id="editContactName"
+                  class="form-control force-uppercase"
                   required
                 />
               </div>
@@ -805,6 +804,18 @@
                     No, a cargo de la empresa
                   </option>
                 </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Remitente</label>
+                <input type="text" class="form-control" id="editJobSender" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Motivo / Asunto</label>
+                <input type="text" class="form-control" id="editJobReason" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Técnico Asignado</label>
+                <input type="text" class="form-control" id="editJobTech" required />
               </div>
               <div class="d-grid mt-4">
                 <button type="submit" class="btn btn-gold">
@@ -2436,47 +2447,21 @@
             const contactPhone = document.getElementById("contactPhone").value;
             const jobDescription =
               document.getElementById("jobDescription").value; // Capture Description
-            const jobImageFile = document.getElementById("jobImage").files[0]; // Capture Image File
+            const jobSender = document.getElementById("jobSender").value;
+            const jobReason = document.getElementById("jobReason").value;
+            const jobTech = document.getElementById("jobTech").value;
 
             const jobBilling = document.getElementById("jobBilling").value;
-            const jobCompanyCharge =
-              document.getElementById("jobCompanyCharge").value;
 
             Swal.fire({
               title: "Guardando...",
-              text: "Procesando información e imagen...",
+              text: "Procesando información...",
               allowOutsideClick: false,
               didOpen: () => Swal.showLoading(),
             });
 
             try {
-              let jobImageUrl = "";
-
-              // Convert image to Base64 and save to Firestore Database
-              if (jobImageFile) {
-                console.log("“¸ Procesando imagen:", jobImageFile.name);
-                try {
-                  console.log("”„ Convirtiendo imagen a Base64...");
-                  jobImageUrl = await resizeImage(jobImageFile);
-                  console.log(
-                    "… Imagen convertida a Base64 (tamaño:",
-                    jobImageUrl.length,
-                    "caracteres)",
-                  );
-                } catch (resizeError) {
-                  console.error("âŒ Error al procesar imagen:", resizeError);
-                  Swal.fire({
-                    icon: "warning",
-                    title: "Advertencia",
-                    text: "No se pudo procesar la imagen. El trabajo se guardará sin imagen.",
-                    timer: 2000,
-                    showConfirmButton: false,
-                  });
-                  jobImageUrl = "";
-                }
-              }
-
-              console.log("’¾ Guardando trabajo en Firestore Database...");
+              console.log("💾 Guardando trabajo en Firestore Database...");
               const jobData = {
                 clientName,
                 jobDate,
@@ -2485,19 +2470,16 @@
                 contactPhone,
                 jobBilling,
                 jobDescription,
-                jobImageUrl,
+                jobSender,
+                jobReason,
+                jobTech,
+                jobImageUrl: "",
                 status: "Pendiente",
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
               };
 
-              console.log("“‹ Datos a guardar:", {
-                ...jobData,
-                jobImageUrl: jobImageUrl
-                  ? `[${jobImageUrl.substring(0, 50)}...]`
-                  : "sin imagen",
-              });
               await db.collection("trabajos").add(jobData);
-              console.log("… Trabajo guardado exitosamente en Firestore");
+              console.log("✔ Trabajo guardado exitosamente en Firestore");
 
               Swal.fire({
                 icon: "success",
@@ -2508,25 +2490,17 @@
               }).then(() => {
                 // Notificación Automática
                 let message =
-                  `”” *NUEVA ASIGNACIÓN TÉCNICA*\n\n` +
-                  `“‹ *Cliente:* ${jobData.clientName}\n` +
-                  `“… *Fecha:* ${jobData.jobDate}\n` +
-                  `š¨ *Urgencia:* ${jobData.jobUrgency}\n` +
-                  `‘¤ *Contacto:* ${jobData.contactName}\n` +
-                  `“ž *Teléfono:* ${jobData.contactPhone}\n` +
-                  `“ *Problema:* ${jobDescription}\n`;
-
-                if (jobImageUrl) {
-                  if (jobImageUrl.startsWith("http")) {
-                    message += `–¼ï¸ *Foto del Problema:* ${jobImageUrl}\n\n`;
-                  } else {
-                    message += `–¼ï¸ *Foto del Problema:* (Adjunta en el reporte del sistema)\n\n`;
-                  }
-                } else {
-                  message += `\n`;
-                }
-
-                message += `‘‰ *Por favor, revisa el portal de técnicos para más detalles y gestionar la orden.*`;
+                  `🔔 *NUEVA ASIGNACIÓN TÉCNICA*\n\n` +
+                  `📋 *Cliente:* ${jobData.clientName}\n` +
+                  `📅 *Fecha:* ${jobData.jobDate}\n` +
+                  `🚨 *Urgencia:* ${jobData.jobUrgency}\n` +
+                  `👤 *Contacto:* ${jobData.contactName}\n` +
+                  `📞 *Teléfono:* ${jobData.contactPhone}\n` +
+                  `📝 *Motivo:* ${jobReason}\n` +
+                  `👤 *Remitente:* ${jobSender}\n` +
+                  `🔧 *Técnico:* ${jobTech}\n` +
+                  `📝 *Problema:* ${jobDescription}\n\n` +
+                  `👉 *Por favor, revisa el portal de técnicos para más detalles y gestionar la orden.*`;
 
                 const waUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
                 const waWindow = window.open(waUrl, "_blank");
@@ -2577,6 +2551,9 @@
           document.getElementById("editContactPhone").value = data.contactPhone;
           document.getElementById("editJobBilling").value =
             data.jobBilling || "Si al conjunto";
+          document.getElementById("editJobSender").value = data.jobSender || "Departamento Técnico";
+          document.getElementById("editJobReason").value = data.jobReason || "Mantenimiento / Soporte";
+          document.getElementById("editJobTech").value = data.jobTech || "Servicio Técnico Especializado";
           new bootstrap.Modal(document.getElementById("editJobModal")).show();
         };
 
@@ -2596,6 +2573,9 @@
                 .value.toUpperCase(),
               contactPhone: document.getElementById("editContactPhone").value,
               jobBilling: document.getElementById("editJobBilling").value,
+              jobSender: document.getElementById("editJobSender").value,
+              jobReason: document.getElementById("editJobReason").value,
+              jobTech: document.getElementById("editJobTech").value,
             };
 
             Swal.fire({

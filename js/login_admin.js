@@ -1710,44 +1710,20 @@ function configurarFormulario() {
       .value.toUpperCase();
     const contactPhone = document.getElementById("contactPhone").value;
     const jobDescription = document.getElementById("jobDescription").value;
-    const jobImageFile = document.getElementById("jobImage").files[0];
+    const jobSender = document.getElementById("jobSender").value;
+    const jobReason = document.getElementById("jobReason").value;
+    const jobTech = document.getElementById("jobTech").value;
 
     const jobBilling = document.getElementById("jobBilling").value;
 
     Swal.fire({
       title: "Guardando...",
-      text: "Procesando datos e imagen...",
+      text: "Procesando datos...",
       allowOutsideClick: false,
       didOpen: () => Swal.showLoading(),
     });
 
     try {
-      let jobImageUrl = "";
-
-      // Convert image to Base64 and save to Firestore Database
-      if (jobImageFile) {
-        console.log("📸 Procesando imagen:", jobImageFile.name);
-        try {
-          console.log("🔄 Convirtiendo imagen a Base64...");
-          jobImageUrl = await resizeImageAdmin(jobImageFile);
-          console.log(
-            "✅ Imagen convertida a Base64 (tamaño:",
-            jobImageUrl.length,
-            "caracteres)",
-          );
-        } catch (resizeError) {
-          console.error("❌ Error al procesar imagen:", resizeError);
-          Swal.fire({
-            icon: "warning",
-            title: "Advertencia",
-            text: "No se pudo procesar la imagen. El trabajo se guardará sin imagen.",
-            timer: 2000,
-            showConfirmButton: false,
-          });
-          jobImageUrl = "";
-        }
-      }
-
       console.log("💾 Guardando trabajo en Firestore Database...");
       const jobData = {
         clientName,
@@ -1757,17 +1733,13 @@ function configurarFormulario() {
         contactPhone,
         jobBilling,
         jobDescription,
-        jobImageUrl,
+        jobSender,
+        jobReason,
+        jobTech,
+        jobImageUrl: "",
         status: "Pendiente",
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       };
-
-      console.log("📋 Datos a guardar:", {
-        ...jobData,
-        jobImageUrl: jobImageUrl
-          ? `[Base64 - ${jobImageUrl.length} chars]`
-          : "sin imagen",
-      });
 
       await db.collection("trabajos").add(jobData);
       console.log("✅ Trabajo guardado exitosamente en Firestore Database");
@@ -1787,19 +1759,11 @@ function configurarFormulario() {
           `🚨 *Urgencia:* ${jobData.jobUrgency}\n` +
           `👤 *Contacto:* ${jobData.contactName}\n` +
           `📞 *Teléfono:* ${jobData.contactPhone}\n` +
-          `📝 *Problema:* ${jobDescription}\n`;
-
-        if (jobImageUrl) {
-          if (jobImageUrl.startsWith("http")) {
-            message += `🖼️ *Foto del Problema:* ${jobImageUrl}\n\n`;
-          } else {
-            message += `🖼️ *Foto del Problema:* (Adjunta en el reporte del sistema)\n\n`;
-          }
-        } else {
-          message += `\n`;
-        }
-
-        message += `👉 *Por favor, revisar portal para gestión.*`;
+          `📝 *Motivo:* ${jobReason}\n` +
+          `👤 *Remitente:* ${jobSender}\n` +
+          `🔧 *Técnico:* ${jobTech}\n` +
+          `📝 *Problema:* ${jobDescription}\n\n` +
+          `👉 *Por favor, revisar portal para gestión.*`;
 
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
         const waWindow = window.open(whatsappUrl, "_blank");
@@ -2307,6 +2271,9 @@ async function cargarTrabajoParaEditar(id) {
   document.getElementById("editContactPhone").value = data.contactPhone;
   document.getElementById("editJobBilling").value =
     data.jobBilling || "Si al conjunto";
+  document.getElementById("editJobSender").value = data.jobSender || "Departamento Técnico";
+  document.getElementById("editJobReason").value = data.jobReason || "Mantenimiento / Soporte";
+  document.getElementById("editJobTech").value = data.jobTech || "Servicio Técnico Especializado";
   new bootstrap.Modal(document.getElementById("editJobModal")).show();
 }
 
@@ -2329,6 +2296,9 @@ function activarEdicion() {
       contactName: document.getElementById("editContactName").value,
       contactPhone: document.getElementById("editContactPhone").value,
       jobBilling: document.getElementById("editJobBilling").value,
+      jobSender: document.getElementById("editJobSender").value,
+      jobReason: document.getElementById("editJobReason").value,
+      jobTech: document.getElementById("editJobTech").value,
     };
 
     try {

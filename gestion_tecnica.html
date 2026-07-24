@@ -839,9 +839,10 @@
             <form id="reportForm">
               <input type="hidden" id="jobId" />
 
+
               <div class="row g-4">
-                <!-- COLUMNA IZQUIERDA: PROBLEMA REPORTADO (ADMIN) -->
-                <div class="col-lg-3">
+                <!-- COLUMNA IZQUIERDA: ENCABEZADO Y ANTECEDENTES -->
+                <div class="col-lg-4">
                   <div
                     class="h-100 p-3 d-flex flex-column"
                     style="
@@ -851,19 +852,40 @@
                     "
                   >
                     <h6 class="text-gold mb-3 text-uppercase fw-bold">
-                      <i class="fa-solid fa-clipboard-list me-2"></i>Datos del
-                      Servicio
+                      <i class="fa-solid fa-clipboard-list me-2"></i>Encabezado del Reporte
                     </h6>
-                    <div id="jobDetails" class="d-flex flex-column flex-grow-1">
-                      <div class="text-center text-muted my-auto">
-                        <i class="fa-solid fa-spinner fa-spin me-2"></i>
-                        Cargando detalles...
-                      </div>
+                    <div class="mb-2">
+                      <label class="form-label-gold mb-1 small text-white-50">REMITENTE</label>
+                      <input type="text" class="form-control form-control-sm text-white bg-dark border-secondary" id="reportSender" required />
+                    </div>
+                    <div class="mb-2">
+                      <label class="form-label-gold mb-1 small text-white-50">MOTIVO / ASUNTO</label>
+                      <input type="text" class="form-control form-control-sm text-white bg-dark border-secondary" id="reportReason" required />
+                    </div>
+                    <div class="mb-2">
+                      <label class="form-label-gold mb-1 small text-white-50">TÉCNICO ASIGNADO</label>
+                      <input type="text" class="form-control form-control-sm text-white bg-dark border-secondary" id="reportTech" required />
+                    </div>
+                    <div class="mb-2">
+                      <label class="form-label-gold mb-1 small text-white-50">ESTADO FINAL (PDF)</label>
+                      <select class="form-select form-select-sm text-white bg-dark border-secondary" id="reportStatusFinal" required>
+                        <option value="Operativo / Solucionado">Operativo / Solucionado</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="En Observación">En Observación</option>
+                      </select>
+                    </div>
+                    <div class="mb-2">
+                      <label class="form-label-gold mb-1 small text-white-50">1. ANTECEDENTES Y REQUERIMIENTO</label>
+                      <textarea class="form-control form-control-sm text-white bg-dark border-secondary" id="reportJobDescription" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-2">
+                      <label class="form-label-gold mb-1 small text-white-50">NOTIFICACIONES Y RECOMENDACIONES</label>
+                      <textarea class="form-control form-control-sm text-white bg-dark border-secondary" id="reportRecommendations" rows="4" required></textarea>
                     </div>
                   </div>
                 </div>
 
-                <!-- COLUMNA CENTRAL: REPORTE INICIAL -->
+                <!-- COLUMNA CENTRAL: PROBLEMA ENCONTRADO -->
                 <div class="col-lg-4">
                   <div
                     class="h-100 p-3 d-flex flex-column"
@@ -874,8 +896,7 @@
                     "
                   >
                     <h6 class="text-danger mb-3 text-uppercase fw-bold">
-                      <i class="fa-solid fa-triangle-exclamation me-2"></i
-                      >Problema Encontrado
+                      <i class="fa-solid fa-triangle-exclamation me-2"></i>Problema Encontrado
                     </h6>
 
                     <div class="mb-3 flex-grow-1 d-flex flex-column">
@@ -959,7 +980,7 @@
                 </div>
 
                 <!-- COLUMNA DERECHA: REPORTE FINAL -->
-                <div class="col-lg-5">
+                <div class="col-lg-4">
                   <div
                     class="h-100 p-3 d-flex flex-column"
                     style="
