@@ -810,8 +810,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const matchName =
-          job.clientName.toLowerCase().includes(nameValue) ||
-          job.contactName.toLowerCase().includes(nameValue);
+          (job.clientName && job.clientName.toLowerCase().includes(nameValue)) ||
+          (job.contactName && job.contactName.toLowerCase().includes(nameValue)) ||
+          (job.reportCode && job.reportCode.toLowerCase().includes(nameValue)) ||
+          (job.jobReason && job.jobReason.toLowerCase().includes(nameValue));
 
         return matchUrgency && matchName && matchStatus;
       });
@@ -1200,8 +1202,29 @@ function renderTrabajosTecnicos(trabajosList) {
             data-bs-toggle="modal"
             data-bs-target="#technicalReportModal"
             data-id="${data.id}">
-            <i class="fa-solid fa-file-alt me-1"></i> Informe Técnico
+            <i class="fa-solid fa-file-signature me-1"></i> Llenar Informe Técnico
           </button>`
+      : `
+        <div class="d-flex gap-2 mt-3">
+          <button class="btn btn-outline-warning flex-grow-1 py-2 fw-bold"
+                  onclick="descargarInformeTecnico('${data.id}')"
+                  title="Descargar Informe Técnico PDF (2 Hojas)">
+            <i class="fa-solid fa-file-pdf me-1"></i> Descargar PDF
+          </button>
+          <button class="btn btn-outline-light px-3"
+                  data-bs-toggle="modal"
+                  data-bs-target="#technicalReportModal"
+                  data-id="${data.id}"
+                  title="Ver o Modificar Informe">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </button>
+        </div>
+      `;
+
+    const codeBadge = data.reportCode
+      ? `<span class="badge mb-2" style="background: rgba(212,175,55,0.15); color: #d4af37; border: 1px solid rgba(212,175,55,0.4); font-family: monospace; font-size: 0.75rem;">
+           <i class="fa-solid fa-hashtag me-1"></i>${data.reportCode}
+         </span>`
       : "";
 
     container.innerHTML += `
@@ -1209,7 +1232,10 @@ function renderTrabajosTecnicos(trabajosList) {
         <div class="job-card">
           ${watermark}
           <div class="d-flex justify-content-between align-items-start mb-2">
-            <h5 class="text-gold mb-0 fw-bold">${data.clientName}</h5>
+            <div>
+              <h5 class="text-gold mb-1 fw-bold">${data.clientName}</h5>
+              ${codeBadge}
+            </div>
             <span class="badge ${urgencyClass}">${data.jobUrgency}</span>
           </div>
 
@@ -1219,6 +1245,7 @@ function renderTrabajosTecnicos(trabajosList) {
             <p class="mb-2"><i class="fa-solid fa-calendar-day text-gold me-2"></i><strong>Fecha:</strong> ${data.jobDate}</p>
             <p class="mb-2"><i class="fa-solid fa-user-tag text-gold me-2"></i><strong>Contacto:</strong> ${data.contactName}</p>
             <p class="mb-2"><i class="fa-solid fa-phone text-gold me-2"></i><strong>Teléfono:</strong> ${data.contactPhone}</p>
+            ${data.jobReason ? `<p class="mb-2 text-truncate" title="${data.jobReason}"><i class="fa-solid fa-wrench text-gold me-2"></i><strong>Motivo:</strong> ${data.jobReason}</p>` : ""}
             <p class="mb-0"><i class="fa-solid fa-circle-info text-gold me-2"></i><strong>Estado:</strong> <span class="fw-bold">${data.status || "Pendiente"}</span></p>
           </div>
 
@@ -1340,8 +1367,26 @@ function configurarModalInforme() {
     }
   }
 
+  // Generador de código único de informe (formato INF-CCTV-YYYY-XXX)
+  function generateUniqueReportCode() {
+    const year = new Date().getFullYear();
+    let maxNum = 0;
+    if (window.allTrabajos && window.allTrabajos.length > 0) {
+      window.allTrabajos.forEach((j) => {
+        if (j.reportCode && j.reportCode.startsWith(`INF-CCTV-${year}-`)) {
+          const parts = j.reportCode.split("-");
+          const n = parseInt(parts[parts.length - 1], 10);
+          if (!isNaN(n) && n > maxNum) maxNum = n;
+        }
+      });
+    }
+    const nextNum = maxNum > 0 ? maxNum + 1 : Math.floor(10 + Math.random() * 89);
+    return `INF-CCTV-${year}-${String(nextNum).padStart(3, "0")}`;
+  }
+
   reportModal.addEventListener("show.bs.modal", async (event) => {
     const button = event.relatedTarget;
+    if (!button) return;
     const jobId = button.getAttribute("data-id");
     document.getElementById("jobId").value = jobId;
 
@@ -1349,21 +1394,20 @@ function configurarModalInforme() {
     if (canvas && ctx) {
       setTimeout(() => {
         resizeCanvas();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         canvas.hasSignature = false;
       }, 200);
     }
 
-    // Resetear inputs de imágenes y previews al abrir el modal (Updated for 4 photos)
-    ["Initial1", "Initial2", "Final1", "Final2"].forEach((suffix) => {
+    // Resetear inputs de imágenes y previews al abrir el modal (1 foto inicial, 1 foto final)
+    ["Initial", "Final"].forEach((suffix) => {
       const input = document.getElementById(`evidence${suffix}`);
       const placeholder = document.getElementById(`placeholder${suffix}`);
       const preview = document.getElementById(`preview${suffix}`);
       const removeBtn = document.getElementById(`remove${suffix}`);
       const box = document.getElementById(`box${suffix}`);
 
-      if (input) {
-        input.value = "";
-      }
+      if (input) input.value = "";
       if (box) {
         box.style.borderColor = "";
         box.style.background = "";
@@ -1379,73 +1423,123 @@ function configurarModalInforme() {
       if (removeBtn) removeBtn.style.display = "none";
     });
 
-    const jobDetailsContainer = document.getElementById("jobDetails");
-    jobDetailsContainer.innerHTML = "Cargando detalles...";
-
     try {
       const doc = await db.collection("trabajos").doc(jobId).get();
       if (doc.exists) {
         const data = doc.data();
+        window.currentEditingJob = { id: doc.id, ...data };
 
-        jobDetailsContainer.innerHTML = `
-            <div class="h-100 d-flex flex-column">
-                <div class="text-center mb-3">
-                  <h5 class="mb-2" style="color: #d4af37; font-weight: 700; letter-spacing: 0.5px; font-size: 1.1rem;">
-                    <i class="fa-solid fa-file-invoice me-2"></i>Detalles del Trabajo
-                  </h5>
-                  
-                  <div class="d-flex justify-content-center gap-3 text-white-50" style="font-size: 0.85rem;">
-                     <span><i class="fa-solid fa-user me-1"></i> ${data.clientName}</span>
-                     <span><i class="fa-calendar-days fa-solid me-1"></i> ${data.jobDate}</span>
-                  </div>
-                </div>
-                
-                <div class="mb-2 text-gold fw-bold" style="font-size: 0.9rem;">
-                  <i class="fa-solid fa-triangle-exclamation me-2"></i>Problema Reportado
-                </div>
-                
-                <div class="p-2 mb-3 text-start flex-grow-1 overflow-auto" 
-                     style="background: rgba(0, 0, 0, 0.4); border-radius: 8px; border-left: 3px solid #d4af37; max-height: 150px;">
-                  <p class="mb-0 text-white-50" style="font-size: 0.9rem; line-height: 1.5;">
-                    ${data.jobDescription || "Sin descripción detallada del problema."}
-                  </p>
-                </div>
-                
-                ${
-                  data.jobImageUrl
-                    ? `
-                  <div class="mt-auto text-center">
-                    <div class="position-relative d-inline-block group-hover-effect" 
-                         style="width: 100%; height: 160px; cursor: pointer; border-radius: 8px; overflow: hidden; border: 1px solid rgba(212, 175, 55, 0.3);"
-                         onclick="openImageFullscreen('${data.jobImageUrl}')">
-                      
-                      <img src="${data.jobImageUrl}" 
-                           alt="Problema" 
-                           style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;"
-                           onmouseover="this.style.transform='scale(1.05)'" 
-                           onmouseout="this.style.transform='scale(1)'">
-                           
-                      <div class="position-absolute bottom-0 start-0 w-100 p-1 text-center" 
-                           style="background: rgba(0,0,0,0.7); backdrop-filter: blur(2px);">
-                        <small style="color: #d4af37; font-size: 0.75rem;">
-                          <i class="fa-solid fa-expand me-1"></i> Ver Imagen
-                        </small>
-                      </div>
-                    </div>
-                  </div>
-                `
-                    : ""
-                }
-          </div>
-        `;
-      } else {
-        jobDetailsContainer.innerHTML =
-          '<p class="text-danger text-center">No se encontraron detalles del trabajo.</p>';
+        // 1. Cargar encabezado del reporte desde Firestore
+        const reportSenderEl = document.getElementById("reportSender");
+        if (reportSenderEl) {
+          reportSenderEl.value = data.jobSender || data.reportSender || "Departamento Técnico";
+        }
+
+        const reportReasonEl = document.getElementById("reportReason");
+        if (reportReasonEl) {
+          reportReasonEl.value = data.jobReason || data.reportReason || "";
+        }
+
+        const reportTechEl = document.getElementById("reportTech");
+        if (reportTechEl) {
+          const defaultTech = (auth.currentUser && auth.currentUser.email) ? auth.currentUser.email : "Servicio Técnico Especializado";
+          reportTechEl.value = data.jobTech || data.reportTech || defaultTech;
+        }
+
+        const reportStatusFinalEl = document.getElementById("reportStatusFinal");
+        if (reportStatusFinalEl) {
+          reportStatusFinalEl.value = data.reportStatusFinal || "Operativo / Solucionado";
+        }
+
+        const reportJobDescEl = document.getElementById("reportJobDescription");
+        if (reportJobDescEl) {
+          reportJobDescEl.value = data.jobDescription || data.reportJobDescription || "";
+        }
+
+        const reportRecsEl = document.getElementById("reportRecommendations");
+        if (reportRecsEl) {
+          reportRecsEl.value = data.reportRecommendations || "";
+        }
+
+        // 2. Cargar o generar Código Único de Referencia
+        const reportCode = data.reportCode || generateUniqueReportCode();
+        const codeInput = document.getElementById("reportCode");
+        const codeBadge = document.getElementById("reportCodeBadge");
+        if (codeInput) codeInput.value = reportCode;
+        if (codeBadge) codeBadge.innerText = reportCode;
+
+        // 3. Cargar Diagnóstico (Problema) y Solución
+        const reportInitialEl = document.getElementById("reportInitial");
+        if (reportInitialEl) {
+          reportInitialEl.value = data.reportInitial || "";
+        }
+
+        const reportFinalEl = document.getElementById("reportFinal");
+        if (reportFinalEl) {
+          reportFinalEl.value = data.reportFinal || "";
+        }
+
+        const jobStatusEl = document.getElementById("jobStatus");
+        if (jobStatusEl) {
+          jobStatusEl.value = data.status || "Pendiente";
+        }
+
+        // 4. Previsualizar fotos si ya existían
+        const initImg = (data.evidenceInitial && data.evidenceInitial[0]) || data.reportInitialImg1 || null;
+        if (initImg) {
+          const preview = document.getElementById("previewInitial");
+          const placeholder = document.getElementById("placeholderInitial");
+          const removeBtn = document.getElementById("removeInitial");
+          const box = document.getElementById("boxInitial");
+          if (preview) {
+            preview.src = initImg;
+            preview.style.display = "block";
+          }
+          if (placeholder) {
+            placeholder.style.display = "none";
+            placeholder.classList.add("d-none");
+          }
+          if (removeBtn) removeBtn.style.display = "flex";
+          if (box) {
+            box.style.borderColor = "#28a745";
+            box.style.background = "#000";
+          }
+        }
+
+        const finalImg = (data.evidenceFinal && data.evidenceFinal[0]) || data.reportFinalImg1 || null;
+        if (finalImg) {
+          const preview = document.getElementById("previewFinal");
+          const placeholder = document.getElementById("placeholderFinal");
+          const removeBtn = document.getElementById("removeFinal");
+          const box = document.getElementById("boxFinal");
+          if (preview) {
+            preview.src = finalImg;
+            preview.style.display = "block";
+          }
+          if (placeholder) {
+            placeholder.style.display = "none";
+            placeholder.classList.add("d-none");
+          }
+          if (removeBtn) removeBtn.style.display = "flex";
+          if (box) {
+            box.style.borderColor = "#28a745";
+            box.style.background = "#000";
+          }
+        }
+
+        // 5. Cargar firma si ya estaba registrada
+        if (data.clientSignature && canvas && ctx) {
+          const img = new Image();
+          img.onload = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            canvas.hasSignature = true;
+          };
+          img.src = data.clientSignature;
+        }
       }
     } catch (error) {
-      console.error("Error al cargar detalles: ", error);
-      jobDetailsContainer.innerHTML =
-        '<p class="text-danger">Error al cargar detalles.</p>';
+      console.error("Error al cargar detalles en el modal de informe:", error);
     }
   });
 
@@ -1453,119 +1547,181 @@ function configurarModalInforme() {
 
   saveReportBtn.addEventListener("click", async () => {
     const jobId = document.getElementById("jobId").value;
-    const reportInitial = document.getElementById("reportInitial").value;
-    const reportFinal = document.getElementById("reportFinal").value;
-    const jobStatus = document.getElementById("jobStatus").value;
+    const reportSender = document.getElementById("reportSender")?.value || "Departamento Técnico";
+    const reportReason = document.getElementById("reportReason")?.value || "";
+    const reportTech = document.getElementById("reportTech")?.value || "";
+    const reportStatusFinal = document.getElementById("reportStatusFinal")?.value || "Operativo / Solucionado";
+    const reportJobDescription = document.getElementById("reportJobDescription")?.value || "";
+    const reportRecommendations = document.getElementById("reportRecommendations")?.value || "";
+    const reportInitial = document.getElementById("reportInitial")?.value || "";
+    const reportFinal = document.getElementById("reportFinal")?.value || "";
+    const jobStatus = document.getElementById("jobStatus")?.value || "Pendiente";
+    const reportCode = document.getElementById("reportCode")?.value || generateUniqueReportCode();
 
-    const photoInitial1 = document.getElementById("evidenceInitial1").files[0];
-    const photoInitial2 = document.getElementById("evidenceInitial2").files[0];
-    const photoFinal1 = document.getElementById("evidenceFinal1").files[0];
-    const photoFinal2 = document.getElementById("evidenceFinal2").files[0];
-
-    if (!reportInitial || !reportFinal || !jobStatus) {
-      Swal.fire(
-        "Error",
-        "Los reportes (inicial y final) y el estado son obligatorios.",
-        "error",
-      );
+    if (!reportInitial || !reportFinal) {
+      Swal.fire({
+        icon: "warning",
+        title: "Campos Requeridos",
+        text: "Por favor complete la descripción del problema encontrado y la solución implementada.",
+        background: "#000",
+        color: "#d4af37",
+        confirmButtonColor: "#d4af37",
+      });
       return;
     }
 
     saveReportBtn.disabled = true;
-    saveReportBtn.innerHTML = "Guardando...";
+    saveReportBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Guardando...';
 
     try {
-      // Concatenar reporte para compatibilidad
       const reportText = `**PROBLEMA ENCONTRADO:**\n${reportInitial}\n\n**SOLUCIÓN IMPLEMENTADA:**\n${reportFinal}`;
 
-      // Convertir y Redimensionar imágenes
-      const evidenceInitial = [];
-      if (photoInitial1) evidenceInitial.push(await resizeImage(photoInitial1));
-      if (photoInitial2) evidenceInitial.push(await resizeImage(photoInitial2));
+      // Procesar imagen inicial (1 foto)
+      let photoInitialBase64 = null;
+      const initialFile = document.getElementById("evidenceInitial")?.files[0];
+      const previewInitial = document.getElementById("previewInitial");
+      if (initialFile) {
+        photoInitialBase64 = await resizeImage(initialFile);
+      } else if (previewInitial && previewInitial.src && (previewInitial.src.startsWith("data:") || previewInitial.src.startsWith("http"))) {
+        photoInitialBase64 = previewInitial.src;
+      }
 
-      const evidenceFinal = [];
-      if (photoFinal1) evidenceFinal.push(await resizeImage(photoFinal1));
-      if (photoFinal2) evidenceFinal.push(await resizeImage(photoFinal2));
+      // Procesar imagen final (1 foto)
+      let photoFinalBase64 = null;
+      const finalFile = document.getElementById("evidenceFinal")?.files[0];
+      const previewFinal = document.getElementById("previewFinal");
+      if (finalFile) {
+        photoFinalBase64 = await resizeImage(finalFile);
+      } else if (previewFinal && previewFinal.src && (previewFinal.src.startsWith("data:") || previewFinal.src.startsWith("http"))) {
+        photoFinalBase64 = previewFinal.src;
+      }
 
-      // Combinar para backward compatibility
+      const evidenceInitial = photoInitialBase64 ? [photoInitialBase64] : [];
+      const evidenceFinal = photoFinalBase64 ? [photoFinalBase64] : [];
       const evidenceBase64 = [...evidenceInitial, ...evidenceFinal];
 
+      const clientSignature = (canvas && canvas.hasSignature)
+        ? canvas.toDataURL("image/png")
+        : (window.currentEditingJob?.clientSignature || null);
+
       const updateData = {
+        reportSender,
+        reportReason,
+        reportTech,
+        reportStatusFinal,
+        jobDescription: reportJobDescription,
+        reportRecommendations,
+        reportInitial,
+        reportFinal,
+        reportCode,
         report: reportText,
-        reportInitial: reportInitial,
-        reportFinal: reportFinal,
         status: jobStatus,
         reportDate: new Date(),
-        clientSignature: canvas.hasSignature
-          ? canvas.toDataURL("image/png")
-          : null,
-        evidenceInitial: evidenceInitial,
-        evidenceFinal: evidenceFinal,
-        evidenceBase64: evidenceBase64,
+        clientSignature,
+        evidenceInitial,
+        evidenceFinal,
+        evidenceBase64,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
       };
 
       await db.collection("trabajos").doc(jobId).update(updateData);
 
       const doc = await db.collection("trabajos").doc(jobId).get();
-      const jobData = doc.data();
+      const jobData = { id: doc.id, ...doc.data() };
+      window.currentReportingJob = jobData;
+
+      // Cerrar modal
+      const modal = bootstrap.Modal.getInstance(reportModal);
+      if (modal) modal.hide();
 
       Swal.fire({
         icon: "success",
-        title: "¡Informe Enviado!",
-        text: "Se procederá a notificar a administración y monitoreo.",
-        showConfirmButton: true,
-      }).then(() => {
-        // Notificación WhatsApp Automática
-        const message =
-          `🛠️ *INFORME TÉCNICO FINALIZADO*\n\n` +
-          `El técnico *${auth.currentUser.email}* ha completado un trabajo.\n\n` +
-          `📋 *Cliente:* ${jobData.clientName}\n` +
-          `📅 *Fecha Asignación:* ${jobData.jobDate}\n` +
-          `✅ *Estado:* ${jobStatus}\n\n` +
-          `📝 *Detalle:* ${reportText}\n\n` +
-          `👉 *Informe disponible en plataforma para revisión.*`;
+        title: "¡Informe Guardado con Éxito!",
+        html: `
+          <div class="text-start mt-2 p-3 rounded" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.3); font-size: 0.95rem;">
+            <p class="mb-2"><strong class="text-warning">Código Único:</strong> <span class="badge bg-gold text-dark fw-bold px-2 py-1">${reportCode}</span></p>
+            <p class="mb-1"><strong>Cliente:</strong> ${jobData.clientName}</p>
+            <p class="mb-1"><strong>Motivo:</strong> ${reportReason}</p>
+            <p class="mb-0"><strong>Estado:</strong> ${jobStatus} (${reportStatusFinal})</p>
+          </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: '<i class="fa-solid fa-file-pdf me-2"></i> Descargar PDF (2 Hojas)',
+        cancelButtonText: '<i class="fa-brands fa-whatsapp me-2"></i> Notificar por WhatsApp',
+        showDenyButton: true,
+        denyButtonText: 'Cerrar',
+        confirmButtonColor: "#d4af37",
+        cancelButtonColor: "#25d366",
+        background: "#000",
+        color: "#fff",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          if (typeof window.generateModernPDF === "function") {
+            window.generateModernPDF(false, jobData);
+          }
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          const message =
+            `🛠️ *INFORME TÉCNICO FINALIZADO*\n` +
+            `📄 *REF / CÓDIGO:* ${reportCode}\n\n` +
+            `El técnico *${reportTech}* ha completado el servicio.\n\n` +
+            `🏢 *Cliente:* ${jobData.clientName}\n` +
+            `👤 *Contacto:* ${jobData.contactName || "Administración"}\n` +
+            `📅 *Fecha:* ${jobData.jobDate}\n` +
+            `🔧 *Motivo:* ${reportReason}\n` +
+            `✅ *Estado:* ${jobStatus} - ${reportStatusFinal}\n\n` +
+            `📝 *Diagnóstico:* ${reportInitial}\n` +
+            `💡 *Solución:* ${reportFinal}\n\n` +
+            `👉 *Informe disponible en el portal Seguridad 24/7.*`;
 
-        const waUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-        const waWindow = window.open(waUrl, "_blank");
-
-        if (
-          !waWindow ||
-          waWindow.closed ||
-          typeof waWindow.closed === "undefined"
-        ) {
-          Swal.fire({
-            icon: "info",
-            title: "¡Informe Enviado!",
-            html: `Se procederá a notificar a administración y monitoreo.<br><br><b>El navegador bloqueó la ventana de WhatsApp.</b><br>Haz clic abajo para abrirlo manualmente:`,
-            showCancelButton: true,
-            confirmButtonText:
-              '<i class="fa-brands fa-whatsapp"></i> Abrir WhatsApp',
-            confirmButtonColor: "#25d366",
-            background: "#000",
-            color: "#d4af37",
-          }).then((result) => {
-            if (result.isConfirmed) {
-              window.open(waUrl, "_blank");
-            }
-          });
+          const waUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+          window.open(waUrl, "_blank");
         }
       });
 
-      const modal = bootstrap.Modal.getInstance(reportModal);
-      modal.hide();
-
       document.getElementById("reportForm").reset();
-
-      cargarTrabajosTecnicos(); // Recargar trabajos para mostrar el estado actualizado
+      cargarTrabajosTecnicos();
     } catch (error) {
       console.error("Error al guardar informe:", error);
       Swal.fire("Error", "No se pudo guardar el informe.", "error");
     } finally {
       saveReportBtn.disabled = false;
-      saveReportBtn.innerHTML = "Guardar Informe";
+      saveReportBtn.innerHTML = '<i class="fa-solid fa-save me-2"></i>Guardar Informe Completo';
     }
   });
 }
+
+// Global para descargar informe PDF directamente desde tarjetas de trabajos técnicos
+window.descargarInformeTecnico = async function (jobId) {
+  try {
+    Swal.fire({
+      title: "Generando PDF...",
+      text: "Preparando informe técnico en 2 hojas...",
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading(),
+      background: "#000",
+      color: "#d4af37",
+    });
+
+    const doc = await db.collection("trabajos").doc(jobId).get();
+    if (!doc.exists) {
+      Swal.fire("Error", "Trabajo no encontrado", "error");
+      return;
+    }
+
+    const jobData = { id: doc.id, ...doc.data() };
+    window.currentReportingJob = jobData;
+
+    if (typeof window.generateModernPDF === "function") {
+      await window.generateModernPDF(false, jobData);
+      Swal.close();
+    } else {
+      Swal.fire("Error", "Generador de PDF no disponible", "error");
+    }
+  } catch (error) {
+    console.error("Error generando PDF:", error);
+    Swal.fire("Error", "No se pudo generar el PDF", "error");
+  }
+};
 
 // =======================================================
 // 📋 CARGAR CONTRATOS PARA TÉCNICOS
@@ -1898,31 +2054,18 @@ function configurarModalContrato() {
     "removeIdPhotoBtn",
   );
 
-  // Inicializar previews para evidencias del reporte técnico
-  // Inicializar previews para evidencias del reporte técnico (4 Fotos)
+  // Inicializar previews para evidencias del reporte técnico (1 foto por sección)
   setupImagePreview(
-    "evidenceInitial1",
-    "placeholderInitial1",
-    "previewInitial1",
-    "removeInitial1",
+    "evidenceInitial",
+    "placeholderInitial",
+    "previewInitial",
+    "removeInitial",
   );
   setupImagePreview(
-    "evidenceInitial2",
-    "placeholderInitial2",
-    "previewInitial2",
-    "removeInitial2",
-  );
-  setupImagePreview(
-    "evidenceFinal1",
-    "placeholderFinal1",
-    "previewFinal1",
-    "removeFinal1",
-  );
-  setupImagePreview(
-    "evidenceFinal2",
-    "placeholderFinal2",
-    "previewFinal2",
-    "removeFinal2",
+    "evidenceFinal",
+    "placeholderFinal",
+    "previewFinal",
+    "removeFinal",
   );
 
   // Reinicializar canvas cuando se abre el modal

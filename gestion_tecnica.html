@@ -290,7 +290,7 @@
                     type="text"
                     id="jobSearchInput"
                     class="form-control search-input-glass w-100"
-                    placeholder="Buscar cliente por nombre..."
+                    placeholder="Buscar por cliente, motivo o código único (INF-CCTV)..."
                     style="
                       height: 48px !important;
                       border-radius: 8px !important;
@@ -851,9 +851,16 @@
                       border-radius: 12px;
                     "
                   >
-                    <h6 class="text-gold mb-3 text-uppercase fw-bold">
-                      <i class="fa-solid fa-clipboard-list me-2"></i>Encabezado del Reporte
-                    </h6>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <h6 class="text-gold mb-0 text-uppercase fw-bold">
+                        <i class="fa-solid fa-clipboard-list me-2"></i>Encabezado del Reporte
+                      </h6>
+                      <span class="badge" style="background: rgba(212, 175, 55, 0.15); color: #d4af37; border: 1px solid rgba(212, 175, 55, 0.4); font-size: 0.75rem; font-family: monospace;">
+                        <i class="fa-solid fa-hashtag me-1"></i><span id="reportCodeBadge">INF-CCTV-...</span>
+                      </span>
+                    </div>
+                    <input type="hidden" id="reportCode" />
+
                     <div class="mb-2">
                       <label class="form-label-gold mb-1 small text-white-50">REMITENTE</label>
                       <input type="text" class="form-control form-control-sm text-white bg-dark border-secondary" id="reportSender" required />
@@ -917,64 +924,32 @@
                       ></textarea>
                     </div>
 
-                    <label class="form-label text-white-50 small mb-2"
-                      >EVIDENCIA INICIAL (2 Fotos)</label
-                    >
-                    <div class="row g-2">
-                      <!-- Initial Photo 1 -->
-                      <div class="col-6">
-                        <div class="photo-upload-box" id="boxInitial1">
-                          <input
-                            type="file"
-                            id="evidenceInitial1"
-                            accept="image/*"
-                            class="photo-input"
-                          />
-                          <div id="placeholderInitial1" class="placeholder">
-                            <i class="fa-solid fa-camera mb-1"></i
-                            ><span>Foto 1</span>
-                          </div>
-                          <img
-                            id="previewInitial1"
-                            src=""
-                            class="preview-img"
-                          />
-                          <button
-                            type="button"
-                            id="removeInitial1"
-                            class="remove-btn"
-                          >
-                            <i class="fa-solid fa-xmark"></i>
-                          </button>
-                        </div>
+                    <label class="form-label text-white-50 small mb-2"><i class="fa-solid fa-camera text-danger me-1"></i>EVIDENCIA INICIAL (1 Foto)</label>
+                    <div class="photo-upload-box" id="boxInitial" style="height: 130px;">
+                      <input
+                        type="file"
+                        id="evidenceInitial"
+                        accept="image/*"
+                        class="photo-input"
+                      />
+                      <div id="placeholderInitial" class="placeholder">
+                        <i class="fa-solid fa-cloud-arrow-up fa-2x mb-2 text-danger"></i>
+                        <span class="fw-bold">Subir Foto del Problema</span>
+                        <small class="text-white-50" style="font-size: 0.72rem;">Click o arrastrar imagen aquí</small>
                       </div>
-                      <!-- Initial Photo 2 -->
-                      <div class="col-6">
-                        <div class="photo-upload-box" id="boxInitial2">
-                          <input
-                            type="file"
-                            id="evidenceInitial2"
-                            accept="image/*"
-                            class="photo-input"
-                          />
-                          <div id="placeholderInitial2" class="placeholder">
-                            <i class="fa-solid fa-camera mb-1"></i
-                            ><span>Foto 2</span>
-                          </div>
-                          <img
-                            id="previewInitial2"
-                            src=""
-                            class="preview-img"
-                          />
-                          <button
-                            type="button"
-                            id="removeInitial2"
-                            class="remove-btn"
-                          >
-                            <i class="fa-solid fa-xmark"></i>
-                          </button>
-                        </div>
-                      </div>
+                      <img
+                        id="previewInitial"
+                        src=""
+                        class="preview-img"
+                      />
+                      <button
+                        type="button"
+                        id="removeInitial"
+                        class="remove-btn"
+                        title="Eliminar foto"
+                      >
+                        <i class="fa-solid fa-xmark"></i>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1012,56 +987,28 @@
                       ></textarea>
                     </div>
 
-                    <label class="form-label text-white-50 small mb-2"
-                      >EVIDENCIA FINAL (2 Fotos)</label
-                    >
-                    <div class="row g-2 mb-3">
-                      <!-- Final Photo 1 -->
-                      <div class="col-6">
-                        <div class="photo-upload-box" id="boxFinal1">
-                          <input
-                            type="file"
-                            id="evidenceFinal1"
-                            accept="image/*"
-                            class="photo-input"
-                          />
-                          <div id="placeholderFinal1" class="placeholder">
-                            <i class="fa-solid fa-camera mb-1"></i
-                            ><span>Foto 1</span>
-                          </div>
-                          <img id="previewFinal1" src="" class="preview-img" />
-                          <button
-                            type="button"
-                            id="removeFinal1"
-                            class="remove-btn"
-                          >
-                            <i class="fa-solid fa-xmark"></i>
-                          </button>
-                        </div>
+                    <label class="form-label text-white-50 small mb-2"><i class="fa-solid fa-camera text-success me-1"></i>EVIDENCIA FINAL (1 Foto)</label>
+                    <div class="photo-upload-box mb-3" id="boxFinal" style="height: 130px;">
+                      <input
+                        type="file"
+                        id="evidenceFinal"
+                        accept="image/*"
+                        class="photo-input"
+                      />
+                      <div id="placeholderFinal" class="placeholder">
+                        <i class="fa-solid fa-cloud-arrow-up fa-2x mb-2 text-success"></i>
+                        <span class="fw-bold">Subir Foto de Solución</span>
+                        <small class="text-white-50" style="font-size: 0.72rem;">Click o arrastrar imagen aquí</small>
                       </div>
-                      <!-- Final Photo 2 -->
-                      <div class="col-6">
-                        <div class="photo-upload-box" id="boxFinal2">
-                          <input
-                            type="file"
-                            id="evidenceFinal2"
-                            accept="image/*"
-                            class="photo-input"
-                          />
-                          <div id="placeholderFinal2" class="placeholder">
-                            <i class="fa-solid fa-camera mb-1"></i
-                            ><span>Foto 2</span>
-                          </div>
-                          <img id="previewFinal2" src="" class="preview-img" />
-                          <button
-                            type="button"
-                            id="removeFinal2"
-                            class="remove-btn"
-                          >
-                            <i class="fa-solid fa-xmark"></i>
-                          </button>
-                        </div>
-                      </div>
+                      <img id="previewFinal" src="" class="preview-img" />
+                      <button
+                        type="button"
+                        id="removeFinal"
+                        class="remove-btn"
+                        title="Eliminar foto"
+                      >
+                        <i class="fa-solid fa-xmark"></i>
+                      </button>
                     </div>
 
                     <!-- ESTADO FINAL -->
@@ -1513,6 +1460,7 @@
 
     <!-- Scripts personalizados -->
     <script src="js/firebase.js" charset="utf-8"></script>
+    <script src="js/pdf_generator_modern.js" charset="utf-8"></script>
     <script src="js/login_tecnico.js" charset="utf-8"></script>
     <script src="js/sweetalert2.js" charset="utf-8"></script>
   </body>

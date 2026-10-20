@@ -286,9 +286,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const filteredTrabajos = window.allTrabajos.filter((job) => {
           const matchUrgency =
             urgencyValue === "todas" || job.jobUrgency === urgencyValue;
-          const matchName = (job.clientName || "")
-            .toLowerCase()
-            .includes(nameValue);
+          const matchName =
+            (job.clientName || "").toLowerCase().includes(nameValue) ||
+            (job.contactName || "").toLowerCase().includes(nameValue) ||
+            (job.reportCode || "").toLowerCase().includes(nameValue) ||
+            (job.jobReason || "").toLowerCase().includes(nameValue);
           const matchBilling =
             billingValue === "todos" || job.jobBilling === billingValue;
 
@@ -2082,6 +2084,12 @@ async function verReporte(id) {
     // Llenar detalles del trabajo
     document.getElementById("reportClientName").innerText = data.clientName;
     document.getElementById("reportJobDate").innerText = data.jobDate;
+    if (document.getElementById("reportCodeText")) {
+      document.getElementById("reportCodeText").innerText = data.reportCode || "INF-CCTV-000";
+    }
+    if (document.getElementById("reportCode")) {
+      document.getElementById("reportCode").value = data.reportCode || "";
+    }
 
     // Llenar informe técnico
     document.getElementById("reportStatus").innerText = data.status;
